@@ -1,13 +1,33 @@
 package com.github.dakusui.actionunit;
 
-import com.google.common.collect.Iterables;
+import com.google.common.base.Preconditions;
 
+import java.util.concurrent.TimeUnit;
+
+import static com.github.dakusui.actionunit.Utils.chooseTimeUnit;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.size;
+import static java.lang.String.format;
 
 /**
  * Defines abstract level framework of Action execution mechanism of ActionUnit.
  */
 public interface Action {
+  class Exception extends RuntimeException {
+    public Exception(String message) {
+      super(message);
+    }
+
+    public Exception(Throwable t) {
+      super(t);
+    }
+
+    public Exception(String message, Throwable t) {
+      super(message, t);
+    }
+  }
+
   interface Visitor {
     void visit(Action action);
 
@@ -15,54 +35,25 @@ public interface Action {
 
     void visit(Action.Composite action);
 
-    void visit(Action.Composite.Sequential action);
+    void visit(Action.Sequential action);
 
-    void visit(Action.Composite.Concurrent action);
+    void visit(Action.Concurrent action);
 
-    class Impl implements Visitor {
-      @Override
-      public void visit(Action action) {
-        throw new UnsupportedOperationException();
-      }
+    void visit(Retry action);
 
-      @Override
-      public void visit(Leaf action) {
-        action.perform();
-      }
+    void visit(TimeOut action);
 
-      @Override
-      public void visit(Composite action) {
-        throw new UnsupportedOperationException();
-      }
+    <T> void visit(RepeatIncrementally<T> action);
 
-      @Override
-      public void visit(Sequential action) {
-        for (Action each : action.actions) {
-          each.accept(this);
-        }
-      }
-
-      @Override
-      public void visit(Concurrent action) {
-        throw new UnsupportedOperationException();
-      }
-    }
-
-    interface Provider {
-      class ForDefaultRunner implements Provider {
-        @Override
-        public Visitor create() {
-          return new Impl();
-        }
-      }
-      Visitor create();
-    }
   }
 
   void accept(Visitor visitor);
 
-  String format();
+  String describe();
 
+  /**
+   * A base class of all {@code Action}s.
+   */
   abstract class Base implements Action {
   }
 
@@ -79,18 +70,25 @@ public interface Action {
     abstract public void perform();
   }
 
-  abstract class Targeted<T> extends Leaf {
-    private final T      target;
+  abstract class WithTarget<T> extends Leaf {
+    final T target;
 
-    protected Targeted(T target) {
-      this.target = checkNotNull(target);
+    protected WithTarget(T target) {
+      this.target = target;
     }
 
+    @Override
     public void perform() {
-      perform(this.target);
+      this.perform(this.target);
     }
 
     protected abstract void perform(T target);
+
+    public interface Factory<T> {
+      Action create(T target);
+
+      String describe();
+    }
   }
 
   abstract class Composite extends Base {
@@ -102,10 +100,10 @@ public interface Action {
       this.actions = checkNotNull(actions);
     }
 
-    public String format() {
+    public String describe() {
       return this.summary == null
-          ? String.format("%d actions", Iterables.size(actions))
-          : String.format("%s (%s actions)", this.summary, Iterables.size(actions));
+          ? format("%d actions", size(actions))
+          : format("%s (%s actions)", this.summary, size(actions));
     }
   }
 
@@ -153,4 +151,88 @@ public interface Action {
       }
     }
   }
+
+  class Retry extends Base {
+    public final Action action;
+    public final int    times;
+    public final long   intervalInNanos;
+
+    public Retry(Action action, long intervalInNanos, int times) {
+      checkNotNull(action);
+      checkArgument(intervalInNanos >= 0);
+      checkArgument(times >= 0);
+      this.action = action;
+      this.intervalInNanos = intervalInNanos;
+      this.times = times;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      TimeUnit timeUnit = chooseTimeUnit(this.intervalInNanos);
+      return format("%s(%d[%s]x%dtimes)",
+          this.getClass().getSimpleName(),
+          timeUnit.convert(this.intervalInNanos, TimeUnit.NANOSECONDS),
+          timeUnit,
+          this.times
+      );
+    }
+  }
+
+  class RepeatIncrementally<T> extends Base {
+    public final Iterable<T>                  dataSource;
+    public final Action.WithTarget.Factory<T> factoryForActionWithTarget;
+
+    public RepeatIncrementally(Iterable<T> dataSource, WithTarget.Factory<T> factoryForActionWithTarget) {
+      this.dataSource = checkNotNull(dataSource);
+      this.factoryForActionWithTarget = checkNotNull(factoryForActionWithTarget);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      return format(
+          "%s (%d items, %s)",
+          this.getClass().getSimpleName(),
+          size(this.dataSource),
+          this.factoryForActionWithTarget.describe()
+      );
+    }
+  }
+
+  class TimeOut extends Base {
+    public final Action action;
+    public final long   time;
+
+    public TimeOut(Action action, long timeoutInNanos) {
+      Preconditions.checkArgument(timeoutInNanos > 0);
+      this.time = timeoutInNanos;
+      this.action = checkNotNull(action);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      TimeUnit timeUnit = chooseTimeUnit(this.time);
+      return format(
+          "%s (%s[%s])",
+          this.getClass().getSimpleName(),
+          timeUnit.convert(this.time, TimeUnit.NANOSECONDS),
+          timeUnit
+      );
+    }
+  }
+
 }
