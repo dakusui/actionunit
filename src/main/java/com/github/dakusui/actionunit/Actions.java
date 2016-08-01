@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
+import static java.util.Arrays.asList;
 
 /**
  * A utility class of ActionUnit framework.
@@ -15,7 +15,7 @@ public enum Actions {
   }
 
   public static Action concurrent(String summary, Action... actions) {
-    return Action.Concurrent.Factory.INSTANCE.create(summary, Arrays.asList(actions));
+    return Action.Concurrent.Factory.INSTANCE.create(summary, asList(actions));
   }
 
   public static Action sequential(Action... actions) {
@@ -23,7 +23,7 @@ public enum Actions {
   }
 
   public static Action sequential(String summary, Action... actions) {
-    return Action.Sequential.Factory.INSTANCE.create(summary, Arrays.asList(actions));
+    return Action.Sequential.Factory.INSTANCE.create(summary, asList(actions));
   }
 
   public static Action simple(final Runnable runnable) {
@@ -43,27 +43,6 @@ public enum Actions {
       @Override
       public void perform() {
         runnable.run();
-      }
-    };
-  }
-
-  public static <T> Action simple(final String summary, final Block<T> block, final T targetElement) {
-    return new Action.Targeted<T>(targetElement) {
-      @Override
-      protected void perform(T target) {
-        block.apply(target);
-      }
-
-      @Override
-      public String format() {
-        return String.format("%s(%s)",
-            summary == null
-                ? "(noname)"
-                : summary,
-            targetElement == null
-                ? null
-                : targetElement.toString()
-            );
       }
     };
   }

@@ -2,33 +2,30 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.Actions;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@FixMethodOrder
 @RunWith(ActionUnit.class)
 public class Smoke {
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface DryRun {
+  }
+
   @BeforeClass
-  public static Action setUpFirstTime() {
-    return Actions.simple(new Runnable() {
-      @Override
-      public void run() {
-        System.out.println("setUpFirstTime");
-      }
-    });
+  public static void setUpFirstTime() {
   }
 
   @Before
-  public Action setUp() {
-    return Actions.simple(new Runnable() {
-      @Override
-      public void run() {
-        System.out.println("setUp");
-      }
-    });
+  public void setUp() {
   }
 
-  @Test
+  @PerformWith(DryRun.class)
   public Action test0() {
     return Actions.simple("action:test0", new Runnable() {
       @Override
@@ -38,7 +35,7 @@ public class Smoke {
     });
   }
 
-  @Test
+  @PerformWith
   public Action[] testN() {
     return new Action[] {
         Actions.simple("action:testN[0]", new Runnable() {
@@ -56,23 +53,26 @@ public class Smoke {
     };
   }
 
-  @After
-  public Action tearDown() {
-    return Actions.simple(new Runnable() {
+  @PerformWith({DryRun.class, Test.class})
+  public Action test99() {
+    return Actions.simple("action:test99", new Runnable() {
       @Override
       public void run() {
-        System.out.println("tearDown");
+        System.out.println("test99");
       }
     });
   }
+  @Test
+  public void test(Action action) {
+    action.accept(new Action.Visitor.Impl());
+  }
+
+  @DryRun
+  public void print(Action action) {
+    System.out.println(action.format());
+  }
 
   @AfterClass
-  public static Action tearDownLastTime() {
-    return Actions.simple(new Runnable() {
-      @Override
-      public void run() {
-        System.out.println("tearDownLastTime");
-      }
-    });
+  public static void tearDownLastTime() {
   }
 }

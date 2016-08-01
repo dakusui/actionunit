@@ -1,8 +1,14 @@
 package com.github.dakusui.actionunit;
 
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
+import java.util.concurrent.*;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.size;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Defines abstract level framework of Action execution mechanism of ActionUnit.
@@ -20,6 +26,8 @@ public interface Action {
     void visit(Action.Composite.Concurrent action);
 
     class Impl implements Visitor {
+      private static final int THREAD_POOL_SIZE = 5;
+
       @Override
       public void visit(Action action) {
         throw new UnsupportedOperationException();
@@ -44,18 +52,57 @@ public interface Action {
 
       @Override
       public void visit(Concurrent action) {
-        throw new UnsupportedOperationException();
+        runActionsInThreadPool(action.actions);
       }
-    }
 
-    interface Provider {
-      class ForDefaultRunner implements Provider {
-        @Override
-        public Visitor create() {
-          return new Impl();
+      private void runActionsInThreadPool(Iterable<? extends Action> actions) {
+        final ExecutorService pool = Executors.newFixedThreadPool(Math.min(THREAD_POOL_SIZE, size(actions)));
+        try {
+          for (final Future<Boolean> future : pool.invokeAll(newArrayList(toTasks(actions)))) {
+            future.get();
+          }
+        } catch (InterruptedException e) {
+          pool.shutdownNow();
+          Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+          if (e.getCause() instanceof Error) {
+            throw (Error) e.getCause();
+          }
+          ////
+          // It's safe to cast to RuntimeException, because checked exception cannot
+          // be thrown from inside Runnable#run()
+          throw (RuntimeException) e.getCause();
+        } finally {
+          pool.shutdown();
         }
       }
-      Visitor create();
+
+      private Iterable<Callable<Boolean>> toTasks(final Iterable<? extends Action> actions) {
+        return Iterables.transform(
+            actions,
+            new Function<Action, Callable<Boolean>>() {
+              @Override
+              public Callable<Boolean> apply(final Action input) {
+                return new Callable<Boolean>() {
+                  @Override
+                  public Boolean call() throws Exception {
+                    toTask(input).run();
+                    return true;
+                  }
+                };
+              }
+            }
+        );
+      }
+
+      protected Runnable toTask(final Action action) {
+        return new Runnable() {
+          @Override
+          public void run() {
+            action.accept(Impl.this);
+          }
+        };
+      }
     }
   }
 
@@ -79,18 +126,21 @@ public interface Action {
     abstract public void perform();
   }
 
-  abstract class Targeted<T> extends Leaf {
-    private final T      target;
+  abstract class Retrying extends Base {
+    public Retrying(int interval, TimeUnit timeUnit, int times) {
 
-    protected Targeted(T target) {
-      this.target = checkNotNull(target);
+    }
+  }
+
+  abstract class Consuming<T> extends Base {
+    final Supplier<T> supplier;
+
+    protected Consuming(Supplier<T> supplier) {
+      this.supplier = supplier;
     }
 
-    public void perform() {
-      perform(this.target);
-    }
 
-    protected abstract void perform(T target);
+    abstract Supplier<T> getSupplier();
   }
 
   abstract class Composite extends Base {
@@ -104,8 +154,8 @@ public interface Action {
 
     public String format() {
       return this.summary == null
-          ? String.format("%d actions", Iterables.size(actions))
-          : String.format("%s (%s actions)", this.summary, Iterables.size(actions));
+          ? String.format("%d actions", size(actions))
+          : String.format("%s (%s actions)", this.summary, size(actions));
     }
   }
 
