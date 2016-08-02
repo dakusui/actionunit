@@ -34,7 +34,7 @@ public enum Actions {
     Preconditions.checkNotNull(runnable);
     return new Action.Leaf() {
       @Override
-      public String format() {
+      public String describe() {
         return summary == null
             ? "(noname)"
             : summary;

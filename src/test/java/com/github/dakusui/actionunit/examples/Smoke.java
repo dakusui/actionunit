@@ -69,7 +69,7 @@ public class Smoke {
 
   @DryRun
   public void print(Action action) {
-    System.out.println(action.format());
+    System.out.println(action.describe());
   }
 
   @AfterClass

@@ -1,19 +1,26 @@
 package com.github.dakusui.actionunit;
 
 import com.google.common.base.Function;
-import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
 import java.util.concurrent.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Math.min;
+import static java.lang.String.format;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * Defines abstract level framework of Action execution mechanism of ActionUnit.
  */
 public interface Action {
+  class Exception extends RuntimeException {
+  }
+
   interface Visitor {
     void visit(Action action);
 
@@ -24,6 +31,10 @@ public interface Action {
     void visit(Action.Composite.Sequential action);
 
     void visit(Action.Composite.Concurrent action);
+
+    void visit(Retried action);
+
+    <T> void visit(RepeatedIncrementally<T> action);
 
     class Impl implements Visitor {
       private static final int THREAD_POOL_SIZE = 5;
@@ -46,19 +57,15 @@ public interface Action {
       @Override
       public void visit(Sequential action) {
         for (Action each : action.actions) {
-          each.accept(this);
+          toTask(each).run();
         }
       }
 
       @Override
       public void visit(Concurrent action) {
-        runActionsInThreadPool(action.actions);
-      }
-
-      private void runActionsInThreadPool(Iterable<? extends Action> actions) {
-        final ExecutorService pool = Executors.newFixedThreadPool(Math.min(THREAD_POOL_SIZE, size(actions)));
+        final ExecutorService pool = newFixedThreadPool(min(THREAD_POOL_SIZE, size(action.actions)));
         try {
-          for (final Future<Boolean> future : pool.invokeAll(newArrayList(toTasks(actions)))) {
+          for (final Future<Boolean> future : pool.invokeAll(newArrayList(toTasks(action.actions)))) {
             future.get();
           }
         } catch (InterruptedException e) {
@@ -74,6 +81,29 @@ public interface Action {
           throw (RuntimeException) e.getCause();
         } finally {
           pool.shutdown();
+        }
+      }
+
+      @Override
+      public void visit(Retried action) {
+        try {
+          toTask(action.target).run();
+        } catch (Action.Exception e) {
+          for (int i = 0; i < action.times; i++) {
+            try {
+              action.timeUnit.sleep(action.interval);
+            } catch (InterruptedException ee) {
+              throw propagate(ee);
+            }
+            toTask(action.target).run();
+          }
+        }
+      }
+
+      @Override
+      public <T> void visit(RepeatedIncrementally<T> action) {
+        for (T each : action.dataSource) {
+          toTask(action.consumerFactory.create(each)).run();
         }
       }
 
@@ -95,6 +125,13 @@ public interface Action {
         );
       }
 
+      /**
+       * An extension point to allow users to customize how an action will be
+       * executed by this {@code Visitor}.
+       *
+       * @param action An action executed by
+       */
+      @SuppressWarnings("WeakerAccess")
       protected Runnable toTask(final Action action) {
         return new Runnable() {
           @Override
@@ -108,8 +145,11 @@ public interface Action {
 
   void accept(Visitor visitor);
 
-  String format();
+  String describe();
 
+  /**
+   * A base class of all {@code Action}s.
+   */
   abstract class Base implements Action {
   }
 
@@ -126,21 +166,68 @@ public interface Action {
     abstract public void perform();
   }
 
-  abstract class Retrying extends Base {
-    public Retrying(int interval, TimeUnit timeUnit, int times) {
+  class Retried extends Base {
+    public final Action   target;
+    public final int      times;
+    public final int      interval;
+    public final TimeUnit timeUnit;
 
+    public Retried(Action target, int interval, TimeUnit timeUnit, int times) {
+      checkNotNull(target);
+      checkArgument(interval >= 0);
+      checkNotNull(timeUnit);
+      checkArgument(times >= 0);
+      this.target = target;
+      this.interval = interval;
+      this.timeUnit = timeUnit;
+      this.times = times;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      return format("%s(%d[%s]x%dtimes)",
+          this.getClass().getSimpleName(),
+          this.interval,
+          this.timeUnit,
+          this.times
+      );
     }
   }
 
-  abstract class Consuming<T> extends Base {
-    final Supplier<T> supplier;
+  class RepeatedIncrementally<T> extends Base {
+    final         Iterable<T>        dataSource;
+    private final ConsumerFactory<T> consumerFactory;
 
-    protected Consuming(Supplier<T> supplier) {
-      this.supplier = supplier;
+    public RepeatedIncrementally(Iterable<T> dataSource, ConsumerFactory<T> consumerFactory) {
+      this.dataSource = checkNotNull(dataSource);
+      this.consumerFactory = checkNotNull(consumerFactory);
     }
 
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
 
-    abstract Supplier<T> getSupplier();
+    @Override
+    public String describe() {
+      return format(
+          "%s (%d items, %s)",
+          this.getClass().getSimpleName(),
+          size(this.dataSource),
+          this.consumerFactory.describe()
+      );
+    }
+
+    interface ConsumerFactory<T> {
+      Action create(T target);
+
+      String describe();
+    }
   }
 
   abstract class Composite extends Base {
@@ -152,10 +239,10 @@ public interface Action {
       this.actions = checkNotNull(actions);
     }
 
-    public String format() {
+    public String describe() {
       return this.summary == null
-          ? String.format("%d actions", size(actions))
-          : String.format("%s (%s actions)", this.summary, size(actions));
+          ? format("%d actions", size(actions))
+          : format("%s (%s actions)", this.summary, size(actions));
     }
   }
 
