@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -64,7 +65,7 @@ public class Smoke {
   }
   @Test
   public void test(Action action) {
-    action.accept(new Action.Visitor.Impl());
+    action.accept(new ActionRunner());
   }
 
   @DryRun

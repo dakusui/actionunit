@@ -2,6 +2,8 @@ package com.github.dakusui.actionunit;
 
 import com.google.common.base.Preconditions;
 
+import java.util.concurrent.TimeUnit;
+
 import static java.util.Arrays.asList;
 
 /**
@@ -45,5 +47,21 @@ public enum Actions {
         runnable.run();
       }
     };
+  }
+
+  public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
+    Preconditions.checkNotNull(timeUnit);
+    return new Action.TimeOut(action, TimeUnit.NANOSECONDS.convert(duration, timeUnit));
+  }
+
+  public static Action retry(Action action, int times, int interval, TimeUnit timeUnit) {
+    Preconditions.checkNotNull(timeUnit);
+    return new Action.Retry(action, TimeUnit.NANOSECONDS.convert(interval, timeUnit), times);
+  }
+
+  public static <T> Action repeatIncrementally(
+      Action.WithTarget.Factory<T> factoryForActionWithTarget,
+      Iterable<T> datasource) {
+    return new Action.RepeatIncrementally<T>(datasource, factoryForActionWithTarget);
   }
 }

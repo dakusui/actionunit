@@ -9,10 +9,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.*;
 
 import static com.google.common.base.Throwables.propagate;
 
-enum Utils {
+public enum Utils {
   ;
 
   /**
@@ -73,5 +74,40 @@ enum Utils {
         }
       }
     };
+  }
+
+  public static <T> T runWithTimeout(Callable<T> callable, long timeout, TimeUnit timeUnit) {
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
+    final Future<T> future = executor.submit(callable);
+    executor.shutdown(); // This does not cancel the already-scheduled task.
+    try {
+      return future.get(timeout, timeUnit);
+    } catch (InterruptedException e) {
+      throw propagate(e);
+    } catch (TimeoutException e) {
+      future.cancel(true);
+      throw new Action.Exception(e);
+    } catch (ExecutionException e) {
+      //unwrap the root cause
+      Throwable t = e.getCause();
+      if (t instanceof Error) {
+        throw (Error) t;
+      } else if (t instanceof RuntimeException) {
+        throw (RuntimeException) t;
+      } else {
+        throw propagate(t);
+      }
+    }
+  }
+
+  public static TimeUnit chooseTimeUnit(long intervalInNanos) {
+    // TimeUnit.values() returns elements of TimeUnit in declared order
+    // And they are declared in ascending order.
+    for (TimeUnit timeUnit : TimeUnit.values()) {
+      if (1000 > timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {
+        return timeUnit;
+      }
+    }
+    return TimeUnit.DAYS;
   }
 }

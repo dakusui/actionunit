@@ -1,24 +1,24 @@
 package com.github.dakusui.actionunit;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
+import com.google.common.base.Preconditions;
 
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import static com.github.dakusui.actionunit.Utils.chooseTimeUnit;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.Math.min;
 import static java.lang.String.format;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * Defines abstract level framework of Action execution mechanism of ActionUnit.
  */
 public interface Action {
   class Exception extends RuntimeException {
+    public Exception(TimeoutException e) {
+
+    }
   }
 
   interface Visitor {
@@ -28,119 +28,16 @@ public interface Action {
 
     void visit(Action.Composite action);
 
-    void visit(Action.Composite.Sequential action);
+    void visit(Action.Sequential action);
 
-    void visit(Action.Composite.Concurrent action);
+    void visit(Action.Concurrent action);
 
-    void visit(Retried action);
+    void visit(Retry action);
 
-    <T> void visit(RepeatedIncrementally<T> action);
+    void visit(TimeOut action);
 
-    class Impl implements Visitor {
-      private static final int THREAD_POOL_SIZE = 5;
+    <T> void visit(RepeatIncrementally<T> action);
 
-      @Override
-      public void visit(Action action) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public void visit(Leaf action) {
-        action.perform();
-      }
-
-      @Override
-      public void visit(Composite action) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public void visit(Sequential action) {
-        for (Action each : action.actions) {
-          toTask(each).run();
-        }
-      }
-
-      @Override
-      public void visit(Concurrent action) {
-        final ExecutorService pool = newFixedThreadPool(min(THREAD_POOL_SIZE, size(action.actions)));
-        try {
-          for (final Future<Boolean> future : pool.invokeAll(newArrayList(toTasks(action.actions)))) {
-            future.get();
-          }
-        } catch (InterruptedException e) {
-          pool.shutdownNow();
-          Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-          if (e.getCause() instanceof Error) {
-            throw (Error) e.getCause();
-          }
-          ////
-          // It's safe to cast to RuntimeException, because checked exception cannot
-          // be thrown from inside Runnable#run()
-          throw (RuntimeException) e.getCause();
-        } finally {
-          pool.shutdown();
-        }
-      }
-
-      @Override
-      public void visit(Retried action) {
-        try {
-          toTask(action.target).run();
-        } catch (Action.Exception e) {
-          for (int i = 0; i < action.times; i++) {
-            try {
-              action.timeUnit.sleep(action.interval);
-            } catch (InterruptedException ee) {
-              throw propagate(ee);
-            }
-            toTask(action.target).run();
-          }
-        }
-      }
-
-      @Override
-      public <T> void visit(RepeatedIncrementally<T> action) {
-        for (T each : action.dataSource) {
-          toTask(action.consumerFactory.create(each)).run();
-        }
-      }
-
-      private Iterable<Callable<Boolean>> toTasks(final Iterable<? extends Action> actions) {
-        return Iterables.transform(
-            actions,
-            new Function<Action, Callable<Boolean>>() {
-              @Override
-              public Callable<Boolean> apply(final Action input) {
-                return new Callable<Boolean>() {
-                  @Override
-                  public Boolean call() throws Exception {
-                    toTask(input).run();
-                    return true;
-                  }
-                };
-              }
-            }
-        );
-      }
-
-      /**
-       * An extension point to allow users to customize how an action will be
-       * executed by this {@code Visitor}.
-       *
-       * @param action An action executed by
-       */
-      @SuppressWarnings("WeakerAccess")
-      protected Runnable toTask(final Action action) {
-        return new Runnable() {
-          @Override
-          public void run() {
-            action.accept(Impl.this);
-          }
-        };
-      }
-    }
   }
 
   void accept(Visitor visitor);
@@ -166,64 +63,21 @@ public interface Action {
     abstract public void perform();
   }
 
-  class Retried extends Base {
-    public final Action   target;
-    public final int      times;
-    public final int      interval;
-    public final TimeUnit timeUnit;
+  abstract class WithTarget<T> extends Leaf {
+    final T target;
 
-    public Retried(Action target, int interval, TimeUnit timeUnit, int times) {
-      checkNotNull(target);
-      checkArgument(interval >= 0);
-      checkNotNull(timeUnit);
-      checkArgument(times >= 0);
+    protected WithTarget(T target) {
       this.target = target;
-      this.interval = interval;
-      this.timeUnit = timeUnit;
-      this.times = times;
     }
 
     @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
+    public void perform() {
+      this.perform(this.target);
     }
 
-    @Override
-    public String describe() {
-      return format("%s(%d[%s]x%dtimes)",
-          this.getClass().getSimpleName(),
-          this.interval,
-          this.timeUnit,
-          this.times
-      );
-    }
-  }
+    protected abstract void perform(T target);
 
-  class RepeatedIncrementally<T> extends Base {
-    final         Iterable<T>        dataSource;
-    private final ConsumerFactory<T> consumerFactory;
-
-    public RepeatedIncrementally(Iterable<T> dataSource, ConsumerFactory<T> consumerFactory) {
-      this.dataSource = checkNotNull(dataSource);
-      this.consumerFactory = checkNotNull(consumerFactory);
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
-
-    @Override
-    public String describe() {
-      return format(
-          "%s (%d items, %s)",
-          this.getClass().getSimpleName(),
-          size(this.dataSource),
-          this.consumerFactory.describe()
-      );
-    }
-
-    interface ConsumerFactory<T> {
+    public interface Factory<T> {
       Action create(T target);
 
       String describe();
@@ -290,4 +144,88 @@ public interface Action {
       }
     }
   }
+
+  class Retry extends Base {
+    public final Action action;
+    public final int    times;
+    public final long   intervalInNanos;
+
+    public Retry(Action action, long intervalInNanos, int times) {
+      checkNotNull(action);
+      checkArgument(intervalInNanos >= 0);
+      checkArgument(times >= 0);
+      this.action = action;
+      this.intervalInNanos = intervalInNanos;
+      this.times = times;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      TimeUnit timeUnit = chooseTimeUnit(this.intervalInNanos);
+      return format("%s(%d[%s]x%dtimes)",
+          this.getClass().getSimpleName(),
+          timeUnit.convert(this.intervalInNanos, TimeUnit.NANOSECONDS),
+          timeUnit,
+          this.times
+      );
+    }
+  }
+
+  class RepeatIncrementally<T> extends Base {
+    public final Iterable<T>                  dataSource;
+    public final Action.WithTarget.Factory<T> factoryForActionWithTarget;
+
+    public RepeatIncrementally(Iterable<T> dataSource, WithTarget.Factory<T> factoryForActionWithTarget) {
+      this.dataSource = checkNotNull(dataSource);
+      this.factoryForActionWithTarget = checkNotNull(factoryForActionWithTarget);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      return format(
+          "%s (%d items, %s)",
+          this.getClass().getSimpleName(),
+          size(this.dataSource),
+          this.factoryForActionWithTarget.describe()
+      );
+    }
+  }
+
+  class TimeOut extends Base {
+    public final Action action;
+    public final long   time;
+
+    public TimeOut(Action action, long timeoutInNanos) {
+      Preconditions.checkArgument(timeoutInNanos > 0);
+      this.time = timeoutInNanos;
+      this.action = checkNotNull(action);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      TimeUnit timeUnit = chooseTimeUnit(this.time);
+      return format(
+          "%s (%s[%s])",
+          this.getClass().getSimpleName(),
+          timeUnit.convert(this.time, TimeUnit.NANOSECONDS),
+          timeUnit
+      );
+    }
+  }
+
 }
