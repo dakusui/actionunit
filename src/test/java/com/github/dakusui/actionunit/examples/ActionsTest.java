@@ -11,7 +11,6 @@ import java.util.List;
 import static com.github.dakusui.actionunit.Actions.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -94,50 +93,11 @@ public class ActionsTest {
             arr.add("Hello");
           }
         }),
-        0, 1, MILLISECONDS
+        0,
+        1,
+        SECONDS
     ).accept(new ActionRunner());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
-  }
-
-  @Test
-  public void retryTest$failOnce() {
-    final List<String> arr = new ArrayList<>();
-    try {
-      retry(simple(new Runnable() {
-            int i = 0;
-
-            @Override
-            public void run() {
-              arr.add("Hello");
-              if (i < 1) {
-                i++;
-                throw new Action.Exception("fail");
-              }
-            }
-          }),
-          1, 1, MILLISECONDS
-      ).accept(new ActionRunner());
-    } finally {
-      assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
-    }
-  }
-
-  @Test(expected = Action.Exception.class)
-  public void retryTest$failForever() {
-    final List<String> arr = new ArrayList<>();
-    try {
-      retry(simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add("Hello");
-              throw new Action.Exception("fail");
-            }
-          }),
-          1, 1, MILLISECONDS
-      ).accept(new ActionRunner());
-    } finally {
-      assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
-    }
   }
 
   @Test

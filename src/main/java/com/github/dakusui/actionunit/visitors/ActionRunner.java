@@ -73,20 +73,14 @@ public class ActionRunner implements Action.Visitor {
     try {
       toTask(action.action).run();
     } catch (Action.Exception e) {
-      Action.Exception lastException = e;
       for (int i = 0; i < action.times; i++) {
         try {
           TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
-          toTask(action.action).run();
-          return;
-        } catch (Action.Exception ee) {
-          lastException = ee;
-          continue;
         } catch (InterruptedException ee) {
           throw propagate(ee);
         }
+        toTask(action.action).run();
       }
-      throw lastException;
     }
   }
 
