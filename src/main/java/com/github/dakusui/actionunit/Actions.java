@@ -12,22 +12,6 @@ import static java.util.Arrays.asList;
 public enum Actions {
   ;
 
-  public static Action concurrent(Action... actions) {
-    return concurrent(null, actions);
-  }
-
-  public static Action concurrent(String summary, Action... actions) {
-    return Action.Concurrent.Factory.INSTANCE.create(summary, asList(actions));
-  }
-
-  public static Action sequential(Action... actions) {
-    return sequential(null, actions);
-  }
-
-  public static Action sequential(String summary, Action... actions) {
-    return Action.Sequential.Factory.INSTANCE.create(summary, asList(actions));
-  }
-
   public static Action simple(final Runnable runnable) {
     return simple(null, runnable);
   }
@@ -49,6 +33,22 @@ public enum Actions {
     };
   }
 
+  public static Action concurrent(Action... actions) {
+    return concurrent(null, actions);
+  }
+
+  public static Action concurrent(String summary, Action... actions) {
+    return Action.Concurrent.Factory.INSTANCE.create(summary, asList(actions));
+  }
+
+  public static Action sequential(Action... actions) {
+    return sequential(null, actions);
+  }
+
+  public static Action sequential(String summary, Action... actions) {
+    return Action.Sequential.Factory.INSTANCE.create(summary, asList(actions));
+  }
+
   public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
     Preconditions.checkNotNull(timeUnit);
     return new Action.TimeOut(action, TimeUnit.NANOSECONDS.convert(duration, timeUnit));
@@ -62,6 +62,6 @@ public enum Actions {
   public static <T> Action repeatIncrementally(
       Action.WithTarget.Factory<T> factoryForActionWithTarget,
       Iterable<T> datasource) {
-    return new Action.RepeatIncrementally<T>(datasource, factoryForActionWithTarget);
+    return new Action.RepeatIncrementally<>(datasource, factoryForActionWithTarget);
   }
 }
