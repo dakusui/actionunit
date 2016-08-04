@@ -19,7 +19,7 @@ public enum Utils {
   /**
    * Creates a {@code TestClass} object to mock {@code Parameterized} class's logic
    * which cannot be overridden.
-   * <p>
+   * <p/>
    * Some IDE(s) (IntelliJ, for instance) treat classes that extend {@code Parameterized}
    * runner in a special way. And therefore we have to extend it to allow users to
    * use IDE features for parameterized runners.
@@ -86,7 +86,7 @@ public enum Utils {
       throw propagate(e);
     } catch (TimeoutException e) {
       future.cancel(true);
-      throw new Action.Exception(e);
+      throw new ActionException(e);
     } catch (ExecutionException e) {
       //unwrap the root cause
       Throwable t = e.getCause();
@@ -109,5 +109,11 @@ public enum Utils {
       }
     }
     return TimeUnit.DAYS;
+  }
+
+  static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
+    return expected.isAssignableFrom(actual)
+        || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
+        || Iterable.class.isAssignableFrom(actual);
   }
 }

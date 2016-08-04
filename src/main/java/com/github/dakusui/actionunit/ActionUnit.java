@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.dakusui.actionunit.Utils.createTestClassMock;
+import static com.github.dakusui.actionunit.Utils.isGivenTypeExpected_ArrayOfExpected_OrIterable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.*;
@@ -61,6 +62,12 @@ public class ActionUnit extends Parameterized {
   }
 
   @Override
+  protected void collectInitializationErrors(List<Throwable> errors) {
+    super.collectInitializationErrors(errors);
+    this.validateActionMethods(errors);
+  }
+
+  @Override
   protected TestClass createTestClass(Class<?> testClass) {
     return createTestClassMock(super.createTestClass(testClass));
   }
@@ -69,6 +76,38 @@ public class ActionUnit extends Parameterized {
   public List<Runner> getChildren() {
     return this.runners;
   }
+
+  protected void validateActionMethods(List<Throwable> errors) {
+    List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(PerformWith.class);
+    for (FrameworkMethod eachMethod : methods) {
+      validateNonStaticPublic(eachMethod, errors);
+      validateActionReturned(eachMethod, errors);
+      validateNoParameter(eachMethod, errors);
+    }
+  }
+
+  private void validateNoParameter(FrameworkMethod method, List<Throwable> errors) {
+    if (method.getMethod().getParameterTypes().length != 0) {
+      errors.add(new Exception("Method " + method.getName() + "(...) must have no parameters"));
+    }
+  }
+
+  private void validateNonStaticPublic(FrameworkMethod method, List<Throwable> errors) {
+    if (method.isStatic()) {
+      errors.add(new Exception("Method " + method.getName() + "() must not be static"));
+    }
+    if (!method.isPublic()) {
+      errors.add(new Exception("Method " + method.getName() + "() must be public"));
+    }
+  }
+
+  private void validateActionReturned(FrameworkMethod method, List<Throwable> errors) {
+    if (!Action.class.isAssignableFrom(method.getType())
+        && !isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, method.getReturnType())) {
+      errors.add(new Exception("Method " + method.getName() + "() must return Action, its array, or its iterable"));
+    }
+  }
+
 
   private Iterable<Runner> createRunners() {
     return transform(
@@ -85,6 +124,11 @@ public class ActionUnit extends Parameterized {
                     ret.addAll(getTestClass().getAnnotatedMethods(each));
                   }
                   return ret;
+                }
+
+                @Override
+                protected Class<? extends Annotation>[] getAnnotationsForTestMethods() {
+                  return input.anns;
                 }
               };
             } catch (InitializationError initializationError) {
@@ -109,8 +153,14 @@ public class ActionUnit extends Parameterized {
       if (result instanceof Action) {
         return singletonList(new Entry(offset, (Action) result, testMethod.getAnnotation(PerformWith.class).value()));
       }
-      if (result.getClass().isArray() && Action.class.isAssignableFrom(result.getClass().getComponentType())) {
-        final List<Action> actions = asList((Action[]) result);
+      if (isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, result.getClass())) {
+        final List<Action> actions;
+        if (result.getClass().isArray()) {
+          actions = asList((Action[]) result);
+        } else {
+          //noinspection unchecked
+          actions = Lists.newLinkedList((Iterable<? extends Action>) result);
+        }
         return Lists.transform(
             actions,
             new Function<Action, Entry>() {
@@ -142,7 +192,7 @@ public class ActionUnit extends Parameterized {
     }
   }
 
-  private static class CustomRunner extends BlockJUnit4ClassRunner {
+  private static abstract class CustomRunner extends BlockJUnit4ClassRunner {
     private final Action action;
     private final int    id;
 
@@ -159,10 +209,12 @@ public class ActionUnit extends Parameterized {
 
     @Override
     protected void validateTestMethods(List<Throwable> errors) {
-      List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(Test.class);
-      for (FrameworkMethod eachTestMethod : methods) {
-        eachTestMethod.validatePublicVoid(false, errors);
-        validateOnlyOneParameter(eachTestMethod, errors);
+      for (Class<? extends Annotation> each : getAnnotationsForTestMethods()) {
+        List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(each);
+        for (FrameworkMethod eachTestMethod : methods) {
+          eachTestMethod.validatePublicVoid(false, errors);
+          validateOnlyOneParameter(eachTestMethod, errors);
+        }
       }
     }
 
@@ -221,5 +273,7 @@ public class ActionUnit extends Parameterized {
     protected Annotation[] getRunnerAnnotations() {
       return new Annotation[0];
     }
+
+    protected abstract Class<? extends Annotation>[] getAnnotationsForTestMethods();
   }
 }
