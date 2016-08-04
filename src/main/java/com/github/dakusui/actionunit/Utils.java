@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static com.google.common.base.Throwables.propagate;
+import static java.lang.String.format;
 
 public enum Utils {
   ;
@@ -83,20 +84,20 @@ public enum Utils {
     try {
       return future.get(timeout, timeUnit);
     } catch (InterruptedException e) {
-      throw propagate(e);
+      throw new ActionException(e);
     } catch (TimeoutException e) {
       future.cancel(true);
       throw new ActionException(e);
     } catch (ExecutionException e) {
       //unwrap the root cause
-      Throwable t = e.getCause();
-      if (t instanceof Error) {
-        throw (Error) t;
-      } else if (t instanceof RuntimeException) {
-        throw (RuntimeException) t;
-      } else {
-        throw propagate(t);
+      Throwable cause = e.getCause();
+      if (cause instanceof Error) {
+        throw (Error) cause;
       }
+      ////
+      // It's safe to directly cast to RuntimeException, because a Callable can only
+      // throw an Error or a RuntimeException.
+      throw (RuntimeException) cause;
     }
   }
 
@@ -111,9 +112,20 @@ public enum Utils {
     return TimeUnit.DAYS;
   }
 
+  public static String formatDurationInNanos(long intervalInNanos) {
+    TimeUnit timeUnit = chooseTimeUnit(intervalInNanos);
+    return format("%d[%s]", timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
+  }
+
   static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
     return expected.isAssignableFrom(actual)
         || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
         || Iterable.class.isAssignableFrom(actual);
+  }
+
+  public static String nonameIfNull(String summary) {
+    return summary == null
+        ? "(noname)"
+        : summary;
   }
 }

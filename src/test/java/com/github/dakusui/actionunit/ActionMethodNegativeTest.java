@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.runner.JUnitCore.runClasses;
 
 public class ActionMethodNegativeTest {
-  public static class Base {
+  public abstract static class Base {
     @Test
     public void runAction(@SuppressWarnings("UnusedParameters") Action action) {
     }

@@ -2,11 +2,11 @@ package com.github.dakusui.actionunit;
 
 public class ActionException extends RuntimeException {
   public ActionException(String message) {
-    super(message);
+    this(message, null);
   }
 
   public ActionException(Throwable t) {
-    super(t);
+    this(null, t);
   }
 
   public ActionException(String message, Throwable t) {
