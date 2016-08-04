@@ -13,9 +13,8 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.*;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,11 +28,19 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 public class ActionUnit extends Parameterized {
+  /**
+   * An annotation to let ActionUnit know the target elements annotated by it provide
+   * actions executed by test methods.
+   */
+  @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   public @interface PerformWith {
     Class<? extends Annotation>[] value() default { Test.class };
   }
 
+  /**
+   * Test runners each of which runs a test case represented by an action.
+   */
   private final List<Runner> runners;
 
   /**
@@ -43,7 +50,14 @@ public class ActionUnit extends Parameterized {
    */
   public ActionUnit(Class<?> klass) throws Throwable {
     super(klass);
-    runners = asList(toArray(createRunners(), Runner.class));
+    try {
+      runners = asList(toArray(createRunners(), Runner.class));
+    } catch (RuntimeException e) {
+      if (e.getCause() instanceof InitializationError) {
+        throw e.getCause();
+      }
+      throw e;
+    }
   }
 
   @Override
@@ -61,9 +75,18 @@ public class ActionUnit extends Parameterized {
         collectActions(),
         new Function<Entry, Runner>() {
           @Override
-          public Runner apply(Entry input) {
+          public Runner apply(final Entry input) {
             try {
-              return new CustomRunner(getTestClass().getJavaClass(), input.action, input.id, input.anns);
+              return new CustomRunner(getTestClass().getJavaClass(), input.action, input.id) {
+                @Override
+                protected List<FrameworkMethod> computeTestMethods() {
+                  List<FrameworkMethod> ret = new LinkedList<>();
+                  for (Class<? extends Annotation> each : input.anns) {
+                    ret.addAll(getTestClass().getAnnotatedMethods(each));
+                  }
+                  return ret;
+                }
+              };
             } catch (InitializationError initializationError) {
               throw propagate(initializationError);
             }
@@ -120,34 +143,46 @@ public class ActionUnit extends Parameterized {
   }
 
   private static class CustomRunner extends BlockJUnit4ClassRunner {
-    private final Action                        action;
-    private final int                           id;
-    private final Class<? extends Annotation>[] anns;
+    private final Action action;
+    private final int    id;
 
     /**
      * Creates a BlockJUnit4ClassRunner to run {@code klass}
      *
      * @throws InitializationError if the test class is malformed.
      */
-    CustomRunner(Class<?> testClass, Action action, int id, Class<? extends Annotation>[] anns) throws InitializationError {
+    CustomRunner(Class<?> testClass, Action action, int id) throws InitializationError {
       super(testClass);
       this.action = checkNotNull(action);
       this.id = id;
-      this.anns = checkNotNull(anns);
+    }
+
+    @Override
+    protected void validateTestMethods(List<Throwable> errors) {
+      List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(Test.class);
+      for (FrameworkMethod eachTestMethod : methods) {
+        eachTestMethod.validatePublicVoid(false, errors);
+        validateOnlyOneParameter(eachTestMethod, errors);
+      }
+    }
+
+    private void validateOnlyOneParameter(FrameworkMethod testMethod, List<Throwable> errors) {
+      Method method = testMethod.getMethod();
+      if (method.getParameterTypes().length == 0) {
+        errors.add(new Exception("Method " + method.getName() + "() should have one and only one parameter"));
+        return;
+      }
+      if (method.getParameterTypes().length > 1) {
+        errors.add(new Exception("Method " + method.getName() + "() should have only one parameter"));
+      }
+      if (!Action.class.isAssignableFrom(method.getParameterTypes()[0])) {
+        errors.add(new Exception("Method " + method.getName() + "()'s 1 st parameter must accept an Action"));
+      }
     }
 
     @Override
     public Object createTest() throws Exception {
       return getTestClass().getOnlyConstructor().newInstance();
-    }
-
-    @Override
-    protected List<FrameworkMethod> computeTestMethods() {
-      List<FrameworkMethod> ret = new LinkedList<>();
-      for (Class<? extends Annotation> each : anns) {
-        ret.addAll(getTestClass().getAnnotatedMethods(each));
-      }
-      return ret;
     }
 
     /**
@@ -180,12 +215,6 @@ public class ActionUnit extends Parameterized {
     @Override
     protected String testName(FrameworkMethod method) {
       return format("%s[%d]", method.getName(), this.id);
-    }
-
-    @Override
-    protected void collectInitializationErrors(List<Throwable> errors) {
-      ////
-      // TODO Implement validations here.
     }
 
     @Override

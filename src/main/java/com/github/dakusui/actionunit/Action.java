@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit;
 import com.google.common.base.Preconditions;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.Utils.chooseTimeUnit;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -16,8 +15,16 @@ import static java.lang.String.format;
  */
 public interface Action {
   class Exception extends RuntimeException {
-    public Exception(TimeoutException e) {
+    public Exception(String message) {
+      super(message);
+    }
 
+    public Exception(Throwable t) {
+      super(t);
+    }
+
+    public Exception(String message, Throwable t) {
+      super(message, t);
     }
   }
 
