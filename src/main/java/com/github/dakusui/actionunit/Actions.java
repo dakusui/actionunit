@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit;
 
-import com.google.common.base.Preconditions;
-
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 /**
@@ -17,7 +17,7 @@ public enum Actions {
   }
 
   public static Action simple(final String summary, final Runnable runnable) {
-    Preconditions.checkNotNull(runnable);
+    checkNotNull(runnable);
     return new Action.Leaf() {
       @Override
       public String describe() {
@@ -50,18 +50,55 @@ public enum Actions {
   }
 
   public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
-    Preconditions.checkNotNull(timeUnit);
+    checkNotNull(timeUnit);
     return new Action.TimeOut(action, TimeUnit.NANOSECONDS.convert(duration, timeUnit));
   }
 
   public static Action retry(Action action, int times, int interval, TimeUnit timeUnit) {
-    Preconditions.checkNotNull(timeUnit);
+    checkNotNull(timeUnit);
     return new Action.Retry(action, TimeUnit.NANOSECONDS.convert(interval, timeUnit), times);
   }
 
   public static <T> Action repeatIncrementally(
-      Action.WithTarget.Factory<T> factoryForActionWithTarget,
-      Iterable<T> datasource) {
+      Iterable<T> datasource, Action.WithTarget.Factory<T> factoryForActionWithTarget) {
     return new Action.RepeatIncrementally<>(datasource, factoryForActionWithTarget);
+  }
+
+  public static <T> Action.WithTarget.Factory<T> forEach(final Block<T> f) {
+    checkNotNull(f);
+    return new Action.WithTarget.Factory<T>() {
+      @Override
+      public Action create(T target) {
+        return new Action.WithTarget<T>(target) {
+          @Override
+          public String describe() {
+            return format("%s with %s", f, target);
+          }
+
+          @Override
+          protected void perform(T target) {
+            f.apply(target);
+          }
+        };
+      }
+
+      @Override
+      public String describe() {
+        return f.toString();
+      }
+    };
+  }
+
+  public static Action nop() {
+    return new Action.Leaf() {
+      @Override
+      public void perform() {
+      }
+
+      @Override
+      public String describe() {
+        return "nop";
+      }
+    };
   }
 }

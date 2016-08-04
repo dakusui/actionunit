@@ -14,19 +14,6 @@ import static java.lang.String.format;
  * Defines abstract level framework of Action execution mechanism of ActionUnit.
  */
 public interface Action {
-  class Exception extends RuntimeException {
-    public Exception(String message) {
-      super(message);
-    }
-
-    public Exception(Throwable t) {
-      super(t);
-    }
-
-    public Exception(String message, Throwable t) {
-      super(message, t);
-    }
-  }
 
   interface Visitor {
     void visit(Action action);
@@ -230,7 +217,7 @@ public interface Action {
           "%s (%s[%s])",
           this.getClass().getSimpleName(),
           timeUnit.convert(this.time, TimeUnit.NANOSECONDS),
-          timeUnit
+          timeUnit.toString().toLowerCase()
       );
     }
   }

@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.ActionException;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
@@ -72,14 +73,14 @@ public class ActionRunner implements Action.Visitor {
   public void visit(Action.Retry action) {
     try {
       toTask(action.action).run();
-    } catch (Action.Exception e) {
-      Action.Exception lastException = e;
+    } catch (ActionException e) {
+      ActionException lastException = e;
       for (int i = 0; i < action.times; i++) {
         try {
           TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
           toTask(action.action).run();
           return;
-        } catch (Action.Exception ee) {
+        } catch (ActionException ee) {
           lastException = ee;
           continue;
         } catch (InterruptedException ee) {
@@ -115,7 +116,7 @@ public class ActionRunner implements Action.Visitor {
    * An extension point to allow users to customize how an action will be
    * executed by this {@code Visitor}.
    *
-   * @param action An action executed by
+   * @param action An action executed by a runnable object returned by this method.
    */
   @SuppressWarnings("WeakerAccess")
   protected Runnable toTask(final Action action) {
@@ -135,7 +136,7 @@ public class ActionRunner implements Action.Visitor {
           public Callable<Boolean> apply(final Action input) {
             return new Callable<Boolean>() {
               @Override
-              public Boolean call() throws Action.Exception {
+              public Boolean call() throws ActionException {
                 toTask(input).run();
                 return true;
               }

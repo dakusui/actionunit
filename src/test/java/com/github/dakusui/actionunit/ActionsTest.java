@@ -1,18 +1,20 @@
-package com.github.dakusui.actionunit.examples;
+package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.Actions.*;
+import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -49,7 +51,7 @@ public class ActionsTest {
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
 
-  @Test
+  @Test(timeout = 9000)
   public void concurrentTest() throws InterruptedException {
     final List<String> arr = new ArrayList<>();
     concurrent(
@@ -80,12 +82,44 @@ public class ActionsTest {
           }
         }),
         1,
-        SECONDS
+        MILLISECONDS
     ).accept(new ActionRunner());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
 
   @Test
+  public void givenTimeoutAction$whenDescribe$thenLooksNice() {
+    assertEquals("TimeOut (1[milliseconds])", timeout(nop(), 1, MILLISECONDS).describe());
+    assertEquals("TimeOut (10[seconds])", timeout(nop(), 10000, MILLISECONDS).describe());
+    assertEquals("TimeOut (100[days])", timeout(nop(), 100, DAYS).describe());
+  }
+
+  @Test(expected = TimeoutException.class, timeout = 3000)
+  public void timeoutTest$timeout() throws Throwable {
+    final List<String> arr = new ArrayList<>();
+    try {
+      timeout(simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add("Hello");
+              try {
+                TimeUnit.SECONDS.sleep(1);
+              } catch (InterruptedException e) {
+                throw propagate(e);
+              }
+            }
+          }),
+          1,
+          MILLISECONDS
+      ).accept(new ActionRunner());
+    } catch (ActionException e) {
+      throw e.getCause();
+    } finally {
+      assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
+    }
+  }
+
+  @Test(timeout = 3000)
   public void retryTest() {
     final List<String> arr = new ArrayList<>();
     retry(simple(new Runnable() {
@@ -99,7 +133,7 @@ public class ActionsTest {
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
 
-  @Test
+  @Test(timeout = 3000)
   public void retryTest$failOnce() {
     final List<String> arr = new ArrayList<>();
     try {
@@ -111,7 +145,7 @@ public class ActionsTest {
               arr.add("Hello");
               if (i < 1) {
                 i++;
-                throw new Action.Exception("fail");
+                throw new ActionException("fail");
               }
             }
           }),
@@ -122,7 +156,7 @@ public class ActionsTest {
     }
   }
 
-  @Test(expected = Action.Exception.class)
+  @Test(expected = ActionException.class, timeout = 3000)
   public void retryTest$failForever() {
     final List<String> arr = new ArrayList<>();
     try {
@@ -130,7 +164,7 @@ public class ActionsTest {
             @Override
             public void run() {
               arr.add("Hello");
-              throw new Action.Exception("fail");
+              throw new ActionException("fail");
             }
           }),
           1, 1, MILLISECONDS
@@ -140,28 +174,24 @@ public class ActionsTest {
     }
   }
 
-  @Test
+  @Test(timeout = 3000)
   public void repeatIncrementallyTest() {
     final List<String> arr = new ArrayList<>();
     repeatIncrementally(
-        new Action.WithTarget.Factory<String>() {
+        asList("1", "2"),
+        forEach(new Block<String>() {
           @Override
-          public Action create(final String target) {
-            return simple(this.describe(), new Runnable() {
-              @Override
-              public void run() {
-                arr.add(format("Hello %s", target));
-              }
-            });
+          public void apply(String input) {
+            arr.add(format("Hello %s", input));
           }
-
-          @Override
-          public String describe() {
-            return "(noname)";
-          }
-        },
-        asList("1", "2")
+        })
     ).accept(new ActionRunner());
     assertArrayEquals(new Object[] { "Hello 1", "Hello 2" }, arr.toArray());
+  }
+
+  @Test
+  public void nopTest() {
+    // Just make sure no error happens
+    Actions.nop().accept(new ActionRunner());
   }
 }

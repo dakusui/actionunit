@@ -1,8 +1,5 @@
-package com.github.dakusui.actionunit.examples;
+package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.Actions;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
@@ -12,7 +9,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class NegativeTest {
+public class TestMethodNegativeTest {
   @RunWith(ActionUnit.class)
   public static class NoParameter {
     @ActionUnit.PerformWith(Test.class)
@@ -33,7 +30,10 @@ public class NegativeTest {
   @Test
   public void givenNoParameterMethod$whenRunWithActionUnit$thenFailsOnInitialization() {
     List<Failure> failures = JUnitCore.runClasses(NoParameter.class).getFailures();
+    //noinspection ThrowableResultOfMethodCallIgnored
     assertEquals("Method targetMethod() should have one and only one parameter", failures.get(0).getException().getMessage());
+    //noinspection ThrowableResultOfMethodCallIgnored
+    assertEquals(Exception.class, failures.get(0).getException().getClass());
   }
 
   @RunWith(ActionUnit.class)
@@ -81,7 +81,10 @@ public class NegativeTest {
   @Test
   public void givenMismatchParameterMethod$whenRunWithActionUnit$thenFailsOnInitialization() {
     List<Failure> failures = JUnitCore.runClasses(MismatchParameter.class).getFailures();
+    //noinspection ThrowableResultOfMethodCallIgnored
     assertEquals("Method targetMethod()'s 1 st parameter must accept an Action", failures.get(0).getException().getMessage());
+    //noinspection ThrowableResultOfMethodCallIgnored
+    assertEquals(Exception.class, failures.get(0).getException().getClass());
   }
 
   @RunWith(ActionUnit.class)
@@ -104,7 +107,9 @@ public class NegativeTest {
   @Test
   public void givenNoRunnerMethod$whenRunWithActionUnit$thenFailsOnInitialization() {
     List<Failure> failures = JUnitCore.runClasses(NoRunnerMethod.class).getFailures();
+    //noinspection ThrowableResultOfMethodCallIgnored
     assertEquals("No runnable methods", failures.get(0).getException().getMessage());
+    //noinspection ThrowableResultOfMethodCallIgnored
+    assertEquals(Exception.class, failures.get(0).getException().getClass());
   }
-
 }
