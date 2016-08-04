@@ -2,9 +2,8 @@ package com.github.dakusui.actionunit;
 
 import com.google.common.base.Preconditions;
 
-import java.util.concurrent.TimeUnit;
-
-import static com.github.dakusui.actionunit.Utils.chooseTimeUnit;
+import static com.github.dakusui.actionunit.Utils.formatDurationInNanos;
+import static com.github.dakusui.actionunit.Utils.nonameIfNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.size;
@@ -88,9 +87,7 @@ public interface Action {
     }
 
     public String describe() {
-      return this.summary == null
-          ? format("%d actions", size(actions))
-          : format("%s (%s actions)", this.summary, size(actions));
+      return format("%s (%s, %s actions)", nonameIfNull(this.summary), this.getClass().getSimpleName(), size(actions));
     }
   }
 
@@ -160,11 +157,9 @@ public interface Action {
 
     @Override
     public String describe() {
-      TimeUnit timeUnit = chooseTimeUnit(this.intervalInNanos);
-      return format("%s(%d[%s]x%dtimes)",
+      return format("%s(%sx%dtimes)",
           this.getClass().getSimpleName(),
-          timeUnit.convert(this.intervalInNanos, TimeUnit.NANOSECONDS),
-          timeUnit,
+          formatDurationInNanos(intervalInNanos),
           this.times
       );
     }
@@ -197,11 +192,11 @@ public interface Action {
 
   class TimeOut extends Base {
     public final Action action;
-    public final long   time;
+    public final long   durationInNanos;
 
     public TimeOut(Action action, long timeoutInNanos) {
       Preconditions.checkArgument(timeoutInNanos > 0);
-      this.time = timeoutInNanos;
+      this.durationInNanos = timeoutInNanos;
       this.action = checkNotNull(action);
     }
 
@@ -212,12 +207,10 @@ public interface Action {
 
     @Override
     public String describe() {
-      TimeUnit timeUnit = chooseTimeUnit(this.time);
       return format(
-          "%s (%s[%s])",
+          "%s (%s)",
           this.getClass().getSimpleName(),
-          timeUnit.convert(this.time, TimeUnit.NANOSECONDS),
-          timeUnit.toString().toLowerCase()
+          formatDurationInNanos(this.durationInNanos)
       );
     }
   }

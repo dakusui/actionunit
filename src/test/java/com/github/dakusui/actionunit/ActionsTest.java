@@ -13,8 +13,7 @@ import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -49,6 +48,11 @@ public class ActionsTest {
         })
     ).accept(new ActionRunner());
     assertEquals(asList("Hello A", "Hello B"), arr);
+  }
+
+  @Test
+  public void givenSequentialAction$whenDescribe$thenLooksNice() {
+    assertEquals("(noname) (Sequential, 1 actions)", sequential(nop()).describe());
   }
 
   @Test(timeout = 9000)
@@ -91,7 +95,7 @@ public class ActionsTest {
   public void givenTimeoutAction$whenDescribe$thenLooksNice() {
     assertEquals("TimeOut (1[milliseconds])", timeout(nop(), 1, MILLISECONDS).describe());
     assertEquals("TimeOut (10[seconds])", timeout(nop(), 10000, MILLISECONDS).describe());
-    assertEquals("TimeOut (100[days])", timeout(nop(), 100, DAYS).describe());
+    assertEquals("TimeOut (1000[days])", timeout(nop(), 1000, DAYS).describe());
   }
 
   @Test(expected = TimeoutException.class, timeout = 3000)
@@ -107,6 +111,48 @@ public class ActionsTest {
               } catch (InterruptedException e) {
                 throw propagate(e);
               }
+            }
+          }),
+          1,
+          MILLISECONDS
+      ).accept(new ActionRunner());
+    } catch (ActionException e) {
+      throw e.getCause();
+    } finally {
+      assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
+    }
+  }
+
+  @Test(expected = RuntimeException.class, timeout = 3000)
+  public void timeoutTest$throwsRuntimeException() throws Throwable {
+    final List<String> arr = new ArrayList<>();
+    try {
+      timeout(simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add("Hello");
+              throw new RuntimeException();
+            }
+          }),
+          1,
+          MILLISECONDS
+      ).accept(new ActionRunner());
+    } catch (ActionException e) {
+      throw e.getCause();
+    } finally {
+      assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
+    }
+  }
+
+  @Test(expected = Error.class, timeout = 3000)
+  public void timeoutTest$throwsError() throws Throwable {
+    final List<String> arr = new ArrayList<>();
+    try {
+      timeout(simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add("Hello");
+              throw new Error();
             }
           }),
           1,
@@ -174,6 +220,11 @@ public class ActionsTest {
     }
   }
 
+  @Test
+  public void givenRetryAction$whenDescribe$thenLooksNice() {
+    assertEquals("Retry(2[seconds]x1times)", retry(nop(), 1, 2, SECONDS).describe());
+  }
+
   @Test(timeout = 3000)
   public void repeatIncrementallyTest() {
     final List<String> arr = new ArrayList<>();
@@ -187,6 +238,16 @@ public class ActionsTest {
         })
     ).accept(new ActionRunner());
     assertArrayEquals(new Object[] { "Hello 1", "Hello 2" }, arr.toArray());
+  }
+
+  @Test
+  public void givenRepeatAction$whenDescribe$thenLooksNice() {
+    assertEquals("RepeatIncrementally (2 items, (noname))", repeatIncrementally(asList("hello", "world"),
+        forEach(new Block<String>() {
+          @Override
+          public void apply(String s) {
+          }
+        })).describe());
   }
 
   @Test

@@ -8,7 +8,6 @@ import com.google.common.collect.Iterables;
 import java.util.concurrent.*;
 
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
@@ -82,9 +81,8 @@ public class ActionRunner implements Action.Visitor {
           return;
         } catch (ActionException ee) {
           lastException = ee;
-          continue;
         } catch (InterruptedException ee) {
-          throw propagate(ee);
+          throw new ActionException(ee);
         }
       }
       throw lastException;
@@ -107,7 +105,7 @@ public class ActionRunner implements Action.Visitor {
                        return true;
                      }
                    },
-        action.time,
+        action.durationInNanos,
         TimeUnit.NANOSECONDS
     );
   }
