@@ -37,7 +37,11 @@ public enum Actions {
   }
 
   public static Action concurrent(String summary, Action... actions) {
-    return Action.Concurrent.Factory.INSTANCE.create(summary, asList(actions));
+    return concurrent(summary, asList(actions));
+  }
+
+  public static Action concurrent(String summary, Iterable<? extends Action> actions) {
+    return Action.Concurrent.Factory.INSTANCE.create(summary, actions);
   }
 
   public static Action sequential(Action... actions) {
@@ -45,7 +49,11 @@ public enum Actions {
   }
 
   public static Action sequential(String summary, Action... actions) {
-    return Action.Sequential.Factory.INSTANCE.create(summary, asList(actions));
+    return sequential(summary, asList(actions));
+  }
+
+  public static Action sequential(String summary, Iterable<? extends Action> actions) {
+    return Action.Sequential.Factory.INSTANCE.create(summary, actions);
   }
 
   public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
@@ -93,6 +101,10 @@ public enum Actions {
   }
 
   public static Action nop() {
+    return nop(null);
+  }
+
+  public static Action nop(final String summary) {
     return new Action.Leaf() {
       @Override
       public void perform() {
@@ -100,7 +112,7 @@ public enum Actions {
 
       @Override
       public String describe() {
-        return "nop";
+        return nonameIfNull(summary);
       }
     };
   }

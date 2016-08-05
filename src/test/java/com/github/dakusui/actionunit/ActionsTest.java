@@ -3,9 +3,7 @@ package com.github.dakusui.actionunit;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -14,8 +12,7 @@ import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class ActionsTest {
   @Test
@@ -62,18 +59,62 @@ public class ActionsTest {
         simple(new Runnable() {
           @Override
           public void run() {
-            arr.add("Hello A");
+            synchronized (arr) {
+              arr.add("Hello A");
+            }
           }
         }),
         simple(new Runnable() {
           @Override
           public void run() {
-            arr.add("Hello B");
+            synchronized (arr) {
+              arr.add("Hello B");
+            }
           }
         })
     ).accept(new ActionRunner());
     Collections.sort(arr);
     assertEquals(asList("Hello A", "Hello B"), arr);
+  }
+
+  @Test(timeout = 9000)
+  public void concurrentTest$checkConcurrency() throws InterruptedException {
+    final List<Map.Entry<Long, Long>> arr = Collections.synchronizedList(new ArrayList<Map.Entry<Long, Long>>());
+    try {
+      concurrent(
+          simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add(createEntry());
+            }
+          }),
+          simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add(createEntry());
+            }
+          })
+      ).accept(new ActionRunner());
+    } finally {
+      for (Map.Entry<Long, Long> i : arr) {
+        for (Map.Entry<Long, Long> j : arr) {
+          assertTrue(i.getValue() > j.getKey());
+        }
+      }
+    }
+  }
+
+  private Map.Entry<Long, Long> createEntry() {
+    long before = System.currentTimeMillis();
+    try {
+      TimeUnit.MILLISECONDS.sleep(100);
+      return new AbstractMap.SimpleEntry<>(
+          before,
+          System.currentTimeMillis()
+      );
+    } catch (InterruptedException e) {
+      throw propagate(e);
+    }
   }
 
   @Test

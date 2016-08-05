@@ -30,7 +30,6 @@ public interface Action {
     void visit(TimeOut action);
 
     <T> void visit(RepeatIncrementally<T> action);
-
   }
 
   void accept(Visitor visitor);
