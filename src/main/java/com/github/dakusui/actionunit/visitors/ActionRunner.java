@@ -13,7 +13,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
-public class ActionRunner implements Action.Visitor {
+public class ActionRunner extends Action.Visitor.Base implements Action.Visitor {
   private static final int THREAD_POOL_SIZE = 5;
 
   @Override
@@ -24,11 +24,6 @@ public class ActionRunner implements Action.Visitor {
   @Override
   public void visit(Action.Leaf action) {
     action.perform();
-  }
-
-  @Override
-  public void visit(Action.Composite action) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.example;
+package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
@@ -56,7 +56,7 @@ public class Example {
   }
 
 
-  @PerformWith
+  @PerformWith(Test.class)
   public Action[] testN() {
     return new Action[] {
         simple("action:testN[0]", new Runnable() {

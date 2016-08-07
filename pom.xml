@@ -39,14 +39,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.dakusui</groupId>
-            <artifactId>fruitjuice</artifactId>
-            <version>[1.0.2,)</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
+            <version>19.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -146,16 +141,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.1</version>
-                        <configuration>
-                            <reportOutputDirectory>${basedir}/src/site</reportOutputDirectory>
-                            <destDir>apidocs</destDir>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
-                    </plugin -->
                 </plugins>
             </build>
         </profile>

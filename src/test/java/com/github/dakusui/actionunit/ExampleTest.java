@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.example.Example;
+import com.github.dakusui.actionunit.examples.Example;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
