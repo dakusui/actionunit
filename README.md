@@ -80,4 +80,4 @@ More examples are found here[[1]].
 * [1] "actionunit examples"
 
 [0]: http://junit.org/junit4/
-[1]: https://github.com/dakusui/actionunit/tree/master/src/test/java/com/github/dakusui/actionunit/example
+[1]: https://github.com/dakusui/actionunit/tree/master/src/test/java/com/github/dakusui/actionunit/examples
