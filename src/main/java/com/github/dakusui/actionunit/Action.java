@@ -30,6 +30,43 @@ public interface Action {
     void visit(TimeOut action);
 
     <T> void visit(RepeatIncrementally<T> action);
+
+    abstract class Base implements Visitor {
+      @Override
+      public void visit(Leaf action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public void visit(Composite action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public void visit(Sequential action) {
+        this.visit((Action.Composite)action);
+      }
+
+      @Override
+      public void visit(Concurrent action) {
+        this.visit((Action.Composite)action);
+      }
+
+      @Override
+      public void visit(Retry action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public void visit(TimeOut action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public <T> void visit(RepeatIncrementally<T> action) {
+        this.visit((Action)action);
+      }
+    }
   }
 
   void accept(Visitor visitor);

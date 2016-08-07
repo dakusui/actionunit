@@ -11,6 +11,7 @@ import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.*;
 import static org.junit.Assert.*;
 
@@ -117,6 +118,56 @@ public class ActionsTest {
     }
   }
 
+  @Test(timeout = 9000, expected = NullPointerException.class)
+  public void concurrentTest$runtimeExceptionThrown() throws InterruptedException {
+    final List<String> arr = Collections.synchronizedList(new ArrayList<String>());
+    try {
+      concurrent(
+          simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add("Hello A");
+              throw new NullPointerException();
+            }
+          }),
+          simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add("Hello B");
+            }
+          })
+      ).accept(new ActionRunner());
+    } finally {
+      Collections.sort(arr);
+      assertEquals(asList("Hello A", "Hello B"), arr);
+    }
+  }
+
+  @Test(timeout = 9000, expected = Error.class)
+  public void concurrentTest$errorThrown() throws InterruptedException {
+    final List<String> arr = Collections.synchronizedList(new ArrayList<String>());
+    try {
+      concurrent(
+          simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add("Hello A");
+              throw new Error();
+            }
+          }),
+          simple(new Runnable() {
+            @Override
+            public void run() {
+              arr.add("Hello B");
+            }
+          })
+      ).accept(new ActionRunner());
+    } finally {
+      Collections.sort(arr);
+      assertEquals(asList("Hello A", "Hello B"), arr);
+    }
+  }
+
   @Test
   public void timeoutTest() {
     final List<String> arr = new ArrayList<>();
@@ -139,7 +190,7 @@ public class ActionsTest {
     assertEquals("TimeOut (1000[days])", timeout(nop(), 1000, DAYS).describe());
   }
 
-  @Test(expected = TimeoutException.class, timeout = 3000)
+  @Test(expected = TimeoutException.class, timeout = 10000)
   public void timeoutTest$timeout() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
@@ -297,5 +348,30 @@ public class ActionsTest {
   public void nopTest() {
     // Just make sure no error happens
     Actions.nop().accept(new ActionRunner());
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void unsupportedActionType$simple() {
+    new Action() {
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
+
+      @Override
+      public String describe() {
+        return "unsupported";
+      }
+    }.accept(new ActionRunner());
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void unsupportedActionType$composite() {
+    new Action.Composite("unsupported", singletonList(nop())) {
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
+    }.accept(new ActionRunner());
   }
 }
