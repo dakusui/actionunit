@@ -10,67 +10,20 @@ import static com.google.common.collect.Iterables.size;
 import static java.lang.String.format;
 
 /**
- * Defines abstract level framework of Action execution mechanism of ActionUnit.
+ * Defines interface of an action performed by ActionUnit runner.
  */
 public interface Action {
 
-  interface Visitor {
-    void visit(Action action);
-
-    void visit(Action.Leaf action);
-
-    void visit(Action.Composite action);
-
-    void visit(Action.Sequential action);
-
-    void visit(Action.Concurrent action);
-
-    void visit(Retry action);
-
-    void visit(TimeOut action);
-
-    <T> void visit(RepeatIncrementally<T> action);
-
-    abstract class Base implements Visitor {
-      @Override
-      public void visit(Leaf action) {
-        this.visit((Action)action);
-      }
-
-      @Override
-      public void visit(Composite action) {
-        this.visit((Action)action);
-      }
-
-      @Override
-      public void visit(Sequential action) {
-        this.visit((Action.Composite)action);
-      }
-
-      @Override
-      public void visit(Concurrent action) {
-        this.visit((Action.Composite)action);
-      }
-
-      @Override
-      public void visit(Retry action) {
-        this.visit((Action)action);
-      }
-
-      @Override
-      public void visit(TimeOut action) {
-        this.visit((Action)action);
-      }
-
-      @Override
-      public <T> void visit(RepeatIncrementally<T> action) {
-        this.visit((Action)action);
-      }
-    }
-  }
-
+  /**
+   * Applies a visitor to this element.
+   *
+   * @param visitor the visitor operating on this element.
+   */
   void accept(Visitor visitor);
 
+  /**
+   * Describes this object.
+   */
   String describe();
 
   /**
@@ -92,6 +45,11 @@ public interface Action {
     abstract public void perform();
   }
 
+  /**
+   * A skeletal implementation for actions which are performed with a certain object of type {@code T}.
+
+   * @param <T> type of object with which this action is performed.
+   */
   abstract class WithTarget<T> extends Leaf {
     final T target;
 
@@ -113,6 +71,9 @@ public interface Action {
     }
   }
 
+  /**
+   * A skeletal implementation for composite actions, such as {@link Action.Sequential} or {@link Action.Concurrent}.
+   */
   abstract class Composite extends Base {
     public final  Iterable<? extends Action> actions;
     private final String                     summary;
@@ -251,4 +212,116 @@ public interface Action {
     }
   }
 
+
+  /**
+   * A visitor of actions, in the style of the visitor design pattern. Classes implementing
+   * this interface are used to operate on an action when the kind of element is unknown at compile
+   * time. When a visitor is passed to an element's accept method, the visitXYZ method most applicable
+   * to that element is invoked.
+   *
+   * WARNING: It is possible that methods will be added to this interface to accommodate new, currently
+   * unknown, language structures added to future versions of the ActionUnit library. Therefore,
+   * visitor classes directly implementing this interface may be source incompatible with future
+   * versions of the framework.
+   * To avoid this source incompatibility, visitor implementations are encouraged to
+   * instead extend the appropriate abstract visitor class that implements this interface. However,
+   * an API should generally use this visitor interface as the type for parameters, return type, etc.
+   * rather than one of the abstract classes.
+   *
+   * @see Action.Visitor.Base
+   */
+  interface Visitor {
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Action action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Action.Leaf action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Action.Composite action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Action.Sequential action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Action.Concurrent action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Retry action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(TimeOut action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    <T> void visit(RepeatIncrementally<T> action);
+
+    abstract class Base implements Visitor {
+      @Override
+      public void visit(Leaf action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public void visit(Composite action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public void visit(Sequential action) {
+        this.visit((Action.Composite)action);
+      }
+
+      @Override
+      public void visit(Concurrent action) {
+        this.visit((Action.Composite)action);
+      }
+
+      @Override
+      public void visit(Retry action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public void visit(TimeOut action) {
+        this.visit((Action)action);
+      }
+
+      @Override
+      public <T> void visit(RepeatIncrementally<T> action) {
+        this.visit((Action)action);
+      }
+    }
+  }
 }

@@ -8,24 +8,53 @@ import com.google.common.collect.Iterables;
 import java.util.concurrent.*;
 
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
+/**
+ * A simple visitor that invokes actions.
+ * Typically, an instance of this class will be applied to a given action in a following manner.
+ *
+ * <code>
+ *   action.accept(new ActionRunner());
+ * </code>
+ *
+ */
 public class ActionRunner extends Action.Visitor.Base implements Action.Visitor {
-  private static final int THREAD_POOL_SIZE = 5;
+  public static final int DEFAULT_THREAD_POOL_SIZE = 5;
+  private final int threadPoolSize;
 
+  public ActionRunner(int threadPoolSize) {
+    checkArgument(threadPoolSize > 0, "Thread pool size must be larger than 0 but %s was given.", threadPoolSize);
+    this.threadPoolSize = threadPoolSize;
+  }
+
+  public ActionRunner() {
+    this(DEFAULT_THREAD_POOL_SIZE);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(Action action) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(Action.Leaf action) {
     action.perform();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(Action.Sequential action) {
     for (Action each : action.actions) {
@@ -33,9 +62,12 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(Action.Concurrent action) {
-    final ExecutorService pool = newFixedThreadPool(min(THREAD_POOL_SIZE, size(action.actions)));
+    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action.actions)));
     try {
       for (final Future<Boolean> future : pool.invokeAll(newArrayList(toTasks(action.actions)))) {
         ////
@@ -63,6 +95,9 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(Action.Retry action) {
     try {
@@ -84,6 +119,9 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> void visit(Action.RepeatIncrementally<T> action) {
     for (T each : action.dataSource) {
@@ -91,6 +129,9 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(final Action.TimeOut action) {
     runWithTimeout(new Callable<Object>() {
@@ -139,5 +180,3 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
     );
   }
 }
-
-

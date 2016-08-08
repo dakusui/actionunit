@@ -14,8 +14,64 @@ import java.util.concurrent.*;
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 
+/**
+ * A utility class for static methods which are too trivial to create classes to which they should
+ * belong.
+ */
 public enum Utils {
   ;
+
+  public static <T> T runWithTimeout(Callable<T> callable, long timeout, TimeUnit timeUnit) {
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
+    final Future<T> future = executor.submit(callable);
+    executor.shutdown(); // This does not cancel the already-scheduled task.
+    try {
+      return future.get(timeout, timeUnit);
+    } catch (InterruptedException e) {
+      throw new ActionException(e);
+    } catch (TimeoutException e) {
+      future.cancel(true);
+      throw new ActionException(e);
+    } catch (ExecutionException e) {
+      //unwrap the root cause
+      Throwable cause = e.getCause();
+      if (cause instanceof Error) {
+        throw (Error) cause;
+      }
+      ////
+      // It's safe to directly cast to RuntimeException, because a Callable can only
+      // throw an Error or a RuntimeException.
+      throw (RuntimeException) cause;
+    }
+  }
+
+  public static TimeUnit chooseTimeUnit(long intervalInNanos) {
+    // TimeUnit.values() returns elements of TimeUnit in declared order
+    // And they are declared in ascending order.
+    for (TimeUnit timeUnit : TimeUnit.values()) {
+      if (1000 > timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {
+        return timeUnit;
+      }
+    }
+    return TimeUnit.DAYS;
+  }
+
+  public static String formatDurationInNanos(long intervalInNanos) {
+    TimeUnit timeUnit = chooseTimeUnit(intervalInNanos);
+    return format("%d[%s]", timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
+  }
+
+  public static String nonameIfNull(String summary) {
+    return summary == null
+        ? "(noname)"
+        : summary;
+  }
+
+  static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
+    return expected.isAssignableFrom(actual)
+        || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
+        || Iterable.class.isAssignableFrom(actual);
+  }
 
   /**
    * Creates a {@code TestClass} object to mock {@code Parameterized} class's logic
@@ -69,63 +125,13 @@ public enum Utils {
 
       private Method getDummyMethod() {
         try {
+          ////
+          // Just chose "toString" because we know java.lang.Object has the method.
           return Object.class.getMethod("toString");
         } catch (NoSuchMethodException e) {
           throw propagate(e);
         }
       }
     };
-  }
-
-  public static <T> T runWithTimeout(Callable<T> callable, long timeout, TimeUnit timeUnit) {
-    final ExecutorService executor = Executors.newSingleThreadExecutor();
-    final Future<T> future = executor.submit(callable);
-    executor.shutdown(); // This does not cancel the already-scheduled task.
-    try {
-      return future.get(timeout, timeUnit);
-    } catch (InterruptedException e) {
-      throw new ActionException(e);
-    } catch (TimeoutException e) {
-      future.cancel(true);
-      throw new ActionException(e);
-    } catch (ExecutionException e) {
-      //unwrap the root cause
-      Throwable cause = e.getCause();
-      if (cause instanceof Error) {
-        throw (Error) cause;
-      }
-      ////
-      // It's safe to directly cast to RuntimeException, because a Callable can only
-      // throw an Error or a RuntimeException.
-      throw (RuntimeException) cause;
-    }
-  }
-
-  public static TimeUnit chooseTimeUnit(long intervalInNanos) {
-    // TimeUnit.values() returns elements of TimeUnit in declared order
-    // And they are declared in ascending order.
-    for (TimeUnit timeUnit : TimeUnit.values()) {
-      if (1000 > timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {
-        return timeUnit;
-      }
-    }
-    return TimeUnit.DAYS;
-  }
-
-  public static String formatDurationInNanos(long intervalInNanos) {
-    TimeUnit timeUnit = chooseTimeUnit(intervalInNanos);
-    return format("%d[%s]", timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
-  }
-
-  static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
-    return expected.isAssignableFrom(actual)
-        || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
-        || Iterable.class.isAssignableFrom(actual);
-  }
-
-  public static String nonameIfNull(String summary) {
-    return summary == null
-        ? "(noname)"
-        : summary;
   }
 }

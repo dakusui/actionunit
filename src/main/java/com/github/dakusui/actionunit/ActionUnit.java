@@ -28,6 +28,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
+/**
+ * The custom runner of ActionUnit.
+ */
 public class ActionUnit extends Parameterized {
   /**
    * An annotation to let ActionUnit know the target elements annotated by it provide
