@@ -74,10 +74,13 @@ This will print out
 ```
 
 More examples are found here[[1]].
+And API reference is found here [[2]].
 
 # References
 * [0] "JUnit"
-* [1] "actionunit examples"
+* [1] "ActionUnit examples"
+* [2] "ActionUnit API reference"
 
 [0]: http://junit.org/junit4/
 [1]: https://github.com/dakusui/actionunit/tree/master/src/test/java/com/github/dakusui/actionunit/examples
+[2]: https://dakusui.github.io/actionunit/
