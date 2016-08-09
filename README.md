@@ -1,9 +1,9 @@
-# actionunit
+# ActionUnit
 Action based JUnit[[0]] test runner library
 
 # Installation
 Actionunit requires Java SE7 or later.
-Following is a maven coordinate for Fruit-juice.
+Following is a maven coordinate for ActionUnit.
 
 ```xml
 
