@@ -7,10 +7,12 @@ import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 
@@ -56,15 +58,29 @@ public enum Utils {
     return TimeUnit.DAYS;
   }
 
-  public static String formatDurationInNanos(long intervalInNanos) {
-    TimeUnit timeUnit = chooseTimeUnit(intervalInNanos);
-    return format("%d[%s]", timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
+  public static String formatDuration(long durationInNanos) {
+    TimeUnit timeUnit = chooseTimeUnit(durationInNanos);
+    return format("%d[%s]", timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
   }
 
   public static String nonameIfNull(String summary) {
     return summary == null
         ? "(noname)"
         : summary;
+  }
+
+  public static String unknownIfNegative(int size) {
+    return size < 0
+        ? "?"
+        : Integer.toString(size);
+  }
+
+  public static <T> int sizeOrNegativeIfNonCollection(Iterable<T> iterable) {
+    checkNotNull(iterable);
+    if (iterable instanceof Collection) {
+      return Collection.class.cast(iterable).size();
+    }
+    return -1;
   }
 
   static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
