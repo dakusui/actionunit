@@ -1,11 +1,18 @@
 package com.github.dakusui.actionunit;
 
+import com.google.common.base.Function;
+
 import java.util.concurrent.TimeUnit;
 
+import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * This class contains static utility methods that return objects of type {@code Action}.
@@ -104,6 +111,10 @@ public enum Actions {
     return sequential(summary, asList(actions));
   }
 
+  public static Action sequential(Iterable<Action> actions) {
+    return sequential(null, actions);
+  }
+
   /**
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
@@ -124,7 +135,7 @@ public enum Actions {
    */
   public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
     checkNotNull(timeUnit);
-    return new Action.TimeOut(action, TimeUnit.NANOSECONDS.convert(duration, timeUnit));
+    return new Action.TimeOut(action, NANOSECONDS.convert(duration, timeUnit));
   }
 
   /**
@@ -137,66 +148,48 @@ public enum Actions {
    */
   public static Action retry(Action action, int times, int interval, TimeUnit timeUnit) {
     checkNotNull(timeUnit);
-    return new Action.Retry(action, TimeUnit.NANOSECONDS.convert(interval, timeUnit), times);
+    return new Action.Retry(action, NANOSECONDS.convert(interval, timeUnit), times);
   }
 
-  /**
-   * Performs an action created by given {@code factoryForActionWithTarget} for each element in
-   * given {@code datasource}.
-   *
-   * @param datasource                 each of whose elements are processed by an action that
-   *                                   {@code factoryForActionWithTarget} creates.
-   * @param factoryForActionWithTarget creates an action that processes each element in {@code dataSource}.
-   * @param <T>                        Type of entries in {@code datasource}.
-   */
-  public static <T> Action repeatIncrementally(
-      Iterable<T> datasource, Action.WithTarget.Factory<T> factoryForActionWithTarget) {
-    return new Action.RepeatIncrementally<>(datasource, factoryForActionWithTarget);
+  @SafeVarargs
+  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, Action action, Block<T>... blocks) {
+    return new Action.ForEach<T>(
+        mode.getFactory(),
+        dataSource,
+        action,
+        blocks
+    );
   }
 
-  /**
-   * Returns a factory which creates an action to process an object of type {@code T}.
-   *
-   * @param block specifies how to process a given object of type {@code T}.
-   * @param <T>   Type of object processed that an action object processes created by returned factory.
-   * @see Actions#repeatIncrementally(Iterable, Action.WithTarget.Factory)
-   */
-  public static <T> Action.WithTarget.Factory<T> forEach(final Block<T> block) {
-    return forEach(null, block);
+  @SafeVarargs
+  public static <T> Action forEach(Iterable<T> dataSource, Action action, Block<T>... blocks) {
+    return forEach(dataSource, SEQUENTIALLY, action, blocks);
   }
 
-  /**
-   * Returns a factory which creates an action to process an object of type {@code T}.
-   *
-   * @param summary A string that describes returned factory. This will also be used to describe an
-   *                action created by it.
-   * @param block   specifies how to process a given object of type {@code T}.
-   * @param <T>     Type of object processed that an action object processes created by returned factory.
-   * @see Actions#repeatIncrementally(Iterable, Action.WithTarget.Factory)
-   */
-  public static <T> Action.WithTarget.Factory<T> forEach(final String summary, final Block<T> block) {
-    checkNotNull(block);
-    return new Action.WithTarget.Factory<T>() {
-      @Override
-      public Action create(T target) {
-        return new Action.WithTarget<T>(target) {
-          @Override
-          public String describe() {
-            return format("%s with %s", nonameIfNull(summary), target);
-          }
+  @SafeVarargs
+  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, final Block<T>... blocks) {
+    return forEach(
+        dataSource,
+        mode,
+        sequential(
+            transform(asList(blocks),
+                new Function<Block<T>, Action>() {
+                  @Override
+                  public Action apply(final Block<T> block) {
+                    return tag(asList(blocks).indexOf(block));
+                  }
+                }
+            )),
+        blocks);
+  }
 
-          @Override
-          protected void perform(T target) {
-            block.apply(target);
-          }
-        };
-      }
+  @SafeVarargs
+  public static <T> Action forEach(Iterable<T> dataSource, final Block<T>... blocks) {
+    return forEach(dataSource, SEQUENTIALLY, blocks);
+  }
 
-      @Override
-      public String describe() {
-        return nonameIfNull(summary);
-      }
-    };
+  public static Action tag(int i) {
+    return new Action.ForEach.Tag(i);
   }
 
   /**
@@ -224,4 +217,29 @@ public enum Actions {
     };
   }
 
+  /**
+   * Returns an action that waits for given amount of time.
+   *
+   * @param duration Duration to wait for.
+   * @param timeUnit Time unit of the {@code duration}.
+   */
+  public static Action waitFor(final int duration, final TimeUnit timeUnit) {
+    checkArgument(duration >= 0, "duration must be non-negative but %d was given", duration);
+    checkNotNull(timeUnit);
+    return new Action.Leaf() {
+      @Override
+      public void perform() {
+        try {
+          timeUnit.sleep(duration);
+        } catch (InterruptedException e) {
+          throw propagate(e);
+        }
+      }
+
+      @Override
+      public String describe() {
+        return format("Wait for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
+      }
+    };
+  }
 }
