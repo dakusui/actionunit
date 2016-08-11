@@ -2,14 +2,12 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionException;
-import com.github.dakusui.actionunit.Block;
 import com.google.common.base.Function;
 
 import java.util.concurrent.*;
 
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
@@ -19,7 +17,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 /**
  * A simple visitor that invokes actions.
  * Typically, an instance of this class will be applied to a given action in a following manner.
- * <p>
+ * <p/>
  * <code>
  * action.accept(new ActionRunner());
  * </code>
@@ -98,7 +96,14 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
 
   @Override
   public void visit(Action.ForEach action) {
-    action.getElements().accept(this.forEachRunner(action.getDataSource(), action.getBlocks()));
+    action.getElements().accept(this);
+  }
+
+  @Override
+  public void visit(final Action.With action) {
+    action.getAction().accept(new ActionRunner() {
+
+    });
   }
 
   /**
@@ -140,20 +145,6 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
         action.durationInNanos,
         TimeUnit.NANOSECONDS
     );
-  }
-
-  protected int getIndex() {
-    // Todo
-    return -1;
-  }
-
-  protected <T> Action.Visitor forEachRunner(final Iterable<T> dataSource, final Block<T>[] blocks) {
-    return new ActionRunner() {
-      @Override
-      public void visit(Action.ForEach.Tag action) {
-        ActionRunner.this.visit(action.toLeaf(get(dataSource, getIndex()), blocks));
-      }
-    };
   }
 
   /**

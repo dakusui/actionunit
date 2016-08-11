@@ -189,7 +189,7 @@ public enum Actions {
   }
 
   public static Action tag(int i) {
-    return new Action.ForEach.Tag(i);
+    return new Action.With.Tag(i);
   }
 
   /**
