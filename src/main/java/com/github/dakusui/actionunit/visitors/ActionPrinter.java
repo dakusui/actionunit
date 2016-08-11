@@ -42,6 +42,11 @@ public class ActionPrinter extends Action.Visitor.Base implements Iterable<Strin
   }
 
   @Override
+  public void visit(Action.With action) {
+
+  }
+
+  @Override
   public Iterator<String> iterator() {
     return this.writer.iterator();
   }

@@ -19,7 +19,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 /**
  * Defines interface of an action performed by ActionUnit runner.
  */
-public interface Action {
+public interface Action extends Describable {
 
   /**
    * Applies a visitor to this element.
@@ -153,8 +153,8 @@ public interface Action {
   class ForEach<T> extends Base {
     private final Composite.Factory factory;
     private final Iterable<T>       dataSource;
-    private final Block<T>[]        blocks;
     private final Action            action;
+    private final Block<T>[]        blocks;
 
 
     public ForEach(Composite.Factory factory, Iterable<T> dataSource, Action action, Block<T>[] blocks) {
@@ -162,14 +162,6 @@ public interface Action {
       this.dataSource = dataSource;
       this.action = checkNotNull(action);
       this.blocks = blocks;
-    }
-
-    public Iterable<T> getDataSource() {
-      return dataSource;
-    }
-
-    public Block<T>[] getBlocks() {
-      return blocks;
     }
 
     @Override
@@ -198,13 +190,10 @@ public interface Action {
     }
 
     public Composite getElements() {
-      final int[] counter = new int[] { 0 };
       Function<T, Action> func = new Function<T, Action>() {
         @Override
         public Action apply(final T t) {
-          synchronized (counter) {
-            return new Indexed(counter[0]++, action);
-          }
+          return new With(t, ForEach.this.action, ForEach.this.blocks);
         }
       };
       return this.factory.create(
@@ -215,7 +204,73 @@ public interface Action {
       );
     }
 
-    public static class Tag extends Action.Base {
+    enum Mode {
+      SEQUENTIALLY {
+        @Override
+        Composite.Factory getFactory() {
+          return Sequential.Factory.INSTANCE;
+        }
+      },
+      CONCURRENTLY {
+        @Override
+        Composite.Factory getFactory() {
+          return Concurrent.Factory.INSTANCE;
+        }
+      };
+
+      abstract Composite.Factory getFactory();
+    }
+  }
+
+  class With<T> extends Base {
+    private final Block<T>[] blocks;
+    private final T          value;
+    private final Action     action;
+
+    public With(T value, Action action, Block<T>[] blocks) {
+      this.value = value;
+      this.action = checkNotNull(action);
+      this.blocks = checkNotNull(blocks);
+    }
+
+
+    public T value() {
+      return this.value;
+    }
+
+    public Block<T>[] getBlocks() {
+      return blocks;
+    }
+
+    public Action getAction() {
+      return this.action;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      return format("%s (%s) { %s }",
+          this.getClass().getSimpleName(),
+          this.value(),
+          join(
+              transform(
+                  asList(this.getBlocks()),
+                  new Function<Block<T>, Object>() {
+                    @Override
+                    public Object apply(Block<T> block) {
+                      return block.describe();
+                    }
+                  }
+              ),
+              ",")
+      );
+    }
+
+    public static class Tag extends Base {
       private final int index;
 
       public Tag(int i) {
@@ -237,8 +292,8 @@ public interface Action {
         return index;
       }
 
-      public <T> Action.Leaf toLeaf(final T data, final Block<T>[] blocks) {
-        return new Action.Leaf() {
+      public <T> Leaf toLeaf(final T data, final Block<T>[] blocks) {
+        return new Leaf() {
           @Override
           public void perform() {
             blocks[Tag.this.getIndex()].apply(data);
@@ -251,54 +306,8 @@ public interface Action {
         };
       }
     }
-
-    public static class Indexed extends Action.Base {
-
-      private final int    index;
-      private final Action target;
-
-      public Indexed(int index, Action target) {
-        this.index = index;
-        this.target = target;
-      }
-
-      public int getIndex() {
-        return this.index;
-      }
-
-      public Action getTarget() {
-        return this.target;
-      }
-
-
-      @Override
-      public void accept(Visitor visitor) {
-        visitor.visit(this);
-      }
-
-      @Override
-      public String describe() {
-        return String.format("%s[%s]", this.getClass().getSimpleName(), this.index);
-      }
-    }
-
-    enum Mode {
-      SEQUENTIALLY {
-        @Override
-        Composite.Factory getFactory() {
-          return Sequential.Factory.INSTANCE;
-        }
-      },
-      CONCURRENTLY {
-        @Override
-        Composite.Factory getFactory() {
-          return Concurrent.Factory.INSTANCE;
-        }
-      };
-
-      abstract Composite.Factory getFactory();
-    }
   }
+
 
   class Retry extends Base {
     public final Action action;
@@ -420,7 +429,14 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action.ForEach.Tag action);
+    void visit(With.Tag action);
+
+    /**
+     * Visits an {@code action}
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Action.With action);
 
     /**
      * Visits an {@code action}
@@ -463,7 +479,12 @@ public interface Action {
       }
 
       @Override
-      public void visit(Action.ForEach.Tag action) {
+      public void visit(With.Tag action) {
+        this.visit((Action) action);
+      }
+
+      @Override
+      public void visit(Action.With action) {
         this.visit((Action) action);
       }
 
