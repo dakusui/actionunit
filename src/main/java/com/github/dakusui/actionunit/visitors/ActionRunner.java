@@ -102,7 +102,10 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
   @Override
   public void visit(final Action.With action) {
     action.getAction().accept(new ActionRunner() {
-
+      @Override
+      public void visit(Action.With.Tag tagAction) {
+        tagAction.toLeaf(action.value(), action.getBlocks()).accept(this);
+      }
     });
   }
 
