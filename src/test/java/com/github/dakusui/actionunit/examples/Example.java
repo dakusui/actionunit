@@ -86,7 +86,7 @@ public class Example {
 
   @Test
   public void test(Action action) {
-    action.accept(new ActionRunner());
+    action.accept(new ActionRunner.Impl());
   }
 
   @DryRun

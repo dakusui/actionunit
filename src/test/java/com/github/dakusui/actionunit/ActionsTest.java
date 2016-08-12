@@ -11,13 +11,12 @@ import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.base.Throwables.propagate;
+import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.synchronizedList;
 import static java.util.concurrent.TimeUnit.*;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class ActionsTest {
@@ -29,7 +28,7 @@ public class ActionsTest {
       public void run() {
         arr.add("Hello");
       }
-    }).accept(new ActionRunner());
+    }).accept(new ActionRunner.Impl());
     assertArrayEquals(arr.toArray(), new Object[] { "Hello" });
   }
 
@@ -49,7 +48,7 @@ public class ActionsTest {
             arr.add("Hello B");
           }
         })
-    ).accept(new ActionRunner());
+    ).accept(new ActionRunner.Impl());
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
 
@@ -74,7 +73,7 @@ public class ActionsTest {
             arr.add("Hello B");
           }
         })
-    ).accept(new ActionRunner());
+    ).accept(new ActionRunner.Impl());
     Collections.sort(arr);
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
@@ -96,7 +95,7 @@ public class ActionsTest {
               arr.add(createEntry());
             }
           })
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } finally {
       for (Map.Entry<Long, Long> i : arr) {
         for (Map.Entry<Long, Long> j : arr) {
@@ -107,12 +106,12 @@ public class ActionsTest {
   }
 
   private Map.Entry<Long, Long> createEntry() {
-    long before = System.currentTimeMillis();
+    long before = currentTimeMillis();
     try {
       TimeUnit.MILLISECONDS.sleep(100);
       return new AbstractMap.SimpleEntry<>(
           before,
-          System.currentTimeMillis()
+          currentTimeMillis()
       );
     } catch (InterruptedException e) {
       throw propagate(e);
@@ -137,7 +136,7 @@ public class ActionsTest {
               arr.add("Hello B");
             }
           })
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } finally {
       Collections.sort(arr);
       assertEquals(asList("Hello A", "Hello B"), arr);
@@ -162,7 +161,7 @@ public class ActionsTest {
               arr.add("Hello B");
             }
           })
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } finally {
       Collections.sort(arr);
       assertEquals(asList("Hello A", "Hello B"), arr);
@@ -178,9 +177,11 @@ public class ActionsTest {
             arr.add("Hello");
           }
         }),
-        1,
+        ////
+        // 10 msec should be sufficient to finish the action above.
+        10,
         MILLISECONDS
-    ).accept(new ActionRunner());
+    ).accept(new ActionRunner.Impl());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
 
@@ -208,7 +209,7 @@ public class ActionsTest {
           }),
           1,
           MILLISECONDS
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
       throw e.getCause();
     } finally {
@@ -229,7 +230,7 @@ public class ActionsTest {
           }),
           1,
           MILLISECONDS
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
       throw e.getCause();
     } finally {
@@ -250,7 +251,7 @@ public class ActionsTest {
           }),
           1,
           MILLISECONDS
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
       throw e.getCause();
     } finally {
@@ -268,7 +269,7 @@ public class ActionsTest {
           }
         }),
         0, 1, MILLISECONDS
-    ).accept(new ActionRunner());
+    ).accept(new ActionRunner.Impl());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
 
@@ -289,7 +290,7 @@ public class ActionsTest {
             }
           }),
           1, 1, MILLISECONDS
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } finally {
       assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
     }
@@ -307,7 +308,7 @@ public class ActionsTest {
             }
           }),
           1, 1, MILLISECONDS
-      ).accept(new ActionRunner());
+      ).accept(new ActionRunner.Impl());
     } finally {
       assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
     }
@@ -318,19 +319,18 @@ public class ActionsTest {
     assertEquals("Retry(2[seconds]x1times)", retry(nop(), 1, 2, SECONDS).describe());
   }
 
-  @Test//(timeout = 3000)
+  @Test(timeout = 3000)
   public void forEachTest() {
     final List<String> arr = new ArrayList<>();
     forEach(
         asList("1", "2"),
         new Block.Base<String>("print") {
           @Override
-          public void apply(String input) {
+          public void apply(String input, Object... outer) {
             arr.add(String.format("Hello %s", input));
           }
         }
-    ).accept(new ActionRunner());
-    System.out.println(arr);
+    ).accept(new ActionRunner.Impl());
     assertArrayEquals(new Object[] { "Hello 1", "Hello 2" }, arr.toArray());
   }
 
@@ -343,7 +343,7 @@ public class ActionsTest {
             CONCURRENTLY,
             new Block.Base<String>() {
               @Override
-              public void apply(String s) {
+              public void apply(String s, Object... outer) {
               }
             }
         ).describe()
@@ -364,7 +364,7 @@ public class ActionsTest {
             SEQUENTIALLY,
             new Block.Base<String>("empty!") {
               @Override
-              public void apply(String s) {
+              public void apply(String s, Object... outer) {
               }
             }
         ).describe()
@@ -372,9 +372,78 @@ public class ActionsTest {
   }
 
   @Test
+  public void givenForEachCreatedWithoutExplicitMode$whenPerform$thenWorksFine() {
+    final List<String> arr = new ArrayList<>();
+    forEach(
+        asList("1", "2"),
+        sequential(
+            simple(new Runnable() {
+                     @Override
+                     public void run() {
+                       arr.add("Hello!");
+                     }
+                   }
+            ),
+            tag(0)
+        ),
+        new Block.Base<String>("print") {
+          @Override
+          public void apply(String input, Object... outer) {
+            arr.add(String.format("Hello %s", input));
+          }
+        }
+    ).accept(new ActionRunner.Impl());
+    assertArrayEquals(new Object[] { "Hello!", "Hello 1", "Hello!", "Hello 2" }, arr.toArray());
+  }
+
+  @Test
+  public void givenWithAction$whenPerformed$thenWorksFine() {
+    final List<String> arr = new ArrayList<>();
+    with("world",
+        new Block.Base<String>() {
+          @Override
+          public void apply(String input, Object... outer) {
+            arr.add(String.format("Hello, %s.", input));
+            arr.add(String.format("%s, bye.", input));
+          }
+        }
+    ).accept(new ActionRunner.Impl());
+    assertEquals(asList("Hello, world.", "world, bye."), arr);
+  }
+
+  /**
+   * Even if too many blocks are given, ActionUnit's normal runner doesn't report
+   * an error. It's left to ActionValidator, which is not yet implemented as of
+   * Aug/12/2016.
+   */
+  @Test
+  public void givenActionWithInsufficientTags$whenPerformed$thenWorksFine() {
+    with("world",
+        sequential(nop()),
+        new Block.Base<String>() {
+          @Override
+          public void apply(String input, Object... outer) {
+          }
+        }
+    ).accept(new ActionRunner.Impl());
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void givenActionWithTooManyTags$whenPerformed$thenAppropriateErrorReported() {
+    with("world",
+        sequential(tag(0), tag(1)),
+        new Block.Base<String>() {
+          @Override
+          public void apply(String input, Object... outer) {
+          }
+        }
+    ).accept(new ActionRunner.Impl());
+  }
+
+  @Test
   public void nopTest() {
     // Just make sure no error happens
-    Actions.nop().accept(new ActionRunner());
+    Actions.nop().accept(new ActionRunner.Impl());
   }
 
 
@@ -382,13 +451,14 @@ public class ActionsTest {
   public void givenWaitForAction$whenPerform$thenExpectedAmountOfTimeSpent() {
     ////
     // To force JVM load classes used by this test, run the action once for warm-up.
-    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner());
+    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
     ////
     // Let's do the test.
-    long before = System.currentTimeMillis();
-    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner());
+    long before = currentTimeMillis();
+    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
+    //noinspection unchecked
     assertThat(
-        System.currentTimeMillis() - before,
+        currentTimeMillis() - before,
         allOf(
             greaterThanOrEqualTo(1L),
             ////
@@ -413,16 +483,16 @@ public class ActionsTest {
       public String describe() {
         return "unsupported";
       }
-    }.accept(new ActionRunner());
+    }.accept(new ActionRunner.Impl());
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$composite() {
-    new Action.Composite("unsupported", singletonList(nop())) {
+    new Action.Composite.Base("unsupported", singletonList(nop())) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
-    }.accept(new ActionRunner());
+    }.accept(new ActionRunner.Impl());
   }
 }

@@ -62,7 +62,7 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a concurrent manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Sequential
+   * @see Action.Sequential.Base
    */
   public static Action concurrent(Action... actions) {
     return concurrent(null, actions);
@@ -73,7 +73,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by a returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Sequential
+   * @see Action.Sequential.Base
    */
   public static Action concurrent(String summary, Action... actions) {
     return concurrent(summary, asList(actions));
@@ -84,7 +84,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Sequential
+   * @see Action.Sequential.Base
    */
   public static Action concurrent(String summary, Iterable<? extends Action> actions) {
     return Action.Concurrent.Factory.INSTANCE.create(summary, actions);
@@ -94,7 +94,7 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Sequential
+   * @see Action.Sequential.Base
    */
   public static Action sequential(Action... actions) {
     return sequential(null, actions);
@@ -105,7 +105,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Sequential
+   * @see Action.Sequential.Base
    */
   public static Action sequential(String summary, Action... actions) {
     return sequential(summary, asList(actions));
@@ -120,10 +120,10 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Sequential
+   * @see Action.Sequential.Base
    */
   public static Action sequential(String summary, Iterable<? extends Action> actions) {
-    return Action.Sequential.Factory.INSTANCE.create(summary, actions);
+    return Action.Sequential.Base.Factory.INSTANCE.create(summary, actions);
   }
 
   /**
@@ -190,6 +190,27 @@ public enum Actions {
 
   public static Action tag(int i) {
     return new Action.With.Tag(i);
+  }
+
+  @SafeVarargs
+  public static <T> Action with(T value, Action action, Block<T>... blocks) {
+    return new Action.With.Base<>(value, action, blocks);
+  }
+
+  @SafeVarargs
+  public static <T> Action with(T value, final Block<T>... blocks) {
+    return with(
+        value,
+        sequential(
+            transform(asList(blocks),
+                new Function<Block<T>, Action>() {
+                  @Override
+                  public Action apply(final Block<T> block) {
+                    return tag(asList(blocks).indexOf(block));
+                  }
+                }
+            )),
+        blocks);
   }
 
   /**
