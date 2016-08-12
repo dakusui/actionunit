@@ -11,6 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import static com.github.dakusui.actionunit.Actions.simple;
+import static com.github.dakusui.actionunit.Describables.describe;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder
@@ -86,12 +87,12 @@ public class Example {
 
   @Test
   public void test(Action action) {
-    action.accept(new ActionRunner());
+    action.accept(new ActionRunner.Impl());
   }
 
   @DryRun
   public void print(Action action) {
-    System.out.println(action.describe());
+    System.out.println(describe(action));
   }
 
   @AfterClass

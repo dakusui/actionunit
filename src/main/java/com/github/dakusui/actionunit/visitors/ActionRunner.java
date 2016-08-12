@@ -22,7 +22,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
  * action.accept(new ActionRunner());
  * </code>
  */
-public class ActionRunner extends Action.Visitor.Base implements Action.Visitor {
+public abstract class ActionRunner extends Action.Visitor.Base implements Action.Visitor, Context {
   public static final int DEFAULT_THREAD_POOL_SIZE = 5;
   private final int threadPoolSize;
 
@@ -53,6 +53,7 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
 
   /**
    * {@inheritDoc}
+   * @param action
    */
   @Override
   public void visit(Action.Sequential action) {
@@ -63,6 +64,7 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
 
   /**
    * {@inheritDoc}
+   * @param action
    */
   @Override
   public void visit(Action.Concurrent action) {
@@ -101,12 +103,7 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
 
   @Override
   public void visit(final Action.With action) {
-    action.getAction().accept(new ActionRunner() {
-      @Override
-      public void visit(Action.With.Tag tagAction) {
-        tagAction.toLeaf(action.value(), action.getBlocks()).accept(this);
-      }
-    });
+    action.getAction().accept(createChildFor(action));
   }
 
   /**
@@ -148,6 +145,43 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
         action.durationInNanos,
         TimeUnit.NANOSECONDS
     );
+  }
+
+  /**
+   * Subclasses of this class must override this method and return a subclass of
+   * it whose {@code visit(Action.With.Tag)} is overridden.
+   * And the method must call {@code acceptTagAction(Action.With.Tag, Action.With, ActionRunner)}.
+   * <p>
+   * <code>
+   * {@literal @}Override
+   * public void visit(Action.With.Tag tagAction) {
+   * acceptTagAction(tagAction, action, this);
+   * }
+   * </code>
+   *
+   * @param action action for which the returned Visitor is created.
+   */
+  protected ActionRunner createChildFor(final Action.With action) {
+    return new ActionRunner() {
+      @Override
+      public ActionRunner getParent() {
+        return ActionRunner.this;
+      }
+
+      @Override
+      public Object value() {
+        return action.source().apply();
+      }
+
+      @Override
+      public void visit(Action.With.Tag tagAction) {
+        acceptTagAction(tagAction, action, this);
+      }
+    };
+  }
+
+  protected static void acceptTagAction(Action.With.Tag tagAction, Action.With withAction, ActionRunner runner) {
+    tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
   }
 
   /**
@@ -194,5 +228,33 @@ public class ActionRunner extends Action.Visitor.Base implements Action.Visitor 
           }
         }
     );
+  }
+
+  public static class Impl extends ActionRunner {
+    private final Object value;
+    private final ActionRunner parent;
+
+    public Impl(Object value, ActionRunner parent) {
+      this.value = value;
+      this.parent = parent;
+    }
+
+    public Impl(Object value) {
+      this(value, null);
+    }
+
+    public Impl() {
+      this(null);
+    }
+
+    @Override
+    public Context getParent() {
+      return this.parent;
+    }
+
+    @Override
+    public Object value() {
+      return value;
+    }
   }
 }

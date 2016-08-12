@@ -1,6 +1,9 @@
 package com.github.dakusui.actionunit;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -149,5 +152,21 @@ public enum Utils {
         }
       }
     };
+  }
+
+  public static <I, O> Iterable<O> transform(Iterable<I> in, Function<? super I, ? extends O> func) {
+    checkNotNull(func);
+    if (in instanceof Collection) {
+      //noinspection unchecked
+      return (Iterable<O>) Collections2.transform((Collection<I>) in, func);
+    }
+    return Iterables.transform(in, func);
+  }
+
+  public static void waitFor(Object obj) {
+    try {
+      checkNotNull(obj).wait();
+    } catch (InterruptedException ignored) {
+    }
   }
 }

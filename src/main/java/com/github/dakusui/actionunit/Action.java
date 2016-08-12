@@ -1,17 +1,14 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.visitors.Context;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 
 import java.util.Collection;
 import java.util.Iterator;
 
 import static com.github.dakusui.actionunit.Utils.*;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.transform;
+import static com.google.common.base.Preconditions.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -19,7 +16,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 /**
  * Defines interface of an action performed by ActionUnit runner.
  */
-public interface Action extends Describable {
+public interface Action {
 
   /**
    * Applies a visitor to this element.
@@ -29,14 +26,9 @@ public interface Action extends Describable {
   void accept(Visitor visitor);
 
   /**
-   * Describes this object.
-   */
-  String describe();
-
-  /**
    * A skeletal base class of all {@code Action}s.
    */
-  abstract class Base implements Action {
+  abstract class Base implements Action, Describable {
   }
 
   /**
@@ -52,68 +44,79 @@ public interface Action extends Describable {
     abstract public void perform();
   }
 
-  /**
-   * A skeletal implementation for composite actions, such as {@link Action.Sequential} or {@link Action.Concurrent}.
-   */
-  abstract class Composite extends Base implements Iterable<Action> {
-    private final Iterable<? extends Action> actions;
-    private final String                     summary;
-
-    public Composite(String summary, Iterable<? extends Action> actions) {
-      this.summary = summary;
-      this.actions = checkNotNull(actions);
-    }
-
-    public String describe() {
-      return format(
-          "%s (%s, %s actions)",
-          nonameIfNull(this.summary),
-          this.getClass().getSimpleName(),
-          unknownIfNegative(this.size())
-      );
-    }
+  interface Composite extends Action, Iterable<Action> {
+    int size();
 
     /**
-     * This method may return negative number if {@code actions} is not a collection.
+     * A skeletal implementation for composite actions, such as {@link Sequential.Base} or {@link Concurrent.Base}.
      */
-    public int size() {
-      if (this.actions instanceof Collection) {
-        return ((Collection) this.actions).size();
-      }
-      return -1;
-    }
+    abstract class Base extends Action.Base implements Composite {
+      private final Iterable<? extends Action> actions;
+      private final String                     summary;
 
-    @Override
-    public Iterator<Action> iterator() {
-      //noinspection unchecked
-      return (Iterator<Action>) this.actions.iterator();
+      public Base(String summary, Iterable<? extends Action> actions) {
+        this.summary = summary;
+        this.actions = checkNotNull(actions);
+      }
+
+      @Override
+      public String describe() {
+        return format(
+            "%s (%s, %s actions)",
+            nonameIfNull(this.summary),
+            getName(),
+            unknownIfNegative(this.size())
+        );
+      }
+
+      /**
+       * This method may return negative number if {@code actions} is not a collection.
+       */
+      @Override
+      public int size() {
+        if (this.actions instanceof Collection) {
+          return ((Collection) this.actions).size();
+        }
+        return -1;
+      }
+
+      @Override
+      public Iterator<Action> iterator() {
+        //noinspection unchecked
+        return (Iterator<Action>) this.actions.iterator();
+      }
+
+      protected String getName() {
+        return this.getClass().getEnclosingClass().getSimpleName();
+      }
     }
 
     interface Factory {
-      Action.Composite create(String summary, Iterable<? extends Action> actions);
+      Composite create(String summary, Iterable<? extends Action> actions);
     }
-
   }
 
-  /**
-   * A class that represents a collection of actions that should be executed concurrently.
-   */
-  class Concurrent extends Composite {
-    public Concurrent(String summary, Iterable<? extends Action> actions) {
-      super(summary, actions);
+  interface Concurrent extends Composite {
+    /**
+     * A class that represents a collection of actions that should be executed concurrently.
+     */
+    class Base extends Composite.Base implements Concurrent {
+      public Base(String summary, Iterable<? extends Action> actions) {
+        super(summary, actions);
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
     }
 
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
-
-    public enum Factory implements Composite.Factory {
+    enum Factory implements Composite.Factory {
       INSTANCE;
 
       @Override
-      public Action.Concurrent create(String summary, Iterable<? extends Action> actions) {
-        return new Action.Concurrent(summary, actions);
+      public Concurrent create(String summary, Iterable<? extends Action> actions) {
+        return new Base(summary, actions);
       }
 
       public String toString() {
@@ -123,25 +126,27 @@ public interface Action extends Describable {
   }
 
   /**
-   * A class that represents a sequence of actions that should be executed one
+   * An interface that represents a sequence of actions that should be executed one
    * after another.
    */
-  class Sequential extends Composite {
-    public Sequential(String summary, Iterable<? extends Action> actions) {
-      super(summary, actions);
+  interface Sequential extends Composite {
+    class Base extends Composite.Base implements Sequential {
+      public Base(String summary, Iterable<? extends Action> actions) {
+        super(summary, actions);
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
     }
 
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
-
-    public enum Factory implements Composite.Factory {
+    enum Factory implements Composite.Factory {
       INSTANCE;
 
       @Override
-      public Action.Sequential create(String summary, Iterable<? extends Action> actions) {
-        return new Action.Sequential(summary, actions);
+      public Sequential create(String summary, Iterable<? extends Action> actions) {
+        return new Base(summary, actions);
       }
 
       public String toString() {
@@ -151,17 +156,17 @@ public interface Action extends Describable {
   }
 
   class ForEach<T> extends Base {
-    private final Composite.Factory factory;
-    private final Iterable<T>       dataSource;
-    private final Action            action;
-    private final Block<T>[]        blocks;
+    private final Composite.Factory   factory;
+    private final Iterable<Source<T>> dataSource;
+    private final Action              action;
+    private final Sink<T>[]           sinks;
 
 
-    public ForEach(Composite.Factory factory, Iterable<T> dataSource, Action action, Block<T>[] blocks) {
+    public ForEach(Composite.Factory factory, Iterable<Source<T>> dataSource, Action action, Sink<T>[] sinks) {
       this.factory = factory;
       this.dataSource = dataSource;
       this.action = checkNotNull(action);
-      this.blocks = blocks;
+      this.sinks = sinks;
     }
 
     @Override
@@ -177,11 +182,11 @@ public interface Action extends Describable {
           unknownIfNegative(sizeOrNegativeIfNonCollection(this.dataSource)),
           join(
               transform(
-                  asList(blocks),
-                  new Function<Block<T>, Object>() {
+                  asList(sinks),
+                  new Function<Sink<T>, Object>() {
                     @Override
-                    public Object apply(Block<T> block) {
-                      return block.describe();
+                    public Object apply(Sink<T> sink) {
+                      return Describables.describe(sink);
                     }
                   }
               ),
@@ -190,17 +195,15 @@ public interface Action extends Describable {
     }
 
     public Composite getElements() {
-      Function<T, Action> func = new Function<T, Action>() {
+      Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
         @Override
-        public Action apply(final T t) {
-          return new With(t, ForEach.this.action, ForEach.this.blocks);
+        public Action apply(final Source<T> t) {
+          //noinspection unchecked
+          return new With.Base(t, ForEach.this.action, ForEach.this.sinks);
         }
       };
       return this.factory.create(
-          null,
-          dataSource instanceof Collection
-              ? Collections2.transform((Collection<T>) dataSource, func)
-              : Iterables.transform(dataSource, func)
+          null, transform(dataSource, func)
       );
     }
 
@@ -222,55 +225,64 @@ public interface Action extends Describable {
     }
   }
 
-  class With<T> extends Base {
-    private final Block<T>[] blocks;
-    private final T          value;
-    private final Action     action;
+  interface With<T> extends Action {
 
-    public With(T value, Action action, Block<T>[] blocks) {
-      this.value = value;
-      this.action = checkNotNull(action);
-      this.blocks = checkNotNull(blocks);
-    }
+    Source<T> source();
+
+    Sink<T>[] getSinks();
+
+    Action getAction();
+
+    class Base<T> extends Action.Base implements With<T> {
+      private final Sink<T>[] sinks;
+      private final Source<T> source;
+      private final Action    action;
+
+      public Base(Source<T> source, Action action, Sink<T>[] sinks) {
+        this.source = checkNotNull(source);
+        this.action = checkNotNull(action);
+        this.sinks = checkNotNull(sinks);
+      }
 
 
-    public T value() {
-      return this.value;
-    }
+      @Override
+      public Source<T> source() {
+        return this.source;
+      }
 
-    public Block<T>[] getBlocks() {
-      return blocks;
-    }
+      public Sink<T>[] getSinks() {
+        return sinks;
+      }
 
-    public Action getAction() {
-      return this.action;
-    }
+      @Override
+      public Action getAction() {
+        return this.action;
+      }
 
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
 
-    @Override
-    public String describe() {
-      return format("%s (%s) { %s }",
-          this.getClass().getSimpleName(),
-          this.value(),
-          join(
-              transform(
-                  asList(this.getBlocks()),
-                  new Function<Block<T>, Object>() {
-                    @Override
-                    public Object apply(Block<T> block) {
-                      return block.describe();
-                    }
+      @Override
+      public String describe() {
+        return format("%s (%s) { %s }",
+            this.getClass().getSimpleName(),
+            Describables.describe(this.source()),
+            join(transform(
+                asList(this.getSinks()),
+                new Function<Sink<T>, Object>() {
+                  @Override
+                  public Object apply(Sink<T> sink) {
+                    return Describables.describe(sink);
                   }
-              ),
-              ",")
-      );
+                }),
+                ","));
+      }
+
     }
 
-    public static class Tag extends Base {
+    class Tag extends Action.Base {
       private final int index;
 
       public Tag(int i) {
@@ -292,11 +304,17 @@ public interface Action extends Describable {
         return index;
       }
 
-      public <T> Leaf toLeaf(final T data, final Block<T>[] blocks) {
+      public <T> Leaf toLeaf(final Source<T> source, final Sink<T>[] sinks, final Context context) {
         return new Leaf() {
           @Override
           public void perform() {
-            blocks[Tag.this.getIndex()].apply(data);
+            checkState(
+                Tag.this.getIndex() < sinks.length,
+                "Insufficient number of block(s) are given. (block[%s] was referenced, but only %s block(s) were given.",
+                Tag.this.getIndex(),
+                sinks.length
+            );
+            sinks[Tag.this.getIndex()].apply(source.apply(), context);
           }
 
           @Override
@@ -307,7 +325,6 @@ public interface Action extends Describable {
       }
     }
   }
-
 
   class Retry extends Base {
     public final Action action;
@@ -401,28 +418,28 @@ public interface Action extends Describable {
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action.Composite action);
+    void visit(Composite action);
 
     /**
      * Visits an {@code action}
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action.Sequential action);
+    void visit(Sequential action);
 
     /**
      * Visits an {@code action}
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action.Concurrent action);
+    void visit(Concurrent action);
 
     /**
      * Visits an {@code action}
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action.ForEach action);
+    void visit(ForEach action);
 
     /**
      * Visits an {@code action}
@@ -436,7 +453,7 @@ public interface Action extends Describable {
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action.With action);
+    void visit(With action);
 
     /**
      * Visits an {@code action}
@@ -465,12 +482,12 @@ public interface Action extends Describable {
 
       @Override
       public void visit(Sequential action) {
-        this.visit((Action.Composite) action);
+        this.visit((Composite) action);
       }
 
       @Override
       public void visit(Concurrent action) {
-        this.visit((Action.Composite) action);
+        this.visit((Composite) action);
       }
 
       @Override
@@ -484,7 +501,7 @@ public interface Action extends Describable {
       }
 
       @Override
-      public void visit(Action.With action) {
+      public void visit(With action) {
         this.visit((Action) action);
       }
 
