@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
+import static com.github.dakusui.actionunit.Utils.transform;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -123,7 +123,7 @@ public enum Actions {
    * @see Action.Sequential.Base
    */
   public static Action sequential(String summary, Iterable<? extends Action> actions) {
-    return Action.Sequential.Base.Factory.INSTANCE.create(summary, actions);
+    return Action.Sequential.Factory.INSTANCE.create(summary, actions);
   }
 
   /**
@@ -152,40 +152,40 @@ public enum Actions {
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, Action action, Block<T>... blocks) {
-    return new Action.ForEach<T>(
+  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, Action action, Sink<T>... sinks) {
+    return new Action.ForEach<>(
         mode.getFactory(),
-        dataSource,
+        transform(dataSource, new ToSource<T>()),
         action,
-        blocks
+        sinks
     );
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, Action action, Block<T>... blocks) {
-    return forEach(dataSource, SEQUENTIALLY, action, blocks);
+  public static <T> Action forEach(Iterable<T> dataSource, Action action, Sink<T>... sinks) {
+    return forEach(dataSource, SEQUENTIALLY, action, sinks);
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, final Block<T>... blocks) {
+  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, final Sink<T>... sinks) {
     return forEach(
         dataSource,
         mode,
         sequential(
-            transform(asList(blocks),
-                new Function<Block<T>, Action>() {
+            transform(asList(sinks),
+                new Function<Sink<T>, Action>() {
                   @Override
-                  public Action apply(final Block<T> block) {
-                    return tag(asList(blocks).indexOf(block));
+                  public Action apply(final Sink<T> sink) {
+                    return tag(asList(sinks).indexOf(sink));
                   }
                 }
             )),
-        blocks);
+        sinks);
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, final Block<T>... blocks) {
-    return forEach(dataSource, SEQUENTIALLY, blocks);
+  public static <T> Action forEach(Iterable<T> dataSource, final Sink<T>... sinks) {
+    return forEach(dataSource, SEQUENTIALLY, sinks);
   }
 
   public static Action tag(int i) {
@@ -193,24 +193,24 @@ public enum Actions {
   }
 
   @SafeVarargs
-  public static <T> Action with(T value, Action action, Block<T>... blocks) {
-    return new Action.With.Base<>(value, action, blocks);
+  public static <T> Action with(T value, Action action, Sink<T>... sinks) {
+    return new Action.With.Base<>(Source.Factory.create(value), action, sinks);
   }
 
   @SafeVarargs
-  public static <T> Action with(T value, final Block<T>... blocks) {
+  public static <T> Action with(T value, final Sink<T>... sinks) {
     return with(
         value,
         sequential(
-            transform(asList(blocks),
-                new Function<Block<T>, Action>() {
+            transform(asList(sinks),
+                new Function<Sink<T>, Action>() {
                   @Override
-                  public Action apply(final Block<T> block) {
-                    return tag(asList(blocks).indexOf(block));
+                  public Action apply(final Sink<T> sink) {
+                    return tag(asList(sinks).indexOf(sink));
                   }
                 }
             )),
-        blocks);
+        sinks);
   }
 
   /**
@@ -262,5 +262,40 @@ public enum Actions {
         return format("Wait for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
       }
     };
+  }
+
+  public static <I, O extends TestAction.Output> Action test(
+      Pipe<I, O> exec,
+      Sink<O> verify
+  ) {
+    return TestAction.Factory.create(exec, verify);
+  }
+
+  public static <I, O extends TestAction.Output> Action test(
+      Function<I, O> exec,
+      Sink<O> verify
+  ) {
+    return test(toPipe(exec), verify);
+  }
+
+  public static <I, O> Pipe<I, O> toPipe(final Function<I, O> func) {
+    checkNotNull(func);
+    return new Pipe.Base<I, O>() {
+      @Override
+      protected O apply(I input, Object... outer) {
+        return func.apply(input);
+      }
+    };
+  }
+
+  public static <T> Source<T> toSource(T value) {
+    return Source.Factory.create(value);
+  }
+
+  public static class ToSource<T> implements Function<T, Source<T>> {
+    @Override
+    public Source<T> apply(T t) {
+      return Actions.toSource(t);
+    }
   }
 }

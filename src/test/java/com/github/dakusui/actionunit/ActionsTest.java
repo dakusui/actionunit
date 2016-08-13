@@ -1,6 +1,9 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.TestAction.Output.Text;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.visitors.Context;
+import com.google.common.base.Function;
 import org.junit.Test;
 
 import java.util.*;
@@ -10,6 +13,7 @@ import java.util.concurrent.TimeoutException;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.Describables.describe;
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
@@ -53,8 +57,14 @@ public class ActionsTest {
   }
 
   @Test
+  public void givenSequentialAction$whenSize$thenCorrect() {
+    Action.Composite action = (Action.Composite) sequential(nop(), nop(), nop());
+    assertEquals(3, action.size());
+  }
+
+  @Test
   public void givenSequentialAction$whenDescribe$thenLooksNice() {
-    assertEquals("(noname) (Sequential, 1 actions)", sequential(nop()).describe());
+    assertEquals("(noname) (Sequential, 1 actions)", describe(sequential(nop())));
   }
 
   @Test(timeout = 9000)
@@ -187,9 +197,9 @@ public class ActionsTest {
 
   @Test
   public void givenTimeoutAction$whenDescribe$thenLooksNice() {
-    assertEquals("TimeOut (1[milliseconds])", timeout(nop(), 1, MILLISECONDS).describe());
-    assertEquals("TimeOut (10[seconds])", timeout(nop(), 10000, MILLISECONDS).describe());
-    assertEquals("TimeOut (1000[days])", timeout(nop(), 1000, DAYS).describe());
+    assertEquals("TimeOut (1[milliseconds])", describe(timeout(nop(), 1, MILLISECONDS)));
+    assertEquals("TimeOut (10[seconds])", describe(timeout(nop(), 10000, MILLISECONDS)));
+    assertEquals("TimeOut (1000[days])", describe(timeout(nop(), 1000, DAYS)));
   }
 
   @Test(expected = TimeoutException.class, timeout = 10000)
@@ -316,7 +326,7 @@ public class ActionsTest {
 
   @Test
   public void givenRetryAction$whenDescribe$thenLooksNice() {
-    assertEquals("Retry(2[seconds]x1times)", retry(nop(), 1, 2, SECONDS).describe());
+    assertEquals("Retry(2[seconds]x1times)", describe(retry(nop(), 1, 2, SECONDS)));
   }
 
   @Test(timeout = 3000)
@@ -324,7 +334,7 @@ public class ActionsTest {
     final List<String> arr = new ArrayList<>();
     forEach(
         asList("1", "2"),
-        new Block.Base<String>("print") {
+        new Sink.Base<String>("print") {
           @Override
           public void apply(String input, Object... outer) {
             arr.add(String.format("Hello %s", input));
@@ -338,15 +348,15 @@ public class ActionsTest {
   public void givenForEachAction$whenDescribe$thenLooksNice() {
     assertEquals(
         "ForEach (Concurrent, 2 items) { (noname) }",
-        forEach(
+        describe(forEach(
             asList("hello", "world"),
             CONCURRENTLY,
-            new Block.Base<String>() {
+            new Sink.Base<String>() {
               @Override
               public void apply(String s, Object... outer) {
               }
             }
-        ).describe()
+        ))
     );
   }
 
@@ -354,7 +364,7 @@ public class ActionsTest {
   public void givenForEachActionViaNonCollection$whenDescribe$thenLooksNice() {
     assertEquals(
         "ForEach (Sequential, ? items) { empty! }",
-        forEach(
+        describe(forEach(
             new Iterable<String>() {
               @Override
               public Iterator<String> iterator() {
@@ -362,12 +372,12 @@ public class ActionsTest {
               }
             },
             SEQUENTIALLY,
-            new Block.Base<String>("empty!") {
+            new Sink.Base<String>("empty!") {
               @Override
               public void apply(String s, Object... outer) {
               }
             }
-        ).describe()
+        ))
     );
   }
 
@@ -386,7 +396,7 @@ public class ActionsTest {
             ),
             tag(0)
         ),
-        new Block.Base<String>("print") {
+        new Sink.Base<String>("print") {
           @Override
           public void apply(String input, Object... outer) {
             arr.add(String.format("Hello %s", input));
@@ -400,7 +410,7 @@ public class ActionsTest {
   public void givenWithAction$whenPerformed$thenWorksFine() {
     final List<String> arr = new ArrayList<>();
     with("world",
-        new Block.Base<String>() {
+        new Sink.Base<String>() {
           @Override
           public void apply(String input, Object... outer) {
             arr.add(String.format("Hello, %s.", input));
@@ -420,7 +430,7 @@ public class ActionsTest {
   public void givenActionWithInsufficientTags$whenPerformed$thenWorksFine() {
     with("world",
         sequential(nop()),
-        new Block.Base<String>() {
+        new Sink.Base<String>() {
           @Override
           public void apply(String input, Object... outer) {
           }
@@ -432,7 +442,7 @@ public class ActionsTest {
   public void givenActionWithTooManyTags$whenPerformed$thenAppropriateErrorReported() {
     with("world",
         sequential(tag(0), tag(1)),
-        new Block.Base<String>() {
+        new Sink.Base<String>() {
           @Override
           public void apply(String input, Object... outer) {
           }
@@ -471,17 +481,27 @@ public class ActionsTest {
     );
   }
 
+  @Test
+  public void givenTestAction$whenPerformed$thenWorksFine() {
+    with("world", test(new Function<String, Text>() {
+      @Override
+      public Text apply(String s) {
+        return new Text("hello:" + s);
+      }
+    }, new Sink<Text>() {
+      @Override
+      public void apply(Text input, Context context) {
+        assertEquals("hello:world", input.value());
+      }
+    })).accept(new ActionRunner.Impl());
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$simple() {
     new Action() {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
-      }
-
-      @Override
-      public String describe() {
-        return "unsupported";
       }
     }.accept(new ActionRunner.Impl());
   }

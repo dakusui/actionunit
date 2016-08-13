@@ -170,7 +170,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
       @Override
       public Object value() {
-        return action.value();
+        return action.source().apply();
       }
 
       @Override
@@ -181,7 +181,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   protected static void acceptTagAction(Action.With.Tag tagAction, Action.With withAction, ActionRunner runner) {
-    tagAction.toLeaf(withAction.value(), withAction.getBlocks(), runner).accept(runner);
+    tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
   }
 
   /**

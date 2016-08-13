@@ -10,20 +10,10 @@ import java.util.List;
  *
  * @param <T> Type of input value.
  */
-public interface Block<T> {
+public interface Sink<T> {
   void apply(T input, Context context);
 
-  /**
-   * Applies this block to {@code input}.
-   *
-   * @param input An input to apply this object.
-   * @param outer Inputs from outer {@code With} actions.
-   */
-  void apply(T input, Object... outer);
-
-  String describe();
-
-  abstract class Base<T> implements Block<T> {
+  abstract class Base<T> implements Sink<T>, Describable {
     private final String description;
 
     protected Base(String description) {
@@ -43,6 +33,14 @@ public interface Block<T> {
       }
       this.apply(input, args.toArray());
     }
+
+    /**
+     * Applies this sink to {@code input}.
+     *
+     * @param input An input to apply this object.
+     * @param outer Inputs from outer {@code With} actions.
+     */
+    abstract protected void apply(T input, Object... outer);
 
     @Override
     public String describe() {

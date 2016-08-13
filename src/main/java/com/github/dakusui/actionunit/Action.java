@@ -3,15 +3,12 @@ package com.github.dakusui.actionunit;
 import com.github.dakusui.actionunit.visitors.Context;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 
 import java.util.Collection;
 import java.util.Iterator;
 
 import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.*;
-import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -19,7 +16,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 /**
  * Defines interface of an action performed by ActionUnit runner.
  */
-public interface Action extends Describable {
+public interface Action {
 
   /**
    * Applies a visitor to this element.
@@ -29,14 +26,9 @@ public interface Action extends Describable {
   void accept(Visitor visitor);
 
   /**
-   * Describes this object.
-   */
-  String describe();
-
-  /**
    * A skeletal base class of all {@code Action}s.
    */
-  abstract class Base implements Action {
+  abstract class Base implements Action, Describable {
   }
 
   /**
@@ -147,34 +139,34 @@ public interface Action extends Describable {
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
+    }
 
-      public enum Factory implements Composite.Factory {
-        INSTANCE;
+    enum Factory implements Composite.Factory {
+      INSTANCE;
 
-        @Override
-        public Sequential create(String summary, Iterable<? extends Action> actions) {
-          return new Sequential.Base(summary, actions);
-        }
+      @Override
+      public Sequential create(String summary, Iterable<? extends Action> actions) {
+        return new Base(summary, actions);
+      }
 
-        public String toString() {
-          return "Sequential";
-        }
+      public String toString() {
+        return "Sequential";
       }
     }
   }
 
   class ForEach<T> extends Base {
-    private final Composite.Factory factory;
-    private final Iterable<T>       dataSource;
-    private final Action            action;
-    private final Block<T>[]        blocks;
+    private final Composite.Factory   factory;
+    private final Iterable<Source<T>> dataSource;
+    private final Action              action;
+    private final Sink<T>[]           sinks;
 
 
-    public ForEach(Composite.Factory factory, Iterable<T> dataSource, Action action, Block<T>[] blocks) {
+    public ForEach(Composite.Factory factory, Iterable<Source<T>> dataSource, Action action, Sink<T>[] sinks) {
       this.factory = factory;
       this.dataSource = dataSource;
       this.action = checkNotNull(action);
-      this.blocks = blocks;
+      this.sinks = sinks;
     }
 
     @Override
@@ -190,11 +182,11 @@ public interface Action extends Describable {
           unknownIfNegative(sizeOrNegativeIfNonCollection(this.dataSource)),
           join(
               transform(
-                  asList(blocks),
-                  new Function<Block<T>, Object>() {
+                  asList(sinks),
+                  new Function<Sink<T>, Object>() {
                     @Override
-                    public Object apply(Block<T> block) {
-                      return block.describe();
+                    public Object apply(Sink<T> sink) {
+                      return Describables.describe(sink);
                     }
                   }
               ),
@@ -203,18 +195,15 @@ public interface Action extends Describable {
     }
 
     public Composite getElements() {
-      Function<T, Action> func = new Function<T, Action>() {
+      Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
         @Override
-        public Action apply(final T t) {
+        public Action apply(final Source<T> t) {
           //noinspection unchecked
-          return new With.Base(t, ForEach.this.action, ForEach.this.blocks);
+          return new With.Base(t, ForEach.this.action, ForEach.this.sinks);
         }
       };
       return this.factory.create(
-          null,
-          dataSource instanceof Collection
-              ? Collections2.transform((Collection<T>) dataSource, func)
-              : Iterables.transform(dataSource, func)
+          null, transform(dataSource, func)
       );
     }
 
@@ -222,7 +211,7 @@ public interface Action extends Describable {
       SEQUENTIALLY {
         @Override
         Composite.Factory getFactory() {
-          return Sequential.Base.Factory.INSTANCE;
+          return Sequential.Factory.INSTANCE;
         }
       },
       CONCURRENTLY {
@@ -238,32 +227,31 @@ public interface Action extends Describable {
 
   interface With<T> extends Action {
 
-    T value();
+    Source<T> source();
 
-    Block[] getBlocks();
+    Sink<T>[] getSinks();
 
     Action getAction();
 
     class Base<T> extends Action.Base implements With<T> {
-      private final Block<T>[] blocks;
-      private final T          value;
-      private final Action     action;
+      private final Sink<T>[] sinks;
+      private final Source<T> source;
+      private final Action    action;
 
-      public Base(T value, Action action, Block<T>[] blocks) {
-        this.value = value;
+      public Base(Source<T> source, Action action, Sink<T>[] sinks) {
+        this.source = checkNotNull(source);
         this.action = checkNotNull(action);
-        this.blocks = checkNotNull(blocks);
+        this.sinks = checkNotNull(sinks);
       }
 
 
       @Override
-      public T value() {
-        return this.value;
+      public Source<T> source() {
+        return this.source;
       }
 
-      @Override
-      public Block<T>[] getBlocks() {
-        return blocks;
+      public Sink<T>[] getSinks() {
+        return sinks;
       }
 
       @Override
@@ -280,19 +268,16 @@ public interface Action extends Describable {
       public String describe() {
         return format("%s (%s) { %s }",
             this.getClass().getSimpleName(),
-            this.value(),
-            join(
-                transform(
-                    asList(this.getBlocks()),
-                    new Function<Block<T>, Object>() {
-                      @Override
-                      public Object apply(Block<T> block) {
-                        return block.describe();
-                      }
-                    }
-                ),
-                ",")
-        );
+            Describables.describe(this.source()),
+            join(transform(
+                asList(this.getSinks()),
+                new Function<Sink<T>, Object>() {
+                  @Override
+                  public Object apply(Sink<T> sink) {
+                    return Describables.describe(sink);
+                  }
+                }),
+                ","));
       }
 
     }
@@ -319,17 +304,17 @@ public interface Action extends Describable {
         return index;
       }
 
-      public <T> Leaf toLeaf(final T data, final Block<T>[] blocks, final Context context) {
+      public <T> Leaf toLeaf(final Source<T> source, final Sink<T>[] sinks, final Context context) {
         return new Leaf() {
           @Override
           public void perform() {
             checkState(
-                Tag.this.getIndex() < blocks.length,
+                Tag.this.getIndex() < sinks.length,
                 "Insufficient number of block(s) are given. (block[%s] was referenced, but only %s block(s) were given.",
                 Tag.this.getIndex(),
-                blocks.length
+                sinks.length
             );
-            blocks[Tag.this.getIndex()].apply(data, context);
+            sinks[Tag.this.getIndex()].apply(source.apply(), context);
           }
 
           @Override

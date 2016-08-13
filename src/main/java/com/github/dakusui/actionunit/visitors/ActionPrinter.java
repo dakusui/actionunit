@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.github.dakusui.actionunit.Describables.describe;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @SuppressWarnings("ALL")
@@ -25,12 +26,12 @@ public class ActionPrinter extends Action.Visitor.Base implements Iterable<Strin
 
   @Override
   public void visit(Action action) {
-    writer.writeLine(indent(this.indent) + action.describe());
+    writer.writeLine(indent(this.indent) + describe(action));
   }
 
   @Override
   public void visit(Action.Composite action) {
-    writer.writeLine(indent(this.indent) + action.describe());
+    writer.writeLine(indent(this.indent) + describe(action));
     indent++;
     try {
       for (Action child : action) {

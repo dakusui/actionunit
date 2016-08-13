@@ -37,7 +37,7 @@ public class ActionPrinterTest {
         }),
         forEach(
             asList("hello1", "hello2", "hello3"),
-            new Block.Base<String>("block1") {
+            new Sink.Base<String>("block1") {
               @Override
               public void apply(String input, Object... outer) {
 
