@@ -3,8 +3,8 @@
     <groupId>com.github.dakusui</groupId>
     <artifactId>actionunit</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
-    <description> Action based junit test runner library</description>
+    <version>1.0.3-SNAPSHOT</version>
+    <description>Action based junit test runner library</description>
 
     <name>actionunit</name>
     <url>https://github.com/dakusui/actionunit</url>
@@ -22,8 +22,8 @@
         <developerConnection>scm:git:git@github.com:dakusui/actionunit.git
         </developerConnection>
         <url>http://dakusui.github.io/actionuint</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <developers>
         <developer>
@@ -39,14 +39,25 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.dakusui</groupId>
-            <artifactId>fruitjuice</artifactId>
-            <version>[1.0.2,)</version>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
+            <version>19.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -146,16 +157,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.1</version>
-                        <configuration>
-                            <reportOutputDirectory>${basedir}/src/site</reportOutputDirectory>
-                            <destDir>apidocs</destDir>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
-                    </plugin -->
                 </plugins>
             </build>
         </profile>

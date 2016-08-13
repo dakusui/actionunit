@@ -3,47 +3,74 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionException;
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 
 import java.util.concurrent.*;
 
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
-import static com.google.common.base.Throwables.propagate;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.size;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
-public class ActionRunner implements Action.Visitor {
-  private static final int THREAD_POOL_SIZE = 5;
+/**
+ * A simple visitor that invokes actions.
+ * Typically, an instance of this class will be applied to a given action in a following manner.
+ * <p/>
+ * <code>
+ * action.accept(new ActionRunner());
+ * </code>
+ */
+public abstract class ActionRunner extends Action.Visitor.Base implements Action.Visitor, Context {
+  public static final int DEFAULT_THREAD_POOL_SIZE = 5;
+  private final int threadPoolSize;
 
+  public ActionRunner(int threadPoolSize) {
+    checkArgument(threadPoolSize > 0, "Thread pool size must be larger than 0 but %s was given.", threadPoolSize);
+    this.threadPoolSize = threadPoolSize;
+  }
+
+  public ActionRunner() {
+    this(DEFAULT_THREAD_POOL_SIZE);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(Action action) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(Action.Leaf action) {
     action.perform();
   }
 
-  @Override
-  public void visit(Action.Composite action) {
-    throw new UnsupportedOperationException();
-  }
-
+  /**
+   * {@inheritDoc}
+   * @param action
+   */
   @Override
   public void visit(Action.Sequential action) {
-    for (Action each : action.actions) {
-      toTask(each).run();
+    for (Action each : action) {
+      toRunnable(each).run();
     }
   }
 
+  /**
+   * {@inheritDoc}
+   * @param action
+   */
   @Override
   public void visit(Action.Concurrent action) {
-    final ExecutorService pool = newFixedThreadPool(min(THREAD_POOL_SIZE, size(action.actions)));
+    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
     try {
-      for (final Future<Boolean> future : pool.invokeAll(newArrayList(toTasks(action.actions)))) {
+      for (final Future<Boolean> future : pool.invokeAll(newArrayList(toCallables(toRunnables(action))))) {
         ////
         // Unless accessing the returned value of Future#get(), compiler may
         // optimize execution and the action may not be executed even if this loop
@@ -70,34 +97,42 @@ public class ActionRunner implements Action.Visitor {
   }
 
   @Override
+  public void visit(Action.ForEach action) {
+    action.getElements().accept(this);
+  }
+
+  @Override
+  public void visit(final Action.With action) {
+    action.getAction().accept(createChildFor(action));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void visit(Action.Retry action) {
     try {
-      toTask(action.action).run();
+      toRunnable(action.action).run();
     } catch (ActionException e) {
       ActionException lastException = e;
       for (int i = 0; i < action.times; i++) {
         try {
           TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
-          toTask(action.action).run();
+          toRunnable(action.action).run();
           return;
         } catch (ActionException ee) {
           lastException = ee;
-          continue;
         } catch (InterruptedException ee) {
-          throw propagate(ee);
+          throw new ActionException(ee);
         }
       }
       throw lastException;
     }
   }
 
-  @Override
-  public <T> void visit(Action.RepeatIncrementally<T> action) {
-    for (T each : action.dataSource) {
-      toTask(action.factoryForActionWithTarget.create(each)).run();
-    }
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void visit(final Action.TimeOut action) {
     runWithTimeout(new Callable<Object>() {
@@ -107,9 +142,46 @@ public class ActionRunner implements Action.Visitor {
                        return true;
                      }
                    },
-        action.time,
+        action.durationInNanos,
         TimeUnit.NANOSECONDS
     );
+  }
+
+  /**
+   * Subclasses of this class must override this method and return a subclass of
+   * it whose {@code visit(Action.With.Tag)} is overridden.
+   * And the method must call {@code acceptTagAction(Action.With.Tag, Action.With, ActionRunner)}.
+   * <p>
+   * <code>
+   * {@literal @}Override
+   * public void visit(Action.With.Tag tagAction) {
+   * acceptTagAction(tagAction, action, this);
+   * }
+   * </code>
+   *
+   * @param action action for which the returned Visitor is created.
+   */
+  protected ActionRunner createChildFor(final Action.With action) {
+    return new ActionRunner() {
+      @Override
+      public ActionRunner getParent() {
+        return ActionRunner.this;
+      }
+
+      @Override
+      public Object value() {
+        return action.source().apply();
+      }
+
+      @Override
+      public void visit(Action.With.Tag tagAction) {
+        acceptTagAction(tagAction, action, this);
+      }
+    };
+  }
+
+  protected static void acceptTagAction(Action.With.Tag tagAction, Action.With withAction, ActionRunner runner) {
+    tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
   }
 
   /**
@@ -119,7 +191,7 @@ public class ActionRunner implements Action.Visitor {
    * @param action An action executed by a runnable object returned by this method.
    */
   @SuppressWarnings("WeakerAccess")
-  protected Runnable toTask(final Action action) {
+  protected Runnable toRunnable(final Action action) {
     return new Runnable() {
       @Override
       public void run() {
@@ -128,16 +200,28 @@ public class ActionRunner implements Action.Visitor {
     };
   }
 
-  private Iterable<Callable<Boolean>> toTasks(final Iterable<? extends Action> actions) {
-    return Iterables.transform(
+  private Iterable<Runnable> toRunnables(final Iterable<? extends Action> actions) {
+    return transform(
         actions,
-        new Function<Action, Callable<Boolean>>() {
+        new Function<Action, Runnable>() {
           @Override
-          public Callable<Boolean> apply(final Action input) {
+          public Runnable apply(final Action input) {
+            return toRunnable(input);
+          }
+        }
+    );
+  }
+
+  private Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
+    return transform(
+        runnables,
+        new Function<Runnable, Callable<Boolean>>() {
+          @Override
+          public Callable<Boolean> apply(final Runnable input) {
             return new Callable<Boolean>() {
               @Override
-              public Boolean call() throws ActionException {
-                toTask(input).run();
+              public Boolean call() throws Exception {
+                input.run();
                 return true;
               }
             };
@@ -145,6 +229,32 @@ public class ActionRunner implements Action.Visitor {
         }
     );
   }
+
+  public static class Impl extends ActionRunner {
+    private final Object value;
+    private final ActionRunner parent;
+
+    public Impl(Object value, ActionRunner parent) {
+      this.value = value;
+      this.parent = parent;
+    }
+
+    public Impl(Object value) {
+      this(value, null);
+    }
+
+    public Impl() {
+      this(null);
+    }
+
+    @Override
+    public Context getParent() {
+      return this.parent;
+    }
+
+    @Override
+    public Object value() {
+      return value;
+    }
+  }
 }
-
-

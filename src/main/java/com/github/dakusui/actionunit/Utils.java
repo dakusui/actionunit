@@ -1,20 +1,96 @@
 package com.github.dakusui.actionunit;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
+import static java.lang.String.format;
 
+/**
+ * A utility class for static methods which are too trivial to create classes to which they should
+ * belong.
+ */
 public enum Utils {
   ;
+
+  public static <T> T runWithTimeout(Callable<T> callable, long timeout, TimeUnit timeUnit) {
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
+    final Future<T> future = executor.submit(callable);
+    executor.shutdown(); // This does not cancel the already-scheduled task.
+    try {
+      return future.get(timeout, timeUnit);
+    } catch (InterruptedException e) {
+      throw new ActionException(e);
+    } catch (TimeoutException e) {
+      future.cancel(true);
+      throw new ActionException(e);
+    } catch (ExecutionException e) {
+      //unwrap the root cause
+      Throwable cause = e.getCause();
+      if (cause instanceof Error) {
+        throw (Error) cause;
+      }
+      ////
+      // It's safe to directly cast to RuntimeException, because a Callable can only
+      // throw an Error or a RuntimeException.
+      throw (RuntimeException) cause;
+    }
+  }
+
+  public static TimeUnit chooseTimeUnit(long intervalInNanos) {
+    // TimeUnit.values() returns elements of TimeUnit in declared order
+    // And they are declared in ascending order.
+    for (TimeUnit timeUnit : TimeUnit.values()) {
+      if (1000 > timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {
+        return timeUnit;
+      }
+    }
+    return TimeUnit.DAYS;
+  }
+
+  public static String formatDuration(long durationInNanos) {
+    TimeUnit timeUnit = chooseTimeUnit(durationInNanos);
+    return format("%d[%s]", timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
+  }
+
+  public static String nonameIfNull(String summary) {
+    return summary == null
+        ? "(noname)"
+        : summary;
+  }
+
+  public static String unknownIfNegative(int size) {
+    return size < 0
+        ? "?"
+        : Integer.toString(size);
+  }
+
+  public static <T> int sizeOrNegativeIfNonCollection(Iterable<T> iterable) {
+    checkNotNull(iterable);
+    if (iterable instanceof Collection) {
+      return Collection.class.cast(iterable).size();
+    }
+    return -1;
+  }
+
+  static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
+    return expected.isAssignableFrom(actual)
+        || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
+        || Iterable.class.isAssignableFrom(actual);
+  }
 
   /**
    * Creates a {@code TestClass} object to mock {@code Parameterized} class's logic
@@ -68,6 +144,8 @@ public enum Utils {
 
       private Method getDummyMethod() {
         try {
+          ////
+          // Just chose "toString" because we know java.lang.Object has the method.
           return Object.class.getMethod("toString");
         } catch (NoSuchMethodException e) {
           throw propagate(e);
@@ -76,44 +154,19 @@ public enum Utils {
     };
   }
 
-  public static <T> T runWithTimeout(Callable<T> callable, long timeout, TimeUnit timeUnit) {
-    final ExecutorService executor = Executors.newSingleThreadExecutor();
-    final Future<T> future = executor.submit(callable);
-    executor.shutdown(); // This does not cancel the already-scheduled task.
+  public static <I, O> Iterable<O> transform(Iterable<I> in, Function<? super I, ? extends O> func) {
+    checkNotNull(func);
+    if (in instanceof Collection) {
+      //noinspection unchecked
+      return (Iterable<O>) Collections2.transform((Collection<I>) in, func);
+    }
+    return Iterables.transform(in, func);
+  }
+
+  public static void waitFor(Object obj) {
     try {
-      return future.get(timeout, timeUnit);
-    } catch (InterruptedException e) {
-      throw propagate(e);
-    } catch (TimeoutException e) {
-      future.cancel(true);
-      throw new ActionException(e);
-    } catch (ExecutionException e) {
-      //unwrap the root cause
-      Throwable t = e.getCause();
-      if (t instanceof Error) {
-        throw (Error) t;
-      } else if (t instanceof RuntimeException) {
-        throw (RuntimeException) t;
-      } else {
-        throw propagate(t);
-      }
+      checkNotNull(obj).wait();
+    } catch (InterruptedException ignored) {
     }
-  }
-
-  public static TimeUnit chooseTimeUnit(long intervalInNanos) {
-    // TimeUnit.values() returns elements of TimeUnit in declared order
-    // And they are declared in ascending order.
-    for (TimeUnit timeUnit : TimeUnit.values()) {
-      if (1000 > timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {
-        return timeUnit;
-      }
-    }
-    return TimeUnit.DAYS;
-  }
-
-  static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
-    return expected.isAssignableFrom(actual)
-        || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
-        || Iterable.class.isAssignableFrom(actual);
   }
 }

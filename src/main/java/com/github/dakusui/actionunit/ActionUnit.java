@@ -28,6 +28,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
+/**
+ * The custom runner of ActionUnit.
+ */
 public class ActionUnit extends Parameterized {
   /**
    * An annotation to let ActionUnit know the target elements annotated by it provide
@@ -175,8 +178,10 @@ public class ActionUnit extends Parameterized {
             });
       }
       throw new RuntimeException(format("Unsupported type (%s)", result.getClass().getCanonicalName()));
-    } catch (Throwable e) {
+    } catch (IllegalAccessException | InstantiationException e) {
       throw propagate(e);
+    } catch (Throwable throwable) {
+      throw new ActionException(throwable);
     }
   }
 
