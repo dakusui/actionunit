@@ -1,9 +1,11 @@
 package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.TestAction.Output.Text;
+import com.github.dakusui.actionunit.TestOutput.Text;
+import com.github.dakusui.actionunit.connectors.Connectors;
+import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.github.dakusui.actionunit.visitors.Context;
 import com.google.common.base.Function;
+import org.junit.ComparisonFailure;
 import org.junit.Test;
 
 import java.util.*;
@@ -14,7 +16,9 @@ import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Describables.describe;
+import static com.github.dakusui.actionunit.Utils.transform;
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterables.toArray;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -202,7 +206,7 @@ public class ActionsTest {
     assertEquals("TimeOut (1000[days])", describe(timeout(nop(), 1000, DAYS)));
   }
 
-  @Test(expected = TimeoutException.class, timeout = 10000)
+  @Test(expected = TimeoutException.class)
   public void timeoutTest$timeout() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
@@ -482,18 +486,115 @@ public class ActionsTest {
   }
 
   @Test
-  public void givenTestAction$whenPerformed$thenWorksFine() {
-    with("world", test(new Function<String, Text>() {
-      @Override
-      public Text apply(String s) {
-        return new Text("hello:" + s);
-      }
-    }, new Sink<Text>() {
-      @Override
-      public void apply(Text input, Context context) {
-        assertEquals("hello:world", input.value());
-      }
-    })).accept(new ActionRunner.Impl());
+  public void givenPipeAction$whenPerformed$thenWorksFine() {
+    with("world",
+        pipe(
+            Connectors.<String>context(),
+            new Function<String, Text>() {
+              @Override
+              public Text apply(String s) {
+                return new Text("hello:" + s);
+              }
+            }, new Sink<Text>() {
+              @Override
+              public void apply(Text input, Context context) {
+                assertEquals("hello:world", input.value());
+              }
+            })).accept(new ActionRunner.Impl());
+  }
+
+  @Test
+  public void givenSimplePipeAction$whenPerformed$thenWorksFine() {
+    final List<Text> out = new LinkedList<>();
+    forEach(asList("world", "WORLD"),
+        pipe(
+            new Function<String, Text>() {
+              @Override
+              public Text apply(String s) {
+                return new Text("hello:" + s);
+              }
+            },
+            new Sink<Text>() {
+              @Override
+              public void apply(Text input, Context context) {
+                out.add(input);
+              }
+            }
+        )).accept(new ActionRunner.Impl());
+    assertArrayEquals(
+        asList("hello:world", "hello:WORLD").toArray(new String[2]),
+        toArray(transform(out, new Function<Text, String>() {
+          @Override
+          public String apply(Text input) {
+            return input.value();
+          }
+        }), String.class)
+    );
+  }
+
+  @Test
+  public void givenSimplestPipeAction$whenPerformed$thenWorksFine() {
+    final List<Text> out = new LinkedList<>();
+    with("world",
+        pipe(
+            new Function<String, Text>() {
+              @Override
+              public Text apply(String s) {
+                out.add(new Text("hello:" + s));
+                return out.get(0);
+              }
+            }
+        )).accept(new ActionRunner.Impl());
+    assertEquals("hello:world", out.get(0).value());
+  }
+
+  @Test(expected = ComparisonFailure.class)
+  public void givenPipeAction$whenPerformedAndThrowsException$thenPassesThrough() throws Throwable {
+    with("world",
+        pipe(
+            Connectors.<String>context(),
+            new Function<String, Text>() {
+              @Override
+              public Text apply(String s) {
+                return new Text("Hello:" + s);
+              }
+            }, new Sink<Text>() {
+              @Override
+              public void apply(Text input, Context context) {
+                assertEquals("hello:world", input.value());
+              }
+            })).accept(new ActionRunner.Impl());
+  }
+
+  @Test
+  public void givenPipeActionFromFunction$whenPerformed$thenWorksFine() throws Throwable {
+    final List<String> out = new LinkedList<>();
+    with("world",
+        pipe(
+            Connectors.<String>context(),
+            new Function<String, Text>() {
+              @Override
+              public Text apply(String s) {
+                return new Text("Hello:" + s);
+              }
+            },
+            new Sink<Text>() {
+              @Override
+              public void apply(Text input, Context context) {
+                out.add(input.value());
+              }
+            },
+            new Sink<Text>() {
+              @Override
+              public void apply(Text input, Context context) {
+                out.add(input.value());
+              }
+            }
+        )).accept(new ActionRunner.Impl());
+    assertEquals(
+        asList("Hello:world", "Hello:world"),
+        out
+    );
   }
 
   @Test(expected = UnsupportedOperationException.class)

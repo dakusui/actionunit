@@ -1,5 +1,9 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.connectors.Connectors;
+import com.github.dakusui.actionunit.connectors.Pipe;
+import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 
 import java.util.concurrent.TimeUnit;
@@ -7,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
 import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
+import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
@@ -194,7 +200,7 @@ public enum Actions {
 
   @SafeVarargs
   public static <T> Action with(T value, Action action, Sink<T>... sinks) {
-    return new Action.With.Base<>(Source.Factory.create(value), action, sinks);
+    return new Action.With.Base<>(Connectors.immutable(value), action, sinks);
   }
 
   @SafeVarargs
@@ -264,38 +270,44 @@ public enum Actions {
     };
   }
 
-  public static <I, O extends TestAction.Output> Action test(
-      Pipe<I, O> exec,
-      Sink<O> verify
+  @SafeVarargs
+  public static <I, O> Action pipe(
+      Source<I> source,
+      Pipe<I, O> piped,
+      Sink<O>... sinks
   ) {
-    return TestAction.Factory.create(exec, verify);
+    return Action.Piped.Factory.create(source, piped, sinks);
   }
 
-  public static <I, O extends TestAction.Output> Action test(
-      Function<I, O> exec,
-      Sink<O> verify
+  @SafeVarargs
+  public static <I, O> Action pipe(
+      Source<I> source,
+      Function<I, O> pipe,
+      Sink<O>... sinks
   ) {
-    return test(toPipe(exec), verify);
+    return pipe(source, toPipe(pipe), sinks);
   }
 
-  public static <I, O> Pipe<I, O> toPipe(final Function<I, O> func) {
-    checkNotNull(func);
-    return new Pipe.Base<I, O>() {
-      @Override
-      protected O apply(I input, Object... outer) {
-        return func.apply(input);
-      }
-    };
+  @SafeVarargs
+  public static <I, O> Action pipe(
+      Pipe<I, O> pipe,
+      Sink<O>... sinks
+  ) {
+    return pipe(Connectors.<I>context(), pipe, sinks);
   }
 
-  public static <T> Source<T> toSource(T value) {
-    return Source.Factory.create(value);
+  @SafeVarargs
+  public static <I, O> Action pipe(
+      Function<I, O> func,
+      Sink<O>... sinks
+  ) {
+    return pipe(toPipe(func), sinks);
   }
 
   public static class ToSource<T> implements Function<T, Source<T>> {
     @Override
     public Source<T> apply(T t) {
-      return Actions.toSource(t);
+      return toSource(t);
     }
   }
 }

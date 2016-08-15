@@ -2,10 +2,13 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionException;
+import com.github.dakusui.actionunit.Context;
 import com.google.common.base.Function;
 
+import java.util.Map;
 import java.util.concurrent.*;
 
+import static com.github.dakusui.actionunit.Describables.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.size;
@@ -19,18 +22,28 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
  * Typically, an instance of this class will be applied to a given action in a following manner.
  * <p/>
  * <code>
- * action.accept(new ActionRunner());
+ * action.accept(new ActionRunner.Impl());
  * </code>
  */
 public abstract class ActionRunner extends Action.Visitor.Base implements Action.Visitor, Context {
   public static final int DEFAULT_THREAD_POOL_SIZE = 5;
   private final int threadPoolSize;
 
+  /**
+   * Creates an object of this class.
+   *
+   * @param threadPoolSize Size of thread pool used to execute concurrent actions.
+   */
   public ActionRunner(int threadPoolSize) {
     checkArgument(threadPoolSize > 0, "Thread pool size must be larger than 0 but %s was given.", threadPoolSize);
     this.threadPoolSize = threadPoolSize;
   }
 
+  /**
+   * Creates an object of this class with {@code DEFAULT_THREAD_POOL_SIZE}.
+   *
+   * @see ActionRunner#ActionRunner(int)
+   */
   public ActionRunner() {
     this(DEFAULT_THREAD_POOL_SIZE);
   }
@@ -53,6 +66,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
   /**
    * {@inheritDoc}
+   *
    * @param action
    */
   @Override
@@ -64,6 +78,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
   /**
    * {@inheritDoc}
+   *
    * @param action
    */
   @Override
@@ -96,11 +111,21 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param action
+   */
   @Override
   public void visit(Action.ForEach action) {
     action.getElements().accept(this);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param action
+   */
   @Override
   public void visit(final Action.With action) {
     action.getAction().accept(createChildFor(action));
@@ -151,7 +176,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * Subclasses of this class must override this method and return a subclass of
    * it whose {@code visit(Action.With.Tag)} is overridden.
    * And the method must call {@code acceptTagAction(Action.With.Tag, Action.With, ActionRunner)}.
-   * <p>
+   * <p/>
    * <code>
    * {@literal @}Override
    * public void visit(Action.With.Tag tagAction) {
@@ -169,8 +194,9 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       @Override
-      public Object value() {
-        return action.source().apply();
+      public <T> T value() {
+        //noinspection unchecked
+        return (T) action.source().apply(ActionRunner.this);
       }
 
       @Override
@@ -230,31 +256,225 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     );
   }
 
+  /**
+   * A simple implementation of an {@link ActionRunner}.
+   */
   public static class Impl extends ActionRunner {
-    private final Object value;
-    private final ActionRunner parent;
-
-    public Impl(Object value, ActionRunner parent) {
-      this.value = value;
-      this.parent = parent;
-    }
-
-    public Impl(Object value) {
-      this(value, null);
-    }
-
+    /**
+     * Creates an object of this class.
+     */
     public Impl() {
-      this(null);
     }
 
+    /**
+     * Returns {@code null} since this action runner is a top level one and
+     * doesn't have any parent.
+     * Subclasses of this class may override this method to return a meaningful
+     * object.
+     */
     @Override
     public Context getParent() {
-      return this.parent;
+      return null;
+    }
+
+    /**
+     * Throws an {@link UnsupportedOperationException} since this action runner
+     * doesn't have a context value.
+     * Subclasses of this class may override this method to return a meaningful
+     * object.
+     */
+    @Override
+    public <T> T value() {
+      //noinspection unchecked
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public static class WithResult extends ActionRunner.Impl implements Action.Visitor {
+    private final Map<Action, ResultCode> resultMap;
+
+    public WithResult() {
+      this.resultMap = new ConcurrentHashMap<>();
     }
 
     @Override
-    public Object value() {
-      return value;
+    public void visit(final Action action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.Leaf action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.Composite action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.Sequential action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.Concurrent action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.ForEach action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.With.Tag action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.With action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final Action.Retry action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(Action.TimeOut action) {
+      super.visit(action);
+    }
+
+    public ActionPrinter createPrinter() {
+      return createPrinter(ActionPrinter.Writer.Std.OUT);
+    }
+
+    public ActionPrinter createPrinter(ActionPrinter.Writer writer) {
+      return new ActionPrinter<ActionPrinter.Writer>(writer) {
+        @Override
+        public String describeAction(Action action) {
+          return String.format(
+              "(%s)%s",
+              resultMap.containsKey(action)
+                  ? resultMap.get(action)
+                  : " ",
+              describe(action)
+          );
+        }
+      };
+    }
+
+    private void visitAndRecord(Runnable visit, Action action) {
+      boolean succeeded = false;
+      AssertionError assertionError = null;
+      try {
+        visit.run();
+        succeeded = true;
+      } catch (AssertionError e) {
+        assertionError = e;
+        throw e;
+      } finally {
+        if (succeeded) {
+          resultMap.put(action, ResultCode.PASSED);
+        } else {
+          if (assertionError != null) {
+            resultMap.put(action, ResultCode.FAIL);
+          } else {
+            resultMap.put(action, ResultCode.ERROR);
+          }
+        }
+      }
+    }
+
+
+    public enum ResultCode {
+      /**
+       * Action was performed successfully.
+       */
+      PASSED("+"),
+      /**
+       * An exception but {@link AssertionError} was thrown.
+       */
+      ERROR("E"),
+      /**
+       * Mismatched expectation.
+       */
+      FAIL("F");
+
+      private final String symbol;
+
+      ResultCode(String symbol) {
+        this.symbol = symbol;
+      }
+
+      public String toString() {
+        return this.symbol;
+      }
     }
   }
 }

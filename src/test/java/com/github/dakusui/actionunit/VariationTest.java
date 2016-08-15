@@ -1,6 +1,11 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.connectors.Connectors;
+import com.github.dakusui.actionunit.connectors.Pipe;
+import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.google.common.base.Function;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -36,7 +41,7 @@ public class VariationTest {
   }
 
   @Test
-  public void forEachAndTestAction() {
+  public void forEachAndPipedAction() {
     forEach(
         asList("a", "b"),
         new Sink.Base<String>() {
@@ -45,6 +50,57 @@ public class VariationTest {
 
           }
         }
+    ).accept(new ActionRunner.Impl());
+  }
+
+
+  @Test
+  public void testAction1() {
+    forEach(
+        asList("host1", "host2"),
+        new TestAction.Builder<String, Integer>()
+            .exec(new Function<String, Integer>() {
+              @Override
+              public Integer apply(String input) {
+                return Integer.parseInt(input.substring(input.length() - 1));
+              }
+            })
+            .verify(CoreMatchers.<Integer>notNullValue())
+            .build()
+    ).accept(new ActionRunner.Impl());
+  }
+
+  @Test
+  public void testAction2() {
+    forEach(
+        asList("host1", "host2"),
+        new TestAction.Builder<String, Integer>()
+            .setUp("9")
+            .exec(new Pipe<String, Integer>() {
+              @Override
+              public Integer apply(String input, Context context) {
+                return Integer.parseInt(input.substring(input.length() - 1));
+              }
+            })
+            .verify(Connectors.<Integer>dumb())
+            .build()
+    ).accept(new ActionRunner.Impl());
+  }
+
+  @Test
+  public void testAction3() {
+    forEach(
+        asList("host1", "host2"),
+        new TestAction.Builder<String, Integer>()
+            .setUp(Connectors.<String>context())
+            .exec(new Pipe<String, Integer>() {
+              @Override
+              public Integer apply(String input, Context context) {
+                return Integer.parseInt(input.substring(input.length() - 1));
+              }
+            })
+            .verify(Connectors.<Integer>dumb())
+            .build()
     ).accept(new ActionRunner.Impl());
   }
 }

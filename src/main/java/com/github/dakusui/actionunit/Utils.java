@@ -12,9 +12,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
@@ -163,10 +165,68 @@ public enum Utils {
     return Iterables.transform(in, func);
   }
 
-  public static void waitFor(Object obj) {
-    try {
-      checkNotNull(obj).wait();
-    } catch (InterruptedException ignored) {
-    }
+  /**
+   * Returns an iterable object that covers specified range by arguments given
+   * to this method.
+   *
+   * @param start A number from which returned iterable object starts
+   * @param stop  A number at which returned iterable object stops
+   * @param step  A number by which returned iterable object increases. positive
+   *              and negative are allowed, but zero is not.
+   */
+  public static Iterable<Integer> range(final int start, final int stop, final int step) {
+    checkArgument(step != 0, "step argument must not be zero. ");
+    return new Iterable<Integer>() {
+      @Override
+      public Iterator<Integer> iterator() {
+        return new Iterator<Integer>() {
+          long current = start;
+
+          @Override
+          public boolean hasNext() {
+            long next = current + step;
+            // If next value goes over int range, returned iterator will stop.
+            //noinspection SimplifiableIfStatement
+            if (next > Integer.MAX_VALUE || next < Integer.MIN_VALUE)
+              return false;
+            return Math.signum(step) > 0
+                ? next <= stop
+                : next >= stop;
+          }
+
+          @Override
+          public Integer next() {
+            try {
+              return (int) current;
+            } finally {
+              current += step;
+            }
+          }
+
+          @Override
+          public void remove() {
+            throw new UnsupportedOperationException();
+          }
+        };
+      }
+    };
+  }
+
+  /**
+   * Equivalent to {@code range(start, stop, 1)}.
+   *
+   * @see Utils#range(int, int, int)
+   */
+  public static Iterable<Integer> range(int start, int stop) {
+    return range(start, stop, 1);
+  }
+
+  /**
+   * Equivalent to {@code range(0, stop)}.
+   *
+   * @see Utils#range(int, int)
+   */
+  public static Iterable<Integer> range(int stop) {
+    return range(0, stop);
   }
 }
