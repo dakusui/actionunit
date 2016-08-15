@@ -1,19 +1,22 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.connectors;
 
-import com.github.dakusui.actionunit.visitors.Context;
+import com.github.dakusui.actionunit.Describable;
+import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.Context;
 
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Executes an operation based on an input value.
+ * Executes an operation based on an input value and gives an output value.
  *
- * @param <T> Type of input value.
+ * @param <I> Type of input value
+ * @param <O> Type of output value
  */
-public interface Sink<T> {
-  void apply(T input, Context context);
+public interface Pipe<I, O> {
+  O apply(I input, Context context);
 
-  abstract class Base<T> implements Sink<T>, Describable {
+  abstract class Base<I, O> implements Pipe<I, O>, Describable {
     private final String description;
 
     protected Base(String description) {
@@ -24,23 +27,24 @@ public interface Sink<T> {
       this(null);
     }
 
-    public void apply(T input, Context context) {
+    @Override
+    public O apply(I input, Context context) {
       List<Object> args = new LinkedList<>();
       Context parent = context.getParent();
       while (parent.getParent() != null) {
         args.add(parent.value());
         parent = parent.getParent();
       }
-      this.apply(input, args.toArray());
+      return this.apply(input, args.toArray());
     }
 
     /**
-     * Applies this sink to {@code input}.
+     * Applies this pipe to {@code input}.
      *
      * @param input An input to apply this object.
      * @param outer Inputs from outer {@code With} actions.
      */
-    abstract protected void apply(T input, Object... outer);
+    abstract protected O apply(I input, Object... outer);
 
     @Override
     public String describe() {

@@ -1,6 +1,9 @@
 package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.visitors.Context;
+import com.github.dakusui.actionunit.connectors.Connectors;
+import com.github.dakusui.actionunit.connectors.Pipe;
+import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 
@@ -29,6 +32,7 @@ public interface Action {
    * A skeletal base class of all {@code Action}s.
    */
   abstract class Base implements Action, Describable {
+
   }
 
   /**
@@ -314,7 +318,7 @@ public interface Action {
                 Tag.this.getIndex(),
                 sinks.length
             );
-            sinks[Tag.this.getIndex()].apply(source.apply(), context);
+            sinks[Tag.this.getIndex()].apply(source.apply(context), context);
           }
 
           @Override
@@ -515,6 +519,97 @@ public interface Action {
         this.visit((Action) action);
       }
 
+    }
+  }
+
+  interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
+    class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
+      protected final Source<I>  source;
+      protected final Pipe<I, O> pipe;
+      protected final Sink<O>[]  sinks;
+
+      public Impl(
+          final Source<I> source,
+          final Pipe<I, O> pipe,
+          final Sink<O>[] sinks) {
+        this(source, pipe, Connectors.<O>mutable(), sinks);
+      }
+
+      private Impl(
+          final Source<I> source,
+          final Pipe<I, O> pipe,
+          final Mutable<O> output,
+          final Sink<O>[] sinks) {
+        //noinspection unchecked
+        super(
+            source,
+            Sequential.Factory.INSTANCE.create(
+                "Sinks",
+                asList(
+                    new Tag(0),
+                    new With.Base<>(
+                        output,
+                        Sequential.Factory.INSTANCE.create(null, transform(range(sinks.length),
+                            new Function<Integer, Tag>() {
+                              @Override
+                              public Tag apply(Integer input) {
+                                return new Tag(input);
+                              }
+                            })),
+                        /*(Sink<O>[])*/sinks
+                    ))),
+            new Sink/*<I>*/[] {
+                new Sink<I>() {
+                  @Override
+                  public void apply(I input, Context context) {
+                    output.set(pipe.apply(input, context));
+                  }
+                }
+            }
+        );
+        this.source = checkNotNull(source);
+        this.pipe = checkNotNull(pipe);
+        this.sinks = checkNotNull(sinks);
+      }
+
+      /*public Base(Source<I> source, Action action, Sink<I>[] sinks) {
+        super(source, action, sinks);
+      }*/
+
+      @Override
+      public O apply(Context context) {
+        O ret = pipe.apply(source.apply(context), context);
+        try {
+          return ret;
+        } finally {
+          for (Sink<O> each : sinks) {
+            each.apply(ret, context);
+          }
+        }
+      }
+
+      @Override
+      public void apply(I input, Context context) {
+        for (Sink<O> each : sinks) {
+          each.apply(pipe.apply(input, context), context);
+        }
+      }
+
+    }
+
+    enum Factory {
+      ;
+
+      @SafeVarargs
+      public static <I, O> Piped<I, O> create(
+          final Source<I> source,
+          final Pipe<I, O> pipe,
+          final Sink<O>... sinks) {
+        checkNotNull(source);
+        checkNotNull(pipe);
+        //noinspection unchecked
+        return new Impl<>(source, pipe, sinks);
+      }
     }
   }
 }

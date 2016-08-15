@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.visitors;
+package com.github.dakusui.actionunit;
 
 public interface Context {
   /**
