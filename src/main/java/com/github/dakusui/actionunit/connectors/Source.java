@@ -36,8 +36,8 @@ public interface Source<T> {
     @Override
     public String describe() {
       return isSet
-          ? format("Mutable source (current=%s)", this.value)
-          : "Mutable source (value isn't set yet)";
+          ? format("source (current=%s)", this.value)
+          : "source (value isn't set yet)";
     }
 
     @Override

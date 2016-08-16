@@ -39,6 +39,10 @@ public enum Connectors {
       public V apply(Context context) {
         return context.value();
       }
+
+      public String toString() {
+        return "source (context)";
+      }
     };
   }
 
@@ -51,6 +55,10 @@ public enum Connectors {
     return new Sink<V>() {
       @Override
       public void apply(V input, Context context) {
+      }
+
+      public String toString() {
+        return "dumb sink";
       }
     };
   }
