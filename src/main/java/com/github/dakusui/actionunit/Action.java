@@ -91,7 +91,7 @@ public interface Action {
       }
 
       protected String getName() {
-        return this.getClass().getEnclosingClass().getSimpleName();
+        return shortClassNameOf(this.getClass().getEnclosingClass()).replace("Action$", "");
       }
     }
 
@@ -271,7 +271,7 @@ public interface Action {
       @Override
       public String describe() {
         return format("%s (%s) { %s }",
-            this.getClass().getSimpleName(),
+            shortClassNameOf(this.getClass()).replace("Action$", ""),
             Describables.describe(this.source()),
             join(transform(
                 asList(this.getSinks()),
@@ -301,7 +301,7 @@ public interface Action {
 
       @Override
       public String describe() {
-        return format("tag %d", index);
+        return format("tag(%d)", index);
       }
 
       public int getIndex() {
@@ -352,7 +352,7 @@ public interface Action {
     @Override
     public String describe() {
       return format("%s(%sx%dtimes)",
-          this.getClass().getSimpleName(),
+          shortClassNameOf(this.getClass()).replace("Action$", ""),
           formatDuration(intervalInNanos),
           this.times
       );
@@ -378,7 +378,7 @@ public interface Action {
     public String describe() {
       return format(
           "%s (%s)",
-          this.getClass().getSimpleName(),
+          shortClassNameOf(this.getClass()).replace("Action$", ""),
           formatDuration(this.durationInNanos)
       );
     }
@@ -563,6 +563,10 @@ public interface Action {
                   @Override
                   public void apply(I input, Context context) {
                     output.set(pipe.apply(input, context));
+                  }
+
+                  public String toString() {
+                    return "sink (synthesized for pipe)";
                   }
                 }
             }

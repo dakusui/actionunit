@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.google.common.base.Function;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -21,38 +22,38 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class ActionPrinterTest {
-  private static Action composeAction() {
-    return concurrent("Concurrent",
-        sequential("Sequential",
-            simple("simple1", new Runnable() {
-              @Override
-              public void run() {
-              }
-            }),
-            simple("simple2", new Runnable() {
-              @Override
-              public void run() {
-              }
-            })
-        ),
-        simple("simple3", new Runnable() {
-          @Override
-          public void run() {
-          }
-        }),
-        forEach(
-            asList("hello1", "hello2", "hello3"),
-            new Sink.Base<String>("block1") {
-              @Override
-              public void apply(String input, Object... outer) {
-
-              }
-            }
-        )
-    );
-  }
 
   public static class ImplTest {
+    private static Action composeAction() {
+      return concurrent("Concurrent",
+          sequential("Sequential",
+              simple("simple1", new Runnable() {
+                @Override
+                public void run() {
+                }
+              }),
+              simple("simple2", new Runnable() {
+                @Override
+                public void run() {
+                }
+              })
+          ),
+          simple("simple3", new Runnable() {
+            @Override
+            public void run() {
+            }
+          }),
+          forEach(
+              asList("hello1", "hello2", "hello3"),
+              new Sink.Base<String>("block1") {
+                @Override
+                public void apply(String input, Object... outer) {
+
+                }
+              }
+          )
+      );
+    }
 
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
@@ -125,6 +126,46 @@ public class ActionPrinterTest {
   }
 
   public static class WithResultTest {
+    private static Action composeAction() {
+      return concurrent("Concurrent",
+          sequential("Sequential",
+              simple("simple1", new Runnable() {
+                @Override
+                public void run() {
+                }
+              }),
+              simple("simple2", new Runnable() {
+                @Override
+                public void run() {
+                }
+              })
+          ),
+          simple("simple3", new Runnable() {
+            @Override
+            public void run() {
+            }
+          }),
+          forEach(
+              asList("hello1", "hello2", "hello3"),
+              new TestAction.Builder<String, String>().exec(
+                  new Function<String, String>() {
+                    @Override
+                    public String apply(String input) {
+                      System.out.println(String.format("hello:%s", input));
+                      return String.format("hello:%s", input);
+                    }
+                  }
+              ).verify(
+                  new Sink.Base<String>() {
+                    @Override
+                    public void apply(String input, Object... outer) {
+
+                    }
+                  }).build()
+          )
+      );
+    }
+
     @Test
     public void test() {
       ActionRunner.WithResult runner = new ActionRunner.WithResult();

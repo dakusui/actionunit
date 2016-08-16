@@ -422,7 +422,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
               "(%s)%s",
               resultMap.containsKey(action)
                   ? resultMap.get(action)
-                  : " ",
+                  : ResultCode.NOTRUN,
               describe(action)
           );
         }
@@ -453,6 +453,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
 
     public enum ResultCode {
+      /**
+       * Not run yet
+       */
+      NOTRUN(" "),
       /**
        * Action was performed successfully.
        */

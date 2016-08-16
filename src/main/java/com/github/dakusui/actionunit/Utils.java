@@ -68,6 +68,11 @@ public enum Utils {
     return format("%d[%s]", timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
   }
 
+  public static String shortClassNameOf(Class clazz) {
+    String name = checkNotNull(clazz).getName();
+    return name.substring(name.lastIndexOf('.') + 1);
+  }
+
   public static String nonameIfNull(String summary) {
     return summary == null
         ? "(noname)"
