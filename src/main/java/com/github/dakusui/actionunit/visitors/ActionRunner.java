@@ -416,15 +416,36 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
     public ActionPrinter createPrinter(ActionPrinter.Writer writer) {
       return new ActionPrinter<ActionPrinter.Writer>(writer) {
+        int forEachLevel = 0;
+
         @Override
         public String describeAction(Action action) {
           return String.format(
               "(%s)%s",
-              resultMap.containsKey(action)
-                  ? resultMap.get(action)
-                  : ResultCode.NOTRUN,
+              getResultCode(action),
               describe(action)
           );
+        }
+
+        @Override
+        public void visit(Action.ForEach action) {
+          forEachLevel++;
+          try {
+            super.visit(action);
+          } finally {
+            forEachLevel--;
+          }
+        }
+
+        private ResultCode getResultCode(Action action) {
+          if (forEachLevel == 0 || (forEachLevel ==1 && Action.ForEach.class.isAssignableFrom(action.getClass()))) {
+            if (resultMap.containsKey(action)) {
+              return resultMap.get(action);
+            }
+            return ResultCode.NOTRUN;
+          } else {
+            return ResultCode.NA;
+          }
         }
       };
     }
@@ -468,7 +489,13 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       /**
        * Mismatched expectation.
        */
-      FAIL("F");
+      FAIL("F"),
+      /**
+       * Action is not applicable. This code is used for actions under
+       * {@link com.github.dakusui.actionunit.Action.ForEach}, which are instantiated
+       * every time for each value it gives.
+       */
+      NA("-");
 
       private final String symbol;
 
