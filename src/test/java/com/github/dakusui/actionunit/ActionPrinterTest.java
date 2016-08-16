@@ -121,7 +121,7 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("simple2"));
       assertThat(i.next(), containsString("simple3"));
       assertThat(i.next(), containsString("ForEach"));
-      assertEquals(6, size(printer.getWriter()));
+      assertEquals(9, size(printer.getWriter()));
     }
   }
 
