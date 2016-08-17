@@ -32,7 +32,14 @@ public interface Action {
    * A skeletal base class of all {@code Action}s.
    */
   abstract class Base implements Action, Describable {
+    @Override
+    public String describe() {
+      return this.formatClassName();
+    }
 
+    protected String formatClassName() {
+      return Utils.shortClassNameOf(this.getClass()).replaceAll("^Action\\$", "").replaceAll("\\$Base$", "");
+    }
   }
 
   /**
@@ -40,9 +47,26 @@ public interface Action {
    * framework should extend this class.
    */
   abstract class Leaf extends Base {
+    protected final String description;
+
+    public Leaf() {
+      this(null);
+    }
+
+    public Leaf(String description) {
+      this.description = description;
+    }
+
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
+    }
+
+    @Override
+    public String describe() {
+      return this.description == null
+          ? formatClassName()
+          : description;
     }
 
     abstract public void perform();
@@ -180,7 +204,7 @@ public interface Action {
 
     @Override
     public String describe() {
-      return format("%s (%s, %s items) { %s }",
+      return format("%s (%s, %s items) {%s}",
           this.getClass().getSimpleName(),
           this.factory,
           unknownIfNegative(sizeOrNegativeIfNonCollection(this.dataSource)),
@@ -270,8 +294,8 @@ public interface Action {
 
       @Override
       public String describe() {
-        return format("%s (%s) { %s }",
-            shortClassNameOf(this.getClass()).replace("Action$", ""),
+        return format("%s (%s) {%s}",
+            formatClassName(),
             Describables.describe(this.source()),
             join(transform(
                 asList(this.getSinks()),
@@ -301,7 +325,7 @@ public interface Action {
 
       @Override
       public String describe() {
-        return format("tag(%d)", index);
+        return format("Tag(%d)", index);
       }
 
       public int getIndex() {
@@ -352,7 +376,7 @@ public interface Action {
     @Override
     public String describe() {
       return format("%s(%sx%dtimes)",
-          shortClassNameOf(this.getClass()).replace("Action$", ""),
+          formatClassName(),
           formatDuration(intervalInNanos),
           this.times
       );
@@ -378,7 +402,7 @@ public interface Action {
     public String describe() {
       return format(
           "%s (%s)",
-          shortClassNameOf(this.getClass()).replace("Action$", ""),
+          formatClassName(),
           formatDuration(this.durationInNanos)
       );
     }
@@ -532,30 +556,39 @@ public interface Action {
           final Source<I> source,
           final Pipe<I, O> pipe,
           final Sink<O>[] sinks) {
-        this(source, pipe, Connectors.<O>mutable(), sinks);
+        this(source, pipe, "Pipe", sinks, "Do");
+      }
+
+      protected Impl(
+          final Source<I> source,
+          final Pipe<I, O> pipe, String pipeName,
+          final Sink<O>[] sinks, String sinksName) {
+        this(source, pipe, pipeName, Connectors.<O>mutable(), sinks, sinksName);
       }
 
       private Impl(
           final Source<I> source,
-          final Pipe<I, O> pipe,
+          final Pipe<I, O> pipe, String pipeName,
           final Mutable<O> output,
-          final Sink<O>[] sinks) {
+          final Sink<O>[] sinks, String sinksName) {
         //noinspection unchecked
         super(
             source,
             Sequential.Factory.INSTANCE.create(
-                "Sinks",
+                pipeName,
                 asList(
                     new Tag(0),
                     new With.Base<>(
                         output,
-                        Sequential.Factory.INSTANCE.create(null, transform(range(sinks.length),
-                            new Function<Integer, Tag>() {
-                              @Override
-                              public Tag apply(Integer input) {
-                                return new Tag(input);
-                              }
-                            })),
+                        Sequential.Factory.INSTANCE.create(
+                            sinksName,
+                            transform(range(sinks.length),
+                                new Function<Integer, Tag>() {
+                                  @Override
+                                  public Tag apply(Integer input) {
+                                    return new Tag(input);
+                                  }
+                                })),
                         /*(Sink<O>[])*/sinks
                     ))),
             new Sink/*<I>*/[] {
@@ -566,7 +599,7 @@ public interface Action {
                   }
 
                   public String toString() {
-                    return "sink (synthesized for pipe)";
+                    return Describables.describe(pipe);
                   }
                 }
             }
@@ -575,10 +608,6 @@ public interface Action {
         this.pipe = checkNotNull(pipe);
         this.sinks = checkNotNull(sinks);
       }
-
-      /*public Base(Source<I> source, Action action, Sink<I>[] sinks) {
-        super(source, action, sinks);
-      }*/
 
       @Override
       public O apply(Context context) {

@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Iterator;
+import java.util.regex.Matcher;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.collect.Iterables.size;
@@ -147,7 +149,7 @@ public class ActionPrinterTest {
           }),
           forEach(
               asList("hello1", "hello2", "hello3"),
-              new TestAction.Builder<String, String>().exec(
+              new TestAction.Builder<String, String>().when(
                   new Function<String, String>() {
                     @Override
                     public String apply(String input) {
@@ -155,13 +157,7 @@ public class ActionPrinterTest {
                       return String.format("hello:%s", input);
                     }
                   }
-              ).verify(
-                  new Sink.Base<String>() {
-                    @Override
-                    public void apply(String input, Object... outer) {
-
-                    }
-                  }).build()
+              ).then(CoreMatchers.<String>anything()).build()
           )
       );
     }

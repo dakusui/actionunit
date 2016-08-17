@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.connectors;
 
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.Describables;
 import com.google.common.base.Function;
 import org.hamcrest.Matcher;
 
@@ -17,16 +18,25 @@ public enum Connectors {
       protected O apply(I input, Object... outer) {
         return func.apply(input);
       }
+
+      @Override
+      public String describe() {
+        return String.format("Function(%s)", Describables.describe(func));
+      }
+    };
+  }
+
+  public static <V> Source<V> immutable(final V value) {
+    return new Source.Immutable<V>(value) {
+      @Override
+      public String describe() {
+        return Describables.describe(value);
+      }
     };
   }
 
   public static <T> Source<T> toSource(T value) {
     return immutable(value);
-  }
-
-
-  public static <V> Source<V> immutable(V value) {
-    return new Source.Immutable<>(value);
   }
 
   public static <V> Source.Mutable<V> mutable() {
@@ -41,7 +51,7 @@ public enum Connectors {
       }
 
       public String toString() {
-        return "source (context)";
+        return "context";
       }
     };
   }
@@ -58,7 +68,7 @@ public enum Connectors {
       }
 
       public String toString() {
-        return "dumb sink";
+        return "Sink(dumb)";
       }
     };
   }
@@ -69,6 +79,11 @@ public enum Connectors {
       @Override
       protected void apply(O input, Object... outer) {
         assertThat(input, matcher);
+      }
+
+      @Override
+      public String describe() {
+        return String.format("Matcher(%s)", Describables.describe(matcher));
       }
     };
   }
