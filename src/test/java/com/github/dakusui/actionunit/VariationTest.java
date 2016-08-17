@@ -59,13 +59,13 @@ public class VariationTest {
     forEach(
         asList("host1", "host2"),
         new TestAction.Builder<String, Integer>()
-            .exec(new Function<String, Integer>() {
+            .when(new Function<String, Integer>() {
               @Override
               public Integer apply(String input) {
                 return Integer.parseInt(input.substring(input.length() - 1));
               }
             })
-            .verify(CoreMatchers.<Integer>notNullValue())
+            .then(CoreMatchers.<Integer>notNullValue())
             .build()
     ).accept(new ActionRunner.Impl());
   }
@@ -75,14 +75,14 @@ public class VariationTest {
     forEach(
         asList("host1", "host2"),
         new TestAction.Builder<String, Integer>()
-            .setUp("9")
-            .exec(new Pipe<String, Integer>() {
+            .given("9")
+            .when(new Pipe<String, Integer>() {
               @Override
               public Integer apply(String input, Context context) {
                 return Integer.parseInt(input.substring(input.length() - 1));
               }
             })
-            .verify(Connectors.<Integer>dumb())
+            .then(Connectors.<Integer>dumb())
             .build()
     ).accept(new ActionRunner.Impl());
   }
@@ -92,14 +92,14 @@ public class VariationTest {
     forEach(
         asList("host1", "host2"),
         new TestAction.Builder<String, Integer>()
-            .setUp(Connectors.<String>context())
-            .exec(new Pipe<String, Integer>() {
+            .given(Connectors.<String>context())
+            .when(new Pipe<String, Integer>() {
               @Override
               public Integer apply(String input, Context context) {
                 return Integer.parseInt(input.substring(input.length() - 1));
               }
             })
-            .verify(Connectors.<Integer>dumb())
+            .then(Connectors.<Integer>dumb())
             .build()
     ).accept(new ActionRunner.Impl());
   }
