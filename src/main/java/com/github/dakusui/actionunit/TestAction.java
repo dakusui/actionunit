@@ -7,55 +7,30 @@ import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 import org.hamcrest.Matcher;
 
-import static com.github.dakusui.actionunit.Utils.transform;
 import static com.github.dakusui.actionunit.connectors.Connectors.*;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.join;
 
 public interface TestAction<I, O> extends Action.Piped<I, O> {
   class Base<I, O> extends Impl<I, O> implements TestAction<I, O> {
     public Base(Source<I> given, Pipe<I, O> when, Sink<O> then) {
       //noinspection unchecked
-      super(checkNotNull(given), checkNotNull(when), new Sink[] { checkNotNull(then) });
+      super(checkNotNull(given), "Given", checkNotNull(when), "When", new Sink[] { checkNotNull(then) }, "Then");
     }
-
-    @Override
-    public String describe() {
-      return format("%s Given:{%s} When:{%s} Then:{%s}",
-          formatClassName(),
-          Describables.describe(this.source()),
-          join(transform(
-              asList(this.getSinks()),
-              new Function<Sink<I>, Object>() {
-                @Override
-                public Object apply(Sink<I> sink) {
-                  return Describables.describe(sink);
-                }
-              }),
-              ","),
-          join(transform(
-              asList(this.sinks),
-              new Function<Sink<O>, Object>() {
-                @Override
-                public Object apply(Sink<O> input) {
-                  return Describables.describe(input);
-                }
-              }),
-              ",")
-      );
-    }
-
   }
 
   class Builder<I, O> {
 
+    private final String testName;
     private Source<I> given = Connectors.context();
     private Pipe<I, O> when;
     private Sink<O>    then;
 
     public Builder() {
+      this(null);
+    }
+
+    public Builder(String testName) {
+      this.testName = testName;
     }
 
     public Builder<I, O> given(Source<I> given) {
@@ -90,7 +65,14 @@ public interface TestAction<I, O> extends Action.Piped<I, O> {
       checkNotNull(given);
       checkNotNull(when);
       checkNotNull(then);
-      return new TestAction.Base<>(given, when, then);
+      return new TestAction.Base<I, O>(given, when, then) {
+        @Override
+        public String formatClassName() {
+          return Builder.this.testName == null
+              ? super.formatClassName()
+              : Builder.this.testName;
+        }
+      };
     }
   }
 }

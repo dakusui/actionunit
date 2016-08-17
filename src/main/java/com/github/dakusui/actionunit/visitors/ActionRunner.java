@@ -11,6 +11,7 @@ import java.util.concurrent.*;
 import static com.github.dakusui.actionunit.Describables.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
@@ -291,7 +292,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   public static class WithResult extends ActionRunner.Impl implements Action.Visitor {
-    private final Map<Action, ResultCode> resultMap;
+    private final Map<Action, Result> resultMap;
 
     public WithResult() {
       this.resultMap = new ConcurrentHashMap<>();
@@ -437,14 +438,14 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           }
         }
 
-        private ResultCode getResultCode(Action action) {
-          if (forEachLevel == 0 || (forEachLevel ==1 && Action.ForEach.class.isAssignableFrom(action.getClass()))) {
+        private Result.Code getResultCode(Action action) {
+          if (forEachLevel == 0 || (forEachLevel == 1 && Action.ForEach.class.isAssignableFrom(action.getClass()))) {
             if (resultMap.containsKey(action)) {
-              return resultMap.get(action);
+              return resultMap.get(action).code;
             }
-            return ResultCode.NOTRUN;
+            return Result.Code.NOTRUN;
           } else {
-            return ResultCode.NA;
+            return Result.Code.NA;
           }
         }
       };
@@ -452,59 +453,76 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
     private void visitAndRecord(Runnable visit, Action action) {
       boolean succeeded = false;
-      AssertionError assertionError = null;
+      Throwable thrown = null;
       try {
         visit.run();
         succeeded = true;
-      } catch (AssertionError e) {
-        assertionError = e;
+      } catch (Error | RuntimeException e) {
+        thrown = e;
         throw e;
       } finally {
         if (succeeded) {
-          resultMap.put(action, ResultCode.PASSED);
+          resultMap.put(action, new Result(Result.Code.PASSED, contextValue(), null));
         } else {
-          if (assertionError != null) {
-            resultMap.put(action, ResultCode.FAIL);
+          if (thrown instanceof AssertionError) {
+            resultMap.put(action, new Result(Result.Code.FAIL, contextValue(), thrown));
           } else {
-            resultMap.put(action, ResultCode.ERROR);
+            resultMap.put(action, new Result(Result.Code.ERROR, contextValue(), thrown));
           }
         }
       }
     }
 
+    private Object contextValue() {
+      if (this.getParent() == null)
+        return null;
+      return this.value();
+    }
 
-    public enum ResultCode {
-      /**
-       * Not run yet
-       */
-      NOTRUN(" "),
-      /**
-       * Action was performed successfully.
-       */
-      PASSED("+"),
-      /**
-       * An exception but {@link AssertionError} was thrown.
-       */
-      ERROR("E"),
-      /**
-       * Mismatched expectation.
-       */
-      FAIL("F"),
-      /**
-       * Action is not applicable. This code is used for actions under
-       * {@link com.github.dakusui.actionunit.Action.ForEach}, which are instantiated
-       * every time for each value it gives.
-       */
-      NA("-");
+    public static class Result {
+      public final Code      code;
+      public final Object    contextValue;
+      public final Throwable thrown;
 
-      private final String symbol;
-
-      ResultCode(String symbol) {
-        this.symbol = symbol;
+      protected Result(Code code, Object contextValue, Throwable thrown) {
+        this.code = checkNotNull(code);
+        this.contextValue = contextValue;
+        this.thrown = thrown;
       }
 
-      public String toString() {
-        return this.symbol;
+      public enum Code {
+        /**
+         * Not run yet
+         */
+        NOTRUN(" "),
+        /**
+         * Action was performed successfully.
+         */
+        PASSED("+"),
+        /**
+         * An exception but {@link AssertionError} was thrown.
+         */
+        ERROR("E"),
+        /**
+         * Mismatched expectation.
+         */
+        FAIL("F"),
+        /**
+         * Action is not applicable. This code is used for actions under
+         * {@link Action.ForEach}, which are instantiated
+         * every time for each value it gives.
+         */
+        NA("-");
+
+        private final String symbol;
+
+        Code(String symbol) {
+          this.symbol = symbol;
+        }
+
+        public String toString() {
+          return this.symbol;
+        }
       }
     }
   }

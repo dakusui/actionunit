@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Iterator;
-import java.util.regex.Matcher;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.collect.Iterables.size;
@@ -50,7 +49,6 @@ public class ActionPrinterTest {
               new Sink.Base<String>("block1") {
                 @Override
                 public void apply(String input, Object... outer) {
-
                 }
               }
           )
@@ -149,15 +147,16 @@ public class ActionPrinterTest {
           }),
           forEach(
               asList("hello1", "hello2", "hello3"),
-              new TestAction.Builder<String, String>().when(
-                  new Function<String, String>() {
-                    @Override
-                    public String apply(String input) {
-                      System.out.println(String.format("hello:%s", input));
-                      return String.format("hello:%s", input);
-                    }
-                  }
-              ).then(CoreMatchers.<String>anything()).build()
+              new TestAction.Builder<String, String>("example test")
+                  .when(new Function<String, String>() {
+                          @Override
+                          public String apply(String input) {
+                            System.out.println(String.format("hello:%s", input));
+                            return String.format("hello:%s", input);
+                          }
+                        }
+                  )
+                  .then(CoreMatchers.<String>anything()).build()
           )
       );
     }

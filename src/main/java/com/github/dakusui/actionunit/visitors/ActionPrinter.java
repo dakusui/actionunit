@@ -74,11 +74,13 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
   @Override
   public void visit(Action.With action) {
     writeLine(describeAction(action));
-    indent++;
-    try {
-      action.getAction().accept(this);
-    } finally {
-      indent--;
+    if (!(action instanceof Action.Piped)) {
+      indent++;
+      try {
+        action.getAction().accept(this);
+      } finally {
+        indent--;
+      }
     }
   }
 
