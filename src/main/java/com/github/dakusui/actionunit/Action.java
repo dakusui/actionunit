@@ -7,6 +7,7 @@ import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -227,7 +228,26 @@ public interface Action {
         @Override
         public Action apply(final Source<T> t) {
           //noinspection unchecked
-          return new With.Base(t, ForEach.this.action, ForEach.this.sinks);
+          return new With.Base(t, ForEach.this.action, ForEach.this.sinks) {
+            @Override
+            public int hashCode() {
+              return ForEach.this.action.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object anotherObject) {
+              if (!(anotherObject instanceof With.Base)) {
+                return false;
+              }
+              With.Base another = (With.Base) anotherObject;
+              return ForEach.this.action.equals(another.action) && Arrays.equals(ForEach.this.sinks, another.sinks);
+            }
+
+            @Override
+            public String describe() {
+              return "With";
+            }
+          };
         }
       };
       return this.factory.create(
@@ -551,23 +571,26 @@ public interface Action {
       protected final Source<I>  source;
       protected final Pipe<I, O> pipe;
       protected final Sink<O>[]  sinks;
+      private final   String     sourceName;
+      private final   String     pipeName;
+      private final   String     sinksName;
 
       public Impl(
           final Source<I> source,
           final Pipe<I, O> pipe,
           final Sink<O>[] sinks) {
-        this(source, pipe, "Pipe", sinks, "Do");
+        this(source, "From", pipe, "Through", sinks, "To");
       }
 
       protected Impl(
-          final Source<I> source,
+          final Source<I> source, String sourceName,
           final Pipe<I, O> pipe, String pipeName,
           final Sink<O>[] sinks, String sinksName) {
-        this(source, pipe, pipeName, Connectors.<O>mutable(), sinks, sinksName);
+        this(source, sourceName, pipe, pipeName, Connectors.<O>mutable(), sinks, sinksName);
       }
 
       private Impl(
-          final Source<I> source,
+          final Source<I> source, String sourceName,
           final Pipe<I, O> pipe, String pipeName,
           final Mutable<O> output,
           final Sink<O>[] sinks, String sinksName) {
@@ -605,8 +628,11 @@ public interface Action {
             }
         );
         this.source = checkNotNull(source);
+        this.sourceName = sourceName;
         this.pipe = checkNotNull(pipe);
+        this.pipeName = pipeName;
         this.sinks = checkNotNull(sinks);
+        this.sinksName = sinksName;
       }
 
       @Override
@@ -628,6 +654,34 @@ public interface Action {
         }
       }
 
+      @Override
+      public String describe() {
+        return format("%s %s:(%s) %s:(%s) %s:{%s}",
+            formatClassName(),
+            this.sourceName,
+            Describables.describe(this.source()),
+            this.pipeName,
+            join(transform(
+                asList(this.getSinks()),
+                new Function<Sink<I>, Object>() {
+                  @Override
+                  public Object apply(Sink<I> sink) {
+                    return Describables.describe(sink);
+                  }
+                }),
+                ","),
+            this.sinksName,
+            join(transform(
+                asList(this.sinks),
+                new Function<Sink<O>, Object>() {
+                  @Override
+                  public Object apply(Sink<O> input) {
+                    return Describables.describe(input);
+                  }
+                }),
+                ",")
+        );
+      }
     }
 
     enum Factory {
