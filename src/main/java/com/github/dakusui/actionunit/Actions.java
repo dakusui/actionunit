@@ -53,7 +53,7 @@ public enum Actions {
     checkNotNull(runnable);
     return new Action.Leaf() {
       @Override
-      public String describe() {
+      public String toString() {
         return nonameIfNull(summary);
       }
 
@@ -238,7 +238,7 @@ public enum Actions {
       }
 
       @Override
-      public String describe() {
+      public String toString() {
         return nonameIfNull(summary);
       }
     };
@@ -264,7 +264,7 @@ public enum Actions {
       }
 
       @Override
-      public String describe() {
+      public String toString() {
         return format("Wait for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
       }
     };

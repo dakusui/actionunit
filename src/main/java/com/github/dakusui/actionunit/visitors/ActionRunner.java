@@ -8,7 +8,7 @@ import com.google.common.base.Function;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.Describables.describe;
+import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -16,6 +16,7 @@ import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
+import static java.lang.String.format;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
@@ -421,10 +422,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
         @Override
         public String describeAction(Action action) {
-          return String.format(
-              "(%s)%s",
+          return format(
+              "(%s)%s%s",
               getResultCode(action),
-              describe(action)
+              describe(action),
+              getErrorMessage(action)
           );
         }
 
@@ -448,6 +450,17 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
             return Result.Code.NA;
           }
         }
+
+        private String getErrorMessage(Action action) {
+          if (resultMap.containsKey(action)) {
+            Throwable throwable = resultMap.get(action).thrown;
+            if (throwable != null) {
+              return format(" (error=%s)", throwable.getMessage());
+            }
+          }
+          return "";
+        }
+
       };
     }
 
@@ -462,12 +475,12 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         throw e;
       } finally {
         if (succeeded) {
-          resultMap.put(action, new Result(Result.Code.PASSED, contextValue(), null));
+          resultMap.put(action, new Result(Result.Code.PASSED, null));
         } else {
           if (thrown instanceof AssertionError) {
-            resultMap.put(action, new Result(Result.Code.FAIL, contextValue(), thrown));
+            resultMap.put(action, new Result(Result.Code.FAIL, thrown));
           } else {
-            resultMap.put(action, new Result(Result.Code.ERROR, contextValue(), thrown));
+            resultMap.put(action, new Result(Result.Code.ERROR, thrown));
           }
         }
       }
@@ -481,12 +494,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
     public static class Result {
       public final Code      code;
-      public final Object    contextValue;
       public final Throwable thrown;
 
-      protected Result(Code code, Object contextValue, Throwable thrown) {
+      protected Result(Code code, Throwable thrown) {
         this.code = checkNotNull(code);
-        this.contextValue = contextValue;
         this.thrown = thrown;
       }
 

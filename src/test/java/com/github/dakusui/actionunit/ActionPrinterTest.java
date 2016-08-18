@@ -121,7 +121,7 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("simple2"));
       assertThat(i.next(), containsString("simple3"));
       assertThat(i.next(), containsString("ForEach"));
-      assertEquals(9, size(printer.getWriter()));
+      assertEquals(8, size(printer.getWriter()));
     }
   }
 
@@ -147,7 +147,7 @@ public class ActionPrinterTest {
           }),
           forEach(
               asList("hello1", "hello2", "hello3"),
-              new TestAction.Builder<String, String>("example test")
+              new TestAction.Builder<String, String>("ExampleTest")
                   .when(new Function<String, String>() {
                           @Override
                           public String apply(String input) {
@@ -157,6 +157,36 @@ public class ActionPrinterTest {
                         }
                   )
                   .then(CoreMatchers.<String>anything()).build()
+          ),
+          forEach(
+              asList("world1", "world2", "world3"),
+              sequential(
+                  simple(new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                  }),
+                  tag(0)
+              ),
+              new Sink<String>() {
+                @Override
+                public void apply(String input, Context context) {
+                }
+                @Override
+                public String toString() {
+                  return "sink1";
+                }
+              },
+              new Sink<String>() {
+                @Override
+                public void apply(String input, Context context) {
+                }
+                @Override
+                public String toString() {
+                  return "sink2";
+                }
+              }
           )
       );
     }

@@ -1,8 +1,7 @@
 package com.github.dakusui.actionunit.connectors;
 
-import com.github.dakusui.actionunit.Describable;
-import com.github.dakusui.actionunit.Utils;
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.Utils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.List;
 public interface Pipe<I, O> {
   O apply(I input, Context context);
 
-  abstract class Base<I, O> implements Pipe<I, O>, Describable {
+  abstract class Base<I, O> implements Pipe<I, O> {
     private final String description;
 
     protected Base(String description) {
@@ -47,7 +46,7 @@ public interface Pipe<I, O> {
     abstract protected O apply(I input, Object... outer);
 
     @Override
-    public String describe() {
+    public String toString() {
       return Utils.nonameIfNull(this.description);
     }
   }

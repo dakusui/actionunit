@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.connectors;
 
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.Describables;
+import com.github.dakusui.actionunit.Utils;
 import com.google.common.base.Function;
 import org.hamcrest.Matcher;
 
@@ -20,8 +20,8 @@ public enum Connectors {
       }
 
       @Override
-      public String describe() {
-        return String.format("Function(%s)", Describables.describe(func));
+      public String toString() {
+        return String.format("Function(%s)", Utils.describe(func));
       }
     };
   }
@@ -29,8 +29,8 @@ public enum Connectors {
   public static <V> Source<V> immutable(final V value) {
     return new Source.Immutable<V>(value) {
       @Override
-      public String describe() {
-        return Describables.describe(value);
+      public String toString() {
+        return Utils.describe(value);
       }
     };
   }
@@ -82,8 +82,8 @@ public enum Connectors {
       }
 
       @Override
-      public String describe() {
-        return String.format("Matcher(%s)", Describables.describe(matcher));
+      public String toString() {
+        return String.format("Matcher(%s)", Utils.describe(matcher));
       }
     };
   }
