@@ -92,7 +92,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
     writeLine(describeAction(action));
     indent++;
     try {
-      action.getElements().iterator().next().accept(this);
+      action.getAction().accept(this);
     } finally {
       indent--;
     }

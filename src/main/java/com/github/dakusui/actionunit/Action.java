@@ -91,9 +91,10 @@ public interface Action {
       @Override
       public String describe() {
         return format(
-            "%s (%s, %s actions)",
-            nonameIfNull(this.summary),
-            getName(),
+            "%s (%s actions)",
+            this.summary == null
+                ? getName()
+                : this.summary,
             unknownIfNegative(this.size())
         );
       }
@@ -228,7 +229,11 @@ public interface Action {
         @Override
         public Action apply(final Source<T> t) {
           //noinspection unchecked
-          return new With.Base(t, ForEach.this.action, ForEach.this.sinks) {
+          return createWithAction(t);
+        }
+
+        private With createWithAction(final Source<T> t) {
+          return new With.Base<T>(t, ForEach.this.action, ForEach.this.sinks) {
             @Override
             public int hashCode() {
               return ForEach.this.action.hashCode();
@@ -253,6 +258,10 @@ public interface Action {
       return this.factory.create(
           null, transform(dataSource, func)
       );
+    }
+
+    public Action getAction() {
+      return this.action;
     }
 
     enum Mode {
