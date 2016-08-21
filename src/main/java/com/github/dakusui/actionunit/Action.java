@@ -32,9 +32,9 @@ public interface Action {
   /**
    * A skeletal base class of all {@code Action}s.
    */
-  abstract class Base implements Action, Describable {
+  abstract class Base implements Action {
     @Override
-    public String describe() {
+    public String toString() {
       return this.formatClassName();
     }
 
@@ -64,7 +64,7 @@ public interface Action {
     }
 
     @Override
-    public String describe() {
+    public String toString() {
       return this.description == null
           ? formatClassName()
           : description;
@@ -89,11 +89,11 @@ public interface Action {
       }
 
       @Override
-      public String describe() {
+      public String toString() {
         return format(
             "%s (%s actions)",
             this.summary == null
-                ? getName()
+                ? super.toString()
                 : this.summary,
             unknownIfNegative(this.size())
         );
@@ -114,10 +114,6 @@ public interface Action {
       public Iterator<Action> iterator() {
         //noinspection unchecked
         return (Iterator<Action>) this.actions.iterator();
-      }
-
-      protected String getName() {
-        return shortClassNameOf(this.getClass().getEnclosingClass()).replace("Action$", "");
       }
     }
 
@@ -205,7 +201,7 @@ public interface Action {
     }
 
     @Override
-    public String describe() {
+    public String toString() {
       return format("%s (%s, %s items) {%s}",
           this.getClass().getSimpleName(),
           this.factory,
@@ -216,7 +212,7 @@ public interface Action {
                   new Function<Sink<T>, Object>() {
                     @Override
                     public Object apply(Sink<T> sink) {
-                      return Describables.describe(sink);
+                      return describe(sink);
                     }
                   }
               ),
@@ -249,7 +245,7 @@ public interface Action {
             }
 
             @Override
-            public String describe() {
+            public String toString() {
               return "With";
             }
           };
@@ -322,16 +318,16 @@ public interface Action {
       }
 
       @Override
-      public String describe() {
+      public String toString() {
         return format("%s (%s) {%s}",
             formatClassName(),
-            Describables.describe(this.source()),
+            describe(this.source()),
             join(transform(
                 asList(this.getSinks()),
                 new Function<Sink<T>, Object>() {
                   @Override
                   public Object apply(Sink<T> sink) {
-                    return Describables.describe(sink);
+                    return describe(sink);
                   }
                 }),
                 ","));
@@ -353,7 +349,7 @@ public interface Action {
       }
 
       @Override
-      public String describe() {
+      public String toString() {
         return format("Tag(%d)", index);
       }
 
@@ -375,8 +371,8 @@ public interface Action {
           }
 
           @Override
-          public String describe() {
-            return Tag.this.describe();
+          public String toString() {
+            return Tag.this.toString();
           }
         };
       }
@@ -403,7 +399,7 @@ public interface Action {
     }
 
     @Override
-    public String describe() {
+    public String toString() {
       return format("%s(%sx%dtimes)",
           formatClassName(),
           formatDuration(intervalInNanos),
@@ -428,7 +424,7 @@ public interface Action {
     }
 
     @Override
-    public String describe() {
+    public String toString() {
       return format(
           "%s (%s)",
           formatClassName(),
@@ -631,7 +627,7 @@ public interface Action {
                   }
 
                   public String toString() {
-                    return Describables.describe(pipe);
+                    return describe(pipe);
                   }
                 }
             }
@@ -664,18 +660,18 @@ public interface Action {
       }
 
       @Override
-      public String describe() {
+      public String toString() {
         return format("%s %s:(%s) %s:(%s) %s:{%s}",
             formatClassName(),
             this.sourceName,
-            Describables.describe(this.source()),
+            describe(this.source()),
             this.pipeName,
             join(transform(
                 asList(this.getSinks()),
                 new Function<Sink<I>, Object>() {
                   @Override
                   public Object apply(Sink<I> sink) {
-                    return Describables.describe(sink);
+                    return describe(sink);
                   }
                 }),
                 ","),
@@ -685,7 +681,7 @@ public interface Action {
                 new Function<Sink<O>, Object>() {
                   @Override
                   public Object apply(Sink<O> input) {
-                    return Describables.describe(input);
+                    return describe(input);
                   }
                 }),
                 ",")

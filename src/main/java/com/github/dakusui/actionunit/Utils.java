@@ -234,4 +234,23 @@ public enum Utils {
   public static Iterable<Integer> range(int stop) {
     return range(0, stop);
   }
+
+  /**
+   * Tries to describe given {@code obj} in a best possible way.
+   *
+   * @param obj An object to be described.
+   */
+  public static String describe(Object obj) {
+    if (obj == null) {
+      return "null";
+    }
+    try {
+      if (obj.getClass().getMethod("toString").equals(Object.class.getMethod("toString"))) {
+        return shortClassNameOf(obj.getClass());
+      }
+    } catch (NoSuchMethodException e) {
+      throw propagate(e);
+    }
+    return obj.toString();
+  }
 }

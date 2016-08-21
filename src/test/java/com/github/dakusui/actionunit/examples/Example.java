@@ -11,7 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import static com.github.dakusui.actionunit.Actions.simple;
-import static com.github.dakusui.actionunit.Describables.describe;
+import static com.github.dakusui.actionunit.Utils.describe;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder

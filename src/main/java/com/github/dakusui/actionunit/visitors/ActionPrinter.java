@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.Describables.describe;
+import static com.github.dakusui.actionunit.Utils.describe;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**

@@ -9,7 +9,7 @@ public class DescribablesTest {
   public void givenNonDesribable$whenDescribe$thenLooksGood() {
     assertEquals(
         "Hello, world",
-        Describables.describe("Hello, world")
+        Utils.describe("Hello, world")
     );
   }
 
@@ -17,18 +17,18 @@ public class DescribablesTest {
   public void givenNull$whenDescribe$thenLooksGood() {
     assertEquals(
         "null",
-        Describables.describe(null)
+        Utils.describe(null)
     );
   }
 
   @Test
-  public void givenDescribable$whenDescribe$thenLooksGood() {
+  public void givenToStringOverridden$whenDescribe$thenLooksGood() {
     assertEquals(
         "hello world",
-        Describables.describe(
-            new Describable() {
+        Utils.describe(
+            new Object() {
               @Override
-              public String describe() {
+              public String toString() {
                 return "hello world";
               }
             }

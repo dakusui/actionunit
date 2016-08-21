@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.connectors;
 
-import com.github.dakusui.actionunit.Describable;
 import com.github.dakusui.actionunit.Context;
 
 import java.util.Objects;
@@ -11,7 +10,7 @@ import static java.lang.String.format;
 public interface Source<T> {
   T apply(Context context);
 
-  class Immutable<T> implements Source<T>, Describable {
+  class Immutable<T> implements Source<T> {
     private final T value;
 
     public Immutable(T value) {
@@ -23,18 +22,18 @@ public interface Source<T> {
     }
 
     @Override
-    public String describe() {
+    public String toString() {
       return Objects.toString(this.value);
     }
   }
 
 
-  class Mutable<T> implements Source<T>, Describable {
+  class Mutable<T> implements Source<T> {
     private boolean isSet = false;
     private T value;
 
     @Override
-    public String describe() {
+    public String toString() {
       return isSet
           ? format("current=%s", this.value)
           : "value isn't set yet";

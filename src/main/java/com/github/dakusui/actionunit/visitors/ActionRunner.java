@@ -8,7 +8,7 @@ import com.google.common.base.Function;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.Describables.describe;
+import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;

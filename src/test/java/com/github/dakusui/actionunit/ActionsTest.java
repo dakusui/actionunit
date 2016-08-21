@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Describables.describe;
+import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.transform;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.toArray;
@@ -68,7 +68,7 @@ public class ActionsTest {
 
   @Test
   public void givenSequentialAction$whenDescribe$thenLooksNice() {
-    assertEquals("(noname) (Sequential, 1 actions)", describe(sequential(nop())));
+    assertEquals("Sequential (1 actions)", describe(sequential(nop())));
   }
 
   @Test(timeout = 9000)
@@ -351,7 +351,7 @@ public class ActionsTest {
   @Test
   public void givenForEachAction$whenDescribe$thenLooksNice() {
     assertEquals(
-        "ForEach (Concurrent, 2 items) { (noname) }",
+        "ForEach (Concurrent, 2 items) {(noname)}",
         describe(forEach(
             asList("hello", "world"),
             CONCURRENTLY,
@@ -367,7 +367,7 @@ public class ActionsTest {
   @Test
   public void givenForEachActionViaNonCollection$whenDescribe$thenLooksNice() {
     assertEquals(
-        "ForEach (Sequential, ? items) { empty! }",
+        "ForEach (Sequential, ? items) {empty!}",
         describe(forEach(
             new Iterable<String>() {
               @Override

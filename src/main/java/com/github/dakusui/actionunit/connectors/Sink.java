@@ -1,8 +1,7 @@
 package com.github.dakusui.actionunit.connectors;
 
-import com.github.dakusui.actionunit.Describable;
-import com.github.dakusui.actionunit.Utils;
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.Utils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 public interface Sink<T> {
   void apply(T input, Context context);
 
-  abstract class Base<T> implements Sink<T>, Describable {
+  abstract class Base<T> implements Sink<T> {
     private final String description;
 
     protected Base(String description) {
@@ -45,7 +44,7 @@ public interface Sink<T> {
     abstract protected void apply(T input, Object... outer);
 
     @Override
-    public String describe() {
+    public String toString() {
       return Utils.nonameIfNull(this.description);
     }
   }
