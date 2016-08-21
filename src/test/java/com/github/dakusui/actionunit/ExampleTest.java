@@ -34,9 +34,9 @@ public class ExampleTest {
   @Test
   public void testExample() {
     Result result = JUnitCore.runClasses(Example.class);
-    assertEquals(7, result.getRunCount());
-    assertEquals(0, result.getFailureCount());
-    assertEquals(true, result.wasSuccessful());
+    assertEquals(9, result.getRunCount());
+    assertEquals(1, result.getFailureCount());
+    assertEquals(false, result.wasSuccessful());
   }
 
   @After

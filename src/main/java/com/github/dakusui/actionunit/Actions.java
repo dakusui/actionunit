@@ -304,6 +304,15 @@ public enum Actions {
     return pipe(toPipe(func), sinks);
   }
 
+  public static <I, O> TestAction.Builder<I, O> test() {
+    return new TestAction.Builder<>();
+  }
+
+  public static <I, O> TestAction.Builder<I, O> test(String name) {
+    return new TestAction.Builder<>(checkNotNull(name));
+  }
+
+
   public static class ToSource<T> implements Function<T, Source<T>> {
     @Override
     public Source<T> apply(T t) {

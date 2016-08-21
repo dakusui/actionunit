@@ -173,6 +173,7 @@ public class ActionPrinterTest {
                 @Override
                 public void apply(String input, Context context) {
                 }
+
                 @Override
                 public String toString() {
                   return "sink1";
@@ -182,6 +183,7 @@ public class ActionPrinterTest {
                 @Override
                 public void apply(String input, Context context) {
                 }
+
                 @Override
                 public String toString() {
                   return "sink2";

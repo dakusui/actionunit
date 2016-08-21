@@ -3,7 +3,10 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
+import com.github.dakusui.actionunit.TestAction;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.google.common.base.Function;
+import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -72,6 +75,36 @@ public class Example {
             System.out.println("test2");
           }
         })
+    };
+  }
+
+  @PerformWith(Test.class)
+  public Action[] testAction() {
+    return new Action[] {
+        new TestAction.Builder<Integer, String>()
+            .given(100)
+            .when(new Function<Integer, String>() {
+              @Override
+              public String apply(Integer input) {
+                return Integer.toString(input + 1);
+              }
+            })
+            .then(
+                Matchers.equalToIgnoringCase("102")
+            )
+            .build(),
+        new TestAction.Builder<Integer, String>()
+            .given(100)
+            .when(new Function<Integer, String>() {
+              @Override
+              public String apply(Integer input) {
+                return Integer.toString(input + 1);
+              }
+            })
+            .then(
+                Matchers.equalToIgnoringCase("101")
+            )
+            .build()
     };
   }
 
