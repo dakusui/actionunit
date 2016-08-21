@@ -548,8 +548,34 @@ public class ActionsTest {
     assertEquals("hello:world", out.get(0).value());
   }
 
+  @Test
+  public void givenTestAction$whenBuiltAndPerformed$thenWorksFine() {
+
+  }
+
+  @Test
+  public void givenTestActionWithName$whenBuiltAndPerformed$thenWorksFine() {
+    //noinspection unchecked
+    Actions.<String, String>test()
+        .given("Hello")
+        .when(new Function<String, String>() {
+          @Override
+          public String apply(String input) {
+            return "*" + input + "*";
+          }
+        })
+        .then(
+            allOf(
+                containsString("Hello"),
+                not(equalTo("Hello"))
+            ))
+        .build()
+        .accept(new ActionRunner.Impl());
+  }
+
   @Test(expected = ComparisonFailure.class)
-  public void givenPipeAction$whenPerformedAndThrowsException$thenPassesThrough() throws Throwable {
+  public void givenPipeAction$whenPerformedAndThrowsException$thenPassesThrough
+      () throws Throwable {
     with("world",
         pipe(
             Connectors.<String>context(),
@@ -567,7 +593,8 @@ public class ActionsTest {
   }
 
   @Test
-  public void givenPipeActionFromFunction$whenPerformed$thenWorksFine() throws Throwable {
+  public void givenPipeActionFromFunction$whenPerformed$thenWorksFine() throws
+      Throwable {
     final List<String> out = new LinkedList<>();
     with("world",
         pipe(
