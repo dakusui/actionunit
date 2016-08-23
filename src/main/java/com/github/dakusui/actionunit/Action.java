@@ -412,6 +412,12 @@ public interface Action {
     public final Action action;
     public final long   durationInNanos;
 
+    /**
+     * Creates an object of this class.
+     *
+     * @param action Action to be monitored and interrupted by this object.
+     * @param timeoutInNanos Duration to time out in nano seconds.
+     */
     public TimeOut(Action action, long timeoutInNanos) {
       Preconditions.checkArgument(timeoutInNanos > 0);
       this.durationInNanos = timeoutInNanos;

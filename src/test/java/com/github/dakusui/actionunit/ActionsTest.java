@@ -8,6 +8,7 @@ import com.google.common.base.Function;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -307,6 +308,42 @@ public class ActionsTest {
       ).accept(new ActionRunner.Impl());
     } finally {
       assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
+    }
+  }
+
+  @Test(expected = GiveUp.class)
+  public void givenRetryAction$whenGiveUpException$thenAborted() {
+    final List<String> arr = new ArrayList<>();
+    try {
+      retry(simple(new Runnable() {
+            @Override
+            public void run() {
+              throw GiveUp.giveUp();
+            }
+          }),
+          1, 1, MILLISECONDS
+      ).accept(new ActionRunner.Impl());
+    } finally {
+      assertEquals(Collections.emptyList(), arr);
+    }
+  }
+
+  @Test(expected = IOException.class)
+  public void givenRetryAction$whenGiveUpException2$thenAborted() throws Throwable {
+    final List<String> arr = new ArrayList<>();
+    try {
+      retry(simple(new Runnable() {
+            @Override
+            public void run() {
+              throw GiveUp.giveUp(new IOException());
+            }
+          }),
+          1, 1, MILLISECONDS
+      ).accept(new ActionRunner.Impl());
+    } catch (GiveUp e) {
+      throw e.getCause();
+    } finally {
+      assertEquals(Collections.emptyList(), arr);
     }
   }
 
