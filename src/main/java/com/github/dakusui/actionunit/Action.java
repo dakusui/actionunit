@@ -380,6 +380,10 @@ public interface Action {
   }
 
   class Retry extends Base {
+    /**
+     * A constant that represents an instance of this class should be repeated infinitely.
+     */
+    public static final int INFINITE = -1;
     public final Action action;
     public final int    times;
     public final long   intervalInNanos;
@@ -387,7 +391,7 @@ public interface Action {
     public Retry(Action action, long intervalInNanos, int times) {
       checkNotNull(action);
       checkArgument(intervalInNanos >= 0);
-      checkArgument(times >= 0);
+      checkArgument(times >= 0 || times == INFINITE);
       this.action = action;
       this.intervalInNanos = intervalInNanos;
       this.times = times;
@@ -409,11 +413,20 @@ public interface Action {
   }
 
   class TimeOut extends Base {
+    /**
+     * A constant which means an instance of this class should wait forever.
+     */
+    public static final int FOREVER = -1;
     public final Action action;
     public final long   durationInNanos;
 
+    /**
+     *
+     * @param action
+     * @param timeoutInNanos
+     */
     public TimeOut(Action action, long timeoutInNanos) {
-      Preconditions.checkArgument(timeoutInNanos > 0);
+      Preconditions.checkArgument(timeoutInNanos > 0 || timeoutInNanos == FOREVER);
       this.durationInNanos = timeoutInNanos;
       this.action = checkNotNull(action);
     }
@@ -509,7 +522,9 @@ public interface Action {
     void visit(With action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
+     * An implementation of this method should not attempt retry if {@link GiveUp} exception
+     * is thrown.
      *
      * @param action action to be visited by this object.
      */

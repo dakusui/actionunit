@@ -246,11 +246,15 @@ public enum Utils {
     }
     try {
       if (obj.getClass().getMethod("toString").equals(Object.class.getMethod("toString"))) {
-        return shortClassNameOf(obj.getClass());
+        return describeClassOf(obj);
       }
     } catch (NoSuchMethodException e) {
       throw propagate(e);
     }
     return obj.toString();
+  }
+
+  public static String describeClassOf(Object obj) {
+    return shortClassNameOf(checkNotNull(obj).getClass());
   }
 }

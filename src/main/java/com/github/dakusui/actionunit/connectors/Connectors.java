@@ -3,10 +3,12 @@ package com.github.dakusui.actionunit.connectors;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import org.hamcrest.Matcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public enum Connectors {
   ;
@@ -84,6 +86,21 @@ public enum Connectors {
       @Override
       public String toString() {
         return String.format("Matcher(%s)", Utils.describe(matcher));
+      }
+    };
+  }
+
+  public static <O> Sink<O> toSink(final Predicate<O> predicate) {
+    checkNotNull(predicate);
+    return new Sink.Base<O>() {
+      @Override
+      protected void apply(O input, Object... outer) {
+        assertTrue(predicate.apply(input));
+      }
+
+      @Override
+      public String toString() {
+        return String.format("Matcher(%s)", Utils.describe(predicate));
       }
     };
   }

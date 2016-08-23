@@ -139,7 +139,7 @@ public enum Actions {
    * @param duration A parameter to specify duration to time out with {@code timeUnit} parameter.
    * @param timeUnit Time unit of {@code duration}.
    */
-  public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
+  public static Action timeout(Action action, long duration, TimeUnit timeUnit) {
     checkNotNull(timeUnit);
     return new Action.TimeOut(action, NANOSECONDS.convert(duration, timeUnit));
   }
@@ -149,10 +149,12 @@ public enum Actions {
    *
    * @param action   An action retried by the returned {@code Action}.
    * @param times    How many times given {@code action} will be retried. If 0 is given, no retry will happen.
+   *                 If {@link com.github.dakusui.actionunit.Action.Retry#INFINITE} is given, returned
+   *                 action will re-try infinitely until {@code action} successes.
    * @param interval Interval between actions.
    * @param timeUnit Time unit of {@code interval}.
    */
-  public static Action retry(Action action, int times, int interval, TimeUnit timeUnit) {
+  public static Action retry(Action action, int times, long interval, TimeUnit timeUnit) {
     checkNotNull(timeUnit);
     return new Action.Retry(action, NANOSECONDS.convert(interval, timeUnit), times);
   }
@@ -250,7 +252,7 @@ public enum Actions {
    * @param duration Duration to wait for.
    * @param timeUnit Time unit of the {@code duration}.
    */
-  public static Action waitFor(final int duration, final TimeUnit timeUnit) {
+  public static Action waitFor(final long duration, final TimeUnit timeUnit) {
     checkArgument(duration >= 0, "duration must be non-negative but %d was given", duration);
     checkNotNull(timeUnit);
     return new Action.Leaf() {

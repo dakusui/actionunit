@@ -1,8 +1,6 @@
 package com.github.dakusui.actionunit.visitors;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.ActionException;
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.*;
 import com.google.common.base.Function;
 
 import java.util.Map;
@@ -142,11 +140,13 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       toRunnable(action.action).run();
     } catch (ActionException e) {
       ActionException lastException = e;
-      for (int i = 0; i < action.times; i++) {
+      for (int i = 0; i < action.times || action.times == Action.Retry.INFINITE; i++) {
         try {
           TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
           toRunnable(action.action).run();
           return;
+        } catch (GiveUp giveUp) {
+          throw giveUp;
         } catch (ActionException ee) {
           lastException = ee;
         } catch (InterruptedException ee) {
@@ -484,12 +484,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           }
         }
       }
-    }
-
-    private Object contextValue() {
-      if (this.getParent() == null)
-        return null;
-      return this.value();
     }
 
     public static class Result {
