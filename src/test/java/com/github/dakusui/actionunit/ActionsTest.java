@@ -311,14 +311,14 @@ public class ActionsTest {
     }
   }
 
-  @Test(expected = GiveUp.class)
+  @Test(expected = Abort.class)
   public void givenRetryAction$whenGiveUpException$thenAborted() {
     final List<String> arr = new ArrayList<>();
     try {
       retry(simple(new Runnable() {
             @Override
             public void run() {
-              throw GiveUp.giveUp();
+              throw Abort.abort();
             }
           }),
           1, 1, MILLISECONDS
@@ -335,12 +335,12 @@ public class ActionsTest {
       retry(simple(new Runnable() {
             @Override
             public void run() {
-              throw GiveUp.giveUp(new IOException());
+              throw Abort.abort(new IOException());
             }
           }),
           1, 1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
-    } catch (GiveUp e) {
+    } catch (Abort e) {
       throw e.getCause();
     } finally {
       assertEquals(Collections.emptyList(), arr);

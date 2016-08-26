@@ -147,6 +147,8 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
           toRunnable(action.action).run();
           return;
+        } catch (Abort abort) {
+          throw abort;
         } catch (ActionException ee) {
           lastException = ee;
         } catch (InterruptedException ee) {
