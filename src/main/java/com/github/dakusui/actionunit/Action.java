@@ -260,7 +260,7 @@ public interface Action {
       return this.action;
     }
 
-    enum Mode {
+    public enum Mode {
       SEQUENTIALLY {
         @Override
         Composite.Factory getFactory() {
@@ -376,6 +376,13 @@ public interface Action {
           }
         };
       }
+    }
+  }
+
+  class Rescue extends Base {
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
     }
   }
 
@@ -524,7 +531,7 @@ public interface Action {
 
     /**
      * Visits an {@code action}.
-     * An implementation of this method should not attempt retry if {@link GiveUp} exception
+     * An implementation of this method should not attempt retry if {@link Abort} exception
      * is thrown.
      *
      * @param action action to be visited by this object.

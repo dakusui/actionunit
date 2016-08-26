@@ -221,6 +221,10 @@ public enum Actions {
         sinks);
   }
 
+  public static <T extends Throwable> Action rescue(Action action, Class<T> toBeCaught,  Action.With<T> rescue) {
+
+  }
+
   /**
    * Returns an action that does nothing.
    */
