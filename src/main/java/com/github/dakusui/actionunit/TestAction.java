@@ -25,10 +25,6 @@ public interface TestAction<I, O> extends Action.Piped<I, O> {
     private Pipe<I, O> when;
     private Sink<O>    then;
 
-    public Builder() {
-      this(null);
-    }
-
     public Builder(String testName) {
       this.testName = testName;
     }
