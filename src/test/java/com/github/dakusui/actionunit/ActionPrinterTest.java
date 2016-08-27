@@ -13,11 +13,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.collect.Iterables.size;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 
@@ -126,7 +129,7 @@ public class ActionPrinterTest {
   }
 
   public static class WithResultTest {
-    private static Action composeAction() {
+    private static Action composeAction(final List<String> out) {
       return concurrent("Concurrent",
           sequential("Sequential",
               simple("simple1", new Runnable() {
@@ -151,7 +154,7 @@ public class ActionPrinterTest {
                   .when(new Function<String, String>() {
                           @Override
                           public String apply(String input) {
-                            System.out.println(String.format("hello:%s", input));
+                            out.add(String.format("hello:%s", input));
                             return String.format("hello:%s", input);
                           }
                         }
@@ -194,11 +197,35 @@ public class ActionPrinterTest {
     }
 
     @Test
-    public void test() {
+    public void givenComplicatedTestAction$whenPerformed$thenWorksFine() {
+      List<String> out = new LinkedList<>();
+      Action action = composeAction(out);
       ActionRunner.WithResult runner = new ActionRunner.WithResult();
-      Action action = composeAction();
       action.accept(runner);
+      assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
+
       action.accept(runner.createPrinter());
+    }
+
+    @Test
+    public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
+      List<String> out = new LinkedList<>();
+      ActionPrinter<ActionPrinter.Writer.Impl> printer = ActionPrinter.Factory.create();
+      composeAction(out).accept(printer);
+      Iterator<String> i = printer.getWriter().iterator();
+      assertThat(i.next(), containsString("Concurrent"));
+      assertThat(i.next(), containsString("Sequential"));
+      assertThat(i.next(), containsString("simple1"));
+      assertThat(i.next(), containsString("simple2"));
+      assertThat(i.next(), containsString("simple3"));
+      assertThat(i.next(), containsString("ForEach"));
+      //noinspection unchecked
+      assertThat(i.next(), allOf(containsString("Given"), containsString("When"), containsString("Then")));
+      assertThat(i.next(), containsString("Sequential"));
+      assertThat(i.next(), containsString("Sequential"));
+      assertThat(i.next(), containsString("(noname)"));
+      assertThat(i.next(), containsString("Tag(0)"));
+      assertEquals(11, size(printer.getWriter()));
     }
   }
 }
