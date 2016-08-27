@@ -221,10 +221,6 @@ public enum Actions {
         sinks);
   }
 
-  public static <T extends Throwable> Action rescue(Action action, Class<T> toBeCaught,  Action.With<T> rescue) {
-
-  }
-
   /**
    * Returns an action that does nothing.
    */
@@ -274,6 +270,14 @@ public enum Actions {
         return format("Wait for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
       }
     };
+  }
+
+  public static Action.Attempt.Builder attempt(Action attempt) {
+    return new Action.Attempt.Builder(checkNotNull(attempt));
+  }
+
+  public static Action.Attempt.Builder attempt(Runnable attempt) {
+    return attempt(simple(checkNotNull(attempt)));
   }
 
   @SafeVarargs

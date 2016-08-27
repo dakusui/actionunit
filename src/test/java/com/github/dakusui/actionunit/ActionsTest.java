@@ -523,6 +523,57 @@ public class ActionsTest {
   }
 
   @Test
+  public void givenAttemptAction$whenExceptionCaught$worksFine() {
+    final List<String> out = new LinkedList<>();
+    attempt(new Runnable() {
+      @Override
+      public void run() {
+        out.add("try");
+        throw new RuntimeException("thrown");
+      }
+    }).recover(RuntimeException.class, new Sink<RuntimeException>() {
+      @Override
+      public void apply(RuntimeException input, Context context) {
+        out.add("catch");
+        out.add(input.getMessage());
+      }
+    }).ensure(new Runnable() {
+      @Override
+      public void run() {
+        out.add("finally");
+      }
+    }).build().accept(new ActionRunner.Impl());
+    assertEquals(asList("try", "catch", "thrown", "finally"), out);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void givenAttemptAction$whenExceptionNotCaught$worksFine() {
+    final List<String> out = new LinkedList<>();
+    try {
+      attempt(new Runnable() {
+        @Override
+        public void run() {
+          out.add("try");
+          throw new RuntimeException("thrown");
+        }
+      }).recover(NullPointerException.class, new Sink<NullPointerException>() {
+        @Override
+        public void apply(NullPointerException input, Context context) {
+          out.add("catch");
+          out.add(input.getMessage());
+        }
+      }).ensure(new Runnable() {
+        @Override
+        public void run() {
+          out.add("finally");
+        }
+      }).build().accept(new ActionRunner.Impl());
+    } finally {
+      assertEquals(asList("try", "finally"), out);
+    }
+  }
+
+  @Test
   public void givenPipeAction$whenPerformed$thenWorksFine() {
     with("world",
         pipe(
