@@ -51,12 +51,7 @@ public enum Actions {
    */
   public static Action simple(final String summary, final Runnable runnable) {
     checkNotNull(runnable);
-    return new Action.Leaf() {
-      @Override
-      public String toString() {
-        return nonameIfNull(summary);
-      }
-
+    return new Action.Leaf(nonameIfNull(summary)) {
       @Override
       public void perform() {
         runnable.run();
@@ -315,11 +310,11 @@ public enum Actions {
   }
 
   public static <I, O> TestAction.Builder<I, O> test() {
-    return new TestAction.Builder<>();
+    return test(null);
   }
 
   public static <I, O> TestAction.Builder<I, O> test(String name) {
-    return new TestAction.Builder<>(checkNotNull(name));
+    return new TestAction.Builder<>(name);
   }
 
 

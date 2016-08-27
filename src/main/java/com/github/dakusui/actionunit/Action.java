@@ -244,11 +244,6 @@ public interface Action {
               With.Base another = (With.Base) anotherObject;
               return ForEach.this.action.equals(another.action) && Arrays.equals(ForEach.this.sinks, another.sinks);
             }
-
-            @Override
-            public String toString() {
-              return "With";
-            }
           };
         }
       };
@@ -682,10 +677,11 @@ public interface Action {
       private final   String     pipeName;
       private final   String     sinksName;
 
+      @SafeVarargs
       public Impl(
           final Source<I> source,
           final Pipe<I, O> pipe,
-          final Sink<O>[] sinks) {
+          final Sink<O>... sinks) {
         this(source, "From", pipe, "Through", sinks, "To");
       }
 

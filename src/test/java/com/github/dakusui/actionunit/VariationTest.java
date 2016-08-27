@@ -58,7 +58,7 @@ public class VariationTest {
   public void testAction1() {
     forEach(
         asList("host1", "host2"),
-        new TestAction.Builder<String, Integer>()
+        Actions.<String, Integer>test()
             .when(new Function<String, Integer>() {
               @Override
               public Integer apply(String input) {
@@ -74,7 +74,7 @@ public class VariationTest {
   public void testAction2() {
     forEach(
         asList("host1", "host2"),
-        new TestAction.Builder<String, Integer>()
+        Actions.<String, Integer>test()
             .given("9")
             .when(new Pipe<String, Integer>() {
               @Override
@@ -91,7 +91,7 @@ public class VariationTest {
   public void testAction3() {
     forEach(
         asList("host1", "host2"),
-        new TestAction.Builder<String, Integer>()
+        Actions.<String, Integer>test()
             .given(Connectors.<String>context())
             .when(new Pipe<String, Integer>() {
               @Override

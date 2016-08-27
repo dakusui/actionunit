@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.TestAction;
+import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 import org.hamcrest.Matchers;
@@ -81,7 +81,7 @@ public class Example {
   @PerformWith(Test.class)
   public Action[] testAction() {
     return new Action[] {
-        new TestAction.Builder<Integer, String>()
+        Actions.<Integer, String>test()
             .given(100)
             .when(new Function<Integer, String>() {
               @Override
@@ -93,7 +93,7 @@ public class Example {
                 Matchers.equalToIgnoringCase("102")
             )
             .build(),
-        new TestAction.Builder<Integer, String>()
+        Actions.<Integer, String>test()
             .given(100)
             .when(new Function<Integer, String>() {
               @Override
