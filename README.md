@@ -1,6 +1,9 @@
 # ActionUnit
 Action based JUnit[[0]] test runner library
 
+[![Build Status](https://travis-ci.org/dakusui/actionunit.svg?branch=master)](https://travis-ci.org/dakusui/actionunit)
+[![codecov.io](https://codecov.io/github/dakusui/actionunit/coverage.svg?branch=master)](https://codecov.io/github/dakusui/actionunit?branch=master)
+
 # Installation
 Actionunit requires Java SE7 or later.
 Following is a maven coordinate for ActionUnit.
