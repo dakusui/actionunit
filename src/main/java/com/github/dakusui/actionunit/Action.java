@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.*;
 import static java.lang.String.format;
@@ -332,7 +333,6 @@ public interface Action {
                 }),
                 ","));
       }
-
     }
 
     class Tag extends Action.Base {
@@ -379,10 +379,78 @@ public interface Action {
     }
   }
 
-  class Rescue extends Base {
+  /**
+   * An action that corresponds to Java's try/catch mechanism.
+   */
+  class Attempt<T extends Throwable> extends Base {
+    public final Action    attempt;
+    public final Action    recover;
+    public final Class<T>  exceptionClass;
+    public final Sink<T>[] recoverWith;
+    public final Action    ensure;
+
+    protected Attempt(Action attempt, Class<? extends Throwable> on, Action recover, Sink<? extends Throwable>[] recoverWith, Action ensure) {
+      this.attempt = attempt;
+      //noinspection unchecked
+      this.exceptionClass = (Class<T>) on;
+      this.recover = recover;
+      //noinspection unchecked
+      this.recoverWith = (Sink<T>[]) recoverWith;
+      this.ensure = ensure;
+    }
+
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
+    }
+
+    public static class Builder {
+      private final Action attempt;
+      private Action                      recover     = nop();
+      @SuppressWarnings("unchecked")
+      private Sink<? extends Throwable>[] recoverWith = new Sink[0];
+      private Action                      ensure      = nop();
+      private Class<? extends Throwable>  on          = null;
+
+      public Builder(Action attempt) {
+        this.attempt = checkNotNull(attempt);
+      }
+
+      @SafeVarargs
+      public final <T extends Throwable> Builder recover(Class<T> on, Action action, Sink<? extends T>... sinks) {
+        this.on = checkNotNull(on);
+        this.recover = checkNotNull(action);
+        this.recoverWith = sinks;
+        return this;
+      }
+
+      @SafeVarargs
+      public final <T extends Throwable> Builder recover(Class<T> on, Sink<? extends T>... sinks) {
+        return this.recover(
+            on,
+            sequential(transform(range(0, sinks.length),
+                new Function<Integer, Action>() {
+                  @Override
+                  public Action apply(Integer input) {
+                    return tag(input);
+                  }
+                })),
+            sinks
+        );
+      }
+
+      public Builder ensure(Action action) {
+        this.ensure = checkNotNull(action);
+        return this;
+      }
+
+      public Builder ensure(Runnable runnable) {
+        return this.ensure(simple(runnable));
+      }
+
+      public <T extends Throwable> Attempt<T> build() {
+        return new Attempt<>(this.attempt, this.on, this.recover, this.recoverWith, this.ensure);
+      }
     }
   }
 
@@ -422,7 +490,7 @@ public interface Action {
     /**
      * Creates an object of this class.
      *
-     * @param action Action to be monitored and interrupted by this object.
+     * @param action         Action to be monitored and interrupted by this object.
      * @param timeoutInNanos Duration to time out in nano seconds.
      */
     public TimeOut(Action action, long timeoutInNanos) {
@@ -466,56 +534,56 @@ public interface Action {
    */
   interface Visitor {
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(Action action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(Action.Leaf action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(Composite action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(Sequential action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(Concurrent action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(ForEach action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(With.Tag action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
@@ -531,11 +599,18 @@ public interface Action {
     void visit(Retry action);
 
     /**
-     * Visits an {@code action}
+     * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
     void visit(TimeOut action);
+
+    /**
+     * Visits an {@code action}.
+     *
+     * @param action action to be visited by this object.
+     */
+    void visit(Attempt action);
 
     abstract class Base implements Visitor {
       @Override
@@ -583,6 +658,10 @@ public interface Action {
         this.visit((Action) action);
       }
 
+      @Override
+      public void visit(Attempt action) {
+        this.visit((Action) action);
+      }
     }
   }
 

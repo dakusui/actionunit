@@ -1,8 +1,10 @@
 package com.github.dakusui.actionunit.visitors;
 
+import com.github.dakusui.actionunit.Abort;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionException;
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.connectors.Connectors;
 import com.google.common.base.Function;
 
 import java.util.Map;
@@ -12,6 +14,7 @@ import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
@@ -174,6 +177,25 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         action.durationInNanos,
         TimeUnit.NANOSECONDS
     );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(final Action.Attempt action) {
+    try {
+      action.attempt.accept(this);
+    } catch (Throwable e) {
+      //noinspection unchecked
+      if (action.exceptionClass == null || !action.exceptionClass.isAssignableFrom(e.getClass())) {
+        throw propagate(e);
+      }
+      //noinspection unchecked
+      new Action.With.Base<>(Connectors.toSource(e), action.recover, action.recoverWith).accept(this);
+    } finally {
+      action.ensure.accept(this);
+    }
   }
 
   /**
@@ -457,7 +479,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           if (resultMap.containsKey(action)) {
             Throwable throwable = resultMap.get(action).thrown;
             if (throwable != null) {
-              return format(" (error=%s)", throwable.getMessage());
+              return format("(error=%s)", throwable.getMessage());
             }
           }
           return "";
