@@ -18,7 +18,7 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/dakusui/actionunit.git</connection>
+        <connection>scm:git:git@github.com/dakusui/actionunit.git</connection>
         <developerConnection>scm:git:git@github.com:dakusui/actionunit.git
         </developerConnection>
         <url>http://dakusui.github.io/actionuint</url>
