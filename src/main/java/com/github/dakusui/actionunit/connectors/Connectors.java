@@ -13,19 +13,21 @@ import static org.junit.Assert.assertTrue;
 public enum Connectors {
   ;
 
-  public static <I, O> Pipe<I, O> toPipe(final Function<I, O> func) {
+  public static <I, O> Pipe<I, O> toPipe(String description, final Function<I, O> func) {
     checkNotNull(func);
-    return new Pipe.Base<I, O>() {
+    return new Pipe.Base<I, O>(description == null
+        ? String.format("Function(%s)", Utils.describe(func))
+        : description
+    ) {
       @Override
       protected O apply(I input, Object... outer) {
         return func.apply(input);
       }
-
-      @Override
-      public String toString() {
-        return String.format("Function(%s)", Utils.describe(func));
-      }
     };
+  }
+
+  public static <I, O> Pipe<I, O> toPipe(final Function<I, O> func) {
+    return toPipe(null, func);
   }
 
   public static <V> Source<V> immutable(final V value) {
@@ -100,7 +102,7 @@ public enum Connectors {
 
       @Override
       public String toString() {
-        return String.format("Matcher(%s)", Utils.describe(predicate));
+        return String.format("Predicate(%s)", Utils.describe(predicate));
       }
     };
   }
