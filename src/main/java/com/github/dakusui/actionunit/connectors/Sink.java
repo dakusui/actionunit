@@ -28,9 +28,11 @@ public interface Sink<T> {
     public void apply(T input, Context context) {
       List<Object> args = new LinkedList<>();
       Context parent = context.getParent();
-      while (parent.getParent() != null) {
-        args.add(parent.value());
-        parent = parent.getParent();
+      if (parent != null) {
+        while (parent.getParent() != null) {
+          args.add(parent.value());
+          parent = parent.getParent();
+        }
       }
       this.apply(input, args.toArray());
     }

@@ -47,7 +47,9 @@ public interface Pipe<I, O> {
 
     @Override
     public String toString() {
-      return Utils.nonameIfNull(this.description);
+      return this.description == null
+          ? Utils.shortClassNameOf(this.getClass())
+          : description;
     }
   }
 }

@@ -36,7 +36,7 @@ public interface Source<T> {
     public String toString() {
       return isSet
           ? format("current=%s", this.value)
-          : "value isn't set yet";
+          : "(value isn't set yet)";
     }
 
     @Override

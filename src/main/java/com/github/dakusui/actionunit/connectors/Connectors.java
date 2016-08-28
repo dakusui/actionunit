@@ -11,19 +11,21 @@ import static org.junit.Assert.assertThat;
 public enum Connectors {
   ;
 
-  public static <I, O> Pipe<I, O> toPipe(final Function<I, O> func) {
+  public static <I, O> Pipe<I, O> toPipe(String description, final Function<I, O> func) {
     checkNotNull(func);
-    return new Pipe.Base<I, O>() {
+    return new Pipe.Base<I, O>(description == null
+        ? String.format("Function(%s)", Utils.describe(func))
+        : description
+    ) {
       @Override
       protected O apply(I input, Object... outer) {
         return func.apply(input);
       }
-
-      @Override
-      public String toString() {
-        return String.format("Function(%s)", Utils.describe(func));
-      }
     };
+  }
+
+  public static <I, O> Pipe<I, O> toPipe(final Function<I, O> func) {
+    return toPipe(null, func);
   }
 
   public static <V> Source<V> immutable(final V value) {
@@ -84,6 +86,21 @@ public enum Connectors {
       @Override
       public String toString() {
         return String.format("Matcher(%s)", Utils.describe(matcher));
+      }
+    };
+  }
+
+  public static <O> Sink<O> toSink(final Predicate<O> predicate) {
+    checkNotNull(predicate);
+    return new Sink.Base<O>() {
+      @Override
+      protected void apply(O input, Object... outer) {
+        assertTrue(predicate.apply(input));
+      }
+
+      @Override
+      public String toString() {
+        return String.format("Predicate(%s)", Utils.describe(predicate));
       }
     };
   }
