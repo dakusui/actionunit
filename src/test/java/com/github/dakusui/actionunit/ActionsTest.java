@@ -72,7 +72,7 @@ public class ActionsTest {
     assertEquals("Sequential (1 actions)", describe(sequential(nop())));
   }
 
-  @Test(timeout = 9000)
+  @Test(timeout = 300000)
   public void concurrentTest() throws InterruptedException {
     final List<String> arr = synchronizedList(new ArrayList<String>());
     concurrent(
@@ -93,7 +93,7 @@ public class ActionsTest {
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
 
-  @Test(timeout = 9000)
+  @Test(timeout = 300000)
   public void concurrentTest$checkConcurrency() throws InterruptedException {
     final List<Map.Entry<Long, Long>> arr = synchronizedList(new ArrayList<Map.Entry<Long, Long>>());
     try {
@@ -133,7 +133,7 @@ public class ActionsTest {
     }
   }
 
-  @Test(timeout = 9000, expected = NullPointerException.class)
+  @Test(timeout = 300000, expected = NullPointerException.class)
   public void concurrentTest$runtimeExceptionThrown() throws InterruptedException {
     final List<String> arr = synchronizedList(new ArrayList<String>());
     try {
@@ -158,7 +158,7 @@ public class ActionsTest {
     }
   }
 
-  @Test(timeout = 9000, expected = Error.class)
+  @Test(timeout = 300000, expected = Error.class)
   public void concurrentTest$errorThrown() throws InterruptedException {
     final List<String> arr = synchronizedList(new ArrayList<String>());
     try {
@@ -232,7 +232,7 @@ public class ActionsTest {
     }
   }
 
-  @Test(expected = RuntimeException.class, timeout = 3000)
+  @Test(expected = RuntimeException.class, timeout = 300000)
   public void timeoutTest$throwsRuntimeException() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
@@ -253,7 +253,7 @@ public class ActionsTest {
     }
   }
 
-  @Test(expected = Error.class, timeout = 3000)
+  @Test(expected = Error.class, timeout = 300000)
   public void timeoutTest$throwsError() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
@@ -274,7 +274,7 @@ public class ActionsTest {
     }
   }
 
-  @Test(timeout = 3000)
+  @Test(timeout = 300000)
   public void retryTest() {
     final List<String> arr = new ArrayList<>();
     retry(simple(new Runnable() {
@@ -288,7 +288,7 @@ public class ActionsTest {
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
 
-  @Test(timeout = 3000)
+  @Test(timeout = 300000)
   public void retryTest$failOnce() {
     final List<String> arr = new ArrayList<>();
     try {
@@ -347,7 +347,7 @@ public class ActionsTest {
     }
   }
 
-  @Test(expected = ActionException.class, timeout = 3000)
+  @Test(expected = ActionException.class, timeout = 300000)
   public void retryTest$failForever() {
     final List<String> arr = new ArrayList<>();
     try {
@@ -370,7 +370,7 @@ public class ActionsTest {
     assertEquals("Retry(2[seconds]x1times)", describe(retry(nop(), 1, 2, SECONDS)));
   }
 
-  @Test(timeout = 3000)
+  @Test(timeout = 300000)
   public void forEachTest() {
     final List<String> arr = new ArrayList<>();
     forEach(
@@ -498,7 +498,7 @@ public class ActionsTest {
   }
 
 
-  @Test(timeout = 2000)
+  @Test(timeout = 300000)
   public void givenWaitForAction$whenPerform$thenExpectedAmountOfTimeSpent() {
     ////
     // To force JVM load classes used by this test, run the action once for warm-up.
