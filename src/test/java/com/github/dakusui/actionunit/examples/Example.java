@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.ActionException;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.Actions;
@@ -12,8 +13,9 @@ import org.junit.runner.RunWith;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.Actions.simple;
+import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static java.util.Arrays.asList;
 
@@ -118,8 +120,39 @@ public class Example {
     });
   }
 
+  @PerformWith(Test.class)
+  public Action attemptAndForEachInCombination() {
+    final Runnable runnable = createRunnable();
+    return attempt(runnable)
+        .recover(retry(simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
+        .ensure(nop())
+        .build();
+  }
+
+  private Runnable createRunnable() {
+    return new Runnable() {
+        int i = 0;
+
+        @Override
+        public void run() {
+          System.out.println("Start:run()");
+          boolean succeeded = false;
+          try {
+            if (i++ < 3) {
+              String msg = String.format("Error:run(%d)", i);
+              System.out.println(msg);
+              throw new ActionException(msg);
+            }
+            succeeded = true;
+          } finally {
+            System.out.printf("End:run(%s)%n", succeeded);
+          }
+        }
+      };
+  }
+
   @Test
-  public void test(Action action) {
+  public void runTestAction(Action action) {
     action.accept(new ActionRunner.Impl());
   }
 

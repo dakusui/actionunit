@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -165,19 +164,21 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
     }
 
     enum Std implements Writer {
-      OUT(System.out),
-      ERR(System.err);
-
-      private final PrintStream printStream;
-
-      Std(PrintStream printStream) {
-        this.printStream = printStream;
-      }
+      OUT {
+        @Override
+        public void writeLine(String s) {
+          System.out.println(s);
+        }
+      },
+      ERR {
+        @Override
+        public void writeLine(String s) {
+          System.err.println(s);
+        }
+      };
 
       @Override
-      public void writeLine(String s) {
-        this.printStream.println(s);
-      }
+      public abstract void writeLine(String s);
     }
 
     enum Slf4J implements Writer {

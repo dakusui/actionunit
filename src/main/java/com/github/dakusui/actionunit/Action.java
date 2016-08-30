@@ -405,7 +405,7 @@ public interface Action {
       @SuppressWarnings("unchecked")
       private Sink<? extends Throwable>[] recoverWith = new Sink[0];
       private Action                      ensure      = nop();
-      private Class<? extends Throwable>  on          = null;
+      private Class<? extends Throwable>  on          = ActionException.class;
 
       public Builder(Action attempt) {
         this.attempt = checkNotNull(attempt);
@@ -432,6 +432,16 @@ public interface Action {
                 })),
             sinks
         );
+      }
+
+      @SafeVarargs
+      public final Builder recover(Action action, Sink<? extends ActionException>... sinks) {
+        return recover(ActionException.class, action, sinks);
+      }
+
+      @SafeVarargs
+      public final Builder recover(Sink<? extends ActionException>... sinks) {
+        return recover(ActionException.class, sinks);
       }
 
       public Builder ensure(Action action) {

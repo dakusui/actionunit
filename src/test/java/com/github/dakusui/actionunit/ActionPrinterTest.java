@@ -9,13 +9,11 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.dakusui.actionunit.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.collect.Iterables.size;
 import static java.util.Arrays.asList;
@@ -28,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 public class ActionPrinterTest {
 
   public static class ImplTest {
-    private static Action composeAction() {
+    static Action composeAction() {
       return concurrent("Concurrent",
           sequential("Sequential",
               simple("simple1", new Runnable() {
@@ -56,36 +54,6 @@ public class ActionPrinterTest {
               }
           )
       );
-    }
-
-    @Test
-    public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      PrintStream stdout = System.out;
-      System.setOut(new PrintStream(new OutputStream() {
-        @Override
-        public void write(int b) throws IOException {
-        }
-      }));
-      try {
-        composeAction().accept(ActionPrinter.Factory.stdout());
-      } finally {
-        System.setOut(stdout);
-      }
-    }
-
-    @Test
-    public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      PrintStream stderr = System.err;
-      System.setErr(new PrintStream(new OutputStream() {
-        @Override
-        public void write(int b) throws IOException {
-        }
-      }));
-      try {
-        composeAction().accept(ActionPrinter.Factory.stderr());
-      } finally {
-        System.setErr(stderr);
-      }
     }
 
     @Test
@@ -128,7 +96,19 @@ public class ActionPrinterTest {
     }
   }
 
-  public static class WithResultTest {
+  public static class StdOutErrTest extends TestUtils.StdOutTestBase {
+    @Test
+    public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
+      composeAction().accept(ActionPrinter.Factory.stdout());
+    }
+
+    @Test
+    public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
+      composeAction().accept(ActionPrinter.Factory.stderr());
+    }
+  }
+
+  public static class WithResultTest extends TestUtils.StdOutTestBase {
     private static Action composeAction(final List<String> out) {
       return concurrent("Concurrent",
           sequential("Sequential",

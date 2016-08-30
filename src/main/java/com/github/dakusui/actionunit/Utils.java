@@ -253,4 +253,9 @@ public enum Utils {
     }
     return obj.toString();
   }
+
+  public static String describeClassOf(Object obj) {
+    return shortClassNameOf(checkNotNull(obj).getClass());
+  }
+
 }
