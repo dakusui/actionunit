@@ -222,7 +222,7 @@ public class ActionsTest {
               }
             }
           }),
-          1, MICROSECONDS
+          1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
       throw e.getCause();
