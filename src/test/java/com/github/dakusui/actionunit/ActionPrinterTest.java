@@ -5,21 +5,24 @@ import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.google.common.collect.Iterables.size;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
@@ -83,16 +86,17 @@ public class ActionPrinterTest {
 
     @Test
     public void givenNew() {
-      ActionPrinter<ActionPrinter.Writer.Impl> printer = ActionPrinter.Factory.create();
+      ActionPrinter<ActionPrinter.Writer> printer = ActionPrinter.Factory.create();
       composeAction().accept(printer);
-      Iterator<String> i = printer.getWriter().iterator();
+      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.getWriter();
+      Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
       assertThat(i.next(), containsString("simple2"));
       assertThat(i.next(), containsString("simple3"));
       assertThat(i.next(), containsString("ForEach"));
-      assertEquals(8, size(printer.getWriter()));
+      assertEquals(8, size(writer));
     }
   }
 
@@ -134,8 +138,8 @@ public class ActionPrinterTest {
                   .when(new Function<String, String>() {
                           @Override
                           public String apply(String input) {
-                            out.add(String.format("hello:%s", input));
-                            return String.format("hello:%s", input);
+                            out.add(format("hello:%s", input));
+                            return format("hello:%s", input);
                           }
                         }
                   )
@@ -190,9 +194,10 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter<ActionPrinter.Writer.Impl> printer = ActionPrinter.Factory.create();
+      ActionPrinter<ActionPrinter.Writer> printer = ActionPrinter.Factory.create();
       composeAction(out).accept(printer);
-      Iterator<String> i = printer.getWriter().iterator();
+      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.<ActionPrinter.Writer.Impl>getWriter();
+      Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
@@ -205,7 +210,81 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("(noname)"));
       assertThat(i.next(), containsString("Tag(0)"));
-      assertEquals(11, size(printer.getWriter()));
+      assertEquals(11, size(writer));
+    }
+  }
+
+  public static class WithResultVariationTest extends TestUtils.StdOutTestBase {
+    @Test
+    public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
+      final TestUtils.Out out1 = new TestUtils.Out();
+      Action action = forEach(asList("A", "B"), sequential(tag(0), tag(1)), new Sink<String>() {
+            @Override
+            public void apply(String input, Context context) {
+              out1.writeLine(input + "0");
+            }
+          }, new Sink<String>() {
+            @Override
+            public void apply(String input, Context context) {
+              out1.writeLine(input + "1");
+            }
+          }
+      );
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      action.accept(runner);
+      assertEquals(asList("A0", "A1", "B0", "B1"), out1);
+
+      final TestUtils.Out out2 = new TestUtils.Out();
+      action.accept(runner.createPrinter(out2));
+      Assert.assertThat(out2.get(0), containsString("(+)ForEach"));
+      Assert.assertThat(out2.get(1), containsString("(-)Sequential"));
+      Assert.assertThat(out2.get(2), containsString("(-)Tag(0)"));
+      Assert.assertThat(out2.get(3), containsString("(-)Tag(1)"));
+      Assert.assertThat(out2.size(), equalTo(4));
+    }
+
+    @Test
+    public void givenRetryAction$whenPerformed$thenResultPrinted() {
+      Action action = retry(nop(), 1, 1, TimeUnit.MINUTES);
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      action.accept(runner);
+      final TestUtils.Out out = new TestUtils.Out();
+      action.accept(runner.createPrinter(out));
+      assertEquals("(+)Retry(60[seconds]x1times)", out.get(0));
+    }
+
+    @Test
+    public void givenTimeoutAction$whenPerformed$thenResultPrinted() {
+      Action action = timeout(nop(), 1, TimeUnit.MINUTES);
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      action.accept(runner);
+      final TestUtils.Out out = new TestUtils.Out();
+      action.accept(runner.createPrinter(out));
+      assertEquals("(+)TimeOut (60[seconds])", out.get(0));
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void givenUnsupportedCompositeAction$whenPerformed$thenExceptionThrown() {
+      Action action = new Action.Composite.Base("", Collections.<Action>emptyList()) {
+        @Override
+        public void accept(Visitor visitor) {
+          visitor.visit(this);
+        }
+      };
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      action.accept(runner);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void givenUnsupportedSimpleAction$whenPerformed$thenExceptionThrown() {
+      Action action = new Action.Base() {
+        @Override
+        public void accept(Visitor visitor) {
+          visitor.visit(this);
+        }
+      };
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      action.accept(runner);
     }
   }
 }

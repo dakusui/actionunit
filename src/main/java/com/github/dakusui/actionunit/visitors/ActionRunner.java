@@ -433,8 +433,15 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(Action.TimeOut action) {
-      super.visit(action);
+    public void visit(final Action.TimeOut action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
     }
 
     public ActionPrinter createPrinter() {
