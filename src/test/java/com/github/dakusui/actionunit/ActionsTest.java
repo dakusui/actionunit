@@ -194,8 +194,7 @@ public class ActionsTest {
         }),
         ////
         // 10 msec should be sufficient to finish the action above.
-        10,
-        MILLISECONDS
+        10, MILLISECONDS
     ).accept(new ActionRunner.Impl());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
@@ -211,19 +210,19 @@ public class ActionsTest {
   public void timeoutTest$timeout() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(simple(new Runnable() {
+      timeout(
+          simple(new Runnable() {
             @Override
             public void run() {
               arr.add("Hello");
               try {
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.SECONDS.sleep(10);
               } catch (InterruptedException e) {
                 throw propagate(e);
               }
             }
           }),
-          1,
-          MILLISECONDS
+          1, MICROSECONDS
       ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
       throw e.getCause();
