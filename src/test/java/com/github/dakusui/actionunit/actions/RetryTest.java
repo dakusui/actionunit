@@ -8,12 +8,12 @@ import static com.github.dakusui.actionunit.Actions.nop;
 public class RetryTest {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
-    new Action.Retry(nop(), -1 /* this is not valie*/, 1);
+    new Action.Retry(nop(), -1 /* this is not valid */, 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeTimes$whenCreated$thenExceptionThrown() {
-    new Action.Retry(nop(), 1 , -100 /* this is not valie*/);
+    new Action.Retry(nop(), 1 , -100 /* this is not valid*/);
   }
 
 

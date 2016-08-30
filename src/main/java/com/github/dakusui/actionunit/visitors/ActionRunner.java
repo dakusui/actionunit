@@ -59,7 +59,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Action action) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(String.format("Unsupported action type '%s'", action.getClass().getCanonicalName()));
   }
 
   /**
@@ -326,7 +326,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     private final Map<Action, Result> resultMap;
 
     public WithResult() {
-      this.resultMap = new ConcurrentHashMap<>();
+      this(new ConcurrentHashMap<Action, Result>());
+    }
+
+    public WithResult(Map<Action, Result> resultMap) {
+      this.resultMap = checkNotNull(resultMap);
     }
 
     @Override
@@ -414,6 +418,18 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
+    public void visit(final Action.Attempt action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
     public void visit(final Action.With.Tag action) {
       visitAndRecord(
           new Runnable() {
@@ -459,6 +475,22 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
             }
           },
           action);
+    }
+
+    @Override
+    protected ActionRunner createChildFor(final Action.With action) {
+      return new ActionRunner.WithResult(this.resultMap) {
+        @Override
+        public <T> T value() {
+          //noinspection unchecked
+          return (T) action.source().apply(ActionRunner.WithResult.this);
+        }
+
+        @Override
+        public void visit(Action.With.Tag tagAction) {
+          acceptTagAction(tagAction, action, this);
+        }
+      };
     }
 
     public ActionPrinter createPrinter() {
