@@ -54,6 +54,20 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
+  public void visit(Action.Named action) {
+    writeLine(describeAction(action));
+    indent++;
+    try {
+      action.getAction().accept(this);
+    } finally {
+      indent--;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void visit(Action.Composite action) {
     writeLine(describeAction(action));
     indent++;

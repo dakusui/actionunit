@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.connectors.Connectors.toSink;
 import static com.google.common.collect.Iterables.size;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -285,6 +287,22 @@ public class ActionPrinterTest {
       };
       ActionRunner.WithResult runner = new ActionRunner.WithResult();
       action.accept(runner);
+    }
+
+    @Test
+    public void test() {
+      final TestUtils.Out out = new TestUtils.Out();
+      Action action = with("Hello", toSink(new Predicate<Object>() {
+                                        @Override
+                                        public boolean apply(Object input) {
+                                          out.writeLine(input + " applied");
+                                          return true;
+                                        }
+                                      }));
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      action.accept(runner);
+      action.accept(runner.createPrinter(out));
+      assertEquals("Hello applied", out.get(0));
     }
   }
 }
