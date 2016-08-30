@@ -60,6 +60,16 @@ public enum Actions {
   }
 
   /**
+   * Creates a named action object.
+   *
+   * @param name name of the action
+   * @param action action to be named.
+   */
+  public static Action named(String name, Action action) {
+    return Action.Named.Factory.create(name, action);
+  }
+
+  /**
    * Creates an action which runs given {@code actions} in a concurrent manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.

@@ -74,6 +74,49 @@ public interface Action {
     abstract public void perform();
   }
 
+  interface Named extends Action {
+    String getName();
+
+    Action getAction();
+
+    class Base extends Action.Base implements Named {
+      private final String name;
+      private final Action action;
+
+      public Base(String name, Action action) {
+        this.name = checkNotNull(name);
+        this.action = checkNotNull(action);
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
+
+      @Override
+      public String getName() {
+        return name;
+      }
+
+      @Override
+      public Action getAction() {
+        return action;
+      }
+
+      public String toString() {
+        return this.getName();
+      }
+    }
+
+    enum Factory {
+      ;
+
+      public static Named create(String name, Action action) {
+        return new Named.Base(name, action);
+      }
+    }
+  }
+
   interface Composite extends Action, Iterable<Action> {
     int size();
 
@@ -569,6 +612,13 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
+    void visit(Action.Named action);
+
+    /**
+     * Visits an {@code action}.
+     *
+     * @param action action to be visited by this object.
+     */
     void visit(Composite action);
 
     /**
@@ -632,6 +682,11 @@ public interface Action {
     abstract class Base implements Visitor {
       @Override
       public void visit(Leaf action) {
+        this.visit((Action) action);
+      }
+
+      @Override
+      public void visit(Action.Named action) {
         this.visit((Action) action);
       }
 

@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.dakusui.actionunit.Actions.named;
 import static com.github.dakusui.actionunit.Utils.createTestClassMock;
 import static com.github.dakusui.actionunit.Utils.isGivenTypeExpected_ArrayOfExpected_OrIterable;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -154,7 +155,11 @@ public class ActionUnit extends Parameterized {
     try {
       Object result = checkNotNull(testMethod.invokeExplosively(this.getTestClass().getJavaClass().newInstance()));
       if (result instanceof Action) {
-        return singletonList(new Entry(offset, (Action) result, testMethod.getAnnotation(PerformWith.class).value()));
+        return singletonList(new Entry(
+            offset,
+            named(testMethod.getName(), (Action) result),
+            testMethod.getAnnotation(PerformWith.class).value())
+        );
       }
       if (isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, result.getClass())) {
         final List<Action> actions;
@@ -169,9 +174,10 @@ public class ActionUnit extends Parameterized {
             new Function<Action, Entry>() {
               @Override
               public Entry apply(Action input) {
+                int index = actions.indexOf(input);
                 return new Entry(
-                    offset + actions.indexOf(input),
-                    input,
+                    offset + index,
+                    named(format("%s[%s]", testMethod.getName(), index), input),
                     testMethod.getAnnotation(PerformWith.class).value()
                 );
               }

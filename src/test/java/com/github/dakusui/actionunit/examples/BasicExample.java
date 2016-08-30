@@ -21,7 +21,7 @@ import static java.util.Arrays.asList;
 
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class Example {
+public class BasicExample {
   @Retention(RetentionPolicy.RUNTIME)
   public @interface DryRun {
   }

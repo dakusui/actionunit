@@ -70,6 +70,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     action.perform();
   }
 
+  @Override
+  public void visit(Action.Named action) {
+    action.getAction().accept(this);
+  }
+
   /**
    * {@inheritDoc}
    *
@@ -349,6 +354,18 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
+    public void visit(final Action.Named action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
     public void visit(final Action.Composite action) {
       visitAndRecord(
           new Runnable() {
@@ -450,7 +467,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
     public ActionPrinter createPrinter(ActionPrinter.Writer writer) {
       return new ActionPrinter<ActionPrinter.Writer>(writer) {
-        int forEachLevel = 0;
+        int nestLevel = 0;
 
         @Override
         public String describeAction(Action action) {
@@ -464,16 +481,17 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
         @Override
         public void visit(Action.ForEach action) {
-          forEachLevel++;
+          nestLevel++;
           try {
             super.visit(action);
           } finally {
-            forEachLevel--;
+            nestLevel--;
           }
         }
 
+
         private Result.Code getResultCode(Action action) {
-          if (forEachLevel == 0 || (forEachLevel == 1 && Action.ForEach.class.isAssignableFrom(action.getClass()))) {
+          if (nestLevel == 0 || (nestLevel == 1 && Action.ForEach.class.isAssignableFrom(action.getClass()))) {
             if (resultMap.containsKey(action)) {
               return resultMap.get(action).code;
             }
