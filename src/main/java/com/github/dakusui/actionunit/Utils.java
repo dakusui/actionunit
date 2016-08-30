@@ -257,4 +257,5 @@ public enum Utils {
   public static String describeClassOf(Object obj) {
     return shortClassNameOf(checkNotNull(obj).getClass());
   }
+
 }

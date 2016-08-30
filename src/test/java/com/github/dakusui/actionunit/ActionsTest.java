@@ -529,11 +529,11 @@ public class ActionsTest {
       @Override
       public void run() {
         out.add("try");
-        throw new RuntimeException("thrown");
+        throw new ActionException("thrown");
       }
-    }).recover(RuntimeException.class, new Sink<RuntimeException>() {
+    }).recover(/*you can omit exception class parameter you are going to catch ActionException*/ new Sink<ActionException>() {
       @Override
-      public void apply(RuntimeException input, Context context) {
+      public void apply(ActionException input, Context context) {
         out.add("catch");
         out.add(input.getMessage());
       }

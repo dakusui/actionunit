@@ -10,6 +10,7 @@ import com.google.common.base.Function;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import static com.github.dakusui.actionunit.Abort.abort;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -155,7 +156,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         } catch (ActionException ee) {
           lastException = ee;
         } catch (InterruptedException ee) {
-          throw new ActionException(ee);
+          throw abort(ee);
         }
       }
       throw lastException;
