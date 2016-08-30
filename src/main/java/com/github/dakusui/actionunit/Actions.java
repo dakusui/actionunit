@@ -230,7 +230,7 @@ public enum Actions {
    * Returns an action that does nothing.
    */
   public static Action nop() {
-    return nop(null);
+    return nop("(nop)");
   }
 
   /**

@@ -30,9 +30,11 @@ public interface Pipe<I, O> {
     public O apply(I input, Context context) {
       List<Object> args = new LinkedList<>();
       Context parent = context.getParent();
-      while (parent.getParent() != null) {
-        args.add(parent.value());
-        parent = parent.getParent();
+      if (parent != null) {
+        while (parent.getParent() != null) {
+          args.add(parent.value());
+          parent = parent.getParent();
+        }
       }
       return this.apply(input, args.toArray());
     }
