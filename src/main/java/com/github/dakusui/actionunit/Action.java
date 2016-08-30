@@ -499,7 +499,11 @@ public interface Action {
      * @param timeoutInNanos Duration to time out in nano seconds.
      */
     public TimeOut(Action action, long timeoutInNanos) {
-      Preconditions.checkArgument(timeoutInNanos > 0);
+      Preconditions.checkArgument(timeoutInNanos > 0 || timeoutInNanos == FOREVER,
+          "Timeout duration must be positive or %d (FOREVER) but %d was given",
+          FOREVER,
+          timeoutInNanos
+      );
       this.durationInNanos = timeoutInNanos;
       this.action = checkNotNull(action);
     }
