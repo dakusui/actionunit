@@ -431,10 +431,10 @@ public interface Action {
       this.attempt = attempt;
       //noinspection unchecked
       this.exceptionClass = (Class<T>) on;
-      this.recover = recover;
+      this.recover = Action.Named.Factory.create("Recover", recover);
       //noinspection unchecked
       this.recoverWith = (Sink<T>[]) recoverWith;
-      this.ensure = ensure;
+      this.ensure = Action.Named.Factory.create("Ensure", ensure);
     }
 
     @Override
