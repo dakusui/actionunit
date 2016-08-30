@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.ActionException;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 import org.hamcrest.Matchers;
@@ -16,12 +17,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Utils.describe;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class BasicExample {
+public class Basic {
   @Retention(RetentionPolicy.RUNTIME)
   public @interface DryRun {
   }
@@ -120,35 +120,39 @@ public class BasicExample {
     });
   }
 
-  @PerformWith(Test.class)
-  public Action attemptAndForEachInCombination() {
+  @PerformWith({ DryRun.class, Test.class })
+  public Action timeoutAttemptAndRetryInCombination() {
     final Runnable runnable = createRunnable();
-    return attempt(runnable)
-        .recover(retry(simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
-        .ensure(nop())
-        .build();
+    return timeout(
+        attempt(runnable)
+            .recover(retry(simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
+            .ensure(nop())
+            .build(),
+        10,
+        TimeUnit.SECONDS
+    );
   }
 
   private Runnable createRunnable() {
     return new Runnable() {
-        int i = 0;
+      int i = 0;
 
-        @Override
-        public void run() {
-          System.out.println("Start:run()");
-          boolean succeeded = false;
-          try {
-            if (i++ < 3) {
-              String msg = String.format("Error:run(%d)", i);
-              System.out.println(msg);
-              throw new ActionException(msg);
-            }
-            succeeded = true;
-          } finally {
-            System.out.printf("End:run(%s)%n", succeeded);
+      @Override
+      public void run() {
+        System.out.println("Start:run()");
+        boolean succeeded = false;
+        try {
+          if (i++ < 3) {
+            String msg = String.format("Error:run(%d)", i);
+            System.out.println(msg);
+            throw new ActionException(msg);
           }
+          succeeded = true;
+        } finally {
+          System.out.printf("End:run(%s)%n", succeeded);
         }
-      };
+      }
+    };
   }
 
   @Test
@@ -158,7 +162,7 @@ public class BasicExample {
 
   @DryRun
   public void print(Action action) {
-    System.out.println(describe(action));
+    action.accept(new ActionPrinter<>(ActionPrinter.Writer.Std.OUT));
   }
 
   @AfterClass

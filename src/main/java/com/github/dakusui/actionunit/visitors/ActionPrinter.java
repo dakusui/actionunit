@@ -111,6 +111,40 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
     }
   }
 
+
+  public void visit(Action.Attempt action) {
+    writeLine(describeAction(action));
+    indent++;
+    try {
+      action.attempt.accept(this);
+      action.recover.accept(this);
+      action.ensure.accept(this);
+    } finally {
+      indent--;
+    }
+  }
+
+  public void visit(Action.Retry action) {
+    writeLine(describeAction(action));
+    indent++;
+    try {
+      action.action.accept(this);
+    } finally {
+      indent--;
+    }
+  }
+
+
+  public void visit(Action.TimeOut action) {
+    writeLine(describeAction(action));
+    indent++;
+    try {
+      action.action.accept(this);
+    } finally {
+      indent--;
+    }
+  }
+
   /**
    * Returns a writer of this object.
    */

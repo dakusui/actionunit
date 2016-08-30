@@ -21,7 +21,7 @@ import static java.util.Arrays.asList;
  */
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class ExampleWithName {
+public class NameOfAction {
   @PerformWith(Test.class)
   public Action aMethodToTestSomething() {
     return forEach(
