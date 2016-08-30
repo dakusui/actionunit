@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import org.junit.After;
 import org.junit.Before;
 
@@ -16,10 +17,10 @@ public class TestUtils {
     return System.getProperty("surefire.real.class.path") != null;
   }
 
-  public static class Out extends AbstractList<String> {
+  public static class Out extends AbstractList<String> implements ActionPrinter.Writer {
     private List<String> out = new LinkedList<>();
 
-    public void println(String s) {
+    public void writeLine(String s) {
       if (!isRunUnderSurefire()) {
         System.out.println(s);
       }

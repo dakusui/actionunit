@@ -222,8 +222,12 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
   public enum Factory {
     ;
 
-    public static ActionPrinter<Writer.Impl> create() {
-      return new ActionPrinter<>(new Writer.Impl());
+    public static ActionPrinter<Writer> create(Writer writer) {
+      return new ActionPrinter<>(checkNotNull(writer));
+    }
+
+    public static ActionPrinter<Writer> create() {
+      return create(new Writer.Impl());
     }
 
     public static ActionPrinter stdout() {
