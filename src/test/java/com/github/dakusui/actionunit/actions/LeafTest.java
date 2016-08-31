@@ -5,7 +5,6 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.Actions.simple;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class LeafTest {
@@ -15,8 +14,12 @@ public class LeafTest {
       @Override
       public void run() {
       }
+      @Override
+      public String toString() {
+        return "NameOfRunnable";
+      }
     }).toString();
-    assertEquals("(noname)", s);
+    assertThat(s, Matchers.equalTo("NameOfRunnable"));
   }
 
   @Test

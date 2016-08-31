@@ -39,7 +39,17 @@ public enum Actions {
    * @see com.github.dakusui.actionunit.Action.Leaf
    */
   public static Action simple(final Runnable runnable) {
-    return simple(null, runnable);
+    checkNotNull(runnable);
+    return new Action.Leaf() {
+      @Override
+      public void perform() {
+        runnable.run();
+      }
+      @Override
+      public String toString() {
+        return Utils.describe(runnable);
+      }
+    };
   }
 
   /**
@@ -50,13 +60,7 @@ public enum Actions {
    * @see com.github.dakusui.actionunit.Action.Leaf
    */
   public static Action simple(final String summary, final Runnable runnable) {
-    checkNotNull(runnable);
-    return new Action.Leaf(nonameIfNull(summary)) {
-      @Override
-      public void perform() {
-        runnable.run();
-      }
-    };
+    return named(summary, simple(runnable));
   }
 
   /**
@@ -76,7 +80,7 @@ public enum Actions {
    * @see Action.Sequential.Base
    */
   public static Action concurrent(Action... actions) {
-    return concurrent(null, actions);
+    return concurrent(asList(actions));
   }
 
   /**
@@ -98,7 +102,11 @@ public enum Actions {
    * @see Action.Sequential.Base
    */
   public static Action concurrent(String summary, Iterable<? extends Action> actions) {
-    return Action.Concurrent.Factory.INSTANCE.create(summary, actions);
+    return named(summary, concurrent(actions));
+  }
+
+  private static Action concurrent(Iterable<? extends Action> actions) {
+    return Action.Concurrent.Factory.INSTANCE.create(actions);
   }
 
   /**
@@ -108,7 +116,11 @@ public enum Actions {
    * @see Action.Sequential.Base
    */
   public static Action sequential(Action... actions) {
-    return sequential(null, actions);
+    return sequential(asList(actions));
+  }
+
+  public static Action sequential(Iterable<? extends Action> actions) {
+    return Action.Sequential.Factory.INSTANCE.create(actions);
   }
 
   /**
@@ -122,10 +134,6 @@ public enum Actions {
     return sequential(summary, asList(actions));
   }
 
-  public static Action sequential(Iterable<Action> actions) {
-    return sequential(null, actions);
-  }
-
   /**
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
@@ -134,7 +142,7 @@ public enum Actions {
    * @see Action.Sequential.Base
    */
   public static Action sequential(String summary, Iterable<? extends Action> actions) {
-    return Action.Sequential.Factory.INSTANCE.create(summary, actions);
+    return named(summary, sequential(actions));
   }
 
   /**
