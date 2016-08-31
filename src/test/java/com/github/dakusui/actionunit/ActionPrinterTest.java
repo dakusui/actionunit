@@ -32,8 +32,8 @@ public class ActionPrinterTest {
 
   public static class ImplTest {
     static Action composeAction() {
-      return concurrent("Concurrent",
-          sequential("Sequential",
+      return concurrent("Concurrent (top level)",
+          sequential("Sequential (1st child)",
               simple("simple1", new Runnable() {
                 @Override
                 public void run() {
@@ -92,13 +92,18 @@ public class ActionPrinterTest {
       composeAction().accept(printer);
       ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.getWriter();
       Iterator<String> i = writer.iterator();
+      assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
+      assertThat(i.next(), containsString("Sequential (1st child)"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
+      i.next();
       assertThat(i.next(), containsString("simple2"));
+      i.next();
       assertThat(i.next(), containsString("simple3"));
+      i.next();
       assertThat(i.next(), containsString("ForEach"));
-      assertEquals(8, size(writer));
+      assertEquals(13, size(writer));
     }
   }
 
@@ -116,8 +121,8 @@ public class ActionPrinterTest {
 
   public static class WithResultTest extends TestUtils.StdOutTestBase {
     private static Action composeAction(final List<String> out) {
-      return concurrent("Concurrent",
-          sequential("Sequential",
+      return concurrent("Concurrent (top level)",
+          sequential("Sequential (1st child)",
               simple("simple1", new Runnable() {
                 @Override
                 public void run() {
@@ -200,19 +205,24 @@ public class ActionPrinterTest {
       composeAction(out).accept(printer);
       ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.<ActionPrinter.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();
+      assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
+      assertThat(i.next(), containsString("Sequential (1st child)"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
+      i.next();
       assertThat(i.next(), containsString("simple2"));
+      i.next();
       assertThat(i.next(), containsString("simple3"));
+      i.next();
       assertThat(i.next(), containsString("ForEach"));
       //noinspection unchecked
       assertThat(i.next(), allOf(containsString("Given"), containsString("When"), containsString("Then")));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("Sequential"));
-      assertThat(i.next(), containsString("(noname)"));
+      i.next();
       assertThat(i.next(), containsString("Tag(0)"));
-      assertEquals(11, size(writer));
+      assertEquals(16, size(writer));
     }
   }
 

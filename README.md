@@ -13,12 +13,22 @@ Following is a maven coordinate for ActionUnit.
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>actionunit</artifactId>
-      <version>[1.0.1,)</version>
+      <version>[1.0.8,)</version>
       <scope>test</scope>
     </dependency>
 ```
 
 Also it requires JUnit 4.12 or later. Please make sure you are using it in your dependencies.
+
+# For what is it useful?
+Suppose that you want to define your tests in your own DSTL, domain specific testing 
+language, and want to implement a test runner which performs the test cases defined 
+in it.
+
+How to define test cases, how to load them, and how to perform them are all independent
+concerns.
+
+```ActionUnit``` takes care of the last part among them, "how to perform them".
 
 # Usage
 

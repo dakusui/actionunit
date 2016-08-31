@@ -49,14 +49,7 @@ public interface Action {
    * framework should extend this class.
    */
   abstract class Leaf extends Base {
-    protected final String description;
-
     public Leaf() {
-      this(null);
-    }
-
-    public Leaf(String description) {
-      this.description = description;
     }
 
     @Override
@@ -64,21 +57,26 @@ public interface Action {
       visitor.visit(this);
     }
 
-    @Override
-    public String toString() {
-      return this.description == null
-          ? formatClassName()
-          : description;
-    }
-
     abstract public void perform();
   }
 
+  /**
+   * An action that has a name.
+   */
   interface Named extends Action {
+    /**
+     * Returns a name of this action.
+     */
     String getName();
 
+    /**
+     * Returns an action named by this object.
+     */
     Action getAction();
 
+    /**
+     * A base class to implement {@code Named} action.
+     */
     class Base extends Action.Base implements Named {
       private final String name;
       private final Action action;
@@ -88,29 +86,52 @@ public interface Action {
         this.action = checkNotNull(action);
       }
 
+      /**
+       * {@inheritDoc}
+       *
+       * @param visitor the visitor operating on this element.
+       */
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
 
+      /**
+       * {@inheritDoc}
+       */
       @Override
       public String getName() {
         return name;
       }
 
+      /**
+       * {@inheritDoc}
+       */
       @Override
       public Action getAction() {
         return action;
       }
 
+      /**
+       * {@inheritDoc}
+       */
       public String toString() {
         return this.getName();
       }
     }
 
+    /**
+     * A factory that creates {@link Named} action object.
+     */
     enum Factory {
       ;
 
+      /**
+       * Creates an action with the given {@code name} and {@code action}.
+       *
+       * @param name   A name of the returned action.
+       * @param action An action body of the returned action.
+       */
       public static Named create(String name, Action action) {
         return new Named.Base(name, action);
       }
@@ -125,22 +146,16 @@ public interface Action {
      */
     abstract class Base extends Action.Base implements Composite {
       private final Iterable<? extends Action> actions;
-      private final String                     summary;
+      private final String                     typeName;
 
-      public Base(String summary, Iterable<? extends Action> actions) {
-        this.summary = summary;
+      public Base(String typeName, Iterable<? extends Action> actions) {
         this.actions = checkNotNull(actions);
+        this.typeName = checkNotNull(typeName);
       }
 
       @Override
       public String toString() {
-        return format(
-            "%s (%s actions)",
-            this.summary == null
-                ? super.toString()
-                : this.summary,
-            unknownIfNegative(this.size())
-        );
+        return format("%s (%s actions)", typeName, unknownIfNegative(this.size()));
       }
 
       /**
@@ -162,7 +177,7 @@ public interface Action {
     }
 
     interface Factory {
-      Composite create(String summary, Iterable<? extends Action> actions);
+      Composite create(Iterable<? extends Action> actions);
     }
   }
 
@@ -171,8 +186,8 @@ public interface Action {
      * A class that represents a collection of actions that should be executed concurrently.
      */
     class Base extends Composite.Base implements Concurrent {
-      public Base(String summary, Iterable<? extends Action> actions) {
-        super(summary, actions);
+      public Base(Iterable<? extends Action> actions) {
+        super("Concurrent", actions);
       }
 
       @Override
@@ -185,8 +200,8 @@ public interface Action {
       INSTANCE;
 
       @Override
-      public Concurrent create(String summary, Iterable<? extends Action> actions) {
-        return new Base(summary, actions);
+      public Concurrent create(Iterable<? extends Action> actions) {
+        return new Base(actions);
       }
 
       public String toString() {
@@ -201,8 +216,8 @@ public interface Action {
    */
   interface Sequential extends Composite {
     class Base extends Composite.Base implements Sequential {
-      public Base(String summary, Iterable<? extends Action> actions) {
-        super(summary, actions);
+      public Base(Iterable<? extends Action> actions) {
+        super("Sequential", actions);
       }
 
       @Override
@@ -215,8 +230,8 @@ public interface Action {
       INSTANCE;
 
       @Override
-      public Sequential create(String summary, Iterable<? extends Action> actions) {
-        return new Base(summary, actions);
+      public Sequential create(Iterable<? extends Action> actions) {
+        return new Base(actions);
       }
 
       public String toString() {
@@ -225,6 +240,11 @@ public interface Action {
     }
   }
 
+  /**
+   * An action that is repeated on values given by an {@link Iterable&lt;T&gt;}.
+   *
+   * @param <T> A type of values on which this action is repeated.
+   */
   class ForEach<T> extends Base {
     private final Composite.Factory   factory;
     private final Iterable<Source<T>> dataSource;
@@ -244,6 +264,9 @@ public interface Action {
       visitor.visit(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
       return format("%s (%s, %s items) {%s}",
@@ -290,9 +313,7 @@ public interface Action {
           };
         }
       };
-      return this.factory.create(
-          null, transform(dataSource, func)
-      );
+      return this.factory.create(transform(dataSource, func));
     }
 
     public Action getAction() {
@@ -559,7 +580,7 @@ public interface Action {
     @Override
     public String toString() {
       return format(
-          "%s (%s)",
+          "%s(%s)",
           formatClassName(),
           formatDuration(this.durationInNanos)
       );
@@ -761,23 +782,23 @@ public interface Action {
         //noinspection unchecked
         super(
             source,
-            Sequential.Factory.INSTANCE.create(
-                pipeName,
-                asList(
-                    new Tag(0),
-                    new With.Base<>(
-                        output,
-                        Sequential.Factory.INSTANCE.create(
-                            sinksName,
-                            transform(range(sinks.length),
-                                new Function<Integer, Tag>() {
-                                  @Override
-                                  public Tag apply(Integer input) {
-                                    return new Tag(input);
-                                  }
-                                })),
+            Named.Factory.create(pipeName,
+                Sequential.Factory.INSTANCE.create(
+                    asList(
+                        new Tag(0),
+                        new With.Base<>(
+                            output,
+                            Named.Factory.create(sinksName,
+                                Sequential.Factory.INSTANCE.create(
+                                    transform(range(sinks.length),
+                                        new Function<Integer, Tag>() {
+                                          @Override
+                                          public Tag apply(Integer input) {
+                                            return new Tag(input);
+                                          }
+                                        }))),
                         /*(Sink<O>[])*/sinks
-                    ))),
+                        )))),
             new Sink/*<I>*/[] {
                 new Sink<I>() {
                   @Override
@@ -790,6 +811,7 @@ public interface Action {
                   }
                 }
             }
+
         );
         this.source = checkNotNull(source);
         this.sourceName = sourceName;
