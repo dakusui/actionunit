@@ -201,9 +201,9 @@ public class ActionsTest {
 
   @Test
   public void givenTimeoutAction$whenDescribe$thenLooksNice() {
-    assertEquals("TimeOut (1[milliseconds])", describe(timeout(nop(), 1, MILLISECONDS)));
-    assertEquals("TimeOut (10[seconds])", describe(timeout(nop(), 10000, MILLISECONDS)));
-    assertEquals("TimeOut (1000[days])", describe(timeout(nop(), 1000, DAYS)));
+    assertEquals("TimeOut(1[milliseconds])", describe(timeout(nop(), 1, MILLISECONDS)));
+    assertEquals("TimeOut(10[seconds])", describe(timeout(nop(), 10000, MILLISECONDS)));
+    assertEquals("TimeOut(1000[days])", describe(timeout(nop(), 1000, DAYS)));
   }
 
   @Test(expected = TimeoutException.class)
@@ -232,7 +232,7 @@ public class ActionsTest {
   }
 
   @Test(expected = RuntimeException.class, timeout = 300000)
-  public void timeoutTest$throwsRuntimeException() throws Throwable {
+  public void givenTimeOutAtTopLevel$whenRuntimeExceptionThrownFromInside$thenRuntimeException() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
       timeout(simple(new Runnable() {
@@ -242,8 +242,7 @@ public class ActionsTest {
               throw new RuntimeException();
             }
           }),
-          1,
-          MILLISECONDS
+          100, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
       throw e.getCause();
@@ -253,7 +252,7 @@ public class ActionsTest {
   }
 
   @Test(expected = Error.class, timeout = 300000)
-  public void timeoutTest$throwsError() throws Throwable {
+  public void givenTimeOutAtTopLevel$whenErrorThrownFromInside$thenError() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
       timeout(simple(new Runnable() {
@@ -263,8 +262,7 @@ public class ActionsTest {
               throw new Error();
             }
           }),
-          1,
-          MILLISECONDS
+          100, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
       throw e.getCause();
