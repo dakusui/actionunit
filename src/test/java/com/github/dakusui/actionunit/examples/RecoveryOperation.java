@@ -24,9 +24,10 @@ public class RecoveryOperation {
                     cleanUp(),
                     deployComponent()),
                 2,
-                10, MILLISECONDS
-            )
-        ).build();
+                10, MILLISECONDS))
+        .ensure(
+            cleanUp())
+        .build();
   }
 
 
@@ -39,8 +40,7 @@ public class RecoveryOperation {
           @Override
           public void run() {
             if (i++ < 2) {
-              String msg = "Failed[" + i + "]";
-              throw new ActionException(msg);
+              throw new ActionException("Failed[" + i + "]");
             }
             System.out.println("Succeeded");
           }
