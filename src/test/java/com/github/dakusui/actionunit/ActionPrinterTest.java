@@ -272,7 +272,7 @@ public class ActionPrinterTest {
       action.accept(runner);
       final TestUtils.Out out = new TestUtils.Out();
       action.accept(runner.createPrinter(out));
-      assertEquals("(+)TimeOut (60[seconds])", out.get(0));
+      assertEquals("(+)TimeOut(60[seconds])", out.get(0));
     }
 
     @Test(expected = UnsupportedOperationException.class)
