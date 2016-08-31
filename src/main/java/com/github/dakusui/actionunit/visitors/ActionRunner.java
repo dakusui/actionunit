@@ -198,7 +198,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         throw propagate(e);
       }
       //noinspection unchecked
-      new Action.With.Base<>(Connectors.toSource(e), action.recover, action.recoverWith).accept(this);
+      new Action.With.Base<>(Connectors.toSource(e), action.recover, action.sinks).accept(this);
     } finally {
       action.ensure.accept(this);
     }
