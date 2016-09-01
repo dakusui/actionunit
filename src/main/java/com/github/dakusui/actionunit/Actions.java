@@ -15,7 +15,6 @@ import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -286,7 +285,7 @@ public enum Actions {
         try {
           timeUnit.sleep(duration);
         } catch (InterruptedException e) {
-          throw propagate(e);
+          throw ActionException.wrap(e);
         }
       }
 
