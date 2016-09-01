@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -8,7 +9,7 @@ import com.google.common.base.Function;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
 import static com.github.dakusui.actionunit.Utils.transform;
 import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
@@ -22,11 +23,11 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 /**
  * This class contains static utility methods that return objects of type {@code Action}.
  * How objects returned by methods in this class are performed is subject to actual implementations
- * of {@link com.github.dakusui.actionunit.Action.Visitor} interfaces, such as
+ * of {@link Action.Visitor} interfaces, such as
  * {@link com.github.dakusui.actionunit.visitors.ActionRunner}.
  *
  * @see Action
- * @see com.github.dakusui.actionunit.Action.Visitor
+ * @see Action.Visitor
  */
 public enum Actions {
   ;
@@ -35,11 +36,11 @@ public enum Actions {
    * Creates a simple action object.
    *
    * @param runnable An object whose {@code run()} method run by a returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Leaf
+   * @see Leaf
    */
   public static Action simple(final Runnable runnable) {
     checkNotNull(runnable);
-    return new Action.Leaf() {
+    return new Leaf() {
       @Override
       public void perform() {
         runnable.run();
@@ -56,7 +57,7 @@ public enum Actions {
    *
    * @param summary  A string used by {@code describe()} method of a returned {@code Action} object.
    * @param runnable An object whose {@code run()} method run by a returned {@code Action} object.
-   * @see com.github.dakusui.actionunit.Action.Leaf
+   * @see Leaf
    */
   public static Action simple(final String summary, final Runnable runnable) {
     return named(summary, simple(runnable));
@@ -69,14 +70,14 @@ public enum Actions {
    * @param action action to be named.
    */
   public static Action named(String name, Action action) {
-    return Action.Named.Factory.create(name, action);
+    return Named.Factory.create(name, action);
   }
 
   /**
    * Creates an action which runs given {@code actions} in a concurrent manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(Action... actions) {
     return concurrent(asList(actions));
@@ -87,7 +88,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by a returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(String summary, Action... actions) {
     return concurrent(summary, asList(actions));
@@ -98,7 +99,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(String summary, Iterable<? extends Action> actions) {
     return named(summary, concurrent(actions));
@@ -108,17 +109,17 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a concurrent manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(Iterable<? extends Action> actions) {
-    return Action.Concurrent.Factory.INSTANCE.create(actions);
+    return Concurrent.Factory.INSTANCE.create(actions);
   }
 
   /**
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(Action... actions) {
     return sequential(asList(actions));
@@ -128,10 +129,10 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(Iterable<? extends Action> actions) {
-    return Action.Sequential.Factory.INSTANCE.create(actions);
+    return Sequential.Factory.INSTANCE.create(actions);
   }
 
   /**
@@ -139,7 +140,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(String summary, Action... actions) {
     return sequential(summary, asList(actions));
@@ -150,7 +151,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(String summary, Iterable<? extends Action> actions) {
     return named(summary, sequential(actions));
@@ -165,7 +166,7 @@ public enum Actions {
    */
   public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
     checkNotNull(timeUnit);
-    return new Action.TimeOut(action, NANOSECONDS.convert(duration, timeUnit));
+    return new TimeOut(action, NANOSECONDS.convert(duration, timeUnit));
   }
 
   /**
@@ -173,17 +174,19 @@ public enum Actions {
    *
    * @param action   An action retried by the returned {@code Action}.
    * @param times    How many times given {@code action} will be retried. If 0 is given, no retry will happen.
+   *                 If {@link Retry#INFINITE} is given, returned
+   *                 action will re-try infinitely until {@code action} successes.
    * @param interval Interval between actions.
    * @param timeUnit Time unit of {@code interval}.
    */
   public static Action retry(Action action, int times, int interval, TimeUnit timeUnit) {
     checkNotNull(timeUnit);
-    return new Action.Retry(action, NANOSECONDS.convert(interval, timeUnit), times);
+    return new Retry(action, NANOSECONDS.convert(interval, timeUnit), times);
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, Action action, Sink<T>... sinks) {
-    return new Action.ForEach<>(
+  public static <T> Action forEach(Iterable<T> dataSource, ForEach.Mode mode, Action action, Sink<T>... sinks) {
+    return new ForEach<>(
         mode.getFactory(),
         transform(dataSource, new ToSource<T>()),
         action,
@@ -197,7 +200,7 @@ public enum Actions {
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, Action.ForEach.Mode mode, final Sink<T>... sinks) {
+  public static <T> Action forEach(Iterable<T> dataSource, ForEach.Mode mode, final Sink<T>... sinks) {
     return forEach(
         dataSource,
         mode,
@@ -219,12 +222,12 @@ public enum Actions {
   }
 
   public static Action tag(int i) {
-    return new Action.With.Tag(i);
+    return new With.Tag(i);
   }
 
   @SafeVarargs
   public static <T> Action with(T value, Action action, Sink<T>... sinks) {
-    return new Action.With.Base<>(Connectors.immutable(value), action, sinks);
+    return new With.Base<>(Connectors.immutable(value), action, sinks);
   }
 
   @SafeVarargs
@@ -256,7 +259,7 @@ public enum Actions {
    * @param summary A string that describes returned action.
    */
   public static Action nop(final String summary) {
-    return new Action.Leaf() {
+    return new Leaf() {
       @Override
       public void perform() {
       }
@@ -277,7 +280,7 @@ public enum Actions {
   public static Action waitFor(final int duration, final TimeUnit timeUnit) {
     checkArgument(duration >= 0, "duration must be non-negative but %d was given", duration);
     checkNotNull(timeUnit);
-    return new Action.Leaf() {
+    return new Leaf() {
       @Override
       public void perform() {
         try {
@@ -294,11 +297,11 @@ public enum Actions {
     };
   }
 
-  public static Action.Attempt.Builder attempt(Action attempt) {
-    return new Action.Attempt.Builder(checkNotNull(attempt));
+  public static Attempt.Builder attempt(Action attempt) {
+    return new Attempt.Builder(checkNotNull(attempt));
   }
 
-  public static Action.Attempt.Builder attempt(Runnable attempt) {
+  public static Attempt.Builder attempt(Runnable attempt) {
     return attempt(simple(checkNotNull(attempt)));
   }
 
@@ -308,7 +311,7 @@ public enum Actions {
       Pipe<I, O> piped,
       Sink<O>... sinks
   ) {
-    return Action.Piped.Factory.create(source, piped, sinks);
+    return Piped.Factory.create(source, piped, sinks);
   }
 
   @SafeVarargs

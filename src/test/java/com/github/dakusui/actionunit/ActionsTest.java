@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.TestOutput.Text;
+import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -13,8 +14,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
-import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.ActionException.wrap;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
@@ -63,7 +64,7 @@ public class ActionsTest {
 
   @Test
   public void givenSequentialAction$whenSize$thenCorrect() {
-    Action.Composite action = (Action.Composite) sequential(nop(), nop(), nop());
+    Composite action = (Composite) sequential(nop(), nop(), nop());
     assertEquals(3, action.size());
   }
 
@@ -721,7 +722,7 @@ public class ActionsTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$composite() {
-    new Action.Composite.Base("unsupported", singletonList(nop())) {
+    new Composite.Base("unsupported", singletonList(nop())) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
