@@ -10,7 +10,7 @@ public class ActionExceptionTest {
     throw ActionException.wrap(new IOException());
   }
 
-  @Test(expected = ActionException.class)
+  @Test(expected = RuntimeException.class)
   public void givenUnknownCheckedException$whenWrap$thenRuntimeExceptionThrown() {
     throw ActionException.wrap(new Exception());
   }

@@ -185,7 +185,7 @@ public class ActionUnit extends Parameterized {
       }
       throw new RuntimeException(format("Unsupported type (%s)", result.getClass().getCanonicalName()));
     } catch (IllegalAccessException | InstantiationException e) {
-      throw propagate(e);
+      throw ActionException.wrap(e);
     } catch (Throwable throwable) {
       throw new ActionException(throwable);
     }

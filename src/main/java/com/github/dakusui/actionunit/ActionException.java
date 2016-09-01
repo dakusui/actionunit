@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -77,19 +77,23 @@ public class ActionException extends RuntimeException {
   private static Class<? extends ActionException> figureOutExceptionClassToBeThrown(final Throwable t) {
     //noinspection ThrowableResultOfMethodCallIgnored
     checkNotNull(t);
-    return Iterables.find(EXCEPTION_MAP, new Predicate<Entry<Class<? extends Throwable>, Class<? extends ActionException>>>() {
+    Iterator<Entry<Class<? extends Throwable>, Class<? extends ActionException>>> found = Iterables.filter(EXCEPTION_MAP, new Predicate<Entry<Class<? extends Throwable>, Class<? extends ActionException>>>() {
       @Override
       public boolean apply(Entry<Class<? extends Throwable>, Class<? extends ActionException>> input) {
         return input.getKey().isAssignableFrom(t.getClass());
       }
-    }).getValue();
+    }).iterator();
+    if (found.hasNext()) {
+      return found.next().getValue();
+    }
+    throw new RuntimeException(t);
   }
 
   private static <T extends ActionException> T instantiate(Class<T> exceptionClass, Throwable nested) {
     try {
       return exceptionClass.getConstructor(String.class, Throwable.class).newInstance(nested.getMessage(), nested);
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-      throw Throwables.propagate(e);
+      throw ActionException.wrap(e);
     }
   }
 
