@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 
 import java.util.concurrent.TimeUnit;

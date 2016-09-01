@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.visitors;
 
-import com.github.dakusui.actionunit.Abort;
+import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.ActionException;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.Abort.abort;
+import static com.github.dakusui.actionunit.exceptions.Abort.abort;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
 import static com.google.common.base.Preconditions.*;

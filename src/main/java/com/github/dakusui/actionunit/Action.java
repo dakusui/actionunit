@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.exceptions.Abort;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.
