@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
+import static com.github.dakusui.actionunit.ActionException.wrap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;

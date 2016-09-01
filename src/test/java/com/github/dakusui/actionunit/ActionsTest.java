@@ -16,9 +16,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
-import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
-import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
+import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
+import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
+import static com.github.dakusui.actionunit.ActionException.wrap;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.transform;
