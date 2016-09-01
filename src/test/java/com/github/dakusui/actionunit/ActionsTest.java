@@ -15,10 +15,10 @@ import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
+import static com.github.dakusui.actionunit.ActionException.wrap;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.transform;
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.toArray;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
@@ -129,7 +129,7 @@ public class ActionsTest {
           currentTimeMillis()
       );
     } catch (InterruptedException e) {
-      throw propagate(e);
+      throw wrap(e);
     }
   }
 
@@ -218,7 +218,7 @@ public class ActionsTest {
               try {
                 TimeUnit.SECONDS.sleep(10);
               } catch (InterruptedException e) {
-                throw propagate(e);
+                throw wrap(e);
               }
             }
           }),
