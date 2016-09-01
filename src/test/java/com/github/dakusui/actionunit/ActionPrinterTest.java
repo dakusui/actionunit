@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.actions.TestAction;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;

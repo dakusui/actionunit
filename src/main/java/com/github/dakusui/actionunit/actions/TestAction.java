@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.actions.Piped;
+import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
