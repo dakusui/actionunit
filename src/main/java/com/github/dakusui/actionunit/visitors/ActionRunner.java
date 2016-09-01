@@ -4,17 +4,18 @@ import com.github.dakusui.actionunit.Abort;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionException;
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.google.common.base.Function;
 
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.*;
 
 import static com.github.dakusui.actionunit.Abort.abort;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Iterables.transform;
@@ -36,9 +37,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   private final int threadPoolSize;
 
   /**
-   * Creates an object of this class.
+   * Creates an object of this class with {@code DEFAULT_THREAD_POOL_SIZE}.
    *
    * @param threadPoolSize Size of thread pool used to execute concurrent actions.
+   * @see ActionRunner#ActionRunner(int)
    */
   public ActionRunner(int threadPoolSize) {
     checkArgument(threadPoolSize > 0, "Thread pool size must be larger than 0 but %s was given.", threadPoolSize);
@@ -46,9 +48,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   /**
-   * Creates an object of this class with {@code DEFAULT_THREAD_POOL_SIZE}.
-   *
-   * @see ActionRunner#ActionRunner(int)
+   * Creates an instance of this class.
    */
   public ActionRunner() {
     this(DEFAULT_THREAD_POOL_SIZE);
@@ -66,12 +66,12 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(Action.Leaf action) {
+  public void visit(Leaf action) {
     action.perform();
   }
 
   @Override
-  public void visit(Action.Named action) {
+  public void visit(Named action) {
     action.getAction().accept(this);
   }
 
@@ -81,7 +81,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * @param action
    */
   @Override
-  public void visit(Action.Sequential action) {
+  public void visit(Sequential action) {
     for (Action each : action) {
       toRunnable(each).run();
     }
@@ -93,7 +93,8 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * @param action
    */
   @Override
-  public void visit(Action.Concurrent action) {
+  public void visit(Concurrent action) {
+    // todo
     final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
     try {
       for (final Future<Boolean> future : pool.invokeAll(newArrayList(toCallables(toRunnables(action))))) {
@@ -128,7 +129,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * @param action
    */
   @Override
-  public void visit(Action.ForEach action) {
+  public void visit(ForEach action) {
     action.getElements().accept(this);
   }
 
@@ -138,7 +139,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * @param action
    */
   @Override
-  public void visit(final Action.With action) {
+  public void visit(final With action) {
     action.getAction().accept(createChildFor(action));
   }
 
@@ -146,12 +147,12 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(Action.Retry action) {
+  public void visit(Retry action) {
     try {
       toRunnable(action.action).run();
     } catch (ActionException e) {
       ActionException lastException = e;
-      for (int i = 0; i < action.times || action.times == Action.Retry.INFINITE; i++) {
+      for (int i = 0; i < action.times || action.times == Retry.INFINITE; i++) {
         try {
           TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
           toRunnable(action.action).run();
@@ -172,7 +173,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(final Action.TimeOut action) {
+  public void visit(final TimeOut action) {
     runWithTimeout(new Callable<Object>() {
                      @Override
                      public Object call() throws Exception {
@@ -189,7 +190,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(final Action.Attempt action) {
+  public void visit(final Attempt action) {
     try {
       action.attempt.accept(this);
     } catch (Throwable e) {
@@ -198,7 +199,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         throw propagate(e);
       }
       //noinspection unchecked
-      new Action.With.Base<>(Connectors.toSource(e), action.recover, action.sinks).accept(this);
+      new With.Base<>(Connectors.toSource(e), action.recover, action.sinks).accept(this);
     } finally {
       action.ensure.accept(this);
     }
@@ -218,7 +219,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    *
    * @param action action for which the returned Visitor is created.
    */
-  protected ActionRunner createChildFor(final Action.With action) {
+  protected ActionRunner createChildFor(final With action) {
     return new ActionRunner() {
       @Override
       public ActionRunner getParent() {
@@ -232,13 +233,13 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       @Override
-      public void visit(Action.With.Tag tagAction) {
+      public void visit(With.Tag tagAction) {
         acceptTagAction(tagAction, action, this);
       }
     };
   }
 
-  protected static void acceptTagAction(Action.With.Tag tagAction, Action.With withAction, ActionRunner runner) {
+  protected static void acceptTagAction(With.Tag tagAction, With withAction, ActionRunner runner) {
     tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
   }
 
@@ -323,14 +324,40 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   public static class WithResult extends ActionRunner.Impl implements Action.Visitor {
-    private final Map<Action, Result> resultMap;
+    public static class Path extends LinkedList<Action> {
+      public Path snapshot() {
+        Path ret = new Path();
+        ret.addAll(this);
+        return ret;
+      }
 
-    public WithResult() {
-      this(new ConcurrentHashMap<Action, Result>());
+      public Path enter(Action action) {
+        this.add(action);
+        return this;
+      }
+
+      public Path leave(Action action) {
+        checkState(action == this.remove(this.size() - 1));
+        return this;
+      }
     }
 
-    public WithResult(Map<Action, Result> resultMap) {
+    private final Map<Path, Result> resultMap;
+
+    protected final Path current;
+
+
+    public WithResult() {
+      this(new Path());
+    }
+
+    public WithResult(Path current) {
+      this(new ConcurrentHashMap<Path, Result>(), current);
+    }
+
+    public WithResult(Map<Path, Result> resultMap, Path current) {
       this.resultMap = checkNotNull(resultMap);
+      this.current = checkNotNull(current).snapshot();
     }
 
     @Override
@@ -346,7 +373,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.Leaf action) {
+    public void visit(final Leaf action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -358,7 +385,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.Named action) {
+    public void visit(final Named action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -370,7 +397,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.Composite action) {
+    public void visit(final Composite action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -382,7 +409,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.Sequential action) {
+    public void visit(final Sequential action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -394,7 +421,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.Concurrent action) {
+    public void visit(final Concurrent action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -406,7 +433,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.ForEach action) {
+    public void visit(final ForEach action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -418,7 +445,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.Attempt action) {
+    public void visit(final Attempt action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -430,7 +457,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.With.Tag action) {
+    public void visit(final With.Tag action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -442,7 +469,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.With action) {
+    public void visit(final With action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -454,7 +481,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.Retry action) {
+    public void visit(final Retry action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -466,7 +493,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final Action.TimeOut action) {
+    public void visit(final TimeOut action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -478,8 +505,8 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    protected ActionRunner createChildFor(final Action.With action) {
-      return new ActionRunner.WithResult(this.resultMap) {
+    protected ActionRunner createChildFor(final With action) {
+      return new ActionRunner.WithResult(this.resultMap, this.current) {
         @Override
         public <T> T value() {
           //noinspection unchecked
@@ -487,7 +514,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         }
 
         @Override
-        public void visit(Action.With.Tag tagAction) {
+        public void visit(With.Tag tagAction) {
           acceptTagAction(tagAction, action, this);
         }
       };
@@ -500,6 +527,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     public ActionPrinter createPrinter(ActionPrinter.Writer writer) {
       return new ActionPrinter<ActionPrinter.Writer>(writer) {
         int nestLevel = 0;
+        final Path current = new Path();
 
         @Override
         public String describeAction(Action action) {
@@ -512,7 +540,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         }
 
         @Override
-        public void visit(Action.ForEach action) {
+        public void visit(ForEach action) {
           nestLevel++;
           try {
             super.visit(action);
@@ -521,11 +549,24 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           }
         }
 
+        @Override
+        protected void enter(Action action) {
+          this.current.enter(action);
+          super.enter(action);
+        }
+
+        @Override
+        protected void leave(Action action) {
+          super.leave(action);
+          this.current.leave(action);
+        }
+
 
         private Result.Code getResultCode(Action action) {
-          if (nestLevel == 0 || (nestLevel == 1 && Action.ForEach.class.isAssignableFrom(action.getClass()))) {
-            if (resultMap.containsKey(action)) {
-              return resultMap.get(action).code;
+          Path path = this.current.snapshot().enter(action);
+          if (nestLevel == 0 || (nestLevel == 1 && ForEach.class.isAssignableFrom(action.getClass()))) {
+            if (resultMap.containsKey(path)) {
+              return resultMap.get(path).code;
             }
             return Result.Code.NOTRUN;
           } else {
@@ -534,8 +575,9 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         }
 
         private String getErrorMessage(Action action) {
-          if (resultMap.containsKey(action)) {
-            Throwable throwable = resultMap.get(action).thrown;
+          Path path = this.current.snapshot().enter(action);
+          if (resultMap.containsKey(path)) {
+            Throwable throwable = resultMap.get(path).thrown;
             if (throwable != null) {
               return format("(error=%s)", throwable.getMessage());
             }
@@ -549,6 +591,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     private void visitAndRecord(Runnable visit, Action action) {
       boolean succeeded = false;
       Throwable thrown = null;
+      this.current.enter(action);
       try {
         visit.run();
         succeeded = true;
@@ -557,14 +600,15 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         throw e;
       } finally {
         if (succeeded) {
-          resultMap.put(action, new Result(Result.Code.PASSED, null));
+          resultMap.put(this.current.snapshot(), new Result(Result.Code.PASSED, null));
         } else {
           if (thrown instanceof AssertionError) {
-            resultMap.put(action, new Result(Result.Code.FAIL, thrown));
+            resultMap.put(this.current.snapshot(), new Result(Result.Code.FAIL, thrown));
           } else {
-            resultMap.put(action, new Result(Result.Code.ERROR, thrown));
+            resultMap.put(this.current.snapshot(), new Result(Result.Code.ERROR, thrown));
           }
         }
+        this.current.leave(action);
       }
     }
 
@@ -596,7 +640,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         FAIL("F"),
         /**
          * Action is not applicable. This code is used for actions under
-         * {@link Action.ForEach}, which are instantiated
+         * {@link ForEach}, which are instantiated
          * every time for each value it gives.
          */
         NA("-");

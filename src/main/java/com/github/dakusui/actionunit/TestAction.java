@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.actions.Piped;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -10,7 +11,7 @@ import org.hamcrest.Matcher;
 import static com.github.dakusui.actionunit.connectors.Connectors.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public interface TestAction<I, O> extends Action.Piped<I, O> {
+public interface TestAction<I, O> extends Piped<I, O> {
   class Base<I, O> extends Impl<I, O> implements TestAction<I, O> {
     public Base(Source<I> given, Pipe<I, O> when, Sink<O> then) {
       //noinspection unchecked

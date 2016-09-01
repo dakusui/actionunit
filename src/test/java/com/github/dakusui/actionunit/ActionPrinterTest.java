@@ -1,5 +1,7 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.actions.ActionBase;
+import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -277,7 +279,7 @@ public class ActionPrinterTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void givenUnsupportedCompositeAction$whenPerformed$thenExceptionThrown() {
-      Action action = new Action.Composite.Base("", Collections.<Action>emptyList()) {
+      Action action = new Composite.Base("", Collections.<Action>emptyList()) {
         @Override
         public void accept(Visitor visitor) {
           visitor.visit(this);
@@ -289,7 +291,7 @@ public class ActionPrinterTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void givenUnsupportedSimpleAction$whenPerformed$thenExceptionThrown() {
-      Action action = new Action.Base() {
+      Action action = new ActionBase() {
         @Override
         public void accept(Visitor visitor) {
           visitor.visit(this);
