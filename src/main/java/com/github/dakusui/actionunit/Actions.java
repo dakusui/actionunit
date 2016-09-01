@@ -15,7 +15,6 @@ import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -77,7 +76,7 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a concurrent manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Base
+   * @see Action.Sequential.Impl
    */
   public static Action concurrent(Action... actions) {
     return concurrent(asList(actions));
@@ -88,7 +87,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by a returned {@code Action} object.
-   * @see Action.Sequential.Base
+   * @see Action.Sequential.Impl
    */
   public static Action concurrent(String summary, Action... actions) {
     return concurrent(summary, asList(actions));
@@ -99,13 +98,19 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Base
+   * @see Action.Sequential.Impl
    */
   public static Action concurrent(String summary, Iterable<? extends Action> actions) {
     return named(summary, concurrent(actions));
   }
 
-  private static Action concurrent(Iterable<? extends Action> actions) {
+  /**
+   * Creates an action which runs given {@code actions} in a concurrent manner.
+   *
+   * @param actions {@code Action} objects performed by returned {@code Action} object.
+   * @see Action.Sequential.Impl
+   */
+  public static Action concurrent(Iterable<? extends Action> actions) {
     return Action.Concurrent.Factory.INSTANCE.create(actions);
   }
 
@@ -113,12 +118,18 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Base
+   * @see Action.Sequential.Impl
    */
   public static Action sequential(Action... actions) {
     return sequential(asList(actions));
   }
 
+  /**
+   * Creates an action which runs given {@code actions} in a sequential manner.
+   *
+   * @param actions {@code Action} objects performed by returned {@code Action} object.
+   * @see Action.Sequential.Impl
+   */
   public static Action sequential(Iterable<? extends Action> actions) {
     return Action.Sequential.Factory.INSTANCE.create(actions);
   }
@@ -128,7 +139,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Base
+   * @see Action.Sequential.Impl
    */
   public static Action sequential(String summary, Action... actions) {
     return sequential(summary, asList(actions));
@@ -139,7 +150,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Base
+   * @see Action.Sequential.Impl
    */
   public static Action sequential(String summary, Iterable<? extends Action> actions) {
     return named(summary, sequential(actions));
@@ -274,7 +285,7 @@ public enum Actions {
         try {
           timeUnit.sleep(duration);
         } catch (InterruptedException e) {
-          throw propagate(e);
+          throw ActionException.wrap(e);
         }
       }
 

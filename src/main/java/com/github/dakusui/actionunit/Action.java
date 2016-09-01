@@ -45,6 +45,8 @@ public interface Action {
   }
 
   /**
+   * A skeletal base class of a simple action, which cannot be divided into smaller
+   * actions.
    * Any action that actually does any concrete operation outside "ActionUnit"
    * framework should extend this class.
    */
@@ -75,12 +77,18 @@ public interface Action {
     Action getAction();
 
     /**
-     * A base class to implement {@code Named} action.
+     * A skeletal base class to implement {@code Named} action.
      */
     class Base extends Action.Base implements Named {
       private final String name;
       private final Action action;
 
+      /**
+       * Creates an object of this class.
+       *
+       * @param name   Name of this object.
+       * @param action Action to be performed as a body of this object.
+       */
       public Base(String name, Action action) {
         this.name = checkNotNull(name);
         this.action = checkNotNull(action);
@@ -138,11 +146,19 @@ public interface Action {
     }
   }
 
+  /**
+   * An interface to represent an action which executes its members.
+   * The manner in which those members should be executed is left to sub-interfaces
+   * of this.
+   *
+   * @see Sequential
+   * @see Concurrent
+   */
   interface Composite extends Action, Iterable<Action> {
     int size();
 
     /**
-     * A skeletal implementation for composite actions, such as {@link Sequential.Base} or {@link Concurrent.Base}.
+     * A skeletal implementation for composite actions, such as {@link Sequential.Impl} or {@link Concurrent.Base}.
      */
     abstract class Base extends Action.Base implements Composite {
       private final Iterable<? extends Action> actions;
@@ -181,6 +197,9 @@ public interface Action {
     }
   }
 
+  /**
+   * An interface that represents a sequence of actions to be executed concurrently.
+   */
   interface Concurrent extends Composite {
     /**
      * A class that represents a collection of actions that should be executed concurrently.
@@ -204,6 +223,9 @@ public interface Action {
         return new Base(actions);
       }
 
+      /**
+       * {@inheritDoc}
+       */
       public String toString() {
         return "Concurrent";
       }
@@ -211,27 +233,43 @@ public interface Action {
   }
 
   /**
-   * An interface that represents a sequence of actions that should be executed one
+   * An interface that represents a sequence of actions to be executed one
    * after another.
    */
   interface Sequential extends Composite {
-    class Base extends Composite.Base implements Sequential {
-      public Base(Iterable<? extends Action> actions) {
+    /**
+     * An implementation of {@link Sequential} action.
+     */
+    class Impl extends Composite.Base implements Sequential {
+      /**
+       * Creates an object of this class.
+       *
+       * @param actions Actions to be executed by this object.
+       */
+      public Impl(Iterable<? extends Action> actions) {
         super("Sequential", actions);
       }
 
+      /**
+       * {@inheritDoc}
+       *
+       * @param visitor the visitor operating on this element.
+       */
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
     }
 
+    /**
+     * A factory for {@link Sequential} action object.
+     */
     enum Factory implements Composite.Factory {
       INSTANCE;
 
       @Override
       public Sequential create(Iterable<? extends Action> actions) {
-        return new Base(actions);
+        return new Impl(actions);
       }
 
       public String toString() {
@@ -440,53 +478,77 @@ public interface Action {
 
   /**
    * An action that corresponds to Java's try/catch mechanism.
+   * In order to build an instance of this class, use {@link Builder} class.
+   *
+   * @param <T> Type of exception which is caught and handled by {@code recover} action.
    */
   class Attempt<T extends Throwable> extends Base {
     public final Action    attempt;
-    public final Action    recover;
     public final Class<T>  exceptionClass;
-    public final Sink<T>[] recoverWith;
+    public final Action    recover;
+    public final Sink<T>[] sinks;
     public final Action    ensure;
 
-    protected Attempt(Action attempt, Class<? extends Throwable> on, Action recover, Sink<? extends Throwable>[] recoverWith, Action ensure) {
+    /**
+     * Creates an object of this class.
+     *
+     * @param attempt        Action initially attempted by this action.
+     * @param exceptionClass Exception on which {@code recover} action is performed
+     *                       if it is thrown during {@code attempt} action's execution.
+     * @param recover        Action performed when an exception of {exceptionClass}
+     *                       is thrown.
+     * @param sinks          sink operations applied as a part of {@code recover}
+     *                       action.
+     * @param ensure         Action which will be performed regardless of {@code attempt}
+     *                       action's behavior.
+     */
+    protected Attempt(Action attempt, Class<? extends Throwable> exceptionClass, Action recover, Sink<? extends Throwable>[] sinks, Action ensure) {
       this.attempt = attempt;
       //noinspection unchecked
-      this.exceptionClass = (Class<T>) on;
+      this.exceptionClass = (Class<T>) exceptionClass;
       this.recover = Action.Named.Factory.create("Recover", recover);
       //noinspection unchecked
-      this.recoverWith = (Sink<T>[]) recoverWith;
+      this.sinks = (Sink<T>[]) sinks;
       this.ensure = Action.Named.Factory.create("Ensure", ensure);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param visitor the visitor operating on this element.
+     */
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
     }
 
+    /**
+     * A builder to construct an instance of {@link Attempt} action.
+     */
     public static class Builder {
       private final Action attempt;
-      private Action                      recover     = nop();
+      private Action                      recover        = nop();
       @SuppressWarnings("unchecked")
-      private Sink<? extends Throwable>[] recoverWith = new Sink[0];
-      private Action                      ensure      = nop();
-      private Class<? extends Throwable>  on          = ActionException.class;
+      private Sink<? extends Throwable>[] recoverWith    = new Sink[0];
+      private Action                      ensure         = nop();
+      private Class<? extends Throwable>  exceptionClass = ActionException.class;
 
       public Builder(Action attempt) {
         this.attempt = checkNotNull(attempt);
       }
 
       @SafeVarargs
-      public final <T extends Throwable> Builder recover(Class<T> on, Action action, Sink<? extends T>... sinks) {
-        this.on = checkNotNull(on);
+      public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Action action, Sink<? extends T>... sinks) {
+        this.exceptionClass = checkNotNull(exceptionClass);
         this.recover = checkNotNull(action);
         this.recoverWith = sinks;
         return this;
       }
 
       @SafeVarargs
-      public final <T extends Throwable> Builder recover(Class<T> on, Sink<? extends T>... sinks) {
+      public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Sink<? extends T>... sinks) {
         return this.recover(
-            on,
+            exceptionClass,
             sequential(transform(range(0, sinks.length),
                 new Function<Integer, Action>() {
                   @Override
@@ -518,7 +580,7 @@ public interface Action {
       }
 
       public <T extends Throwable> Attempt<T> build() {
-        return new Attempt<>(this.attempt, this.on, this.recover, this.recoverWith, this.ensure);
+        return new Attempt<>(this.attempt, this.exceptionClass, this.recover, this.recoverWith, this.ensure);
       }
     }
   }

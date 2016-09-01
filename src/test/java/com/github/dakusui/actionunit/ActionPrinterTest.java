@@ -303,12 +303,12 @@ public class ActionPrinterTest {
     public void test() {
       final TestUtils.Out out = new TestUtils.Out();
       Action action = with("Hello", toSink(new Predicate<Object>() {
-                                        @Override
-                                        public boolean apply(Object input) {
-                                          out.writeLine(input + " applied");
-                                          return true;
-                                        }
-                                      }));
+        @Override
+        public boolean apply(Object input) {
+          out.writeLine(input + " applied");
+          return true;
+        }
+      }));
       ActionRunner.WithResult runner = new ActionRunner.WithResult();
       action.accept(runner);
       action.accept(runner.createPrinter(out));

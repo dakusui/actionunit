@@ -16,9 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static com.github.dakusui.actionunit.ActionException.wrap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 
 /**
@@ -155,7 +155,7 @@ public enum Utils {
           // Just chose "toString" because we know java.lang.Object has the method.
           return Object.class.getMethod("toString");
         } catch (NoSuchMethodException e) {
-          throw propagate(e);
+          throw wrap(e);
         }
       }
     };
@@ -249,7 +249,7 @@ public enum Utils {
         return describeClassOf(obj);
       }
     } catch (NoSuchMethodException e) {
-      throw propagate(e);
+      throw wrap(e);
     }
     return obj.toString();
   }
