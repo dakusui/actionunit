@@ -1,5 +1,8 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.scenarios;
 
+import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.TestUtils;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.TestAction;
@@ -20,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.ActionPrinterTest.ImplTest.composeAction;
+import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSink;
 import static com.google.common.collect.Iterables.size;
