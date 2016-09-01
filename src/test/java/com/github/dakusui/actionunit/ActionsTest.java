@@ -4,6 +4,8 @@ import com.github.dakusui.actionunit.TestOutput.Text;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.exceptions.Abort;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 import org.junit.ComparisonFailure;
@@ -16,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
-import static com.github.dakusui.actionunit.ActionException.wrap;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.transform;

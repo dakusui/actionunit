@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
@@ -16,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.ActionException.wrap;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;

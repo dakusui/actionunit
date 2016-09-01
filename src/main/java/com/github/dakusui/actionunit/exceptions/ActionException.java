@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.exceptions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

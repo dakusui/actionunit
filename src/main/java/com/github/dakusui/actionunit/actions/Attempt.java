@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.ActionException;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.google.common.base.Function;
