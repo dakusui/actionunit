@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
 public interface TestOutput {
   class Text implements TestOutput {

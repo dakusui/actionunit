@@ -1,5 +1,6 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.google.common.base.Function;

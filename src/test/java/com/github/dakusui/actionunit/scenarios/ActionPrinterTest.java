@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.TestUtils;
+import com.github.dakusui.actionunit.ut.TestUtils;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.TestAction;

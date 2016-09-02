@@ -1,5 +1,7 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -56,7 +58,7 @@ public class VariationTest {
 
   @Test
   public void testAction1() {
-    forEach(
+    Actions.forEach(
         asList("host1", "host2"),
         Actions.<String, Integer>test()
             .when(new Function<String, Integer>() {

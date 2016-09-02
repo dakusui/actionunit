@@ -1,6 +1,8 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.TestOutput.Text;
+import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -578,14 +580,14 @@ public class ActionsTest {
     with("world",
         pipe(
             Connectors.<String>context(),
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("hello:" + s);
               }
-            }, new Sink<Text>() {
+            }, new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 assertEquals("hello:world", input.value());
               }
             })).accept(new ActionRunner.Impl());
@@ -593,27 +595,27 @@ public class ActionsTest {
 
   @Test
   public void givenSimplePipeAction$whenPerformed$thenWorksFine() {
-    final List<Text> out = new LinkedList<>();
+    final List<TestOutput.Text> out = new LinkedList<>();
     forEach(asList("world", "WORLD"),
         pipe(
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("hello:" + s);
               }
             },
-            new Sink<Text>() {
+            new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 out.add(input);
               }
             }
         )).accept(new ActionRunner.Impl());
     assertArrayEquals(
         asList("hello:world", "hello:WORLD").toArray(new String[2]),
-        toArray(transform(out, new Function<Text, String>() {
+        toArray(transform(out, new Function<TestOutput.Text, String>() {
           @Override
-          public String apply(Text input) {
+          public String apply(TestOutput.Text input) {
             return input.value();
           }
         }), String.class)
@@ -622,13 +624,13 @@ public class ActionsTest {
 
   @Test
   public void givenSimplestPipeAction$whenPerformed$thenWorksFine() {
-    final List<Text> out = new LinkedList<>();
+    final List<TestOutput.Text> out = new LinkedList<>();
     with("world",
         pipe(
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                out.add(new Text("hello:" + s));
+              public TestOutput.Text apply(String s) {
+                out.add(new TestOutput.Text("hello:" + s));
                 return out.get(0);
               }
             }
@@ -667,14 +669,14 @@ public class ActionsTest {
     with("world",
         pipe(
             Connectors.<String>context(),
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("Hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("Hello:" + s);
               }
-            }, new Sink<Text>() {
+            }, new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 assertEquals("hello:world", input.value());
               }
             })).accept(new ActionRunner.Impl());
@@ -687,21 +689,21 @@ public class ActionsTest {
     with("world",
         pipe(
             Connectors.<String>context(),
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("Hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("Hello:" + s);
               }
             },
-            new Sink<Text>() {
+            new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 out.add(input.value());
               }
             },
-            new Sink<Text>() {
+            new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 out.add(input.value());
               }
             }
