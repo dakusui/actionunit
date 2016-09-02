@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.visitors;
 
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.tests.actions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

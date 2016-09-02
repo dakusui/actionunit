@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.tests.actions.*;
 import com.github.dakusui.actionunit.exceptions.Abort;
 
 /**

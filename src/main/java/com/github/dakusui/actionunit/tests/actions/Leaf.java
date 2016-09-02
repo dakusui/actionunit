@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.tests.actions;
 
 /**
  * A skeletal base class of a simple action, which cannot be divided into smaller

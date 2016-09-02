@@ -1,6 +1,5 @@
-package com.github.dakusui.actionunit.ut.actions;
+package com.github.dakusui.actionunit.tests.actions;
 
-import com.github.dakusui.actionunit.actions.Retry;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.Actions.nop;

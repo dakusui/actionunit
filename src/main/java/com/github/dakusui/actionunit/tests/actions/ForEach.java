@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.tests.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -69,7 +69,21 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new HiddenWithAction<>(t, ForEach.this.action, ForEach.this.sinks);
+        return new With.Base<T>(t, com.github.dakusui.actionunit.tests.actions.ForEach.this.action, com.github.dakusui.actionunit.tests.actions.ForEach.this.sinks) {
+          @Override
+          public int hashCode() {
+            return com.github.dakusui.actionunit.tests.actions.ForEach.this.action.hashCode();
+          }
+
+          @Override
+          public boolean equals(Object anotherObject) {
+            if (!(anotherObject instanceof With.Base)) {
+              return false;
+            }
+            With.Base another = (With.Base) anotherObject;
+            return com.github.dakusui.actionunit.tests.actions.ForEach.this.action.equals(another.action) && Arrays.equals(com.github.dakusui.actionunit.tests.actions.ForEach.this.sinks, another.sinks);
+          }
+        };
       }
     };
     return new HiddenSequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));

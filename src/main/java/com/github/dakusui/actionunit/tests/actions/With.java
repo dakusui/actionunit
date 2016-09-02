@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.tests.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -24,7 +24,7 @@ public interface With<T> extends Action {
 
   Action getAction();
 
-  class Base<T> extends ActionBase implements With<T> {
+  class Base<T> extends ActionBase implements com.github.dakusui.actionunit.tests.actions.With<T> {
     final Sink<T>[] sinks;
     final Source<T> source;
     final Action    action;

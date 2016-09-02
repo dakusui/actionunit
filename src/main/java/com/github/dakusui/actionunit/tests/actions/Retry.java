@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.tests.actions;
 
 import com.github.dakusui.actionunit.Action;
 

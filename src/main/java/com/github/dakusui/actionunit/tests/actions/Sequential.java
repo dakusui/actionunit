@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.tests.actions;
 
 import com.github.dakusui.actionunit.Action;
 
@@ -8,9 +8,9 @@ import com.github.dakusui.actionunit.Action;
  */
 public interface Sequential extends Composite {
   /**
-   * An implementation of {@link com.github.dakusui.actionunit.actions.Sequential} action.
+   * An implementation of {@link com.github.dakusui.actionunit.tests.actions.Sequential} action.
    */
-  class Impl extends Base implements com.github.dakusui.actionunit.actions.Sequential {
+  class Impl extends Base implements com.github.dakusui.actionunit.tests.actions.Sequential {
     /**
      * Creates an object of this class.
      *
@@ -32,13 +32,13 @@ public interface Sequential extends Composite {
   }
 
   /**
-   * A factory for {@link com.github.dakusui.actionunit.actions.Sequential} action object.
+   * A factory for {@link com.github.dakusui.actionunit.tests.actions.Sequential} action object.
    */
   enum Factory implements Composite.Factory {
     INSTANCE;
 
     @Override
-    public Sequential create(Iterable<? extends Action> actions) {
+    public com.github.dakusui.actionunit.tests.actions.Sequential create(Iterable<? extends Action> actions) {
       return new Impl(actions);
     }
 

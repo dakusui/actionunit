@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.tests.actions;
 
 import com.github.dakusui.actionunit.Action;
 
@@ -9,7 +9,7 @@ public interface Concurrent extends Composite {
   /**
    * A class that represents a collection of actions that should be executed concurrently.
    */
-  class Base extends Composite.Base implements com.github.dakusui.actionunit.actions.Concurrent {
+  class Base extends Composite.Base implements com.github.dakusui.actionunit.tests.actions.Concurrent {
     public Base(Iterable<? extends Action> actions) {
       super("Concurrent", actions);
     }
@@ -24,7 +24,7 @@ public interface Concurrent extends Composite {
     INSTANCE;
 
     @Override
-    public Concurrent create(Iterable<? extends Action> actions) {
+    public com.github.dakusui.actionunit.tests.actions.Concurrent create(Iterable<? extends Action> actions) {
       return new Base(actions);
     }
 

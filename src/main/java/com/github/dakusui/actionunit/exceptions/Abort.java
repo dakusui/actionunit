@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.exceptions;
 
-import com.github.dakusui.actionunit.actions.Retry;
+import com.github.dakusui.actionunit.tests.actions.Retry;
 
 /**
  * An exception on which retries will not be attempted by {@link com.github.dakusui.actionunit.visitors.ActionRunner}
