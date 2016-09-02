@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.actions.Named;
+import com.github.dakusui.actionunit.tests.actions.Named;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.FixMethodOrder;
