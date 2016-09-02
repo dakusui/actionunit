@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.actions;
+package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -69,10 +69,10 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new With.Base<T>(t, com.github.dakusui.actionunit.tests.actions.ForEach.this.action, com.github.dakusui.actionunit.tests.actions.ForEach.this.sinks) {
+        return new With.Base<T>(t, ForEach.this.action, ForEach.this.sinks) {
           @Override
           public int hashCode() {
-            return com.github.dakusui.actionunit.tests.actions.ForEach.this.action.hashCode();
+            return ForEach.this.action.hashCode();
           }
 
           @Override
@@ -81,7 +81,7 @@ public class ForEach<T> extends ActionBase {
               return false;
             }
             With.Base another = (With.Base) anotherObject;
-            return com.github.dakusui.actionunit.tests.actions.ForEach.this.action.equals(another.action) && Arrays.equals(com.github.dakusui.actionunit.tests.actions.ForEach.this.sinks, another.sinks);
+            return ForEach.this.action.equals(another.action) && Arrays.equals(ForEach.this.sinks, another.sinks);
           }
         };
       }

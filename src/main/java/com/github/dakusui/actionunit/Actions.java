@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.tests.actions.*;
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -10,7 +10,7 @@ import com.google.common.base.Function;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.tests.actions.ForEach.Mode.SEQUENTIALLY;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
 import static com.github.dakusui.actionunit.Utils.transform;
 import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;

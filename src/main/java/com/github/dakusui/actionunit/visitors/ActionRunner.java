@@ -1,8 +1,9 @@
 package com.github.dakusui.actionunit.visitors;
 
+import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.tests.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;

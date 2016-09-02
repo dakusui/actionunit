@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.actions;
+package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.google.common.base.Preconditions;

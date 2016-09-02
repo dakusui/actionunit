@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.actions;
+package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.google.common.collect.Iterables;
@@ -29,7 +29,7 @@ public interface Composite extends Action, Iterable<Action> {
   /**
    * A skeletal implementation for composite actions, such as {@link Sequential.Impl} or {@link Concurrent.Base}.
    */
-  abstract class Base extends ActionBase implements com.github.dakusui.actionunit.tests.actions.Composite {
+  abstract class Base extends ActionBase implements Composite {
     private final Iterable<? extends Action> actions;
     private final String                     typeName;
 
@@ -76,6 +76,6 @@ public interface Composite extends Action, Iterable<Action> {
   }
 
   interface Factory {
-    com.github.dakusui.actionunit.tests.actions.Composite create(Iterable<? extends Action> actions);
+    Composite create(Iterable<? extends Action> actions);
   }
 }

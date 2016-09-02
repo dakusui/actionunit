@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.actions;
+package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
@@ -19,7 +19,7 @@ import static org.apache.commons.lang3.StringUtils.join;
  * Created by hiroshi on 9/1/16.
  */
 public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
-  class Impl<I, O> extends With.Base<I> implements com.github.dakusui.actionunit.tests.actions.Piped<I, O> {
+  class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
     protected final Source<I>  source;
     protected final Pipe<I, O> pipe;
     protected final Sink<O>[]  sinks;
@@ -142,7 +142,7 @@ public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
     ;
 
     @SafeVarargs
-    public static <I, O> com.github.dakusui.actionunit.tests.actions.Piped<I, O> create(
+    public static <I, O> Piped<I, O> create(
         final Source<I> source,
         final Pipe<I, O> pipe,
         final Sink<O>... sinks) {
