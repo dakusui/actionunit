@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.actions;
+package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -60,7 +60,7 @@ public class Attempt<T extends Throwable> extends ActionBase {
   }
 
   /**
-   * A builder to construct an instance of {@link com.github.dakusui.actionunit.tests.actions.Attempt} action.
+   * A builder to construct an instance of {@link Attempt} action.
    */
   public static class Builder {
     private final Action attempt;
@@ -116,8 +116,8 @@ public class Attempt<T extends Throwable> extends ActionBase {
       return this.ensure(simple(runnable));
     }
 
-    public <T extends Throwable> com.github.dakusui.actionunit.tests.actions.Attempt<T> build() {
-      return new com.github.dakusui.actionunit.tests.actions.Attempt<>(this.attempt, this.exceptionClass, this.recover, this.recoverWith, this.ensure);
+    public <T extends Throwable> Attempt<T> build() {
+      return new Attempt<>(this.attempt, this.exceptionClass, this.recover, this.recoverWith, this.ensure);
     }
   }
 }
