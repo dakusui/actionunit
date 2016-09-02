@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.examples.Basic;
 import com.github.dakusui.actionunit.examples.NameOfAction;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.JUnitCore;

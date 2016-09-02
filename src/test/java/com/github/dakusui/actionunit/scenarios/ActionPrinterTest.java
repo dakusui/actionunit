@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.ut.TestUtils;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.TestAction;
@@ -198,10 +198,12 @@ public class ActionPrinterTest {
       List<String> out = new LinkedList<>();
       Action action = composeAction(out);
       ActionRunner.WithResult runner = new ActionRunner.WithResult();
-      action.accept(runner);
-      assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
-
-      action.accept(runner.createPrinter());
+      try {
+        action.accept(runner);
+        assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
+      } finally {
+        action.accept(runner.createPrinter());
+      }
     }
 
     @Test
