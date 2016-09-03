@@ -1,20 +1,20 @@
 package com.github.dakusui.actionunit.visitors;
 
-import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
+import com.github.dakusui.actionunit.exceptions.Abort;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.exceptions.Abort.abort;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.runWithTimeout;
+import static com.github.dakusui.actionunit.exceptions.Abort.abort;
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
@@ -33,7 +33,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
  * </code>
  */
 public abstract class ActionRunner extends Action.Visitor.Base implements Action.Visitor, Context {
-  public static final int DEFAULT_THREAD_POOL_SIZE = 5;
+  private static final int DEFAULT_THREAD_POOL_SIZE = 1;
   private final int threadPoolSize;
 
   /**
@@ -97,7 +97,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     // todo
     final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
     try {
-      for (final Future<Boolean> future : pool.invokeAll(newArrayList(toCallables(toRunnables(action))))) {
+      for (final Future<Boolean> future : pool.invokeAll(newArrayList(_toCallables(action)))) {
         ////
         // Unless accessing the returned value of Future#get(), compiler may
         // optimize execution and the action may not be executed even if this loop
@@ -239,24 +239,18 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     };
   }
 
-  protected static void acceptTagAction(With.Tag tagAction, With withAction, ActionRunner runner) {
-    tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
-  }
-
   /**
-   * An extension point to allow users to customize how an action will be
+   * An extension point to allow users to customize how a concurrent action will be
    * executed by this {@code Visitor}.
    *
    * @param action An action executed by a runnable object returned by this method.
    */
-  @SuppressWarnings("WeakerAccess")
-  protected Runnable toRunnable(final Action action) {
-    return new Runnable() {
-      @Override
-      public void run() {
-        action.accept(ActionRunner.this);
-      }
-    };
+  protected Iterable<Callable<Boolean>> _toCallables(Concurrent action) {
+    return toCallables(toRunnables(action));
+  }
+
+  private static void acceptTagAction(With.Tag tagAction, With withAction, ActionRunner runner) {
+    tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
   }
 
   private Iterable<Runnable> toRunnables(final Iterable<? extends Action> actions) {
@@ -271,7 +265,16 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     );
   }
 
-  private Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
+  private Runnable toRunnable(final Action action) {
+    return new Runnable() {
+      @Override
+      public void run() {
+        action.accept(ActionRunner.this);
+      }
+    };
+  }
+
+  Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
     return transform(
         runnables,
         new Function<Runnable, Callable<Boolean>>() {
@@ -502,6 +505,31 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
             }
           },
           action);
+    }
+
+    @Override
+    protected Iterable<Callable<Boolean>> _toCallables(final Concurrent action) {
+      return toCallables(toRunnablesWithNewInstance(action));
+    }
+
+    private Iterable<Runnable> toRunnablesWithNewInstance(final Iterable<? extends Action> actions) {
+      return transform(
+          actions,
+          new Function<Action, Runnable>() {
+            @Override
+            public Runnable apply(final Action action) {
+              return new Runnable() {
+                @Override
+                public void run() {
+                  action.accept(new WithResult(
+                      WithResult.this.resultMap,
+                      WithResult.this.current.snapshot()
+                  ));
+                }
+              };
+            }
+          }
+      );
     }
 
     @Override
