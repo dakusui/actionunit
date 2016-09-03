@@ -97,7 +97,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     // todo
     final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
     try {
-      for (final Future<Boolean> future : pool.invokeAll(newArrayList(_toCallables(action)))) {
+      for (final Future<Boolean> future : pool.invokeAll(newArrayList(toCallables(action)))) {
         ////
         // Unless accessing the returned value of Future#get(), compiler may
         // optimize execution and the action may not be executed even if this loop
@@ -245,7 +245,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    *
    * @param action An action executed by a runnable object returned by this method.
    */
-  protected Iterable<Callable<Boolean>> _toCallables(Concurrent action) {
+  protected Iterable<Callable<Boolean>> toCallables(Concurrent action) {
     return toCallables(toRunnables(action));
   }
 
@@ -508,7 +508,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    protected Iterable<Callable<Boolean>> _toCallables(final Concurrent action) {
+    protected Iterable<Callable<Boolean>> toCallables(final Concurrent action) {
       return toCallables(toRunnablesWithNewInstance(action));
     }
 
