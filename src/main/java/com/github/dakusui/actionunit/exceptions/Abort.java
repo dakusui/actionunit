@@ -1,8 +1,10 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.exceptions;
+
+import com.github.dakusui.actionunit.actions.Retry;
 
 /**
  * An exception on which retries will not be attempted by {@link com.github.dakusui.actionunit.visitors.ActionRunner}
- * even if it is executing {@link com.github.dakusui.actionunit.Action.Retry}.
+ * even if it is executing {@link Retry}.
  */
 public class Abort extends ActionException {
   /**

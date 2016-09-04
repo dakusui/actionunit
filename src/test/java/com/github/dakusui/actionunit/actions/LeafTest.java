@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -24,7 +23,7 @@ public class LeafTest {
 
   @Test
   public void givenInheritedLeafWithoutName$whenToString$then() {
-    String s = new Action.Leaf() {
+    String s = new Leaf() {
       @Override
       public void perform() {
       }

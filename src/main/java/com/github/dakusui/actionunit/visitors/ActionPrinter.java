@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.visitors;
 
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.actions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * @see Writer
    */
   public ActionPrinter(W writer) {
+    super();
     this.writer = checkNotNull(writer);
     this.indent = 0;
   }
@@ -54,13 +56,13 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public void visit(Action.Named action) {
+  public void visit(Named action) {
     writeLine(describeAction(action));
-    indent++;
+    enter(action);
     try {
       action.getAction().accept(this);
     } finally {
-      indent--;
+      leave(action);
     }
   }
 
@@ -68,15 +70,15 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public void visit(Action.Composite action) {
+  public void visit(Composite action) {
     writeLine(describeAction(action));
-    indent++;
+    enter(action);
     try {
       for (Action child : action) {
         child.accept(this);
       }
     } finally {
-      indent--;
+      leave(action);
     }
   }
 
@@ -85,14 +87,14 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public void visit(Action.With action) {
+  public void visit(With action) {
     writeLine(describeAction(action));
-    if (!(action instanceof Action.Piped)) {
-      indent++;
+    if (!(action instanceof Piped)) {
+      enter(action);
       try {
         action.getAction().accept(this);
       } finally {
-        indent--;
+        leave(action);
       }
     }
   }
@@ -101,48 +103,68 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public void visit(Action.ForEach action) {
+  public void visit(ForEach action) {
     writeLine(describeAction(action));
-    indent++;
+    enter(action);
     try {
       action.getAction().accept(this);
     } finally {
-      indent--;
+      leave(action);
     }
   }
 
 
-  public void visit(Action.Attempt action) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(Attempt action) {
     writeLine(describeAction(action));
-    indent++;
+    enter(action);
     try {
       action.attempt.accept(this);
       action.recover.accept(this);
       action.ensure.accept(this);
     } finally {
-      indent--;
+      leave(action);
     }
   }
 
-  public void visit(Action.Retry action) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(Retry action) {
     writeLine(describeAction(action));
-    indent++;
+    enter(action);
     try {
       action.action.accept(this);
     } finally {
-      indent--;
+      leave(action);
     }
   }
 
 
-  public void visit(Action.TimeOut action) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(TimeOut action) {
     writeLine(describeAction(action));
-    indent++;
+    enter(action);
     try {
       action.action.accept(this);
     } finally {
-      indent--;
+      leave(action);
     }
+  }
+
+  protected void enter(Action action) {
+    indent++;
+  }
+
+  protected void leave(Action action) {
+    indent--;
   }
 
   /**

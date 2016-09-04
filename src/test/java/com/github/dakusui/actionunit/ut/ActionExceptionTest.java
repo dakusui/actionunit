@@ -1,5 +1,6 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import org.junit.Test;
 
 import java.io.IOException;

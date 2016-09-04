@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.FixMethodOrder;
@@ -63,7 +64,7 @@ public class NameOfAction {
   }
 
   /**
-   * An action to passed to a test method is an instance of {@link com.github.dakusui.actionunit.Action.Named}.
+   * An action to passed to a test method is an instance of {@link Named}.
    * And you can access the name of the test method from which the action is created
    * through {@code getName()} method.
    *
@@ -80,7 +81,7 @@ public class NameOfAction {
     // Here, this line will print lines like
     //   action name:aMethodToTestSomething
     //   action name:aMethodToTestSomethingElse[0]
-    System.err.printf("action name:%s%n", ((Action.Named) action).getName());
+    System.err.printf("action name:%s%n", ((Named) action).getName());
     action.accept(runner);
     action.accept(runner.createPrinter());
   }

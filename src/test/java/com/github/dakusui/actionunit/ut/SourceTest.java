@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.connectors.Source;
 import org.junit.Test;

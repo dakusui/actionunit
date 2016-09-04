@@ -1,8 +1,13 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.TestOutput.Text;
+import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.exceptions.Abort;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 import org.junit.ComparisonFailure;
@@ -13,12 +18,12 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.Action.ForEach.Mode.CONCURRENTLY;
-import static com.github.dakusui.actionunit.Action.ForEach.Mode.SEQUENTIALLY;
-import static com.github.dakusui.actionunit.ActionException.wrap;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.google.common.collect.Iterables.toArray;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
@@ -63,7 +68,7 @@ public class ActionsTest {
 
   @Test
   public void givenSequentialAction$whenSize$thenCorrect() {
-    Action.Composite action = (Action.Composite) sequential(nop(), nop(), nop());
+    Composite action = (Composite) sequential(nop(), nop(), nop());
     assertEquals(3, action.size());
   }
 
@@ -114,7 +119,7 @@ public class ActionsTest {
     } finally {
       for (Map.Entry<Long, Long> i : arr) {
         for (Map.Entry<Long, Long> j : arr) {
-          assertTrue(i.getValue() > j.getKey());
+          assertThat(i.getValue(), greaterThan(j.getKey()));
         }
       }
     }
@@ -123,7 +128,7 @@ public class ActionsTest {
   private Map.Entry<Long, Long> createEntry() {
     long before = currentTimeMillis();
     try {
-      TimeUnit.MILLISECONDS.sleep(100);
+      TimeUnit.MILLISECONDS.sleep(1000);
       return new AbstractMap.SimpleEntry<>(
           before,
           currentTimeMillis()
@@ -575,14 +580,14 @@ public class ActionsTest {
     with("world",
         pipe(
             Connectors.<String>context(),
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("hello:" + s);
               }
-            }, new Sink<Text>() {
+            }, new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 assertEquals("hello:world", input.value());
               }
             })).accept(new ActionRunner.Impl());
@@ -590,27 +595,27 @@ public class ActionsTest {
 
   @Test
   public void givenSimplePipeAction$whenPerformed$thenWorksFine() {
-    final List<Text> out = new LinkedList<>();
+    final List<TestOutput.Text> out = new LinkedList<>();
     forEach(asList("world", "WORLD"),
         pipe(
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("hello:" + s);
               }
             },
-            new Sink<Text>() {
+            new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 out.add(input);
               }
             }
         )).accept(new ActionRunner.Impl());
     assertArrayEquals(
         asList("hello:world", "hello:WORLD").toArray(new String[2]),
-        toArray(transform(out, new Function<Text, String>() {
+        toArray(transform(out, new Function<TestOutput.Text, String>() {
           @Override
-          public String apply(Text input) {
+          public String apply(TestOutput.Text input) {
             return input.value();
           }
         }), String.class)
@@ -619,13 +624,13 @@ public class ActionsTest {
 
   @Test
   public void givenSimplestPipeAction$whenPerformed$thenWorksFine() {
-    final List<Text> out = new LinkedList<>();
+    final List<TestOutput.Text> out = new LinkedList<>();
     with("world",
         pipe(
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                out.add(new Text("hello:" + s));
+              public TestOutput.Text apply(String s) {
+                out.add(new TestOutput.Text("hello:" + s));
                 return out.get(0);
               }
             }
@@ -664,14 +669,14 @@ public class ActionsTest {
     with("world",
         pipe(
             Connectors.<String>context(),
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("Hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("Hello:" + s);
               }
-            }, new Sink<Text>() {
+            }, new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 assertEquals("hello:world", input.value());
               }
             })).accept(new ActionRunner.Impl());
@@ -684,21 +689,21 @@ public class ActionsTest {
     with("world",
         pipe(
             Connectors.<String>context(),
-            new Function<String, Text>() {
+            new Function<String, TestOutput.Text>() {
               @Override
-              public Text apply(String s) {
-                return new Text("Hello:" + s);
+              public TestOutput.Text apply(String s) {
+                return new TestOutput.Text("Hello:" + s);
               }
             },
-            new Sink<Text>() {
+            new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 out.add(input.value());
               }
             },
-            new Sink<Text>() {
+            new Sink<TestOutput.Text>() {
               @Override
-              public void apply(Text input, Context context) {
+              public void apply(TestOutput.Text input, Context context) {
                 out.add(input.value());
               }
             }
@@ -721,7 +726,7 @@ public class ActionsTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$composite() {
-    new Action.Composite.Base("unsupported", singletonList(nop())) {
+    new Composite.Base("unsupported", singletonList(nop())) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
