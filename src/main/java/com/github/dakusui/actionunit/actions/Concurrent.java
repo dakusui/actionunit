@@ -24,7 +24,7 @@ public interface Concurrent extends Composite {
     INSTANCE;
 
     @Override
-    public com.github.dakusui.actionunit.actions.Concurrent create(Iterable<? extends Action> actions) {
+    public Concurrent create(Iterable<? extends Action> actions) {
       return new Base(actions);
     }
 

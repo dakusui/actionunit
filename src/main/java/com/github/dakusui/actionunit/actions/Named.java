@@ -21,7 +21,7 @@ public interface Named extends Action {
   /**
    * A skeletal base class to implement {@code Named} action.
    */
-  class Base extends ActionBase implements com.github.dakusui.actionunit.actions.Named {
+  class Base extends ActionBase implements Named {
     private final String name;
     private final Action action;
 
@@ -82,7 +82,7 @@ public interface Named extends Action {
      * @param name   A name of the returned action.
      * @param action An action body of the returned action.
      */
-    public static com.github.dakusui.actionunit.actions.Named create(String name, Action action) {
+    public static Named create(String name, Action action) {
       return new Base(name, action);
     }
   }

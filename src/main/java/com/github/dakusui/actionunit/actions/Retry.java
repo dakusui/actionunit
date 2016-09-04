@@ -7,9 +7,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
-/**
- * Created by hiroshi on 9/1/16.
- */
 public class Retry extends ActionBase {
   /**
    * A constant that represents an instance of this class should be repeated infinitely.

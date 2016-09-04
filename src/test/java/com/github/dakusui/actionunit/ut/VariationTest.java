@@ -1,11 +1,12 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static com.github.dakusui.actionunit.Actions.forEach;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 
 public class VariationTest {
@@ -47,7 +49,6 @@ public class VariationTest {
         new Sink.Base<String>() {
           @Override
           public void apply(String input, Object... outer) {
-
           }
         }
     ).accept(new ActionRunner.Impl());
@@ -56,7 +57,7 @@ public class VariationTest {
 
   @Test
   public void testAction1() {
-    forEach(
+    Actions.forEach(
         asList("host1", "host2"),
         Actions.<String, Integer>test()
             .when(new Function<String, Integer>() {
@@ -65,7 +66,7 @@ public class VariationTest {
                 return Integer.parseInt(input.substring(input.length() - 1));
               }
             })
-            .then(CoreMatchers.<Integer>notNullValue())
+            .then(notNullValue())
             .build()
     ).accept(new ActionRunner.Impl());
   }

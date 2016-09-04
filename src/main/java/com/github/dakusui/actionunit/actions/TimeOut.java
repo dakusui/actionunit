@@ -7,9 +7,6 @@ import static com.github.dakusui.actionunit.Utils.formatDuration;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
-/**
- * Created by hiroshi on 9/1/16.
- */
 public class TimeOut extends ActionBase {
   /**
    * A constant which means an instance of this class should wait forever.

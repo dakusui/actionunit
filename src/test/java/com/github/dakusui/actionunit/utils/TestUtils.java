@@ -1,6 +1,7 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 
@@ -16,6 +17,11 @@ public class TestUtils {
   public static boolean isRunUnderSurefire() {
     return System.getProperty("surefire.real.class.path") != null;
   }
+
+  public static <T> Matcher<Iterable<? super T>> hasItemAt(int position, Matcher<? super T> itemMatcher) {
+    return new HasItemAt<>(position, itemMatcher);
+  }
+
 
   public static class Out extends AbstractList<String> implements ActionPrinter.Writer {
     private List<String> out = new LinkedList<>();
