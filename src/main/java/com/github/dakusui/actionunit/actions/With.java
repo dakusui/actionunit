@@ -14,7 +14,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  *
- * @param <T>
+ * @param <T> Type of the value with which child {@code Action} is executed.
  */
 public interface With<T> extends Action {
 
@@ -24,7 +24,7 @@ public interface With<T> extends Action {
 
   Action getAction();
 
-  class Base<T> extends ActionBase implements com.github.dakusui.actionunit.actions.With<T> {
+  class Base<T> extends ActionBase implements With<T> {
     final Sink<T>[] sinks;
     final Source<T> source;
     final Action    action;

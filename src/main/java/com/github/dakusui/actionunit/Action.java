@@ -182,10 +182,20 @@ public interface Action {
     }
   }
 
+  /**
+   * This interface is used to let path calculation know an action is synthesized
+   * by another and the creator action should be taken into account in the calculation,
+   * instead of itself.
+   */
   interface Synthesized {
     Action getParent();
   }
 
+  /**
+   * This interface is used to suppress path calculation, which is
+   * performed by {@link com.github.dakusui.actionunit.visitors.ActionRunner.WithResult}
+   * and its printer.
+   */
   interface IgnoredInPathCalculation {
   }
 }

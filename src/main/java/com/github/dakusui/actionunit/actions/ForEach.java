@@ -46,7 +46,7 @@ public class ForEach<T> extends ActionBase {
         this.getClass().getSimpleName(),
         this.factory,
         unknownIfNegative(sizeOrNegativeIfNonCollection(this.dataSource)),
-       join(
+        join(
             transform(
                 asList(sinks),
                 new Function<Sink<T>, Object>() {
@@ -69,16 +69,21 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new MyWith<>(t, ForEach.this.action, ForEach.this.sinks);
+        return new HiddenWithAction<>(t, ForEach.this.action, ForEach.this.sinks);
       }
     };
-    return new MySequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
+    return new HiddenSequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
   }
 
-  private static class MySequential implements Sequential, IgnoredInPathCalculation {
+  /**
+   * A sequential action created by and run as a part of {@code ForEach} action.
+   *
+   * @see com.github.dakusui.actionunit.Action.IgnoredInPathCalculation
+   */
+  private static class HiddenSequential implements Sequential, IgnoredInPathCalculation {
     final Sequential sequential;
 
-    MySequential(Sequential sequential) {
+    HiddenSequential(Sequential sequential) {
       this.sequential = sequential;
     }
 
@@ -96,29 +101,21 @@ public class ForEach<T> extends ActionBase {
     public Iterator<Action> iterator() {
       return sequential.iterator();
     }
-
-    @Override
-    public int hashCode() {
-      return sequential.hashCode();
-    }
-
-    public boolean equals(Object object) {
-      if (!(object instanceof MySequential)) {
-        return false;
-      }
-      MySequential another = (MySequential) object;
-      return this.sequential.equals(another.sequential);
-    }
   }
 
-  class MyWith<U> extends With.Base<U> implements Action.IgnoredInPathCalculation {
-    public MyWith(Source<U> source, Action action, Sink<U>[] sinks) {
+  /**
+   * A sequential action created by and run as a part of {@code ForEach} action.
+   *
+   * @param <U> Type of the value with which child {@code Action} is executed.
+   */
+  private class HiddenWithAction<U> extends With.Base<U> implements Action.IgnoredInPathCalculation {
+    public HiddenWithAction(Source<U> source, Action action, Sink<U>[] sinks) {
       super(source, action, sinks);
     }
 
     @Override
     public String toString() {
-      return "With";
+      return "With(Hidden)";
     }
   }
 
