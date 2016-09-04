@@ -1,5 +1,6 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.actions.TimeOut;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.Actions.nop;

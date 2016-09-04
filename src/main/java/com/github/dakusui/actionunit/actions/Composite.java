@@ -19,6 +19,11 @@ import static java.lang.String.format;
  * @see Concurrent
  */
 public interface Composite extends Action, Iterable<Action> {
+  /**
+   * Returns number of actions that this object has if they are given as a {@link Collection}.
+   * Otherwise, for instance actions are given as {@link Iterable}, {@code -1}
+   * will be returned.
+   */
   int size();
 
   /**
@@ -56,11 +61,11 @@ public interface Composite extends Action, Iterable<Action> {
 
     @Override
     public boolean equals(Object object) {
-      if (!(object instanceof Composite.Base)) {
+      if (!(object instanceof Composite)) {
         return false;
       }
-      Composite.Base another = (Base) object;
-      return typeName.equals(another.typeName) && Iterables.elementsEqual(actions, another.actions);
+      Composite another = (Composite) object;
+      return getClass().equals(another.getClass()) && Iterables.elementsEqual(actions, another);
     }
 
     @Override
