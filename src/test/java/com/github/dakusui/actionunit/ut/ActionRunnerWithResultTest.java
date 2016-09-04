@@ -8,8 +8,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.Actions.concurrent;
-import static com.github.dakusui.actionunit.Actions.forEach;
+import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -237,4 +236,27 @@ public class ActionRunnerWithResultTest {
     }
   }
 
+  public static class AttemptAction extends Base {
+    @Test
+    public void givenPassingAttemptAction$whenPerformed$thenWorksFine() {
+      Action action = attempt(
+          nop()
+      ).recover(
+          nop()
+      ).ensure(
+          nop()
+      ).build();
+      action.accept(this.getRunner());
+      action.accept(this.getPrinter());
+      assertThat(getWriter(), allOf(
+          hasItemAt(0, equalTo("(+)Attempt")),
+          hasItemAt(1, equalTo("  (+)(nop)")),
+          hasItemAt(2, equalTo("  ( )Recover")),
+          hasItemAt(3, equalTo("    ( )(nop)")),
+          hasItemAt(4, equalTo("  (+)Ensure")),
+          hasItemAt(5, equalTo("    (+)(nop)"))
+      ));
+      assertThat(getWriter(), hasSize(6));
+    }
+  }
 }
