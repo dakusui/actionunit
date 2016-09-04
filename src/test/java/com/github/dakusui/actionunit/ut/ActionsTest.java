@@ -18,12 +18,12 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
-import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
-import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.google.common.collect.Iterables.toArray;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
@@ -119,7 +119,7 @@ public class ActionsTest {
     } finally {
       for (Map.Entry<Long, Long> i : arr) {
         for (Map.Entry<Long, Long> j : arr) {
-          assertTrue(i.getValue() > j.getKey());
+          assertThat(i.getValue(), greaterThan(j.getKey()));
         }
       }
     }
@@ -128,7 +128,7 @@ public class ActionsTest {
   private Map.Entry<Long, Long> createEntry() {
     long before = currentTimeMillis();
     try {
-      TimeUnit.MILLISECONDS.sleep(100);
+      TimeUnit.MILLISECONDS.sleep(1000);
       return new AbstractMap.SimpleEntry<>(
           before,
           currentTimeMillis()

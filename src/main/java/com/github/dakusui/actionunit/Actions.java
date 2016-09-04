@@ -223,7 +223,7 @@ public enum Actions {
   }
 
   public static Action tag(int i) {
-    return new With.Tag(i);
+    return new Tag(i);
   }
 
   @SafeVarargs

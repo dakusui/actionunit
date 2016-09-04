@@ -33,7 +33,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
  * </code>
  */
 public abstract class ActionRunner extends Action.Visitor.Base implements Action.Visitor, Context {
-  private static final int DEFAULT_THREAD_POOL_SIZE = 1;
+  private static final int DEFAULT_THREAD_POOL_SIZE = 5;
   private final int threadPoolSize;
 
   /**
@@ -233,7 +233,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       @Override
-      public void visit(With.Tag tagAction) {
+      public void visit(Tag tagAction) {
         acceptTagAction(tagAction, action, this);
       }
     };
@@ -249,7 +249,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     return toCallables(toRunnables(action));
   }
 
-  private static void acceptTagAction(With.Tag tagAction, With withAction, ActionRunner runner) {
+  private static void acceptTagAction(Tag tagAction, With withAction, ActionRunner runner) {
     tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
   }
 
@@ -335,13 +335,27 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       public Path enter(Action action) {
+        if (action instanceof Action.IgnoredInPathCalculation) {
+          return this;
+        }
+        action = getAction(action);
         this.add(action);
         return this;
       }
 
       public Path leave(Action action) {
-        checkState(action == this.remove(this.size() - 1));
+        if (action instanceof Action.IgnoredInPathCalculation) {
+          return this;
+        }
+        checkState(getAction(action) == this.remove(this.size() - 1));
         return this;
+      }
+
+      private Action getAction(Action action) {
+        if (action instanceof Action.Synthesized) {
+          action = ((Action.Synthesized) action).getParent();
+        }
+        return action;
       }
     }
 
@@ -460,7 +474,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    public void visit(final With.Tag action) {
+    public void visit(final Tag action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -542,7 +556,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         }
 
         @Override
-        public void visit(With.Tag tagAction) {
+        public void visit(Tag tagAction) {
           acceptTagAction(tagAction, action, this);
         }
       };
@@ -592,14 +606,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
         private Result.Code getResultCode(Action action) {
           Path path = this.current.snapshot().enter(action);
-          if (nestLevel == 0 || (nestLevel == 1 && ForEach.class.isAssignableFrom(action.getClass()))) {
-            if (resultMap.containsKey(path)) {
-              return resultMap.get(path).code;
-            }
-            return Result.Code.NOTRUN;
-          } else {
-            return Result.Code.NA;
+          if (resultMap.containsKey(path)) {
+            return resultMap.get(path).code;
           }
+          return Result.Code.NOTRUN;
         }
 
         private String getErrorMessage(Action action) {
@@ -665,13 +675,8 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         /**
          * Mismatched expectation.
          */
-        FAIL("F"),
-        /**
-         * Action is not applicable. This code is used for actions under
-         * {@link ForEach}, which are instantiated
-         * every time for each value it gives.
-         */
-        NA("-");
+        FAIL("F");
+
 
         private final String symbol;
 

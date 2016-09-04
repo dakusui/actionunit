@@ -2,16 +2,15 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.TestAction;
 import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -23,9 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSink;
+import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
+import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static com.google.common.collect.Iterables.size;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -127,6 +127,7 @@ public class ActionPrinterTest {
 
   public static class WithResultTest extends TestUtils.StdOutTestBase {
     private static Action composeAction(final List<String> out) {
+      //noinspection unchecked
       return concurrent("Concurrent (top level)",
           sequential("Sequential (1st child)",
               simple("simple1", new Runnable() {
@@ -156,7 +157,7 @@ public class ActionPrinterTest {
                           }
                         }
                   )
-                  .then(CoreMatchers.<String>anything()).build()
+                  .then(anything()).build()
           ),
           forEach(
               asList("world1", "world2", "world3"),
@@ -256,10 +257,13 @@ public class ActionPrinterTest {
 
       final TestUtils.Out out2 = new TestUtils.Out();
       action.accept(runner.createPrinter(out2));
-      Assert.assertThat(out2.get(0), containsString("(+)ForEach"));
-      Assert.assertThat(out2.get(1), containsString("(-)Sequential"));
-      Assert.assertThat(out2.get(2), containsString("(-)Tag(0)"));
-      Assert.assertThat(out2.get(3), containsString("(-)Tag(1)"));
+
+      assertThat(out2, allOf(
+          hasItemAt(0, containsString("(+)ForEach")),
+          hasItemAt(1, containsString("(+)Sequential")),
+          hasItemAt(2, containsString("(+)Tag(0)")),
+          hasItemAt(3, containsString("(+)Tag(1)"))
+      ));
       Assert.assertThat(out2.size(), equalTo(4));
     }
 

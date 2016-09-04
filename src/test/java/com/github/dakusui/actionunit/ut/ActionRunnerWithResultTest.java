@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -10,12 +11,13 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.Actions.concurrent;
-import static com.github.dakusui.actionunit.Actions.simple;
+import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertTrue;
 
@@ -170,8 +172,68 @@ public class ActionRunnerWithResultTest {
       ////
       // Given concurrent action
       Action action = concurrent(createPassingAction(100), createPassingAction(200), createPassingAction(300));
+      ////
+      //When performed and printed
       action.accept(runner);
       action.accept(runner.createPrinter(out));
+      ////
+      //Then printed correctly
+      //noinspection unchecked
+      assertThat(out, allOf(
+          hasItemAt(0, equalTo("(+)Concurrent (3 actions)")),
+          hasItemAt(1, equalTo("  (+)A passing action")),
+          hasItemAt(2, equalTo("    (+)This passes always")),
+          hasItemAt(3, equalTo("  (+)A passing action")),
+          hasItemAt(4, equalTo("    (+)This passes always")),
+          hasItemAt(5, equalTo("  (+)A passing action")),
+          hasItemAt(6, equalTo("    (+)This passes always"))
+      ));
+      assertThat(out, hasSize(7));
+    }
+  }
+
+  public static class ForEachAction extends Base {
+    @Test
+    public void givenConcurrentAction$whenPerformed$thenWorksFine() {
+      ////
+      // Given concurrent action
+      Action action = forEach(
+          asList("ItemA", "ItemB", "ItemC"),
+          new Sink.Base<String>() {
+            @Override
+            protected void apply(String input, Object... outer) {
+            }
+
+            @Override
+            public String toString() {
+              return "Sink-1";
+            }
+          },
+          new Sink.Base<String>() {
+            @Override
+            protected void apply(String input, Object... outer) {
+            }
+
+            @Override
+            public String toString() {
+              return "Sink-2";
+            }
+          }
+      );
+      ////
+      //When performed and printed
+      action.accept(runner);
+      action.accept(runner.createPrinter(out));
+      ////
+      //Then printed correctly
+      //noinspection unchecked
+      assertThat(out, allOf(
+          hasItemAt(0, equalTo("(+)ForEach (Sequential, 3 items) {Sink-1,Sink-2}")),
+          hasItemAt(1, equalTo("  (+)Sequential (2 actions)")),
+          hasItemAt(2, equalTo("    (+)Tag(0)")),
+          hasItemAt(3, equalTo("    (+)Tag(1)"))
+      ));
+      assertThat(out, hasSize(4));
     }
   }
 

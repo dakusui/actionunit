@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 
-import java.util.Arrays;
+import java.util.Iterator;
 
 import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -46,7 +46,7 @@ public class ForEach<T> extends ActionBase {
         this.getClass().getSimpleName(),
         this.factory,
         unknownIfNegative(sizeOrNegativeIfNonCollection(this.dataSource)),
-        join(
+       join(
             transform(
                 asList(sinks),
                 new Function<Sink<T>, Object>() {
@@ -61,7 +61,7 @@ public class ForEach<T> extends ActionBase {
   }
 
   public Composite getElements() {
-    Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
+    final Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
       @Override
       public Action apply(final Source<T> t) {
         //noinspection unchecked
@@ -69,24 +69,57 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new With.Base<T>(t, com.github.dakusui.actionunit.actions.ForEach.this.action, com.github.dakusui.actionunit.actions.ForEach.this.sinks) {
-          @Override
-          public int hashCode() {
-            return com.github.dakusui.actionunit.actions.ForEach.this.action.hashCode();
-          }
-
-          @Override
-          public boolean equals(Object anotherObject) {
-            if (!(anotherObject instanceof With.Base)) {
-              return false;
-            }
-            With.Base another = (With.Base) anotherObject;
-            return com.github.dakusui.actionunit.actions.ForEach.this.action.equals(another.action) && Arrays.equals(com.github.dakusui.actionunit.actions.ForEach.this.sinks, another.sinks);
-          }
-        };
+        return new MyWith<T>(t, ForEach.this.action, ForEach.this.sinks);
       }
     };
-    return this.factory.create(transform(dataSource, func));
+    return new MySequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
+  }
+
+  private static class MySequential implements Sequential, IgnoredInPathCalculation {
+    final Sequential sequential;
+
+    MySequential(Sequential sequential) {
+      this.sequential = sequential;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public int size() {
+      return sequential.size();
+    }
+
+    @Override
+    public Iterator<Action> iterator() {
+      return sequential.iterator();
+    }
+
+    @Override
+    public int hashCode() {
+      return sequential.hashCode();
+    }
+
+    public boolean equals(Object object) {
+      if (!(object instanceof MySequential)) {
+        return false;
+      }
+      MySequential another = (MySequential) object;
+      return this.sequential.equals(another.sequential);
+    }
+  }
+
+  class MyWith<U> extends With.Base<U> implements Action.IgnoredInPathCalculation {
+    public MyWith(Source<U> source, Action action, Sink<U>[] sinks) {
+      super(source, action, sinks);
+    }
+
+    @Override
+    public String toString() {
+      return "With";
+    }
   }
 
   public Action getAction() {

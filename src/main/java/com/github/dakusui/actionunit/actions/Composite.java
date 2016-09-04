@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.google.common.collect.Iterables;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -23,7 +24,7 @@ public interface Composite extends Action, Iterable<Action> {
   /**
    * A skeletal implementation for composite actions, such as {@link Sequential.Impl} or {@link Concurrent.Base}.
    */
-  abstract class Base extends ActionBase implements com.github.dakusui.actionunit.actions.Composite {
+  abstract class Base extends ActionBase implements Composite {
     private final Iterable<? extends Action> actions;
     private final String                     typeName;
 
@@ -49,6 +50,20 @@ public interface Composite extends Action, Iterable<Action> {
     }
 
     @Override
+    public int hashCode() {
+      return actions.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+      if (!(object instanceof Composite.Base)) {
+        return false;
+      }
+      Composite.Base another = (Base) object;
+      return typeName.equals(another.typeName) && Iterables.elementsEqual(actions, another.actions);
+    }
+
+    @Override
     public Iterator<Action> iterator() {
       //noinspection unchecked
       return (Iterator<Action>) this.actions.iterator();
@@ -56,6 +71,6 @@ public interface Composite extends Action, Iterable<Action> {
   }
 
   interface Factory {
-    com.github.dakusui.actionunit.actions.Composite create(Iterable<? extends Action> actions);
+    Composite create(Iterable<? extends Action> actions);
   }
 }

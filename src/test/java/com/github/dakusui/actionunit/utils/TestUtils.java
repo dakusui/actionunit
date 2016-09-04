@@ -18,8 +18,8 @@ public class TestUtils {
     return System.getProperty("surefire.real.class.path") != null;
   }
 
-  public static <T> Matcher<Iterable<T>> hasItemAt(int position, Matcher<? extends T> elementMatcher) {
-    return new HasItemAt<>(position, elementMatcher);
+  public static <T> Matcher<Iterable<? super T>> hasItemAt(int position, Matcher<? super T> itemMatcher) {
+    return new HasItemAt<>(position, itemMatcher);
   }
 
   public static class Out extends AbstractList<String> implements ActionPrinter.Writer {

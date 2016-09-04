@@ -88,7 +88,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(With.Tag action);
+    void visit(Tag action);
 
     /**
      * Visits an {@code action}.
@@ -156,7 +156,7 @@ public interface Action {
       }
 
       @Override
-      public void visit(With.Tag action) {
+      public void visit(Tag action) {
         this.visit((Action) action);
       }
 
@@ -180,5 +180,12 @@ public interface Action {
         this.visit((Action) action);
       }
     }
+  }
+
+  interface Synthesized {
+    Action getParent();
+  }
+
+  interface IgnoredInPathCalculation {
   }
 }
