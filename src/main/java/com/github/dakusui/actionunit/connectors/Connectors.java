@@ -11,7 +11,7 @@ import static org.junit.Assert.assertThat;
 public enum Connectors {
   ;
 
-  public static <I, O> Pipe<I, O> toPipe(String description, final Function<I, O> func) {
+  public static <I, O> Pipe<I, O> toPipe(String description, final Function<? super I, ? extends O> func) {
     checkNotNull(func);
     return new Pipe.Base<I, O>(description == null
         ? String.format("Function(%s)", Utils.describe(func))
@@ -75,7 +75,7 @@ public enum Connectors {
     };
   }
 
-  public static <O> Sink<O> toSink(final Matcher<O> matcher) {
+  public static <O> Sink<O> toSink(final Matcher<? super O> matcher) {
     checkNotNull(matcher);
     return new Sink.Base<O>() {
       @Override
@@ -90,7 +90,7 @@ public enum Connectors {
     };
   }
 
-  public static <O> Sink<O> toSink(final Predicate<O> predicate) {
+  public static <O> Sink<O> toSink(final Predicate<? super O> predicate) {
     checkNotNull(predicate);
     return new Sink.Base<O>() {
       @Override

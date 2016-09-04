@@ -78,7 +78,7 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a concurrent manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(Action... actions) {
     return concurrent(asList(actions));
@@ -89,7 +89,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by a returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(String summary, Action... actions) {
     return concurrent(summary, asList(actions));
@@ -100,7 +100,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(String summary, Iterable<? extends Action> actions) {
     return named(summary, concurrent(actions));
@@ -110,17 +110,17 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a concurrent manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action concurrent(Iterable<? extends Action> actions) {
-    return Action.Concurrent.Factory.INSTANCE.create(actions);
+    return Concurrent.Factory.INSTANCE.create(actions);
   }
 
   /**
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(Action... actions) {
     return sequential(asList(actions));
@@ -130,7 +130,7 @@ public enum Actions {
    * Creates an action which runs given {@code actions} in a sequential manner.
    *
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(Iterable<? extends Action> actions) {
     return Sequential.Factory.INSTANCE.create(actions);
@@ -141,7 +141,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(String summary, Action... actions) {
     return sequential(summary, asList(actions));
@@ -152,7 +152,7 @@ public enum Actions {
    *
    * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
    * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Action.Sequential.Impl
+   * @see Sequential.Impl
    */
   public static Action sequential(String summary, Iterable<? extends Action> actions) {
     return named(summary, sequential(actions));
@@ -223,7 +223,7 @@ public enum Actions {
   }
 
   public static Action tag(int i) {
-    return new With.Tag(i);
+    return new Tag(i);
   }
 
   @SafeVarargs

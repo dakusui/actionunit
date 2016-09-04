@@ -116,8 +116,8 @@ public class Attempt<T extends Throwable> extends ActionBase {
       return this.ensure(simple(runnable));
     }
 
-    public <T extends Throwable> com.github.dakusui.actionunit.actions.Attempt<T> build() {
-      return new com.github.dakusui.actionunit.actions.Attempt<>(this.attempt, this.exceptionClass, this.recover, this.recoverWith, this.ensure);
+    public <T extends Throwable> Attempt<T> build() {
+      return new Attempt<>(this.attempt, this.exceptionClass, this.recover, this.recoverWith, this.ensure);
     }
   }
 }

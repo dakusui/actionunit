@@ -54,7 +54,7 @@ public interface TestAction<I, O> extends Piped<I, O> {
       return this;
     }
 
-    public Builder<I, O> then(Matcher<O> then) {
+    public Builder<I, O> then(Matcher then) {
       return this.then(toSink(checkNotNull(then)));
     }
 

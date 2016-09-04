@@ -12,15 +12,15 @@ import org.junit.runners.model.TestClass;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.ActionException.wrap;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 
 /**
  * A utility class for static methods which are too trivial to create classes to which they should
@@ -115,7 +115,7 @@ public enum Utils {
       @Override
       public List<FrameworkMethod> getAnnotatedMethods(final Class<? extends Annotation> annClass) {
         if (Parameterized.Parameters.class.equals(annClass)) {
-          return Collections.singletonList(createDummyFrameworkMethod());
+          return singletonList(createDummyFrameworkMethod());
         }
         return super.getAnnotatedMethods(annClass);
       }
@@ -258,5 +258,4 @@ public enum Utils {
   public static String describeClassOf(Object obj) {
     return shortClassNameOf(checkNotNull(obj).getClass());
   }
-
 }

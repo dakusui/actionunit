@@ -1,5 +1,8 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.Actions;
 import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;

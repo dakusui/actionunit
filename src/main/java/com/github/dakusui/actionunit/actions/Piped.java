@@ -142,7 +142,7 @@ public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
     ;
 
     @SafeVarargs
-    public static <I, O> com.github.dakusui.actionunit.actions.Piped<I, O> create(
+    public static <I, O> Piped<I, O> create(
         final Source<I> source,
         final Pipe<I, O> pipe,
         final Sink<O>... sinks) {

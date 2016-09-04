@@ -38,7 +38,7 @@ public interface Sequential extends Composite {
     INSTANCE;
 
     @Override
-    public com.github.dakusui.actionunit.actions.Sequential create(Iterable<? extends Action> actions) {
+    public Sequential create(Iterable<? extends Action> actions) {
       return new Impl(actions);
     }
 
