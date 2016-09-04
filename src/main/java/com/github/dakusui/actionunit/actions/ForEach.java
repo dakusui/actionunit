@@ -112,11 +112,6 @@ public class ForEach<T> extends ActionBase {
     public HiddenWithAction(Source<U> source, Action action, Sink<U>[] sinks) {
       super(source, action, sinks);
     }
-
-    @Override
-    public String toString() {
-      return "With(Hidden)";
-    }
   }
 
   public Action getAction() {
