@@ -73,11 +73,6 @@ public class Tag extends ActionBase {
     }
 
     @Override
-    public String toString() {
-      return String.format("Leaf(%s)", Tag.this.toString());
-    }
-
-    @Override
     public Action getParent() {
       return Tag.this;
     }
