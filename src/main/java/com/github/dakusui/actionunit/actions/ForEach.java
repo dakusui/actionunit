@@ -69,7 +69,7 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new MyWith<T>(t, ForEach.this.action, ForEach.this.sinks);
+        return new MyWith<>(t, ForEach.this.action, ForEach.this.sinks);
       }
     };
     return new MySequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));

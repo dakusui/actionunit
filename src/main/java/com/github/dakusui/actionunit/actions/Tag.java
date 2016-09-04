@@ -17,6 +17,15 @@ public class Tag extends ActionBase {
     this.index = i;
   }
 
+  public int getIndex() {
+    return index;
+  }
+
+  public <T> Leaf toLeaf(final Source<T> source, final Sink<T>[] sinks, final Context context) {
+    //noinspection unchecked
+    return new TagRunner(sinks, source, context);
+  }
+
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
@@ -27,19 +36,12 @@ public class Tag extends ActionBase {
     return format("Tag(%d)", index);
   }
 
-  public int getIndex() {
-    return index;
-  }
-
-  public <T> Leaf toLeaf(final Source<T> source, final Sink<T>[] sinks, final Context context) {
-    //noinspection unchecked
-    return new MyLeaf(sinks, source, context);
-  }
-
+  @Override
   public int hashCode() {
     return this.index;
   }
 
+  @Override
   public boolean equals(Object object) {
     if (!(object instanceof Tag)) {
       return false;
@@ -48,12 +50,12 @@ public class Tag extends ActionBase {
     return this.index == another.index;
   }
 
-  private class MyLeaf<T> extends Leaf implements Synthesized {
+  private class TagRunner<T> extends Leaf implements Synthesized {
     private final Sink<T>[] sinks;
     private final Source<T> source;
     private final Context   context;
 
-    public MyLeaf(Sink<T>[] sinks, Source<T> source, Context context) {
+    public TagRunner(Sink<T>[] sinks, Source<T> source, Context context) {
       this.sinks = sinks;
       this.source = source;
       this.context = context;
