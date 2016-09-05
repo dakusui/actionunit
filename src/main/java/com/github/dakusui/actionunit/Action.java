@@ -88,7 +88,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(With.Tag action);
+    void visit(Tag action);
 
     /**
      * Visits an {@code action}.
@@ -156,7 +156,7 @@ public interface Action {
       }
 
       @Override
-      public void visit(With.Tag action) {
+      public void visit(Tag action) {
         this.visit((Action) action);
       }
 
@@ -180,5 +180,22 @@ public interface Action {
         this.visit((Action) action);
       }
     }
+  }
+
+  /**
+   * This interface is used to let path calculation know an action is synthesized
+   * by another and the creator action should be taken into account in the calculation,
+   * instead of itself.
+   */
+  interface Synthesized {
+    Action getParent();
+  }
+
+  /**
+   * This interface is used to suppress path calculation, which is
+   * performed by {@link com.github.dakusui.actionunit.visitors.ActionRunner.WithResult}
+   * and its printer.
+   */
+  interface IgnoredInPathCalculation {
   }
 }

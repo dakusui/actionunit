@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.actions;
+package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.Retry;
 import org.junit.Test;

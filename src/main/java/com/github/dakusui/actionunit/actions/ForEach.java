@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 
-import java.util.Arrays;
+import java.util.Iterator;
 
 import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -61,7 +61,7 @@ public class ForEach<T> extends ActionBase {
   }
 
   public Composite getElements() {
-    Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
+    final Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
       @Override
       public Action apply(final Source<T> t) {
         //noinspection unchecked
@@ -69,24 +69,49 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new With.Base<T>(t, ForEach.this.action, ForEach.this.sinks) {
-          @Override
-          public int hashCode() {
-            return ForEach.this.action.hashCode();
-          }
-
-          @Override
-          public boolean equals(Object anotherObject) {
-            if (!(anotherObject instanceof With.Base)) {
-              return false;
-            }
-            With.Base another = (With.Base) anotherObject;
-            return ForEach.this.action.equals(another.action) && Arrays.equals(ForEach.this.sinks, another.sinks);
-          }
-        };
+        return new HiddenWithAction<>(t, ForEach.this.action, ForEach.this.sinks);
       }
     };
-    return this.factory.create(transform(dataSource, func));
+    return new HiddenSequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
+  }
+
+  /**
+   * A sequential action created by and run as a part of {@code ForEach} action.
+   *
+   * @see com.github.dakusui.actionunit.Action.IgnoredInPathCalculation
+   */
+  private static class HiddenSequential implements Sequential, IgnoredInPathCalculation {
+    final Sequential sequential;
+
+    HiddenSequential(Sequential sequential) {
+      this.sequential = sequential;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public int size() {
+      return sequential.size();
+    }
+
+    @Override
+    public Iterator<Action> iterator() {
+      return sequential.iterator();
+    }
+  }
+
+  /**
+   * A sequential action created by and run as a part of {@code ForEach} action.
+   *
+   * @param <U> Type of the value with which child {@code Action} is executed.
+   */
+  private class HiddenWithAction<U> extends With.Base<U> implements Action.IgnoredInPathCalculation {
+    public HiddenWithAction(Source<U> source, Action action, Sink<U>[] sinks) {
+      super(source, action, sinks);
+    }
   }
 
   public Action getAction() {

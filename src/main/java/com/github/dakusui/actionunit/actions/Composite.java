@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.google.common.collect.Iterables;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -18,6 +19,11 @@ import static java.lang.String.format;
  * @see Concurrent
  */
 public interface Composite extends Action, Iterable<Action> {
+  /**
+   * Returns number of actions that this object has if they are given as a {@link Collection}.
+   * Otherwise, for instance actions are given as {@link Iterable}, {@code -1}
+   * will be returned.
+   */
   int size();
 
   /**
@@ -46,6 +52,20 @@ public interface Composite extends Action, Iterable<Action> {
         return ((Collection) this.actions).size();
       }
       return -1;
+    }
+
+    @Override
+    public int hashCode() {
+      return actions.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+      if (!(object instanceof Composite)) {
+        return false;
+      }
+      Composite another = (Composite) object;
+      return getClass().equals(another.getClass()) && Iterables.elementsEqual(actions, another);
     }
 
     @Override
