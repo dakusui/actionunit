@@ -258,5 +258,38 @@ public class ActionRunnerWithResultTest {
       ));
       assertThat(getWriter(), hasSize(6));
     }
+
+    @Test
+    public void givenFailingAttemptAction$whenPerformed$thenWorksFine() {
+      Action action = attempt(
+          simple(new Runnable() {
+            @Override
+            public void run() {
+              throw new NullPointerException(this.toString());
+            }
+
+            @Override
+            public String toString() {
+              return "Howdy, NPE";
+            }
+          })
+      ).recover(
+          NullPointerException.class,
+          nop()
+      ).ensure(
+          nop()
+      ).build();
+      action.accept(this.getRunner());
+      action.accept(this.getPrinter());
+      assertThat(getWriter(), allOf(
+          hasItemAt(0, equalTo("(+)Attempt")),
+          hasItemAt(1, equalTo("  (E)Howdy, NPE(error=Howdy, NPE)")),
+          hasItemAt(2, equalTo("  (+)Recover")),
+          hasItemAt(3, equalTo("    (+)(nop)")),
+          hasItemAt(4, equalTo("  (+)Ensure")),
+          hasItemAt(5, equalTo("    (+)(nop)"))
+      ));
+      assertThat(getWriter(), hasSize(6));
+    }
   }
 }
