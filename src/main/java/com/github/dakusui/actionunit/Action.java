@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.exceptions.Abort;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.
@@ -88,6 +87,13 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
+    void visit(While action);
+
+    /**
+     * Visits an {@code action}.
+     *
+     * @param action action to be visited by this object.
+     */
     void visit(Tag action);
 
     /**
@@ -99,8 +105,6 @@ public interface Action {
 
     /**
      * Visits an {@code action}.
-     * An implementation of this method should not attempt retry if {@link Abort} exception
-     * is thrown.
      *
      * @param action action to be visited by this object.
      */
@@ -119,6 +123,8 @@ public interface Action {
      * @param action action to be visited by this object.
      */
     void visit(Attempt action);
+
+    void visit(When when);
 
     abstract class Base implements Visitor {
 
@@ -156,12 +162,22 @@ public interface Action {
       }
 
       @Override
+      public void visit(While action) {
+        this.visit((Action) action);
+      }
+
+      @Override
       public void visit(Tag action) {
         this.visit((Action) action);
       }
 
       @Override
       public void visit(With action) {
+        this.visit((Action) action);
+      }
+
+      @Override
+      public void visit(When action) {
         this.visit((Action) action);
       }
 
@@ -189,13 +205,5 @@ public interface Action {
    */
   interface Synthesized {
     Action getParent();
-  }
-
-  /**
-   * This interface is used to suppress path calculation, which is
-   * performed by {@link com.github.dakusui.actionunit.visitors.ActionRunner.WithResult}
-   * and its printer.
-   */
-  interface IgnoredInPathCalculation {
   }
 }

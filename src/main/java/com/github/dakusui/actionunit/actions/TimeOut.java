@@ -8,10 +8,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
 public class TimeOut extends ActionBase {
-  /**
-   * A constant which means an instance of this class should wait forever.
-   */
-  public static final int FOREVER = -1;
   public final Action action;
   public final long   durationInNanos;
 
@@ -22,9 +18,8 @@ public class TimeOut extends ActionBase {
    * @param timeoutInNanos Duration to time out in nano seconds.
    */
   public TimeOut(Action action, long timeoutInNanos) {
-    Preconditions.checkArgument(timeoutInNanos > 0 || timeoutInNanos == FOREVER,
-        "Timeout duration must be positive or %d (FOREVER) but %d was given",
-        FOREVER,
+    Preconditions.checkArgument(timeoutInNanos > 0,
+        "Timeout duration must be positive  but %d was given",
         timeoutInNanos
     );
     this.durationInNanos = timeoutInNanos;

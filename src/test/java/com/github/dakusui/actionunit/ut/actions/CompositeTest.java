@@ -7,8 +7,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Iterator;
 
-import static com.github.dakusui.actionunit.Actions.nop;
-import static com.github.dakusui.actionunit.Actions.sequential;
+import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,6 +33,32 @@ public class CompositeTest {
     // given
     Action action = sequential(Collections.<Action>emptyList());
     Action another = nop();
+    // when
+    boolean result = action.equals(another);
+    // then
+    assertFalse(result);
+  }
+
+
+  @Test
+  public void givenSequentialActionAndAnotherDifferentSequentialAction$whenEquals$thenFalse() {
+    // given
+    Action action = sequential(Collections.<Action>emptyList());
+    Action another = sequential(nop());
+
+    // when
+    boolean result = action.equals(another);
+    // then
+    assertFalse(result);
+  }
+
+
+  @Test
+  public void givenSequentialActionAndConcurrentAction$whenEquals$thenFalse() {
+    // given
+    Action action = sequential(Collections.<Action>emptyList());
+    Action another = concurrent(nop());
+
     // when
     boolean result = action.equals(another);
     // then

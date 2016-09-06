@@ -154,7 +154,10 @@ public class ActionUnit extends Parameterized {
 
   private List<Entry> createActions(final FrameworkMethod testMethod, final int offset) {
     try {
-      Object result = checkNotNull(testMethod.invokeExplosively(this.getTestClass().getJavaClass().newInstance()));
+      Object result = checkNotNull(
+          testMethod.invokeExplosively(this.getTestClass().getJavaClass().newInstance()),
+          format("%s() returned null", testMethod.getName())
+      );
       if (result instanceof Action) {
         return singletonList(new Entry(
             offset,
@@ -162,33 +165,35 @@ public class ActionUnit extends Parameterized {
             testMethod.getAnnotation(PerformWith.class).value())
         );
       }
-      if (isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, result.getClass())) {
-        final List<Action> actions;
-        if (result.getClass().isArray()) {
-          actions = asList((Action[]) result);
-        } else {
-          //noinspection unchecked
-          actions = Lists.newLinkedList((Iterable<? extends Action>) result);
-        }
-        return Lists.transform(
-            actions,
-            new Function<Action, Entry>() {
-              @Override
-              public Entry apply(Action input) {
-                int index = actions.indexOf(input);
-                return new Entry(
-                    offset + index,
-                    named(format("%s[%s]", testMethod.getName(), index), input),
-                    testMethod.getAnnotation(PerformWith.class).value()
-                );
-              }
-            });
+      ////
+      // Now we can assume result is an array or an iterable of actions since
+      // validation is already done.
+      final List<Action> actions;
+      if (result.getClass().isArray()) {
+        actions = asList((Action[]) result);
+      } else {
+        //noinspection unchecked
+        actions = Lists.newLinkedList((Iterable<? extends Action>) result);
       }
-      throw new RuntimeException(format("Unsupported type (%s)", result.getClass().getCanonicalName()));
+      return Lists.transform(
+          actions,
+          new Function<Action, Entry>() {
+            @Override
+            public Entry apply(Action input) {
+              int index = actions.indexOf(input);
+              return new Entry(
+                  offset + index,
+                  named(format("%s[%s]", testMethod.getName(), index), input),
+                  testMethod.getAnnotation(PerformWith.class).value()
+              );
+            }
+          });
     } catch (IllegalAccessException | InstantiationException e) {
       throw ActionException.wrap(e);
+    } catch (RuntimeException | Error e) {
+      throw e;
     } catch (Throwable throwable) {
-      throw new ActionException(throwable);
+      throw ActionException.wrap(throwable);
     }
   }
 

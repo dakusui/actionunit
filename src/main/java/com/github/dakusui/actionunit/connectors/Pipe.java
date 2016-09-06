@@ -3,8 +3,7 @@ package com.github.dakusui.actionunit.connectors;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
 
-import java.util.LinkedList;
-import java.util.List;
+import static com.github.dakusui.actionunit.connectors.Connectors.composeContextValues;
 
 /**
  * Executes an operation based on an input value and gives an output value.
@@ -28,15 +27,7 @@ public interface Pipe<I, O> {
 
     @Override
     public O apply(I input, Context context) {
-      List<Object> args = new LinkedList<>();
-      Context parent = context.getParent();
-      if (parent != null) {
-        while (parent.getParent() != null) {
-          args.add(parent.value());
-          parent = parent.getParent();
-        }
-      }
-      return this.apply(input, args.toArray());
+      return this.apply(input, composeContextValues(context));
     }
 
     /**

@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import static com.github.dakusui.actionunit.Actions.forEach;
+import static com.github.dakusui.actionunit.Actions.foreach;
 import static com.github.dakusui.actionunit.Actions.simple;
 import static java.util.Arrays.asList;
 
@@ -25,7 +25,7 @@ import static java.util.Arrays.asList;
 public class NameOfAction {
   @PerformWith(Test.class)
   public Action aMethodToTestSomething() {
-    return forEach(
+    return foreach(
         asList(1, 2, 3),
         new Sink.Base<Integer>() {
           @Override
@@ -45,7 +45,7 @@ public class NameOfAction {
             System.out.println("hello");
           }
         }),
-        forEach(
+        foreach(
             asList(1, 2, 3),
             new Sink.Base<Integer>() {
               @Override
@@ -67,7 +67,7 @@ public class NameOfAction {
    * An action to passed to a test method is an instance of {@link Named}.
    * And you can access the name of the test method from which the action is created
    * through {@code getName()} method.
-   *
+   * <p>
    * If an action is an element of a list/an array returned by a providing method,
    * an index in the container will be returned in brackets.
    * E.g., {@code aMethodToTestSomethingElse[0]}

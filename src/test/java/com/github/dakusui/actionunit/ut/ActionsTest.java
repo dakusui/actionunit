@@ -6,10 +6,12 @@ import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.exceptions.Abort;
+import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
+import com.google.common.base.Predicates;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 
@@ -20,11 +22,10 @@ import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Utils.transform;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
-import static com.google.common.collect.Iterables.toArray;
+import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -221,7 +222,7 @@ public class ActionsTest {
             public void run() {
               arr.add("Hello");
               try {
-                TimeUnit.SECONDS.sleep(10);
+                TimeUnit.SECONDS.sleep(30);
               } catch (InterruptedException e) {
                 throw wrap(e);
               }
@@ -314,38 +315,40 @@ public class ActionsTest {
   }
 
   @Test(expected = Abort.class)
-  public void givenRetryAction$whenGiveUpException$thenAborted() {
-    final List<String> arr = new ArrayList<>();
+  public void givenRetryAction$whenAbortException$thenAborted() {
+    final TestUtils.Out out = new TestUtils.Out();
     try {
       retry(simple(new Runnable() {
             @Override
             public void run() {
+              out.writeLine("run");
               throw Abort.abort();
             }
           }),
-          1, 1, MILLISECONDS
+          2, 1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } finally {
-      assertEquals(Collections.emptyList(), arr);
+      assertThat(out, hasSize(1));
     }
   }
 
   @Test(expected = IOException.class)
-  public void givenRetryAction$whenGiveUpException2$thenAborted() throws Throwable {
-    final List<String> arr = new ArrayList<>();
+  public void givenRetryAction$whenAbortException2$thenAbortedAndRootExceptionStoredProperly() throws Throwable {
+    final TestUtils.Out out = new TestUtils.Out();
     try {
       retry(simple(new Runnable() {
             @Override
             public void run() {
+              out.writeLine("Hello");
               throw Abort.abort(new IOException());
             }
           }),
-          1, 1, MILLISECONDS
+          2, 1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (Abort e) {
       throw e.getCause();
     } finally {
-      assertEquals(Collections.emptyList(), arr);
+      assertThat(out, hasSize(1));
     }
   }
 
@@ -372,10 +375,16 @@ public class ActionsTest {
     assertEquals("Retry(2[seconds]x1times)", describe(retry(nop(), 1, 2, SECONDS)));
   }
 
-  @Test(timeout = 300000)
+  @Test(timeout = 3000000)
+  public void givenNothingForChildAction$whenWhilActionPerformedWithAlwaysFalseCondition$thenQuitImmediately() {
+    Action action = repeatwhile(Predicates.alwaysFalse());
+    action.accept(new ActionRunner.Impl());
+  }
+
+  @Test(timeout = 3000000)
   public void forEachTest() {
     final List<String> arr = new ArrayList<>();
-    forEach(
+    foreach(
         asList("1", "2"),
         new Sink.Base<String>("print") {
           @Override
@@ -391,7 +400,7 @@ public class ActionsTest {
   public void givenForEachAction$whenDescribe$thenLooksNice() {
     assertEquals(
         "ForEach (Concurrent, 2 items) {(noname)}",
-        describe(forEach(
+        describe(foreach(
             asList("hello", "world"),
             CONCURRENTLY,
             new Sink.Base<String>() {
@@ -404,10 +413,154 @@ public class ActionsTest {
   }
 
   @Test
+  public void givenForEachActionWithAutoCloseableDataSource$whenPerformed$thenClosedLooksNice() {
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", "hello", "world"),
+        SEQUENTIALLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.WithResult());
+
+    assertThat(
+        out,
+        allOf(
+            hasItemAt(0, equalTo("hello")),
+            hasItemAt(1, equalTo("world")),
+            hasItemAt(2, equalTo("closed"))
+        ));
+  }
+
+  @Test
+  public void givenForEachActionWithAutoCloseableDataSource$whenPerformedConcurrently$thenClosedLooksNice() {
+    String[] data = { "hello1", "hello2", "hello3", "hello4", "hello5" };
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", data),
+        CONCURRENTLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.Impl(data.length - 1));
+
+    assertThat(
+        out,
+        allOf(
+            hasItem(equalTo("hello5")),
+            hasItem(equalTo("hello2")),
+            hasItem(equalTo("hello3")),
+            hasItem(equalTo("hello4")),
+            hasItem(equalTo("hello5")),
+            hasItemAt(5, equalTo("closed"))
+        ));
+    assertEquals(6, out.size());
+  }
+
+  @Test
+  public void givenForEachActionWithEmptyAutoCloseableDataSource$whenPerformedConcurrently$thenClosedLooksNice() {
+    String[] data = {};
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", data),
+        CONCURRENTLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.Impl());
+
+    assertThat(out, hasItemAt(0, equalTo("closed")));
+    assertEquals(1, out.size());
+  }
+
+  @Test
+  public void givenConcurrentForEachActionWithAutoCloseableDataSource$whenPerformed$thenClosedLooksNice() {
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", "hello", "world"),
+        CONCURRENTLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.Impl());
+
+    assertThat(
+        out,
+        allOf(
+            anyOf(
+                hasItemAt(0, equalTo("hello")),
+                hasItemAt(0, equalTo("world"))
+            ),
+            anyOf(
+                hasItemAt(1, equalTo("hello")),
+                hasItemAt(1, equalTo("world"))
+            ),
+            hasItemAt(2, equalTo("closed"))));
+  }
+
+  @SafeVarargs
+  private static <T> List<T> autocloseableList(final TestUtils.Out out, final String msg, final T... values) {
+    return new AbstractList<T>() {
+      public Iterator<T> iterator() {
+        class I implements Iterator<T>, AutoCloseable {
+          final Iterator<T> inner = asList(values).iterator();
+
+          @Override
+          public void close() throws Exception {
+            out.writeLine(msg);
+          }
+
+          @Override
+          public boolean hasNext() {
+            return inner.hasNext();
+          }
+
+          @Override
+          public T next() {
+            return inner.next();
+          }
+
+          @Override
+          public void remove() {
+            throw new UnsupportedOperationException();
+          }
+        }
+        return new I();
+      }
+
+      @Override
+      public T get(int index) {
+        return values[index];
+      }
+
+      @Override
+      public int size() {
+        return values.length;
+      }
+    };
+  }
+
+  @Test
   public void givenForEachActionViaNonCollection$whenDescribe$thenLooksNice() {
     assertEquals(
         "ForEach (Sequential, ? items) {empty!}",
-        describe(forEach(
+        describe(foreach(
             new Iterable<String>() {
               @Override
               public Iterator<String> iterator() {
@@ -427,7 +580,7 @@ public class ActionsTest {
   @Test
   public void givenForEachCreatedWithoutExplicitMode$whenPerform$thenWorksFine() {
     final List<String> arr = new ArrayList<>();
-    forEach(
+    foreach(
         asList("1", "2"),
         sequential(
             simple(new Runnable() {
@@ -500,15 +653,15 @@ public class ActionsTest {
   }
 
 
-  @Test(timeout = 300000)
-  public void givenWaitForAction$whenPerform$thenExpectedAmountOfTimeSpent() {
+  @Test(timeout = 3000000)
+  public void givenSleepAction$whenPerform$thenExpectedAmountOfTimeSpent() {
     ////
     // To force JVM load classes used by this test, run the action once for warm-up.
-    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
+    sleep(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
     ////
     // Let's do the test.
     long before = currentTimeMillis();
-    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
+    sleep(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
     //noinspection unchecked
     assertThat(
         currentTimeMillis() - before,
@@ -516,12 +669,22 @@ public class ActionsTest {
             greaterThanOrEqualTo(1L),
             ////
             // Depending on unpredictable conditions, such as JVM's internal state,
-            // GC, class loading, etc.,  "waitFor" action may take a longer time
+            // GC, class loading, etc.,  "sleep" action may take a longer time
             // than 1 msec to perform. In this case I'm giving 3 msec including
             // grace period.
             lessThan(3L)
         )
     );
+  }
+
+  @Test
+  public void givenSleep$whenToString$thenLooksGood() {
+    assertEquals("sleep for 1[seconds]", sleep(1234, TimeUnit.MILLISECONDS).toString());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void givenNegative$whenSleep$thenException() {
+    sleep(-1, TimeUnit.MILLISECONDS);
   }
 
   @Test
@@ -595,30 +758,38 @@ public class ActionsTest {
 
   @Test
   public void givenSimplePipeAction$whenPerformed$thenWorksFine() {
-    final List<TestOutput.Text> out = new LinkedList<>();
-    forEach(asList("world", "WORLD"),
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(asList("world", "WORLD", "test", "hello"),
         pipe(
             new Function<String, TestOutput.Text>() {
               @Override
               public TestOutput.Text apply(String s) {
+                System.out.println("func:" + s);
                 return new TestOutput.Text("hello:" + s);
               }
             },
             new Sink<TestOutput.Text>() {
               @Override
               public void apply(TestOutput.Text input, Context context) {
-                out.add(input);
+                System.out.println("sink:" + input);
+                out.writeLine(input.toString());
               }
             }
-        )).accept(new ActionRunner.Impl());
-    assertArrayEquals(
-        asList("hello:world", "hello:WORLD").toArray(new String[2]),
-        toArray(transform(out, new Function<TestOutput.Text, String>() {
-          @Override
-          public String apply(TestOutput.Text input) {
-            return input.value();
-          }
-        }), String.class)
+        ));
+    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    try {
+      action.accept(runner);
+    } finally {
+      action.accept(runner.createPrinter());
+    }
+    assertThat(
+        out,
+        allOf(
+            hasItemAt(0, equalTo("hello:world")),
+            hasItemAt(1, equalTo("hello:WORLD")),
+            hasItemAt(2, equalTo("hello:test")),
+            hasItemAt(3, equalTo("hello:hello"))
+        )
     );
   }
 

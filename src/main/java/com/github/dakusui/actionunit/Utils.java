@@ -3,8 +3,6 @@ package com.github.dakusui.actionunit;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -36,10 +34,10 @@ public enum Utils {
     try {
       return future.get(timeout, timeUnit);
     } catch (InterruptedException e) {
-      throw new ActionException(e);
+      throw ActionException.wrap(e);
     } catch (TimeoutException e) {
       future.cancel(true);
-      throw new ActionException(e);
+      throw ActionException.wrap(e);
     } catch (ExecutionException e) {
       //unwrap the root cause
       Throwable cause = e.getCause();
@@ -50,6 +48,8 @@ public enum Utils {
       // It's safe to directly cast to RuntimeException, because a Callable can only
       // throw an Error or a RuntimeException.
       throw (RuntimeException) cause;
+    } finally {
+      executor.shutdownNow();
     }
   }
 
@@ -94,7 +94,7 @@ public enum Utils {
     return -1;
   }
 
-  static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
+  public static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
     return expected.isAssignableFrom(actual)
         || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
         || Iterable.class.isAssignableFrom(actual);
@@ -110,7 +110,7 @@ public enum Utils {
    *
    * @param testClass original test class object.
    */
-  static TestClass createTestClassMock(final TestClass testClass) {
+  public static TestClass createTestClassMock(final TestClass testClass) {
     return new TestClass(testClass.getJavaClass()) {
       @Override
       public List<FrameworkMethod> getAnnotatedMethods(final Class<? extends Annotation> annClass) {
@@ -151,24 +151,18 @@ public enum Utils {
       }
 
       private Method getDummyMethod() {
-        try {
-          ////
-          // Just chose "toString" because we know java.lang.Object has the method.
-          return Object.class.getMethod("toString");
-        } catch (NoSuchMethodException e) {
-          throw wrap(e);
-        }
+        return getToStringMethod(Object.class);
       }
     };
   }
 
-  public static <I, O> Iterable<O> transform(Iterable<I> in, Function<? super I, ? extends O> func) {
+  public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> func) {
     checkNotNull(func);
     if (in instanceof Collection) {
-      //noinspection unchecked
-      return (Iterable<O>) Collections2.transform((Collection<I>) in, func);
+      //noinspection unchecked,RedundantCast
+      return (Collection<O>) Autocloseables.transformCollection((Collection<I>) in, (Function<? super I, O>) func);
     }
-    return Iterables.transform(in, func);
+    return Autocloseables.transformIterable(in, func);
   }
 
   /**
@@ -245,12 +239,8 @@ public enum Utils {
     if (obj == null) {
       return "null";
     }
-    try {
-      if (obj.getClass().getMethod("toString").equals(Object.class.getMethod("toString"))) {
-        return describeClassOf(obj);
-      }
-    } catch (NoSuchMethodException e) {
-      throw wrap(e);
+    if (getToStringMethod(obj.getClass()).equals(getToStringMethod(Object.class))) {
+      return describeClassOf(obj);
     }
     return obj.toString();
   }
@@ -258,4 +248,35 @@ public enum Utils {
   public static String describeClassOf(Object obj) {
     return shortClassNameOf(checkNotNull(obj).getClass());
   }
+
+  public static void sleep(long duration, TimeUnit timeUnit) {
+    try {
+      checkNotNull(timeUnit).sleep(duration);
+    } catch (InterruptedException e) {
+      throw ActionException.wrap(e);
+    }
+  }
+
+  /**
+   * Returns a method without parameters which has a given {@code methodName} from
+   * a Class {@code klass}.
+   *
+   * @param klass A class from which method is searched.
+   * @param methodName A name of method to be returned.
+   */
+  public static Method getMethod(Class<?> klass, String methodName) {
+    try {
+      ////
+      // Just chose "toString" because we know java.lang.Object has the method.
+      return checkNotNull(klass).getMethod(checkNotNull(methodName));
+    } catch (NoSuchMethodException e) {
+      throw wrap(e);
+    }
+  }
+
+  private static Method getToStringMethod(Class<?> klass) {
+    return getMethod(klass, "toString");
+  }
+
+
 }

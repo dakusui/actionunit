@@ -99,11 +99,42 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
     }
   }
 
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(When action) {
+    writeLine(describeAction(action));
+    enter(action);
+    try {
+      action.getAction().accept(this);
+    } finally {
+      leave(action);
+    }
+  }
+
+
   /**
    * {@inheritDoc}
    */
   @Override
   public void visit(ForEach action) {
+    writeLine(describeAction(action));
+    enter(action);
+    try {
+      action.getAction().accept(this);
+    } finally {
+      leave(action);
+    }
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(While action) {
     writeLine(describeAction(action));
     enter(action);
     try {

@@ -3,7 +3,7 @@
     <groupId>com.github.dakusui</groupId>
     <artifactId>actionunit</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.0.4-SNAPSHOT</version>
     <description>Action based junit test runner library</description>
 
     <name>actionunit</name>
@@ -64,6 +64,11 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -75,6 +80,11 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+		    <compilerArgs>
+		      <!--
+		      <arg>-Xlint:all,-options,-path</arg>
+		      -->
+		    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

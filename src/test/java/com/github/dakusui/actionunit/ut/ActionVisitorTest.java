@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.utils.TestUtils;
+import com.google.common.base.Predicates;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -104,7 +105,7 @@ public class ActionVisitorTest {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEach(singletonList("hello"));
+    Action action = foreach(singletonList("hello"));
     // when accept
     action.accept(visitor);
     // then visited
@@ -154,7 +155,7 @@ public class ActionVisitorTest {
 
   @Test
   public void givenTimeOutAction$whenAccept$thenVisited() {
-    // given simple action
+    // given timeout action
     Action action = timeout(createSimpleAction(), 1, TimeUnit.NANOSECONDS);
     // when accept
     action.accept(visitor);
@@ -171,7 +172,7 @@ public class ActionVisitorTest {
 
   @Test
   public void givenAttemptAction$whenAccept$thenVisited() {
-    // given simple action
+    // given attempt action
     Action action = attempt(createSimpleAction()).build();
     // when accept
     action.accept(visitor);
@@ -179,6 +180,45 @@ public class ActionVisitorTest {
     assertThat(
         out,
         hasItemAt(0, startsWith("Attempt"))
+    );
+    assertThat(
+        out,
+        hasSize(1)
+    );
+  }
+
+  @Test
+  public void givenWhileAction$whenAccept$thenVisited() {
+    // given while action
+    Action action = repeatwhile(
+        Predicates.alwaysTrue(),
+        createSimpleAction(),
+        createSimpleAction());
+    // when accept
+    action.accept(visitor);
+    // then visited
+    assertThat(
+        out,
+        hasItemAt(0, startsWith("While"))
+    );
+    assertThat(
+        out,
+        hasSize(1)
+    );
+  }
+
+  @Test
+  public void givenWhenAction$whenAccept$thenVisited() {
+    // given while action
+    Action action = when(Predicates.alwaysTrue(),
+        createSimpleAction(),
+        createSimpleAction());
+    // when accept
+    action.accept(visitor);
+    // then visited
+    assertThat(
+        out,
+        hasItemAt(0, startsWith("When"))
     );
     assertThat(
         out,
