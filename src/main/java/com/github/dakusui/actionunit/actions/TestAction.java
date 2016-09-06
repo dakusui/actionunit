@@ -55,6 +55,7 @@ public interface TestAction<I, O> extends Piped<I, O> {
     }
 
     public Builder<I, O> then(Matcher then) {
+      //noinspection unchecked
       return this.then(toSink(checkNotNull(then)));
     }
 

@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.actions.Piped;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
@@ -21,6 +22,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class ActionRunnerWithResultTest {
@@ -346,13 +348,22 @@ public class ActionRunnerWithResultTest {
                 public Integer apply(String input) {
                   return input.length();
                 }
+
+                @Override
+                public String toString() {
+                  return "length";
+                }
               })
           .then(equalTo(5)).build();
       action.accept(this.getRunner());
       action.accept(this.getPrinter());
       assertThat(
           this.getWriter().get(0),
-          equalTo("(+)HelloTestCase Given:(World) When:(Function(ActionRunnerWithResultTest$TestTest$1)) Then:{Matcher(<5>)}"));
+          equalTo("(+)HelloTestCase Given:(World) When:(Function(length)) Then:{Matcher(<5>)}"));
+      //noinspection unchecked
+      Piped<String, Integer> piped = (Piped<String, Integer>) action;
+      assertEquals(1, piped.getDestinationSinks().length);
+      assertEquals("Function(length)", piped.getPipe().toString());
     }
 
 
@@ -366,18 +377,27 @@ public class ActionRunnerWithResultTest {
                 public Integer apply(String input) {
                   return input.length() + 1;
                 }
+
+                public String toString() {
+                  return "length";
+                }
               })
           .then(equalTo(5)).build();
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
+      try {
+        action.accept(this.getRunner());
+      } finally {
+        action.accept(this.getPrinter());
 
-      ////
-      // Expectation is to get 0 and therefore AssertionError will be thrown.
-      // If we use assertXyz method here and if the output to the printer does
-      // not match, the AssertionError will be thrown, which confuses JUnit and users.
-      // Thus, here we are going to throw IllegalStateException.
-      if (!"(+)HelloTestCase Given:(World) When:(Function(ActionRunnerWithResultTest$TestTest$1)) Then:{Matcher(<5>)}".equals(getWriter().get(0))) {
-        throw new IllegalStateException();
+        ////
+        //Then:
+        //  Expectation is to get 0 and therefore AssertionError will be thrown.
+        //  If we use assertXyz method here and if the output to the printer does
+        //  not match, the AssertionError will be thrown, which confuses JUnit and users.
+        //  Thus, here we are going to throw IllegalStateException.
+        //noinspection unchecked
+        if (!getWriter().get(0).startsWith("(F)HelloTestCase Given:(World) When:(Function(length)) Then:{Matcher(<5>)}(error=")) {
+          throw new IllegalStateException();
+        }
       }
     }
   }

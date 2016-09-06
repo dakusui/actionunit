@@ -233,7 +233,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       @Override
       public <T> T value() {
         //noinspection unchecked
-        return (T) action.source().apply(ActionRunner.this);
+        return (T) action.getSource().apply(ActionRunner.this);
       }
 
       @Override
@@ -254,7 +254,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   private static void acceptTagAction(Tag tagAction, With withAction, ActionRunner runner) {
-    tagAction.toLeaf(withAction.source(), withAction.getSinks(), runner).accept(runner);
+    tagAction.toLeaf(withAction.getSource(), withAction.getSinks(), runner).accept(runner);
   }
 
   private Iterable<Runnable> toRunnables(final Iterable<? extends Action> actions) {
@@ -544,7 +544,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         @Override
         public <T> T value() {
           //noinspection unchecked
-          return (T) action.source().apply(ActionRunner.WithResult.this);
+          return (T) action.getSource().apply(ActionRunner.WithResult.this);
         }
 
         @Override

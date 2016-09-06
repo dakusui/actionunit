@@ -13,35 +13,62 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
 
-public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
+/**
+ * <pre>
+ * +--------+       source  +---------+
+ * |  With  |<>----+------->|Source<I>|
+ * +--------+      |        +---------+
+ *      |          |
+ *      |          |sinks   +---------+
+ *      |          +------->|Sink<I>[]|
+ *      A                   +---------+
+ *      |
+ * +----------+     pipe    +---------+
+ * |Piped<I,O>|<>--+------->|Pipe<I,O>|
+ * +----------+    |        +---------+
+ *                 |
+ *                 |destinationSinks
+ *                 |        +---------+
+ *                 +------->|Sink<O>[]|
+ *                          +---------+
+ * </pre>
+ *
+ * @param <I> Input type
+ * @param <O> Output type
+ */
+public interface Piped<I, O> extends With<I> {
+  public Pipe<I, O> getPipe();
+
+  public Sink<O>[] getDestinationSinks();
+
   class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
     protected final Source<I>  source;
     protected final Pipe<I, O> pipe;
-    protected final Sink<O>[]  sinks;
+    protected final Sink<O>[]  destinationSinks;
     private final   String     sourceName;
     private final   String     pipeName;
-    private final   String     sinksName;
+    private final   String     destinationSinksName;
 
     @SafeVarargs
     public Impl(
         final Source<I> source,
         final Pipe<I, O> pipe,
-        final Sink<O>... sinks) {
-      this(source, "From", pipe, "Through", sinks, "To");
+        final Sink<O>... destinationSinks) {
+      this(source, "From", pipe, "Through", destinationSinks, "To");
     }
 
     protected Impl(
         final Source<I> source, String sourceName,
         final Pipe<I, O> pipe, String pipeName,
-        final Sink<O>[] sinks, String sinksName) {
-      this(source, sourceName, pipe, pipeName, Connectors.<O>mutable(), sinks, sinksName);
+        final Sink<O>[] destinationSinks, String destinationSinksName) {
+      this(source, sourceName, pipe, pipeName, Connectors.<O>mutable(), destinationSinks, destinationSinksName);
     }
 
     private Impl(
         final Source<I> source, String sourceName,
         final Pipe<I, O> pipe, String pipeName,
-        final Mutable<O> output,
-        final Sink<O>[] sinks, String sinksName) {
+        final Source.Mutable<O> output,
+        final Sink<O>[] destinationSinks, String destinationSinksName) {
       //noinspection unchecked
       super(
           source,
@@ -51,16 +78,16 @@ public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
                       new Tag(0),
                       new With.Base<>(
                           output,
-                          Named.Factory.create(sinksName,
+                          Named.Factory.create(destinationSinksName,
                               Sequential.Factory.INSTANCE.create(
-                                  transform(range(sinks.length),
+                                  transform(range(destinationSinks.length),
                                       new Function<Integer, Tag>() {
                                         @Override
                                         public Tag apply(Integer input) {
                                           return new Tag(input);
                                         }
                                       }))),
-                      /*(Sink<O>[])*/sinks
+                      /*(Sink<O>[])*/destinationSinks
                       )))),
           new Sink/*<I>*/[] {
               new Sink<I>() {
@@ -80,35 +107,17 @@ public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
       this.sourceName = sourceName;
       this.pipe = checkNotNull(pipe);
       this.pipeName = pipeName;
-      this.sinks = checkNotNull(sinks);
-      this.sinksName = sinksName;
-    }
-
-    @Override
-    public O apply(Context context) {
-      O ret = pipe.apply(source.apply(context), context);
-      try {
-        return ret;
-      } finally {
-        for (Sink<O> each : sinks) {
-          each.apply(ret, context);
-        }
-      }
-    }
-
-    @Override
-    public void apply(I input, Context context) {
-      for (Sink<O> each : sinks) {
-        each.apply(pipe.apply(input, context), context);
-      }
+      this.destinationSinks = checkNotNull(destinationSinks);
+      this.destinationSinksName = destinationSinksName;
     }
 
     @Override
     public String toString() {
+      //noinspection unchecked
       return format("%s %s:(%s) %s:(%s) %s:{%s}",
           formatClassName(),
           this.sourceName,
-          describe(this.source()),
+          describe(this.getSource()),
           this.pipeName,
           join(transform(
               asList(this.getSinks()),
@@ -119,9 +128,9 @@ public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
                 }
               }),
               ","),
-          this.sinksName,
+          this.destinationSinksName,
           join(transform(
-              asList(this.sinks),
+              asList((Sink<O>[]) getDestinationSinks()),
               new Function<Sink<O>, Object>() {
                 @Override
                 public Object apply(Sink<O> input) {
@@ -130,6 +139,15 @@ public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
               }),
               ",")
       );
+    }
+
+    @Override
+    public Pipe<I, O> getPipe() {
+      return this.pipe;
+    }
+
+    public Sink<O>[] getDestinationSinks() {
+      return this.destinationSinks;
     }
   }
 
