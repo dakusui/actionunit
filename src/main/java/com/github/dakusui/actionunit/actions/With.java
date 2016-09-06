@@ -18,7 +18,7 @@ import static org.apache.commons.lang3.StringUtils.join;
  */
 public interface With<T> extends Action {
 
-  Source<T> source();
+  Source<T> getSource();
 
   Sink<T>[] getSinks();
 
@@ -37,11 +37,13 @@ public interface With<T> extends Action {
 
 
     @Override
-    public Source<T> source() {
+    public Source<T> getSource() {
+      //noinspection unchecked
       return (Source<T>) this.source;
     }
 
     public Sink<T>[] getSinks() {
+      //noinspection unchecked
       return (Sink<T>[]) sinks;
     }
 
@@ -59,7 +61,7 @@ public interface With<T> extends Action {
     public String toString() {
       return format("%s (%s) {%s}",
           formatClassName(),
-          describe(this.source()),
+          describe(this.getSource()),
           join(transform(
               asList(this.getSinks()),
               new Function<Sink<T>, Object>() {
