@@ -60,7 +60,7 @@ public class Attempt<T extends Throwable> extends ActionBase {
   }
 
   /**
-   * A builder to construct an instance of {@link com.github.dakusui.actionunit.actions.Attempt} action.
+   * A builder to construct an instance of {@link Attempt} action.
    */
   public static class Builder {
     private final Action attempt;

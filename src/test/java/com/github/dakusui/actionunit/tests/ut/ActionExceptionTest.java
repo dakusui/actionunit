@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.tests.ut;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import org.junit.Test;

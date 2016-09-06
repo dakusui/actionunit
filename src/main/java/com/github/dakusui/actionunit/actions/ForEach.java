@@ -3,9 +3,8 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
-
-import java.util.Iterator;
 
 import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -69,49 +68,10 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new HiddenWithAction<>(t, ForEach.this.action, ForEach.this.sinks);
+        return new ActionRunner.Hidden.With<>(t, ForEach.this.action, ForEach.this.sinks);
       }
     };
-    return new HiddenSequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
-  }
-
-  /**
-   * A sequential action created by and run as a part of {@code ForEach} action.
-   *
-   * @see com.github.dakusui.actionunit.Action.IgnoredInPathCalculation
-   */
-  private static class HiddenSequential implements Sequential, IgnoredInPathCalculation {
-    final Sequential sequential;
-
-    HiddenSequential(Sequential sequential) {
-      this.sequential = sequential;
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
-
-    @Override
-    public int size() {
-      return sequential.size();
-    }
-
-    @Override
-    public Iterator<Action> iterator() {
-      return sequential.iterator();
-    }
-  }
-
-  /**
-   * A sequential action created by and run as a part of {@code ForEach} action.
-   *
-   * @param <U> Type of the value with which child {@code Action} is executed.
-   */
-  private class HiddenWithAction<U> extends With.Base<U> implements Action.IgnoredInPathCalculation {
-    public HiddenWithAction(Source<U> source, Action action, Sink<U>[] sinks) {
-      super(source, action, sinks);
-    }
+    return new ActionRunner.Hidden.Sequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
   }
 
   public Action getAction() {
@@ -122,7 +82,7 @@ public class ForEach<T> extends ActionBase {
     SEQUENTIALLY {
       @Override
       public Composite.Factory getFactory() {
-        return Sequential.Factory.INSTANCE;
+        return com.github.dakusui.actionunit.actions.Sequential.Factory.INSTANCE;
       }
     },
     CONCURRENTLY {

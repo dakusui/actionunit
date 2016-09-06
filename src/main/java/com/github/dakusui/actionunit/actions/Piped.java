@@ -19,7 +19,7 @@ import static org.apache.commons.lang3.StringUtils.join;
  * Created by hiroshi on 9/1/16.
  */
 public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
-  class Impl<I, O> extends With.Base<I> implements com.github.dakusui.actionunit.actions.Piped<I, O> {
+  class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
     protected final Source<I>  source;
     protected final Pipe<I, O> pipe;
     protected final Sink<O>[]  sinks;

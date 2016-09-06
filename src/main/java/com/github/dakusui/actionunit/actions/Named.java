@@ -71,7 +71,7 @@ public interface Named extends Action {
   }
 
   /**
-   * A factory that creates {@link com.github.dakusui.actionunit.actions.Named} action object.
+   * A factory that creates {@link Named} action object.
    */
   enum Factory {
     ;

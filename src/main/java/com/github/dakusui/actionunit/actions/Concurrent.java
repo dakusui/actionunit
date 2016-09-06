@@ -9,7 +9,7 @@ public interface Concurrent extends Composite {
   /**
    * A class that represents a collection of actions that should be executed concurrently.
    */
-  class Base extends Composite.Base implements com.github.dakusui.actionunit.actions.Concurrent {
+  class Base extends Composite.Base implements Concurrent {
     public Base(Iterable<? extends Action> actions) {
       super("Concurrent", actions);
     }
