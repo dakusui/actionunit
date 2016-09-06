@@ -64,9 +64,12 @@ public class ActionException extends RuntimeException {
     if (t instanceof RuntimeException) {
       throw (RuntimeException) t;
     }
-    ActionException applicationException = instantiate(figureOutExceptionClassToBeThrown(t), t);
-    if (applicationException != null) {
-      throw applicationException;
+    Class<? extends ActionException> exceptionClass = figureOutExceptionClassToBeThrown(t);
+    if (exceptionClass != null) {
+      ActionException applicationException = instantiate(exceptionClass, t);
+      if (applicationException != null) {
+        throw applicationException;
+      }
     }
     ////
     // For unknown type of checked exception. Once this line is executed, consider
@@ -86,7 +89,7 @@ public class ActionException extends RuntimeException {
     if (found.hasNext()) {
       return found.next().getValue();
     }
-    throw new RuntimeException(t);
+    return null;
   }
 
   private static <T extends ActionException> T instantiate(Class<T> exceptionClass, Throwable nested) {
