@@ -396,6 +396,7 @@ public class ActionRunnerWithResultTest {
         //  Thus, here we are going to throw IllegalStateException.
         //noinspection unchecked
         if (!getWriter().get(0).startsWith("(F)HelloTestCase Given:(World) When:(Function(length)) Then:{Matcher(<5>)}(error=")) {
+          //noinspection ThrowFromFinallyBlock
           throw new IllegalStateException();
         }
       }
