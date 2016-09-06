@@ -372,11 +372,13 @@ public class ActionRunnerWithResultTest {
       action.accept(this.getPrinter());
 
       ////
-      // Since expectation is to get 0 and therefore AssertionError and it awill be
-      // deleted by Ngauto.
-      assertThat(
-          this.getWriter().get(0),
-          equalTo("(+)HelloTestCase Given:(World) When:(Function(ActionRunnerWithResultTest$TestTest$1)) Then:{Matcher(<5>)}"));
+      // Expectation is to get 0 and therefore AssertionError will be thrown.
+      // If we use assertXyz method here and if the output to the printer does
+      // not match, the AssertionError will be thrown, which confuses JUnit and users.
+      // Thus, here we are going to throw IllegalStateException.
+      if (!"(+)HelloTestCase Given:(World) When:(Function(ActionRunnerWithResultTest$TestTest$1)) Then:{Matcher(<5>)}".equals(getWriter().get(0))) {
+        throw new IllegalStateException();
+      }
     }
   }
 }
