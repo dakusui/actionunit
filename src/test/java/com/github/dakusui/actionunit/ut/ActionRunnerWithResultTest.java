@@ -1,9 +1,14 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.google.common.base.Function;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -290,6 +295,88 @@ public class ActionRunnerWithResultTest {
           hasItemAt(5, equalTo("    (+)(nop)"))
       ));
       assertThat(getWriter(), hasSize(6));
+    }
+  }
+
+  public static class TagTest extends Base {
+    @Test(expected = UnsupportedOperationException.class)
+    public void givenTagAction$whenPerformed$thenWorksFine() {
+      Action action = tag(0);
+      action.accept(this.getRunner());
+      action.accept(this.getPrinter());
+    }
+  }
+
+  public static class PipedTest extends Base {
+    @Test
+    public void givenPiped$whenPerformed$thenWorksFine() {
+      Action action = pipe(
+          new Source<String>() {
+            @Override
+            public String apply(Context context) {
+              return "Hello";
+            }
+          },
+          new Pipe<String, Integer>() {
+            @Override
+            public Integer apply(String input, Context context) {
+              return input.length();
+            }
+          },
+          new Sink<Integer>() {
+            @Override
+            public void apply(Integer input, Context context) {
+              getWriter().writeLine("<<" + input.toString() + ">>");
+            }
+          }
+      );
+      action.accept(this.getRunner());
+      action.accept(this.getPrinter());
+    }
+  }
+
+  public static class TestTest extends Base {
+    @Test
+    public void givenTestAction$whenPerformed$thenWorksFine() {
+      Action action = Actions.<String, Integer>test("HelloTestCase")
+          .given("World")
+          .when(
+              new Function<String, Integer>() {
+                @Override
+                public Integer apply(String input) {
+                  return input.length();
+                }
+              })
+          .then(equalTo(5)).build();
+      action.accept(this.getRunner());
+      action.accept(this.getPrinter());
+      assertThat(
+          this.getWriter().get(0),
+          equalTo("(+)HelloTestCase Given:(World) When:(Function(ActionRunnerWithResultTest$TestTest$1)) Then:{Matcher(<5>)}"));
+    }
+
+
+    @Test(expected = AssertionError.class)
+    public void givenFailingAction$whenPerformed$thenWorksFine() {
+      Action action = Actions.<String, Integer>test("HelloTestCase")
+          .given("World")
+          .when(
+              new Function<String, Integer>() {
+                @Override
+                public Integer apply(String input) {
+                  return input.length() + 1;
+                }
+              })
+          .then(equalTo(5)).build();
+      action.accept(this.getRunner());
+      action.accept(this.getPrinter());
+
+      ////
+      // Since expectation is to get 0 and therefore AssertionError and it awill be
+      // deleted by Ngauto.
+      assertThat(
+          this.getWriter().get(0),
+          equalTo("(+)HelloTestCase Given:(World) When:(Function(ActionRunnerWithResultTest$TestTest$1)) Then:{Matcher(<5>)}"));
     }
   }
 }

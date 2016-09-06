@@ -7,17 +7,12 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 
-import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Utils.range;
-import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
 
-/**
- * Created by hiroshi on 9/1/16.
- */
 public interface Piped<I, O> extends With<I>, Sink<I>, Source<O> {
   class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
     protected final Source<I>  source;

@@ -25,11 +25,11 @@ public interface With<T> extends Action {
   Action getAction();
 
   class Base<T> extends ActionBase implements With<T> {
-    final Sink<T>[] sinks;
-    final Source<T> source;
+    final Source<? extends T> source;
+    final Sink<? super T>[] sinks;
     final Action    action;
 
-    public Base(Source<T> source, Action action, Sink<T>[] sinks) {
+    public Base(Source<? extends T> source, Action action, Sink<? super T>[] sinks) {
       this.source = checkNotNull(source);
       this.action = checkNotNull(action);
       this.sinks = checkNotNull(sinks);
@@ -38,11 +38,11 @@ public interface With<T> extends Action {
 
     @Override
     public Source<T> source() {
-      return this.source;
+      return (Source<T>) this.source;
     }
 
     public Sink<T>[] getSinks() {
-      return sinks;
+      return (Sink<T>[]) sinks;
     }
 
     @Override
