@@ -25,4 +25,14 @@ public class ActionExceptionTest {
   public void givenNullPointer$thenNullPointerThrown() {
     throw ActionException.wrap(new NullPointerException());
   }
+
+  @Test(expected = RuntimeException.class)
+  public void givenUnknownCheckedExceptioni$whenWrap$thenRuntimeException() {
+    throw ActionException.wrap(new UnknownCheckedExceptionForTest());
+  }
+
+  public static class UnknownCheckedExceptionForTest extends Exception {
+    UnknownCheckedExceptionForTest() {
+    }
+  }
 }
