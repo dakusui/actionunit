@@ -190,12 +190,4 @@ public interface Action {
   interface Synthesized {
     Action getParent();
   }
-
-  /**
-   * This interface is used to suppress path calculation, which is
-   * performed by {@link com.github.dakusui.actionunit.visitors.ActionRunner.WithResult}
-   * and its printer.
-   */
-  interface IgnoredInPathCalculation {
-  }
 }

@@ -202,7 +202,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         throw propagate(e);
       }
       //noinspection unchecked
-      new Hidden.With<>(Connectors.toSource(e), action.recover, action.sinks).accept(this);
+      new WithResult.IgnoredInPathCalculation.With<>(Connectors.toSource(e), action.recover, action.sinks).accept(this);
     } finally {
       action.ensure.accept(this);
     }
@@ -330,6 +330,52 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   public static class WithResult extends ActionRunner.Impl implements Action.Visitor {
+    /**
+     * This interface is used to suppress path calculation, which is
+     * performed by {@link WithResult}
+     * and its printer.
+     */
+    public interface IgnoredInPathCalculation {
+      /**
+       * A sequential action created by and run as a part of {@code ForEach} action.
+       *
+       * @see IgnoredInPathCalculation
+       */
+      class Sequential implements com.github.dakusui.actionunit.actions.Sequential, IgnoredInPathCalculation {
+        final com.github.dakusui.actionunit.actions.Sequential sequential;
+
+        public Sequential(com.github.dakusui.actionunit.actions.Sequential sequential) {
+          this.sequential = sequential;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+          visitor.visit(this);
+        }
+
+        @Override
+        public int size() {
+          return sequential.size();
+        }
+
+        @Override
+        public Iterator<Action> iterator() {
+          return sequential.iterator();
+        }
+      }
+
+      /**
+       * A "with" action created by and run as a part of {@code ForEach} action.
+       *
+       * @param <U> Type of the value with which child {@code Action} is executed.
+       */
+      class With<U> extends com.github.dakusui.actionunit.actions.With.Base<U> implements IgnoredInPathCalculation {
+        public With(Source<U> source, Action action, Sink<U>[] sinks) {
+          super(source, action, sinks);
+        }
+      }
+    }
+
     public static class Path extends LinkedList<Action> {
       public Path snapshot() {
         Path ret = new Path();
@@ -338,7 +384,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       public Path enter(Action action) {
-        if (action instanceof Action.IgnoredInPathCalculation) {
+        if (action instanceof IgnoredInPathCalculation) {
           return this;
         }
         action = getAction(action);
@@ -347,7 +393,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       public Path leave(Action action) {
-        if (action instanceof Action.IgnoredInPathCalculation) {
+        if (action instanceof IgnoredInPathCalculation) {
           return this;
         }
         checkState(getAction(action) == this.remove(this.size() - 1));
@@ -678,50 +724,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         public String toString() {
           return this.symbol;
         }
-      }
-    }
-
-  }
-
-  public enum Hidden {
-    ;
-
-    /**
-     * A sequential action created by and run as a part of {@code ForEach} action.
-     *
-     * @see Action.IgnoredInPathCalculation
-     */
-    public static class Sequential implements com.github.dakusui.actionunit.actions.Sequential, Action.IgnoredInPathCalculation {
-      final com.github.dakusui.actionunit.actions.Sequential sequential;
-
-      public Sequential(com.github.dakusui.actionunit.actions.Sequential sequential) {
-        this.sequential = sequential;
-      }
-
-      @Override
-      public void accept(Visitor visitor) {
-        visitor.visit(this);
-      }
-
-      @Override
-      public int size() {
-        return sequential.size();
-      }
-
-      @Override
-      public Iterator<Action> iterator() {
-        return sequential.iterator();
-      }
-    }
-
-    /**
-     * A "with" action created by and run as a part of {@code ForEach} action.
-     *
-     * @param <U> Type of the value with which child {@code Action} is executed.
-     */
-    public static class With<U> extends com.github.dakusui.actionunit.actions.With.Base<U> implements Action.IgnoredInPathCalculation {
-      public With(Source<U> source, Action action, Sink<U>[] sinks) {
-        super(source, action, sinks);
       }
     }
   }
