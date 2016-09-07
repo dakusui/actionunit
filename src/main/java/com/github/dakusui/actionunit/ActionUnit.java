@@ -184,7 +184,7 @@ public class ActionUnit extends Parameterized {
               }
             });
       }
-      throw new RuntimeException(format("Unsupported type (%s)", result.getClass().getCanonicalName()));
+      throw new RuntimeException(format("Unsupported type (%s). Return type should be of an Action or Actions.", result.getClass().getCanonicalName()));
     } catch (IllegalAccessException | InstantiationException e) {
       throw ActionException.wrap(e);
     } catch (Throwable throwable) {
