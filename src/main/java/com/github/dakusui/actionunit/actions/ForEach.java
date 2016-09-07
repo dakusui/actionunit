@@ -68,10 +68,10 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new ActionRunner.Hidden.With<>(t, ForEach.this.action, ForEach.this.sinks);
+        return new ActionRunner.WithResult.IgnoredInPathCalculation.With<>(t, ForEach.this.action, ForEach.this.sinks);
       }
     };
-    return new ActionRunner.Hidden.Sequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
+    return new ActionRunner.WithResult.IgnoredInPathCalculation.Sequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
   }
 
   public Action getAction() {
