@@ -11,7 +11,9 @@ import org.junit.runner.RunWith;
 
 import static com.github.dakusui.actionunit.Actions.nop;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class ActionUnitTest {
   @RunWith(ActionUnit.class)
@@ -71,6 +73,47 @@ public class ActionUnitTest {
     }
   }
 
+  @RunWith(ActionUnit.class)
+  public static class TestMethodReturnsNull {
+    @PerformWith(Test.class)
+    public Action testMethod() {
+      return null;
+    }
+
+    @Test
+    public void run(Action action) {
+    }
+  }
+
+  @RunWith(ActionUnit.class)
+  public static class TestMethodThrowsThrowable {
+    public static final String EXPECTED_MESSAGE = "Hello, Throwable";
+
+    @PerformWith(Test.class)
+    public Action testMethod() throws Throwable {
+      throw new Throwable(EXPECTED_MESSAGE);
+    }
+
+    @Test
+    public void run(Action action) {
+    }
+  }
+
+  @RunWith(ActionUnit.class)
+  public static class TestMethodThrowsIllegalAccess {
+    public static final String EXPECTED_MESSAGE = "Hello, IllegalAccessException";
+
+    @PerformWith(Test.class)
+    public Action testMethod() throws Throwable {
+      throw new IllegalAccessException(EXPECTED_MESSAGE);
+    }
+
+    @Test
+    public void run(Action action) {
+    }
+  }
+
+
   @Test
   public void givenStaticTestMethod$whenRunWithActionUnit$thenError() {
     Result result = JUnitCore.runClasses(StaticTestMethod.class);
@@ -114,5 +157,36 @@ public class ActionUnitTest {
     assertEquals(1, result.getFailureCount());
     assertEquals(false, result.wasSuccessful());
     assertEquals("Method run()'s 1 st parameter must accept an Action", result.getFailures().iterator().next().getMessage());
+  }
+
+  @Test
+  public void givenTestMethodReturningNull$whenRunWithActionUnit$thenError() {
+    Result result = JUnitCore.runClasses(TestMethodReturnsNull.class);
+    assertEquals(1, checkNotNull(result).getRunCount());
+    assertEquals(1, result.getFailureCount());
+    assertEquals(false, result.wasSuccessful());
+    assertEquals("testMethod() returned null", result.getFailures().iterator().next().getMessage());
+  }
+
+  @Test
+  public void givenTestMethodThrowingThroable$whenRunWithActionUnit$thenThrowableThrown() {
+    Result result = JUnitCore.runClasses(TestMethodThrowsThrowable.class);
+    assertEquals(1, checkNotNull(result).getRunCount());
+    assertEquals(1, result.getFailureCount());
+    assertEquals(false, result.wasSuccessful());
+    assertThat(
+        result.getFailures().iterator().next().getMessage(),
+        containsString(TestMethodThrowsThrowable.EXPECTED_MESSAGE));
+  }
+
+  @Test
+  public void givenTestMethodThrowingIllegalAccess$whenRunWithActionUnit$thenThrowableThrown() {
+    Result result = JUnitCore.runClasses(TestMethodThrowsIllegalAccess.class);
+    assertEquals(1, checkNotNull(result).getRunCount());
+    assertEquals(1, result.getFailureCount());
+    assertEquals(false, result.wasSuccessful());
+    assertThat(
+        result.getFailures().iterator().next().getMessage(),
+        containsString(TestMethodThrowsIllegalAccess.EXPECTED_MESSAGE));
   }
 }
