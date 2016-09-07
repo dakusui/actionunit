@@ -4,11 +4,21 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
+import com.google.common.base.Function;
 
+import static com.github.dakusui.actionunit.Utils.range;
+import static com.github.dakusui.actionunit.Utils.transform;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 
+/**
+ * A tag action. This class is used with {@link With} action and replaced at runtime
+ * with a {@link Sink} object held by the {@code With} action.
+ *
+ * @see With
+ * @see Sink
+ */
 public class Tag extends ActionBase {
   private final int index;
 
@@ -48,6 +58,17 @@ public class Tag extends ActionBase {
     }
     Tag another = (Tag) object;
     return this.index == another.index;
+  }
+
+  public static Action createFromRange(int from, int to) {
+    return Sequential.Factory.INSTANCE.create(
+        transform(range(from, to),
+            new Function<Integer, Tag>() {
+              @Override
+              public Tag apply(Integer input) {
+                return new Tag(input);
+              }
+            }));
   }
 
   private class TagRunner<T> extends Leaf implements Synthesized {

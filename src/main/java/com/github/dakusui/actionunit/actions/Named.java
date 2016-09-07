@@ -7,7 +7,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * An action that has a name.
  */
-public interface Named extends Action {
+public interface Named extends Nested {
   /**
    * Returns a name of this action.
    */
@@ -43,7 +43,7 @@ public interface Named extends Action {
      */
     @Override
     public void accept(Visitor visitor) {
-      visitor.visit(this);
+      visitor.visit((Named)this);
     }
 
     /**

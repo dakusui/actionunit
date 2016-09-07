@@ -3,30 +3,27 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.AutocloseableIterator;
+import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
-import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Utils.runWithTimeout;
-import static com.github.dakusui.actionunit.exceptions.Abort.abort;
+import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * A simple visitor that invokes actions.
@@ -63,7 +60,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Action action) {
-    throw new UnsupportedOperationException(String.format("Unsupported action type '%s'", action.getClass().getCanonicalName()));
+    throw new UnsupportedOperationException(format("Unsupported action type '%s'", action.getClass().getCanonicalName()));
   }
 
   /**
@@ -86,8 +83,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Sequential action) {
-    for (Action each : action) {
-      toRunnable(each).run();
+    try (AutocloseableIterator<Action> i = action.iterator()) {
+      while (i.hasNext()) {
+        toRunnable(i.next()).run();
+      }
     }
   }
 
@@ -98,32 +97,39 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Concurrent action) {
-    // todo
-    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
+    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, size(action))));
     try {
-      for (final Future<Boolean> future : pool.invokeAll(newArrayList(toCallables(action)))) {
+      Iterator<Callable<Boolean>> i = toCallables(action).iterator();
+      //noinspection unused
+      try (AutoCloseable resource = Autocloseables.toAutocloseable(i)) {
+        List<Future<Boolean>> futures = new ArrayList<>(this.threadPoolSize);
+        while (i.hasNext()) {
+          futures.add(pool.submit(i.next()));
+          if (futures.size() == this.threadPoolSize || !i.hasNext()) {
+            for (Future<Boolean> each : futures) {
+              ////
+              // Unless accessing the returned value of Future#get(), compiler may
+              // optimize execution and the action may not be executed even if this loop
+              // has ended.
+              //noinspection unused
+              each.get();
+            }
+          }
+        }
+      } catch (ExecutionException e) {
+        if (e.getCause() instanceof Error) {
+          throw (Error) e.getCause();
+        }
         ////
-        // Unless accessing the returned value of Future#get(), compiler may
-        // optimize execution and the action may not be executed even if this loop
-        // has ended.
-        //noinspection unused
-        boolean value = future.get();
+        // It's safe to cast to RuntimeException, because checked exception cannot
+        // be thrown from inside Runnable#run()
+        throw (RuntimeException) e.getCause();
+      } catch (Exception e) {
+        // InterruptedException should be handled by this clause, too.
+        throw ActionException.wrap(e);
       }
-    } catch (InterruptedException e) {
-      pool.shutdownNow();
-      Thread.currentThread().interrupt();
-    } catch (ExecutionException e) {
-      if (e.getCause() instanceof Error) {
-        throw (Error) e.getCause();
-      }
-      ////
-      // It's safe to cast to RuntimeException, because checked exception cannot
-      // be thrown from inside Runnable#run()
-      throw (RuntimeException) e.getCause();
     } finally {
-      while (!pool.isShutdown()) {
-        pool.shutdown();
-      }
+      pool.shutdownNow();
     }
   }
 
@@ -143,8 +149,35 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * @param action
    */
   @Override
+  public void visit(While action) {
+    //noinspection unchecked
+    while (action.apply(getContextValue())) {
+      action.getAction().accept(this);
+    }
+  }
+
+
+  /**
+   * {@inheritDoc}
+   *
+   * @param action
+   */
+  @Override
   public void visit(final With action) {
     action.getAction().accept(createChildFor(action));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(When action) {
+    //noinspection unchecked
+    if (action.apply(getContextValue())) {
+      action.getAction().accept(this);
+    } else {
+      action.otherwise().accept(this);
+    }
   }
 
   /**
@@ -154,22 +187,23 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   public void visit(Retry action) {
     try {
       toRunnable(action.action).run();
-    } catch (ActionException e) {
-      ActionException lastException = e;
+    } catch (Throwable e) {
+      Throwable lastException = e;
       for (int i = 0; i < action.times || action.times == Retry.INFINITE; i++) {
-        try {
-          TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
-          toRunnable(action.action).run();
-          return;
-        } catch (Abort abort) {
-          throw abort;
-        } catch (ActionException ee) {
-          lastException = ee;
-        } catch (InterruptedException ee) {
-          throw abort(ee);
+        if (action.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
+          sleep(action.intervalInNanos, NANOSECONDS);
+          try {
+            toRunnable(action.action).run();
+            return;
+          } catch (Throwable t) {
+            lastException = t;
+          }
+        } else {
+          throw ActionException.wrap(lastException);
         }
         toTask(action.action).run();
       }
+      throw ActionException.wrap(lastException);
     }
   }
 
@@ -186,7 +220,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
                      }
                    },
         action.durationInNanos,
-        TimeUnit.NANOSECONDS
+        NANOSECONDS
     );
   }
 
@@ -231,6 +265,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       @Override
+      public boolean hasValue() {
+        return true;
+      }
+
+      @Override
       public <T> T value() {
         //noinspection unchecked
         return (T) action.getSource().apply(ActionRunner.this);
@@ -255,6 +294,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
   private static void acceptTagAction(Tag tagAction, With withAction, ActionRunner runner) {
     tagAction.toLeaf(withAction.getSource(), withAction.getSinks(), runner).accept(runner);
+  }
+
+  private Object getContextValue() {
+    return this.hasValue() ? this.value() : null;
   }
 
   private Iterable<Runnable> toRunnables(final Iterable<? extends Action> actions) {
@@ -297,6 +340,82 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   /**
+   * This interface is used to suppress path calculation, which is
+   * performed by {@link WithResult}
+   * and its printer.
+   */
+  public interface IgnoredInPathCalculation {
+    abstract class Composite implements com.github.dakusui.actionunit.actions.Composite, IgnoredInPathCalculation {
+      final com.github.dakusui.actionunit.actions.Composite inner;
+
+      public Composite(com.github.dakusui.actionunit.actions.Composite inner) {
+        this.inner = inner;
+      }
+
+      @Override
+      public int size() {
+        return inner.size();
+      }
+
+      @Override
+      public AutocloseableIterator<Action> iterator() {
+        return inner.iterator();
+      }
+
+      public static <T extends Composite> T create(com.github.dakusui.actionunit.actions.Composite composite) {
+        Composite ret;
+        if (composite instanceof com.github.dakusui.actionunit.actions.Sequential) {
+          ret = new Sequential((com.github.dakusui.actionunit.actions.Sequential) composite);
+        } else if (composite instanceof com.github.dakusui.actionunit.actions.Concurrent) {
+          ret = new Concurrent((com.github.dakusui.actionunit.actions.Concurrent) composite);
+        } else {
+          throw new ActionException(format("Unknown type of composite action was given: %s", describe(composite)));
+        }
+        //noinspection unchecked
+        return (T) ret;
+      }
+    }
+
+    /**
+     * A sequential action created by and run as a part of {@code ForEach} action.
+     *
+     * @see IgnoredInPathCalculation
+     */
+    class Sequential extends Composite implements com.github.dakusui.actionunit.actions.Sequential {
+      public Sequential(com.github.dakusui.actionunit.actions.Sequential sequential) {
+        super(sequential);
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
+    }
+
+    class Concurrent extends Composite implements com.github.dakusui.actionunit.actions.Concurrent {
+      public Concurrent(com.github.dakusui.actionunit.actions.Concurrent concurrent) {
+        super(concurrent);
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
+    }
+
+    /**
+     * A "with" action created by and run as a part of {@code ForEach} action.
+     *
+     * @param <U> Type of the value with which child {@code Action} is executed.
+     */
+    class With<U> extends com.github.dakusui.actionunit.actions.With.Base<U> implements IgnoredInPathCalculation {
+      public With(Source<U> source, Action action, Sink<U>[] sinks) {
+        super(source, action, sinks);
+      }
+    }
+  }
+
+  /**
    * A simple implementation of an {@link ActionRunner}.
    */
   public static class Impl extends ActionRunner {
@@ -304,6 +423,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
      * Creates an object of this class.
      */
     public Impl() {
+      this(DEFAULT_THREAD_POOL_SIZE);
+    }
+
+    public Impl(int threadPoolSize) {
+      super(threadPoolSize);
     }
 
     /**
@@ -315,6 +439,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     @Override
     public Context getParent() {
       return null;
+    }
+
+    @Override
+    public boolean hasValue() {
+      return false;
     }
 
     /**
@@ -331,51 +460,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   public static class WithResult extends ActionRunner.Impl implements Action.Visitor {
-    /**
-     * This interface is used to suppress path calculation, which is
-     * performed by {@link WithResult}
-     * and its printer.
-     */
-    public interface IgnoredInPathCalculation {
-      /**
-       * A sequential action created by and run as a part of {@code ForEach} action.
-       *
-       * @see IgnoredInPathCalculation
-       */
-      class Sequential implements com.github.dakusui.actionunit.actions.Sequential, IgnoredInPathCalculation {
-        final com.github.dakusui.actionunit.actions.Sequential sequential;
-
-        public Sequential(com.github.dakusui.actionunit.actions.Sequential sequential) {
-          this.sequential = sequential;
-        }
-
-        @Override
-        public void accept(Visitor visitor) {
-          visitor.visit(this);
-        }
-
-        @Override
-        public int size() {
-          return sequential.size();
-        }
-
-        @Override
-        public Iterator<Action> iterator() {
-          return sequential.iterator();
-        }
-      }
-
-      /**
-       * A "with" action created by and run as a part of {@code ForEach} action.
-       *
-       * @param <U> Type of the value with which child {@code Action} is executed.
-       */
-      class With<U> extends com.github.dakusui.actionunit.actions.With.Base<U> implements IgnoredInPathCalculation {
-        public With(Source<U> source, Action action, Sink<U>[] sinks) {
-          super(source, action, sinks);
-        }
-      }
-    }
 
     public static class Path extends LinkedList<Action> {
       public Path snapshot() {
@@ -397,7 +481,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         if (action instanceof IgnoredInPathCalculation) {
           return this;
         }
-        checkState(getAction(action) == this.remove(this.size() - 1));
+        assert getAction(action) == this.remove(this.size() - 1);
         return this;
       }
 
@@ -512,6 +596,30 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
+    public void visit(final While action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final When action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
     public void visit(final Attempt action) {
       visitAndRecord(
           new Runnable() {
@@ -588,6 +696,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     protected ActionRunner createChildFor(final With action) {
       return new ActionRunner.WithResult(this.resultMap, this.current) {
         @Override
+        public boolean hasValue() {
+          return true;
+        }
+
+        @Override
         public <T> T value() {
           //noinspection unchecked
           return (T) action.getSource().apply(ActionRunner.WithResult.this);
@@ -611,12 +724,16 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
         @Override
         public String describeAction(Action action) {
-          return format(
+          String ret = format(
               "(%s)%s%s",
               getResultCode(action),
               describe(action),
               getErrorMessage(action)
           );
+          int runCount = getRunCount(action);
+          return runCount < 2
+              ? ret
+              : format("%s; %s times", ret, runCount);
         }
 
         @Override
@@ -650,6 +767,14 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           return Result.Code.NOTRUN;
         }
 
+        private int getRunCount(Action action) {
+          Path path = this.current.snapshot().enter(action);
+          if (resultMap.containsKey(path)) {
+            return resultMap.get(path).count;
+          }
+          return 0;
+        }
+
         private String getErrorMessage(Action action) {
           Path path = this.current.snapshot().enter(action);
           if (resultMap.containsKey(path)) {
@@ -675,13 +800,19 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         thrown = e;
         throw e;
       } finally {
-        if (succeeded) {
-          resultMap.put(this.current.snapshot(), new Result(Result.Code.PASSED, null));
-        } else {
-          if (thrown instanceof AssertionError) {
-            resultMap.put(this.current.snapshot(), new Result(Result.Code.FAIL, thrown));
+        if (!(action instanceof IgnoredInPathCalculation)) {
+          Path path = this.current.snapshot();
+          Result current = resultMap.containsKey(path)
+              ? resultMap.get(path)
+              : Result.FIRST_TIME;
+          if (succeeded) {
+            resultMap.put(this.current.snapshot(), current.next(Result.Code.PASSED, null));
           } else {
-            resultMap.put(this.current.snapshot(), new Result(Result.Code.ERROR, thrown));
+            if (thrown instanceof AssertionError) {
+              resultMap.put(this.current.snapshot(), current.next(Result.Code.FAIL, thrown));
+            } else {
+              resultMap.put(this.current.snapshot(), current.next(Result.Code.ERROR, thrown));
+            }
           }
         }
         this.current.leave(action);
@@ -695,12 +826,19 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     public static class Result {
+      private static final Result FIRST_TIME = new Result(0, Code.NOTRUN, null);
+      public final int       count;
       public final Code      code;
       public final Throwable thrown;
 
-      protected Result(Code code, Throwable thrown) {
+      private Result(int count, Code code, Throwable thrown) {
+        this.count = count;
         this.code = checkNotNull(code);
         this.thrown = thrown;
+      }
+
+      public Result next(Code code, Throwable thrown) {
+        return new Result(this.count + 1, code, thrown);
       }
 
       public enum Code {

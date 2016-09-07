@@ -110,6 +110,11 @@ public class ConnectorsTest {
       }
 
       @Override
+      public boolean hasValue() {
+        return true;
+      }
+
+      @Override
       public <T> T value() {
         return null;
       }

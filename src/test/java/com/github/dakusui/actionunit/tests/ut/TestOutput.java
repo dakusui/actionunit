@@ -11,5 +11,10 @@ public interface TestOutput {
     public String value() {
       return this.value;
     }
+
+    @Override
+    public String toString()  {
+      return value;
+    }
   }
 }
