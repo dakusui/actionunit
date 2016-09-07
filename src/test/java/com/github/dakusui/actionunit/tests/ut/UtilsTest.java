@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.github.dakusui.actionunit.Utils.range;
 import static com.google.common.collect.Iterables.toArray;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -15,7 +16,7 @@ public class UtilsTest {
   @Test
   public void whenRangeIntIsInvoked$thenWorksRight() {
     List<Integer> result = asList(toArray(
-        Utils.range(1),
+        range(1),
         Integer.class));
     assertEquals(
         singletonList(0),
@@ -26,7 +27,7 @@ public class UtilsTest {
   @Test
   public void whenRangeIntIntIsInvoked$thenWorksRight() {
     List<Integer> result = asList(toArray(
-        Utils.range(0, 3),
+        range(0, 3),
         Integer.class));
 
     assertEquals(
@@ -35,10 +36,15 @@ public class UtilsTest {
     );
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void givenRange$whenRemove$thenUnsupported() {
+    range(0, 3).iterator().remove();
+  }
+
   @Test
   public void whenRangeIntIntInIsInvoked$thenWorksRight() {
     List<Integer> result = asList(toArray(
-        Utils.range(0, 3, 1),
+        range(0, 3, 1),
         Integer.class));
     assertEquals(
         asList(0, 1, 2),
@@ -49,7 +55,7 @@ public class UtilsTest {
   @Test
   public void givenStartAndStopAreAscendingAndNegativeStep$whenRangeIntIntInIsInvoked$thenEmptyReturned() {
     List<Integer> result = asList(toArray(
-        Utils.range(0, 3, -1),
+        range(0, 3, -1),
         Integer.class));
     assertEquals(
         emptyList(),
@@ -59,13 +65,13 @@ public class UtilsTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeStep$whenRangeIsInvoked$thenIllegalArgument() {
-    Utils.range(0, 1, 0);
+    range(0, 1, 0);
   }
 
   @Test
   public void givenNearIntegerMax$whenGoBeyondMaximum$thenImmediatelyStops() {
     List<Integer> result = asList(toArray(
-        Utils.range(Integer.MAX_VALUE, 0, 1),
+        range(Integer.MAX_VALUE, 0, 1),
         Integer.class));
     assertEquals(
         emptyList(),
