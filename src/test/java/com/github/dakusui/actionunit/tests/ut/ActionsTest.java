@@ -221,7 +221,7 @@ public class ActionsTest {
             public void run() {
               arr.add("Hello");
               try {
-                TimeUnit.SECONDS.sleep(10);
+                TimeUnit.SECONDS.sleep(30);
               } catch (InterruptedException e) {
                 throw wrap(e);
               }
