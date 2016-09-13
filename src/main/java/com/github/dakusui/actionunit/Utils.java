@@ -258,4 +258,12 @@ public enum Utils {
   public static String describeClassOf(Object obj) {
     return shortClassNameOf(checkNotNull(obj).getClass());
   }
+
+  public static void sleep(long duration, TimeUnit timeUnit) {
+    try {
+      checkNotNull(timeUnit).sleep(duration);
+    } catch (InterruptedException e) {
+      ActionException.wrap(e);
+    }
+  }
 }

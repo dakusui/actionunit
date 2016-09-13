@@ -1,14 +1,12 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 
-import static com.github.dakusui.actionunit.Actions.nop;
-import static com.github.dakusui.actionunit.Actions.simple;
-import static com.github.dakusui.actionunit.Actions.tag;
+import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.range;
 import static com.github.dakusui.actionunit.Utils.transform;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -75,7 +73,7 @@ public class Attempt<T extends Throwable> extends ActionBase {
     }
 
     @SafeVarargs
-    public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Action action, Sink<? extends T>... sinks) {
+    public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Action action, Sink<T>... sinks) {
       this.exceptionClass = checkNotNull(exceptionClass);
       this.recover = checkNotNull(action);
       this.recoverWith = sinks;
@@ -83,7 +81,7 @@ public class Attempt<T extends Throwable> extends ActionBase {
     }
 
     @SafeVarargs
-    public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Sink<? extends T>... sinks) {
+    public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Sink<T>... sinks) {
       return this.recover(
           exceptionClass,
           Actions.sequential(transform(range(0, sinks.length),
@@ -98,12 +96,12 @@ public class Attempt<T extends Throwable> extends ActionBase {
     }
 
     @SafeVarargs
-    public final Builder recover(Action action, Sink<? extends ActionException>... sinks) {
+    public final Builder recover(Action action, Sink<ActionException>... sinks) {
       return recover(ActionException.class, action, sinks);
     }
 
     @SafeVarargs
-    public final Builder recover(Sink<? extends ActionException>... sinks) {
+    public final Builder recover(Sink<ActionException>... sinks) {
       return recover(ActionException.class, sinks);
     }
 

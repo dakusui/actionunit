@@ -6,7 +6,6 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
-import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 
@@ -15,9 +14,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Utils.runWithTimeout;
-import static com.github.dakusui.actionunit.exceptions.Abort.abort;
+import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
@@ -26,6 +23,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * A simple visitor that invokes actions.
@@ -97,7 +95,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Concurrent action) {
-    // todo
     final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
     try {
       for (final Future<Boolean> future : pool.invokeAll(newArrayList(toCallables(action)))) {
@@ -153,22 +150,22 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   public void visit(Retry action) {
     try {
       toRunnable(action.action).run();
-    } catch (ActionException e) {
-      ActionException lastException = e;
+    } catch (Throwable e) {
+      Throwable lastException = e;
       for (int i = 0; i < action.times || action.times == Retry.INFINITE; i++) {
-        try {
-          TimeUnit.NANOSECONDS.sleep(action.intervalInNanos);
-          toRunnable(action.action).run();
-          return;
-        } catch (Abort abort) {
-          throw abort;
-        } catch (ActionException ee) {
-          lastException = ee;
-        } catch (InterruptedException ee) {
-          throw abort(ee);
+        if (action.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
+          sleep(action.intervalInNanos, NANOSECONDS);
+          try {
+            toRunnable(action.action).run();
+            return;
+          } catch (Throwable t) {
+            lastException = t;
+          }
+        } else {
+          throw ActionException.wrap(lastException);
         }
       }
-      throw lastException;
+      throw ActionException.wrap(lastException);
     }
   }
 
@@ -185,7 +182,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
                      }
                    },
         action.durationInNanos,
-        TimeUnit.NANOSECONDS
+        NANOSECONDS
     );
   }
 

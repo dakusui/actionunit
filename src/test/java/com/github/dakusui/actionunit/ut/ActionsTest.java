@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 import org.junit.ComparisonFailure;
@@ -314,25 +315,26 @@ public class ActionsTest {
   }
 
   @Test(expected = Abort.class)
-  public void givenRetryAction$whenGiveUpException$thenAborted() {
-    final List<String> arr = new ArrayList<>();
+  public void givenRetryAction$whenAbortException$thenAborted() {
+    final TestUtils.Out out = new TestUtils.Out();
     try {
       retry(simple(new Runnable() {
             @Override
             public void run() {
+              out.writeLine("run");
               throw Abort.abort();
             }
           }),
-          1, 1, MILLISECONDS
+          2, 1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } finally {
-      assertEquals(Collections.emptyList(), arr);
+      assertThat(out, hasSize(1));
     }
   }
 
   @Test(expected = IOException.class)
-  public void givenRetryAction$whenGiveUpException2$thenAborted() throws Throwable {
-    final List<String> arr = new ArrayList<>();
+  public void givenRetryAction$whenAbortException2$thenAbortedAndRootExceptionStoredProperly() throws Throwable {
+    final TestUtils.Out out = new TestUtils.Out();
     try {
       retry(simple(new Runnable() {
             @Override
@@ -340,12 +342,12 @@ public class ActionsTest {
               throw Abort.abort(new IOException());
             }
           }),
-          1, 1, MILLISECONDS
+          2, 1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (Abort e) {
       throw e.getCause();
     } finally {
-      assertEquals(Collections.emptyList(), arr);
+      assertThat(out, hasSize(1));
     }
   }
 

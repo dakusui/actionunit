@@ -10,9 +10,9 @@ import com.google.common.base.Function;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
 import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -46,6 +46,7 @@ public enum Actions {
       public void perform() {
         runnable.run();
       }
+
       @Override
       public String toString() {
         return Utils.describe(runnable);
@@ -67,7 +68,7 @@ public enum Actions {
   /**
    * Creates a named action object.
    *
-   * @param name name of the action
+   * @param name   name of the action
    * @param action action to be named.
    */
   public static Action named(String name, Action action) {
@@ -173,6 +174,23 @@ public enum Actions {
   /**
    * Creates an action which retries given {@code action}.
    *
+   * @param targetExceptionClass Exception class to be traped by returned {@code Action}.
+   * @param action               An action retried by the returned {@code Action}.
+   * @param times                How many times given {@code action} will be retried. If 0 is given, no retry will happen.
+   *                             If {@link Retry#INFINITE} is given, returned
+   *                             action will re-try infinitely until {@code action} successes.
+   * @param interval             Interval between actions.
+   * @param timeUnit             Time unit of {@code interval}.
+   */
+  public static <T extends Throwable> Action retry(Class<T> targetExceptionClass, Action action, int times, long interval, TimeUnit timeUnit) {
+    checkNotNull(timeUnit);
+    //noinspection unchecked
+    return new Retry(targetExceptionClass, action, NANOSECONDS.convert(interval, timeUnit), times);
+  }
+
+  /**
+   * Creates an action which retries given {@code action}.
+   *
    * @param action   An action retried by the returned {@code Action}.
    * @param times    How many times given {@code action} will be retried. If 0 is given, no retry will happen.
    *                 If {@link Retry#INFINITE} is given, returned
@@ -181,8 +199,7 @@ public enum Actions {
    * @param timeUnit Time unit of {@code interval}.
    */
   public static Action retry(Action action, int times, long interval, TimeUnit timeUnit) {
-    checkNotNull(timeUnit);
-    return new Retry(action, NANOSECONDS.convert(interval, timeUnit), times);
+    return retry(ActionException.class, action, times, interval, timeUnit);
   }
 
   @SafeVarargs

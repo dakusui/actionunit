@@ -22,7 +22,6 @@ public class ActionException extends RuntimeException {
       createMapping(ClassCastException.class, ActionException.class)
   );
 
-
   /**
    * Creates a new {@code ActionException} with a given message.
    *
@@ -66,10 +65,7 @@ public class ActionException extends RuntimeException {
     }
     Class<? extends ActionException> exceptionClass = figureOutExceptionClassToBeThrown(t);
     if (exceptionClass != null) {
-      ActionException applicationException = instantiate(exceptionClass, t);
-      if (applicationException != null) {
-        throw applicationException;
-      }
+      throw instantiate(exceptionClass, t);
     }
     ////
     // For unknown type of checked exception. Once this line is executed, consider

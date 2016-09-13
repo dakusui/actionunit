@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.TestAction;
 import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -29,6 +30,7 @@ import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static com.google.common.collect.Iterables.size;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
@@ -275,6 +277,66 @@ public class ActionPrinterTest {
       final TestUtils.Out out = new TestUtils.Out();
       action.accept(runner.createPrinter(out));
       assertEquals("(+)Retry(60[seconds]x1times)", out.get(0));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
+      Action action = retry(simple(new Runnable() {
+        @Override
+        public void run() {
+          throw new IllegalStateException(this.toString());
+        }
+
+        public String toString() {
+          return "AlwaysFail";
+        }
+      }), 1, 1, TimeUnit.MINUTES);
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      try {
+        action.accept(runner);
+      } finally {
+
+        final TestUtils.Out out = new TestUtils.Out();
+        action.accept(runner.createPrinter(out));
+        assertEquals("(E)Retry(60[seconds]x1times)(error=AlwaysFail)", out.get(0));
+        assertEquals("  (E)AlwaysFail(error=AlwaysFail)", out.get(1));
+      }
+    }
+
+    @Test
+    public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
+      final TestUtils.Out out = new TestUtils.Out();
+      Action action = retry(
+          simple(new Runnable() {
+            boolean tried = false;
+
+            @Override
+            public void run() {
+              try {
+                if (!tried) {
+                  out.writeLine(this.toString());
+                  throw new ActionException(this.toString());
+                }
+              } finally {
+                tried = true;
+              }
+            }
+
+            public String toString() {
+              return "PassAfterFail";
+            }
+          }),
+          1, // once
+          1, MILLISECONDS);
+      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      try {
+        action.accept(runner);
+      } finally {
+        action.accept(runner.createPrinter(out));
+        assertEquals("PassAfterFail", out.get(0));
+        assertEquals("(+)Retry(1[milliseconds]x1times)", out.get(1));
+        assertEquals("  (+)PassAfterFail", out.get(2));
+      }
     }
 
     @Test

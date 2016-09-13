@@ -7,7 +7,8 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 
-import static com.github.dakusui.actionunit.Utils.*;
+import static com.github.dakusui.actionunit.Utils.describe;
+import static com.github.dakusui.actionunit.Utils.transform;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -78,15 +79,10 @@ public interface Piped<I, O> extends With<I> {
                       new Tag(0),
                       new With.Base<>(
                           output,
-                          Named.Factory.create(destinationSinksName,
-                              Sequential.Factory.INSTANCE.create(
-                                  transform(range(destinationSinks.length),
-                                      new Function<Integer, Tag>() {
-                                        @Override
-                                        public Tag apply(Integer input) {
-                                          return new Tag(input);
-                                        }
-                                      }))),
+                          Named.Factory.create(
+                              destinationSinksName,
+                              Tag.createFromRange(0, destinationSinks.length)
+                          ),
                       /*(Sink<O>[])*/destinationSinks
                       )))),
           new Sink/*<I>*/[] {
