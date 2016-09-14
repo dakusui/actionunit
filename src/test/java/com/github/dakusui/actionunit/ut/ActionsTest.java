@@ -339,6 +339,7 @@ public class ActionsTest {
       retry(simple(new Runnable() {
             @Override
             public void run() {
+                out.writeLine("Hello");
               throw Abort.abort(new IOException());
             }
           }),
