@@ -156,7 +156,7 @@ public class ActionRunnerWithResultTest {
     public void givenPassingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = forEach(
+      Action action = foreach(
           asList("ItemA", "ItemB", "ItemC"),
           new Sink.Base<String>() {
             @Override
@@ -199,7 +199,7 @@ public class ActionRunnerWithResultTest {
     public void givenFailingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = forEach(
+      Action action = foreach(
           asList("ItemA", "ItemB", "ItemC"),
           new Sink.Base<String>() {
             @Override

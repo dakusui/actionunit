@@ -7,7 +7,6 @@ import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 
 import static com.github.dakusui.actionunit.Utils.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -17,17 +16,16 @@ import static org.apache.commons.lang3.StringUtils.join;
  *
  * @param <T> A type of values on which this action is repeated.
  */
-public class ForEach<T> extends ActionBase {
+public class ForEach<T> extends Nested.Base {
   private final Composite.Factory   factory;
   private final Iterable<Source<T>> dataSource;
-  private final Action              action;
   private final Sink<T>[]           sinks;
 
 
   public ForEach(Composite.Factory factory, Iterable<Source<T>> dataSource, Action action, Sink<T>[] sinks) {
+    super(action);
     this.factory = factory;
     this.dataSource = dataSource;
-    this.action = checkNotNull(action);
     this.sinks = sinks;
   }
 
@@ -68,14 +66,10 @@ public class ForEach<T> extends ActionBase {
       }
 
       private With createWithAction(final Source<T> t) {
-        return new ActionRunner.WithResult.IgnoredInPathCalculation.With<>(t, ForEach.this.action, ForEach.this.sinks);
+        return new ActionRunner.WithResult.IgnoredInPathCalculation.With<>(t, ForEach.this.getAction(), ForEach.this.sinks);
       }
     };
     return new ActionRunner.WithResult.IgnoredInPathCalculation.Sequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
-  }
-
-  public Action getAction() {
-    return this.action;
   }
 
   public enum Mode {

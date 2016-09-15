@@ -58,7 +58,7 @@ public class ActionPrinterTest {
             public void run() {
             }
           }),
-          forEach(
+          foreach(
               asList("hello1", "hello2", "hello3"),
               new Sink.Base<String>("block1") {
                 @Override
@@ -148,7 +148,7 @@ public class ActionPrinterTest {
             public void run() {
             }
           }),
-          forEach(
+          foreach(
               asList("hello1", "hello2", "hello3"),
               new TestAction.Builder<String, String>("ExampleTest")
                   .when(new Function<String, String>() {
@@ -161,7 +161,7 @@ public class ActionPrinterTest {
                   )
                   .then(anything()).build()
           ),
-          forEach(
+          foreach(
               asList("world1", "world2", "world3"),
               sequential(
                   simple(new Runnable() {
@@ -241,7 +241,7 @@ public class ActionPrinterTest {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
-      Action action = forEach(asList("A", "B"), sequential(tag(0), tag(1)), new Sink<String>() {
+      Action action = foreach(asList("A", "B"), sequential(tag(0), tag(1)), new Sink<String>() {
             @Override
             public void apply(String input, Context context) {
               out1.writeLine(input + "0");

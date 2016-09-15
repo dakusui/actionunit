@@ -104,7 +104,7 @@ public class ActionVisitorTest {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEach(singletonList("hello"));
+    Action action = foreach(singletonList("hello"));
     // when accept
     action.accept(visitor);
     // then visited

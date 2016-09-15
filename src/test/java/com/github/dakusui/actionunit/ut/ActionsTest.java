@@ -378,7 +378,7 @@ public class ActionsTest {
   @Test(timeout = 300000)
   public void forEachTest() {
     final List<String> arr = new ArrayList<>();
-    forEach(
+    foreach(
         asList("1", "2"),
         new Sink.Base<String>("print") {
           @Override
@@ -394,7 +394,7 @@ public class ActionsTest {
   public void givenForEachAction$whenDescribe$thenLooksNice() {
     assertEquals(
         "ForEach (Concurrent, 2 items) {(noname)}",
-        describe(forEach(
+        describe(foreach(
             asList("hello", "world"),
             CONCURRENTLY,
             new Sink.Base<String>() {
@@ -410,7 +410,7 @@ public class ActionsTest {
   public void givenForEachActionViaNonCollection$whenDescribe$thenLooksNice() {
     assertEquals(
         "ForEach (Sequential, ? items) {empty!}",
-        describe(forEach(
+        describe(foreach(
             new Iterable<String>() {
               @Override
               public Iterator<String> iterator() {
@@ -430,7 +430,7 @@ public class ActionsTest {
   @Test
   public void givenForEachCreatedWithoutExplicitMode$whenPerform$thenWorksFine() {
     final List<String> arr = new ArrayList<>();
-    forEach(
+    foreach(
         asList("1", "2"),
         sequential(
             simple(new Runnable() {
@@ -507,11 +507,11 @@ public class ActionsTest {
   public void givenWaitForAction$whenPerform$thenExpectedAmountOfTimeSpent() {
     ////
     // To force JVM load classes used by this test, run the action once for warm-up.
-    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
+    sleep(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
     ////
     // Let's do the test.
     long before = currentTimeMillis();
-    waitFor(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
+    sleep(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
     //noinspection unchecked
     assertThat(
         currentTimeMillis() - before,
@@ -519,7 +519,7 @@ public class ActionsTest {
             greaterThanOrEqualTo(1L),
             ////
             // Depending on unpredictable conditions, such as JVM's internal state,
-            // GC, class loading, etc.,  "waitFor" action may take a longer time
+            // GC, class loading, etc.,  "sleep" action may take a longer time
             // than 1 msec to perform. In this case I'm giving 3 msec including
             // grace period.
             lessThan(3L)
@@ -599,7 +599,7 @@ public class ActionsTest {
   @Test
   public void givenSimplePipeAction$whenPerformed$thenWorksFine() {
     final List<TestOutput.Text> out = new LinkedList<>();
-    forEach(asList("world", "WORLD"),
+    foreach(asList("world", "WORLD"),
         pipe(
             new Function<String, TestOutput.Text>() {
               @Override

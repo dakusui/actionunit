@@ -120,6 +120,8 @@ public interface Action {
      */
     void visit(Attempt action);
 
+    void visit(When when);
+
     abstract class Base implements Visitor {
 
       protected Base() {
@@ -162,6 +164,11 @@ public interface Action {
 
       @Override
       public void visit(With action) {
+        this.visit((Action) action);
+      }
+
+      @Override
+      public void visit(When action) {
         this.visit((Action) action);
       }
 

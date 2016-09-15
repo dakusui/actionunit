@@ -147,6 +147,19 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
+  public void visit(When when) {
+    //noinspection unchecked
+    if (when.apply(this.value())) {
+      when.getAction().accept(this);
+    } else {
+      when.otherwise().accept(this);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void visit(Retry action) {
     try {
       toRunnable(action.action).run();
@@ -497,6 +510,18 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
     @Override
     public void visit(final ForEach action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
+    public void visit(final When action) {
       visitAndRecord(
           new Runnable() {
             @Override

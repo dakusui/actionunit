@@ -16,22 +16,19 @@ import static org.apache.commons.lang3.StringUtils.join;
  *
  * @param <T> Type of the value with which child {@code Action} is executed.
  */
-public interface With<T> extends Action {
+public interface With<T> extends Nested {
 
   Source<T> getSource();
 
   Sink<T>[] getSinks();
 
-  Action getAction();
-
-  class Base<T> extends ActionBase implements With<T> {
+  class Base<T> extends Nested.Base implements With<T> {
     final Source<? extends T> source;
     final Sink<? super T>[] sinks;
-    final Action    action;
 
     public Base(Source<? extends T> source, Action action, Sink<? super T>[] sinks) {
+      super(action);
       this.source = checkNotNull(source);
-      this.action = checkNotNull(action);
       this.sinks = checkNotNull(sinks);
     }
 
@@ -48,13 +45,8 @@ public interface With<T> extends Action {
     }
 
     @Override
-    public Action getAction() {
-      return this.action;
-    }
-
-    @Override
     public void accept(Visitor visitor) {
-      visitor.visit(this);
+      visitor.visit((With)this);
     }
 
     @Override

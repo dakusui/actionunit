@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.Actions.forEach;
+import static com.github.dakusui.actionunit.Actions.foreach;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -21,8 +21,8 @@ public class VariationTest {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();
-    forEach(asList("a", "b"),
-        forEach(asList("1", "2"),
+    Actions.foreach(asList("a", "b"),
+        foreach(asList("1", "2"),
             new Sink.Base<String>() {
               @Override
               public void apply(String input, Object... outer) {
@@ -44,7 +44,7 @@ public class VariationTest {
 
   @Test
   public void forEachAndPipedAction() {
-    forEach(
+    foreach(
         asList("a", "b"),
         new Sink.Base<String>() {
           @Override
@@ -57,7 +57,7 @@ public class VariationTest {
 
   @Test
   public void testAction1() {
-    Actions.forEach(
+    Actions.foreach(
         asList("host1", "host2"),
         Actions.<String, Integer>test()
             .when(new Function<String, Integer>() {
@@ -73,7 +73,7 @@ public class VariationTest {
 
   @Test
   public void testAction2() {
-    forEach(
+    Actions.foreach(
         asList("host1", "host2"),
         Actions.<String, Integer>test()
             .given("9")
@@ -90,7 +90,7 @@ public class VariationTest {
 
   @Test
   public void testAction3() {
-    forEach(
+    Actions.foreach(
         asList("host1", "host2"),
         Actions.<String, Integer>test()
             .given(Connectors.<String>context())
