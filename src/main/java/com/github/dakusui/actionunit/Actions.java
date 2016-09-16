@@ -7,6 +7,7 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 import java.util.concurrent.TimeUnit;
 
@@ -203,7 +204,7 @@ public enum Actions {
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, ForEach.Mode mode, Action action, Sink<T>... sinks) {
+  public static <T> Action foreach(Iterable<T> dataSource, ForEach.Mode mode, Action action, Sink<T>... sinks) {
     return new ForEach<>(
         mode.getFactory(),
         transform(dataSource, new ToSource<T>()),
@@ -213,13 +214,13 @@ public enum Actions {
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, Action action, Sink<T>... sinks) {
-    return forEach(dataSource, SEQUENTIALLY, action, sinks);
+  public static <T> Action foreach(Iterable<T> dataSource, Action action, Sink<T>... sinks) {
+    return foreach(dataSource, SEQUENTIALLY, action, sinks);
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, ForEach.Mode mode, final Sink<T>... sinks) {
-    return forEach(
+  public static <T> Action foreach(Iterable<T> dataSource, ForEach.Mode mode, final Sink<T>... sinks) {
+    return foreach(
         dataSource,
         mode,
         sequential(
@@ -235,10 +236,17 @@ public enum Actions {
   }
 
   @SafeVarargs
-  public static <T> Action forEach(Iterable<T> dataSource, final Sink<T>... sinks) {
-    return forEach(dataSource, SEQUENTIALLY, sinks);
+  public static <T> Action foreach(Iterable<T> dataSource, final Sink<T>... sinks) {
+    return foreach(dataSource, SEQUENTIALLY, sinks);
   }
 
+  public static Action when(Predicate<?> predicate, Action action) {
+    return new When.Impl(predicate, action, nop());
+  }
+
+  public static Action when(Predicate<?> predicate, Action action, Action otherwise) {
+    return new When.Impl(predicate, action, otherwise);
+  }
   public static Action tag(int i) {
     return new Tag(i);
   }
@@ -295,7 +303,7 @@ public enum Actions {
    * @param duration Duration to wait for.
    * @param timeUnit Time unit of the {@code duration}.
    */
-  public static Action waitFor(final long duration, final TimeUnit timeUnit) {
+  public static Action sleep(final long duration, final TimeUnit timeUnit) {
     checkArgument(duration >= 0, "duration must be non-negative but %d was given", duration);
     checkNotNull(timeUnit);
     return new Leaf() {

@@ -85,10 +85,10 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return forEach(asList("A", "B"),
+      return foreach(asList("A", "B"),
           sequential(
               tag(0),
-              forEach(asList("a", "b"), new Sink.Base() {
+              foreach(asList("a", "b"), new Sink.Base() {
                 @Override
                 protected void apply(Object input, Object... outer) {
                   getWriter().writeLine("\\_inner-" + input);
