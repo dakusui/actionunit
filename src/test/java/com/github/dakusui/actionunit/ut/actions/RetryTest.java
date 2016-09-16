@@ -52,8 +52,8 @@ public class RetryTest {
           outForTree,
           allOf(
               hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  (+)PassOnRetry")),
-              hasItemAt(2, equalTo("    (+)RetryTest$1"))
+              hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
+              hasItemAt(2, equalTo("    (+)RetryTest$1; 3 times"))
           ));
       assertThat(
           outForTree,
@@ -88,8 +88,8 @@ public class RetryTest {
           outForTree,
           allOf(
               hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  (+)PassOnRetry")),
-              hasItemAt(2, equalTo("    (+)RetryTest$1"))
+              hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
+              hasItemAt(2, equalTo("    (+)RetryTest$1; 3 times"))
           ));
       assertThat(
           outForTree,
@@ -114,9 +114,10 @@ public class RetryTest {
   private <T extends Throwable, U extends RuntimeException> Action composeRetryAction(final TestUtils.Out out, Class<T> exceptionToBeCaught, final U exceptionToBeThrown) {
     return retry(
         exceptionToBeCaught,
-        named("PassOnRetry",
+        named("PassOn2ndRetry",
             simple(new Runnable() {
               int tried = 0;
+
               @Override
               public void run() {
                 try {

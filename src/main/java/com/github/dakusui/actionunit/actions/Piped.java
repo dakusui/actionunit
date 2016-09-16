@@ -38,9 +38,9 @@ import static org.apache.commons.lang3.StringUtils.join;
  * @param <O> Output type
  */
 public interface Piped<I, O> extends With<I> {
-  public Pipe<I, O> getPipe();
+  Pipe<I, O> getPipe();
 
-  public Sink<O>[] getDestinationSinks();
+  Sink<O>[] getDestinationSinks();
 
   class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
     protected final Source<I>  source;

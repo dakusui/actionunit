@@ -6,16 +6,14 @@ import com.google.common.base.Predicate;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public interface When extends Action, Nested, Predicate {
+public interface When extends Action, Conditioned {
   Action otherwise();
 
-  class Impl extends Nested.Base implements When {
-    private final Predicate condition;
-    private final Action    otherwise;
+  class Impl extends Conditioned.Base implements When {
+    private final Action otherwise;
 
     public Impl(Predicate condition, Action action, Action otherwise) {
-      super(action);
-      this.condition = checkNotNull(condition);
+      super(condition, action);
       this.otherwise = checkNotNull(otherwise);
     }
 
@@ -30,14 +28,8 @@ public interface When extends Action, Nested, Predicate {
     }
 
     @Override
-    public boolean apply(Object input) {
-      //noinspection unchecked
-      return this.condition.apply(input);
-    }
-
-    @Override
     public String toString() {
-      return "When (" + describe(this.condition) + ")";
+      return "When (" + describe(this.getCondition()) + ")";
     }
   }
 }

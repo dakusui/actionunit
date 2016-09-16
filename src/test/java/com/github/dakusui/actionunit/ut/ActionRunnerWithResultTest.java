@@ -188,9 +188,9 @@ public class ActionRunnerWithResultTest {
       //noinspection unchecked
       assertThat(getWriter(), allOf(
           hasItemAt(0, equalTo("(+)ForEach (Sequential, 3 items) {Sink-1,Sink-2}")),
-          hasItemAt(1, equalTo("  (+)Sequential (2 actions)")),
-          hasItemAt(2, equalTo("    (+)Tag(0)")),
-          hasItemAt(3, equalTo("    (+)Tag(1)"))
+          hasItemAt(1, equalTo("  (+)Sequential (2 actions); 3 times")),
+          hasItemAt(2, equalTo("    (+)Tag(0); 3 times")),
+          hasItemAt(3, equalTo("    (+)Tag(1); 3 times"))
       ));
       assertThat(getWriter(), hasSize(4));
     }

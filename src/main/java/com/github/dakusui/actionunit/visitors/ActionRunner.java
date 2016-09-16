@@ -139,6 +139,20 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * @param action
    */
   @Override
+  public void visit(While action) {
+    //noinspection unchecked
+    while (action.apply(this.hasValue() ? this.value() : null)) {
+      action.getAction().accept(this);
+    }
+  }
+
+
+  /**
+   * {@inheritDoc}
+   *
+   * @param action
+   */
+  @Override
   public void visit(final With action) {
     action.getAction().accept(createChildFor(action));
   }
@@ -149,7 +163,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   @Override
   public void visit(When when) {
     //noinspection unchecked
-    if (when.apply(this.value())) {
+    if (when.apply(this.hasValue() ? this.value() : null)) {
       when.getAction().accept(this);
     } else {
       when.otherwise().accept(this);
@@ -240,6 +254,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       @Override
+      public boolean hasValue() {
+        return true;
+      }
+
+      @Override
       public <T> T value() {
         //noinspection unchecked
         return (T) action.getSource().apply(ActionRunner.this);
@@ -324,6 +343,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     @Override
     public Context getParent() {
       return null;
+    }
+
+    @Override
+    public boolean hasValue() {
+      return false;
     }
 
     /**
@@ -521,6 +545,18 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
+    public void visit(final While action) {
+      visitAndRecord(
+          new Runnable() {
+            @Override
+            public void run() {
+              WithResult.super.visit(action);
+            }
+          },
+          action);
+    }
+
+    @Override
     public void visit(final When action) {
       visitAndRecord(
           new Runnable() {
@@ -609,6 +645,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     protected ActionRunner createChildFor(final With action) {
       return new ActionRunner.WithResult(this.resultMap, this.current) {
         @Override
+        public boolean hasValue() {
+          return true;
+        }
+
+        @Override
         public <T> T value() {
           //noinspection unchecked
           return (T) action.getSource().apply(ActionRunner.WithResult.this);
@@ -632,12 +673,16 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
         @Override
         public String describeAction(Action action) {
-          return format(
+          String ret = format(
               "(%s)%s%s",
               getResultCode(action),
               describe(action),
               getErrorMessage(action)
           );
+          int runCount = getRunCount(action);
+          return runCount < 2
+              ? ret
+              : format("%s; %s times", ret, runCount);
         }
 
         @Override
@@ -671,6 +716,14 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           return Result.Code.NOTRUN;
         }
 
+        private int getRunCount(Action action) {
+          Path path = this.current.snapshot().enter(action);
+          if (resultMap.containsKey(path)) {
+            return resultMap.get(path).count;
+          }
+          return 0;
+        }
+
         private String getErrorMessage(Action action) {
           Path path = this.current.snapshot().enter(action);
           if (resultMap.containsKey(path)) {
@@ -696,13 +749,19 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         thrown = e;
         throw e;
       } finally {
-        if (succeeded) {
-          resultMap.put(this.current.snapshot(), new Result(Result.Code.PASSED, null));
-        } else {
-          if (thrown instanceof AssertionError) {
-            resultMap.put(this.current.snapshot(), new Result(Result.Code.FAIL, thrown));
+        if (!(action instanceof IgnoredInPathCalculation)) {
+          Path path = this.current.snapshot();
+          Result current = resultMap.containsKey(path)
+              ? resultMap.get(path)
+              : Result.FIRST_TIME;
+          if (succeeded) {
+            resultMap.put(this.current.snapshot(), current.next(Result.Code.PASSED, null));
           } else {
-            resultMap.put(this.current.snapshot(), new Result(Result.Code.ERROR, thrown));
+            if (thrown instanceof AssertionError) {
+              resultMap.put(this.current.snapshot(), current.next(Result.Code.FAIL, thrown));
+            } else {
+              resultMap.put(this.current.snapshot(), current.next(Result.Code.ERROR, thrown));
+            }
           }
         }
         this.current.leave(action);
@@ -710,12 +769,19 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     public static class Result {
-      public final Code      code;
-      public final Throwable thrown;
+      private static final Result FIRST_TIME = new Result(0, Code.NOTRUN, null);
+      public final  int       count;
+      public final  Code      code;
+      public final  Throwable thrown;
 
-      protected Result(Code code, Throwable thrown) {
+      private Result(int count, Code code, Throwable thrown) {
+        this.count = count;
         this.code = checkNotNull(code);
         this.thrown = thrown;
+      }
+
+      public Result next(Code code, Throwable thrown) {
+        return new Result(this.count + 1, code, thrown);
       }
 
       public enum Code {

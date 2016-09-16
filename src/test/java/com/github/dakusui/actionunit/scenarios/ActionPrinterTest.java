@@ -335,7 +335,7 @@ public class ActionPrinterTest {
         action.accept(runner.createPrinter(out));
         assertEquals("PassAfterFail", out.get(0));
         assertEquals("(+)Retry(1[milliseconds]x1times)", out.get(1));
-        assertEquals("  (+)PassAfterFail", out.get(2));
+        assertEquals("  (+)PassAfterFail; 2 times", out.get(2));
       }
     }
 

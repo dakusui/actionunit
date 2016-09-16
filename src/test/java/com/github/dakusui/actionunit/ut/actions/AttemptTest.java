@@ -61,7 +61,7 @@ public class AttemptTest {
               hasItemAt(2, equalTo("    (E)AttemptTest$2(error=ThrowException)")),
               hasItemAt(3, equalTo("  (+)Recover")),
               hasItemAt(4, equalTo("    (+)Retry(1[milliseconds]x1times)")),
-              hasItemAt(5, equalTo("      (+)Tag(0)")),
+              hasItemAt(5, equalTo("      (+)Tag(0); 2 times")),
               hasItemAt(6, equalTo("  (+)Ensure")),
               hasItemAt(7, equalTo("    (+)(nop)"))));
       assertThat(

@@ -230,8 +230,7 @@ public enum Actions {
                   public Action apply(final Sink<T> sink) {
                     return tag(asList(sinks).indexOf(sink));
                   }
-                }
-            )),
+                })),
         sinks);
   }
 
@@ -240,13 +239,25 @@ public enum Actions {
     return foreach(dataSource, SEQUENTIALLY, sinks);
   }
 
-  public static Action when(Predicate<?> predicate, Action action) {
-    return new When.Impl(predicate, action, nop());
+  public static Action repeatwhile(Predicate<?> condition, Action... actions) {
+    Action action = nop();
+    if (actions.length == 1) {
+      action = actions[0];
+    } else if (actions.length > 1) {
+      action = sequential(actions);
+    }
+    return new While.Impl(condition, action);
   }
 
-  public static Action when(Predicate<?> predicate, Action action, Action otherwise) {
-    return new When.Impl(predicate, action, otherwise);
+  public static Action when(Predicate<?> condition, Action action) {
+    return new When.Impl(condition, action, nop());
   }
+
+  public static Action when(Predicate<?> condition, Action action, Action otherwise) {
+    return new When.Impl(condition, action, otherwise);
+  }
+
+
   public static Action tag(int i) {
     return new Tag(i);
   }
