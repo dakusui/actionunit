@@ -77,6 +77,17 @@ public class UtilsTest {
     );
   }
 
+  @Test
+  public void givenStartAndStopAreDescendingAndNegativeStep$whenRangeIntIntInIsInvoked$thenWorksRight() {
+    List<Integer> result = asList(toArray(
+        range(3, 0, -1),
+        Integer.class));
+    assertEquals(
+        asList(3, 2, 1),
+        result
+    );
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeStep$whenRangeIsInvoked$thenIllegalArgument() {
     range(0, 1, 0);
@@ -86,6 +97,17 @@ public class UtilsTest {
   public void givenNearIntegerMax$whenGoBeyondMaximum$thenImmediatelyStops() {
     List<Integer> result = asList(toArray(
         range(Integer.MAX_VALUE, 0, 1),
+        Integer.class));
+    assertEquals(
+        emptyList(),
+        result
+    );
+  }
+
+  @Test
+  public void givenNearIntegerMin$whenGoBeyondMaximum$thenImmediatelyStops() {
+    List<Integer> result = asList(toArray(
+        range(Integer.MIN_VALUE, 0, -1),
         Integer.class));
     assertEquals(
         emptyList(),
