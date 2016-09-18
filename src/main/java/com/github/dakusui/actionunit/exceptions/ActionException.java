@@ -9,8 +9,10 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 /**
@@ -19,7 +21,11 @@ import static java.util.Arrays.asList;
 public class ActionException extends RuntimeException {
   private static final List<Entry<Class<? extends Throwable>, Class<? extends ActionException>>> EXCEPTION_MAP = asList(
       createMapping(IOException.class, ActionException.class),
-      createMapping(ClassCastException.class, ActionException.class)
+      createMapping(ClassCastException.class, ActionException.class),
+      createMapping(IllegalAccessException.class, ActionException.class),
+      createMapping(TimeoutException.class, ActionException.class),
+      createMapping(InterruptedException.class, ActionException.class),
+      createMapping(RuntimeException.class, ActionException.class)
   );
 
   /**
@@ -70,7 +76,7 @@ public class ActionException extends RuntimeException {
     ////
     // For unknown type of checked exception. Once this line is executed, consider
     // adding new mapping to the list.
-    throw new RuntimeException(t);
+    throw new Error(format("Consider adding a new mapping to ActionException.EXCEPTION_MAP: %s", t.getMessage()), t);
   }
 
   private static Class<? extends ActionException> figureOutExceptionClassToBeThrown(final Throwable t) {

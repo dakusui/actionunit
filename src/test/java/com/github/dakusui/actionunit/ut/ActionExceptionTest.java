@@ -11,7 +11,7 @@ public class ActionExceptionTest {
     throw ActionException.wrap(new IOException());
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = Error.class)
   public void givenUnknownCheckedException$whenWrap$thenRuntimeExceptionThrown() {
     throw ActionException.wrap(new Exception());
   }
@@ -26,7 +26,7 @@ public class ActionExceptionTest {
     throw ActionException.wrap(new NullPointerException());
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = Error.class)
   public void givenUnknownCheckedExceptioni$whenWrap$thenRuntimeException() {
     throw ActionException.wrap(new UnknownCheckedExceptionForTest());
   }

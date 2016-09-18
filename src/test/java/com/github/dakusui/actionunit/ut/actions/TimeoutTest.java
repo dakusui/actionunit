@@ -7,6 +7,8 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.github.dakusui.actionunit.Actions.*;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -38,5 +40,10 @@ public class TimeoutTest {
     } catch (ActionException e) {
       throw e.getCause();
     }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void givenNonPositive$whenCreateTimeoutAction$thenIllegalArgument() {
+    timeout(nop(), 0, TimeUnit.SECONDS);
   }
 }

@@ -34,10 +34,10 @@ public enum Utils {
     try {
       return future.get(timeout, timeUnit);
     } catch (InterruptedException e) {
-      throw new ActionException(e);
+      throw ActionException.wrap(e);
     } catch (TimeoutException e) {
       future.cancel(true);
-      throw new ActionException(e);
+      throw ActionException.wrap(e);
     } catch (ExecutionException e) {
       //unwrap the root cause
       Throwable cause = e.getCause();

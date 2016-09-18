@@ -169,7 +169,7 @@ public class ActionUnitTest {
   }
 
   @Test
-  public void givenTestMethodThrowingThroable$whenRunWithActionUnit$thenThrowableThrown() {
+  public void givenTestMethodThrowingThrowable$whenRunWithActionUnit$thenThrowableThrown() {
     Result result = JUnitCore.runClasses(TestMethodThrowsThrowable.class);
     assertEquals(1, checkNotNull(result).getRunCount());
     assertEquals(1, result.getFailureCount());
