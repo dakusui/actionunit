@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.sun.xml.internal.bind.v2.runtime.IllegalAnnotationException;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -32,7 +31,7 @@ public class ActionRunnerTest {
   }
 
   public static class Constructor extends Base {
-    @Test(expected = IllegalAnnotationException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void whenNegativeValueToConstructor$thenIllegalArgumentThrown() {
       try {
         new ActionRunner.Impl(-1);
