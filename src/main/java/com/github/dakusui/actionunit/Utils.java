@@ -48,6 +48,8 @@ public enum Utils {
       // It's safe to directly cast to RuntimeException, because a Callable can only
       // throw an Error or a RuntimeException.
       throw (RuntimeException) cause;
+    } finally {
+      executor.shutdownNow();
     }
   }
 

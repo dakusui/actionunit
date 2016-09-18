@@ -115,8 +115,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
           }
         }
       } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        pool.shutdownNow();
         throw ActionException.wrap(e);
       } catch (ExecutionException e) {
         if (e.getCause() instanceof Error) {
@@ -132,9 +130,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         throw ActionException.wrap(e);
       }
     } finally {
-      while (!pool.isShutdown()) {
-        pool.shutdown();
-      }
+      pool.shutdownNow();
     }
   }
 

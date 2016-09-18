@@ -320,11 +320,7 @@ public enum Actions {
     return new Leaf() {
       @Override
       public void perform() {
-        try {
-          timeUnit.sleep(duration);
-        } catch (InterruptedException e) {
-          throw ActionException.wrap(e);
-        }
+        Utils.sleep(duration, timeUnit);
       }
 
       @Override
