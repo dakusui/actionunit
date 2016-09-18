@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.sun.xml.internal.bind.v2.runtime.IllegalAnnotationException;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -30,6 +31,18 @@ public class ActionRunnerTest {
     }
   }
 
+  public static class Constructor extends Base {
+    @Test(expected = IllegalAnnotationException.class)
+    public void whenNegativeValueToConstructor$thenIllegalArgumentThrown() {
+      try {
+        new ActionRunner.Impl(-1);
+      } catch (IllegalArgumentException e) {
+        assertEquals("Thread pool size must be larger than 0 but -1 was given.", e.getMessage());
+      }
+    }
+  }
+
+
   public static class Value extends Base {
     @Test(expected = UnsupportedOperationException.class)
     public void givenNormalActionRunner$whenValue$thenUnsupportedException() {
@@ -47,7 +60,6 @@ public class ActionRunnerTest {
           )).size()
       );
     }
-
   }
 
 

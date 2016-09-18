@@ -419,6 +419,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
      * Creates an object of this class.
      */
     public Impl() {
+      this(DEFAULT_THREAD_POOL_SIZE);
+    }
+
+    public Impl(int threadPoolSize) {
+      super(threadPoolSize);
     }
 
     /**
