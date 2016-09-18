@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.AutocloseableIterator;
 import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.google.common.base.Function;
 import org.junit.Test;
@@ -254,6 +255,11 @@ public class UtilsTest {
         hasItemAt(5 + 4, containsString("closed@Collection"))
     ));
     assertEquals(10, out.size());
+  }
+
+  @Test(expected = ActionException.class)
+  public void givenNonExistingMethodName$whenGetMethodIsPerformed$thenWrappedExceptionThrown() {
+    Utils.getMethod(Object.class, "notExistingMethod");
   }
 
   /**

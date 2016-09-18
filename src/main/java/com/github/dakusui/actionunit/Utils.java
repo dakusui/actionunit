@@ -151,13 +151,7 @@ public enum Utils {
       }
 
       private Method getDummyMethod() {
-        try {
-          ////
-          // Just chose "toString" because we know java.lang.Object has the method.
-          return Object.class.getMethod("toString");
-        } catch (NoSuchMethodException e) {
-          throw wrap(e);
-        }
+        return getToStringMethod(Object.class);
       }
     };
   }
@@ -245,12 +239,8 @@ public enum Utils {
     if (obj == null) {
       return "null";
     }
-    try {
-      if (obj.getClass().getMethod("toString").equals(Object.class.getMethod("toString"))) {
-        return describeClassOf(obj);
-      }
-    } catch (NoSuchMethodException e) {
-      throw wrap(e);
+    if (getToStringMethod(obj.getClass()).equals(getToStringMethod(Object.class))) {
+      return describeClassOf(obj);
     }
     return obj.toString();
   }
@@ -266,5 +256,27 @@ public enum Utils {
       throw ActionException.wrap(e);
     }
   }
+
+  /**
+   * Returns a method without parameters which has a given {@code methodName} from
+   * a Class {@code klass}.
+   *
+   * @param klass A class from which method is searched.
+   * @param methodName A name of method to be returned.
+   */
+  public static Method getMethod(Class<?> klass, String methodName) {
+    try {
+      ////
+      // Just chose "toString" because we know java.lang.Object has the method.
+      return checkNotNull(klass).getMethod(checkNotNull(methodName));
+    } catch (NoSuchMethodException e) {
+      throw wrap(e);
+    }
+  }
+
+  private static Method getToStringMethod(Class<?> klass) {
+    return getMethod(klass, "toString");
+  }
+
 
 }
