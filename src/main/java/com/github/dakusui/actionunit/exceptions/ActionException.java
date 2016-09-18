@@ -10,12 +10,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ActionException extends RuntimeException {
   enum Mapping implements ExceptionMapping<ActionException> {
-    IO(IOException.class),
-    CLASS_CAST(ClassCastException.class),
-    ILLEGAL_ACCESS(IllegalAccessException.class),
-    TIMEOUT(TimeoutException.class),
-    INTERRUPTED(InterruptedException.class),
-    RUNTIME(RuntimeException.class);
+    @SuppressWarnings("unused")IO(IOException.class),
+    @SuppressWarnings("unused")CLASS_CAST(ClassCastException.class),
+    @SuppressWarnings("unused")ILLEGAL_ACCESS(IllegalAccessException.class),
+    @SuppressWarnings("unused")TIMEOUT(TimeoutException.class),
+    @SuppressWarnings("unused")INTERRUPTED(InterruptedException.class),
+    @SuppressWarnings("unused")RUNTIME(RuntimeException.class),
+    @SuppressWarnings("unused")NOSUCHMETHOD(NoSuchMethodException.class)
+    ;
 
     private final Class<? extends Throwable>       from;
     private final Class<? extends ActionException> to;
