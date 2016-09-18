@@ -94,7 +94,7 @@ public enum Utils {
     return -1;
   }
 
-  static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
+  public static boolean isGivenTypeExpected_ArrayOfExpected_OrIterable(Class<?> expected, Class<?> actual) {
     return expected.isAssignableFrom(actual)
         || (actual.isArray() && expected.isAssignableFrom(actual.getComponentType()))
         || Iterable.class.isAssignableFrom(actual);
@@ -110,7 +110,7 @@ public enum Utils {
    *
    * @param testClass original test class object.
    */
-  static TestClass createTestClassMock(final TestClass testClass) {
+  public static TestClass createTestClassMock(final TestClass testClass) {
     return new TestClass(testClass.getJavaClass()) {
       @Override
       public List<FrameworkMethod> getAnnotatedMethods(final Class<? extends Annotation> annClass) {

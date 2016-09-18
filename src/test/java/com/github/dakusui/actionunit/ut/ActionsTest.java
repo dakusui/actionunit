@@ -381,7 +381,7 @@ public class ActionsTest {
     action.accept(new ActionRunner.Impl());
   }
 
-  @Test(timeout = 300000)
+  @Test(timeout = 3000000)
   public void forEachTest() {
     final List<String> arr = new ArrayList<>();
     foreach(
@@ -604,7 +604,7 @@ public class ActionsTest {
   }
 
 
-  @Test(timeout = 300000)
+  @Test(timeout = 3000000)
   public void givenSleepAction$whenPerform$thenExpectedAmountOfTimeSpent() {
     ////
     // To force JVM load classes used by this test, run the action once for warm-up.

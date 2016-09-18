@@ -6,7 +6,10 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.google.common.base.Function;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
+import org.junit.runners.model.TestClass;
 
+import java.lang.annotation.Annotation;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
@@ -279,11 +282,6 @@ public class UtilsTest {
     assertEquals(10, out.size());
   }
 
-  @Test(expected = ActionException.class)
-  public void givenNonExistingMethodName$whenGetMethodIsPerformed$thenWrappedExceptionThrown() {
-    Utils.getMethod(Object.class, "notExistingMethod");
-  }
-
   /**
    * Returns an iterable whose {@code iterator()} method returns an iterator which
    * is also an {@code AutoCloseable}.
@@ -320,5 +318,23 @@ public class UtilsTest {
         return new Ret();
       }
     };
+  }
+
+  @Test(expected = ActionException.class)
+  public void givenNonExistingMethodName$whenGetMethodIsPerformed$thenWrappedExceptionThrown() {
+    Utils.getMethod(Object.class, "notExistingMethod");
+  }
+
+  @Test
+  public void gienTestClassMoke$whenAnnotationTypeMethodRun$thenParameterizedParametersReturned() {
+    Class<? extends Annotation> annotationType = Utils.createTestClassMock(new TestClass(DummyTestClass.class))
+        .getAnnotatedMethods(Parameterized.Parameters.class)
+        .get(0)
+        .getAnnotation(Parameterized.Parameters.class)
+        .annotationType();
+    assertEquals(Parameterized.Parameters.class, annotationType);
+  }
+
+  public static class DummyTestClass {
   }
 }

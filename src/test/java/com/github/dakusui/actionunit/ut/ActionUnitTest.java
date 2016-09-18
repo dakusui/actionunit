@@ -37,6 +37,15 @@ public class ActionUnitTest {
     }
   }
 
+
+  @RunWith(ActionUnit.class)
+  public static class UnsupportedArrayTypeReturningTestMethod {
+    @PerformWith(Test.class)
+    public String[] invalidArrayTypeTestMethod() {
+      return new String[] { nop().toString() };
+    }
+  }
+
   @RunWith(ActionUnit.class)
   public static class PerformerMethodDoesntHaveActionParameter {
     @PerformWith(Test.class)
@@ -130,6 +139,15 @@ public class ActionUnitTest {
     assertEquals(1, result.getFailureCount());
     assertEquals(false, result.wasSuccessful());
     assertEquals("Method invalidTypeTestMethod() must return Action, its array, or its iterable", result.getFailures().iterator().next().getMessage());
+  }
+
+  @Test
+  public void givenInvalidArrayMethod$whenRunWithActionUnit$thenError() {
+    Result result = JUnitCore.runClasses(UnsupportedArrayTypeReturningTestMethod.class);
+    assertEquals(1, checkNotNull(result).getRunCount());
+    assertEquals(1, result.getFailureCount());
+    assertEquals(false, result.wasSuccessful());
+    assertEquals("Method invalidArrayTypeTestMethod() must return Action, its array, or its iterable", result.getFailures().iterator().next().getMessage());
   }
 
   @Test
