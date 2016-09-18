@@ -83,8 +83,8 @@ public interface Piped<I, O> extends With<I> {
                               destinationSinksName,
                               Tag.createFromRange(0, destinationSinks.length)
                           ),
-                      /*(Sink<O>[])*/destinationSinks
-                      )))),
+                      /*(Sink<O>[])*/
+                          destinationSinks)))),
           new Sink/*<I>*/[] {
               new Sink<I>() {
                 @Override
@@ -96,9 +96,7 @@ public interface Piped<I, O> extends With<I> {
                   return describe(pipe);
                 }
               }
-          }
-
-      );
+          });
       this.source = checkNotNull(source);
       this.sourceName = sourceName;
       this.pipe = checkNotNull(pipe);

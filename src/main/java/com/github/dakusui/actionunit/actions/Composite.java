@@ -1,10 +1,11 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Autocloseables;
+import com.github.dakusui.actionunit.AutocloseableIterator;
 import com.google.common.collect.Iterables;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import static com.github.dakusui.actionunit.Utils.unknownIfNegative;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -18,7 +19,7 @@ import static java.lang.String.format;
  * @see Sequential
  * @see Concurrent
  */
-public interface Composite extends Action, Iterable<Action> {
+public interface Composite extends Action, AutocloseableIterator.Factory<Action> {
   /**
    * Returns number of actions that this object has if they are given as a {@link Collection}.
    * Otherwise, for instance actions are given as {@link Iterable}, {@code -1}
@@ -69,9 +70,9 @@ public interface Composite extends Action, Iterable<Action> {
     }
 
     @Override
-    public Iterator<Action> iterator() {
+    public AutocloseableIterator<Action> iterator() {
       //noinspection unchecked
-      return (Iterator<Action>) this.actions.iterator();
+      return (AutocloseableIterator<Action>) Autocloseables.autocloseable(this.actions.iterator());
     }
   }
 

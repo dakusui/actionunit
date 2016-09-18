@@ -6,12 +6,22 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import org.hamcrest.Matcher;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public enum Connectors {
   ;
+
+  public static final Object INVALID = new Object() {
+    @Override
+    public String toString() {
+      return "(N/A)";
+    }
+  };
 
   public static <I, O> Pipe<I, O> toPipe(String description, final Function<? super I, ? extends O> func) {
     checkNotNull(func);
@@ -107,4 +117,15 @@ public enum Connectors {
     };
   }
 
+  public static Object[] composeContextValues(Context context) {
+    List<Object> args = new LinkedList<>();
+    while ((context = context.getParent()) != null) {
+      if (context.hasValue()) {
+        args.add(context.value());
+      } else {
+        args.add(INVALID);
+      }
+    }
+    return args.toArray();
+  }
 }

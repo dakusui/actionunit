@@ -3,9 +3,6 @@ package com.github.dakusui.actionunit.connectors;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * Executes an operation based on an input value.
  *
@@ -26,15 +23,7 @@ public interface Sink<T> {
     }
 
     public void apply(T input, Context context) {
-      List<Object> args = new LinkedList<>();
-      Context parent = context.getParent();
-      if (parent != null) {
-        while (parent.getParent() != null) {
-          args.add(parent.value());
-          parent = parent.getParent();
-        }
-      }
-      this.apply(input, args.toArray());
+      this.apply(input, Connectors.composeContextValues(context));
     }
 
     /**

@@ -21,11 +21,10 @@ import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Utils.transform;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
-import static com.google.common.collect.Iterables.toArray;
+import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -339,7 +338,7 @@ public class ActionsTest {
       retry(simple(new Runnable() {
             @Override
             public void run() {
-                out.writeLine("Hello");
+              out.writeLine("Hello");
               throw Abort.abort(new IOException());
             }
           }),
@@ -404,6 +403,96 @@ public class ActionsTest {
             }
         ))
     );
+  }
+
+  @Test
+  public void givenForEachActionWithAutoCloseableDataSource$whenPerformed$thenClosedLooksNice() {
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", "hello", "world"),
+        SEQUENTIALLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.WithResult());
+
+    assertThat(
+        out,
+        allOf(
+            hasItemAt(0, equalTo("hello")),
+            hasItemAt(1, equalTo("world")),
+            hasItemAt(2, equalTo("closed"))
+        ));
+  }
+
+  @Test
+  public void givenConcurrentForEachActionWithAutoCloseableDataSource$whenPerformed$thenClosedLooksNice() {
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", "hello", "world"),
+        CONCURRENTLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.Impl());
+
+    assertThat(
+        out,
+        allOf(
+            anyOf(
+                hasItemAt(0, equalTo("hello")),
+                hasItemAt(0, equalTo("world"))
+            ),
+            anyOf(
+                hasItemAt(1, equalTo("hello")),
+                hasItemAt(1, equalTo("world"))
+            ),
+            hasItemAt(2, equalTo("closed"))));
+  }
+
+  @SafeVarargs
+  private static <T> List<T> autocloseableList(final TestUtils.Out out, final String msg, final T... values) {
+    return new AbstractList<T>() {
+      public Iterator<T> iterator() {
+        class I implements Iterator<T>, AutoCloseable {
+          final Iterator<T> inner = asList(values).iterator();
+
+          @Override
+          public void close() throws Exception {
+            out.writeLine(msg);
+          }
+
+          @Override
+          public boolean hasNext() {
+            return inner.hasNext();
+          }
+
+          @Override
+          public T next() {
+            return inner.next();
+          }
+        }
+        return new I();
+      }
+
+      @Override
+      public T get(int index) {
+        return values[index];
+      }
+
+      @Override
+      public int size() {
+        return values.length;
+      }
+    };
   }
 
   @Test
@@ -598,30 +687,38 @@ public class ActionsTest {
 
   @Test
   public void givenSimplePipeAction$whenPerformed$thenWorksFine() {
-    final List<TestOutput.Text> out = new LinkedList<>();
-    foreach(asList("world", "WORLD"),
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(asList("world", "WORLD", "test", "hello"),
         pipe(
             new Function<String, TestOutput.Text>() {
               @Override
               public TestOutput.Text apply(String s) {
+                System.out.println("func:" + s);
                 return new TestOutput.Text("hello:" + s);
               }
             },
             new Sink<TestOutput.Text>() {
               @Override
               public void apply(TestOutput.Text input, Context context) {
-                out.add(input);
+                System.out.println("sink:" + input);
+                out.writeLine(input.toString());
               }
             }
-        )).accept(new ActionRunner.Impl());
-    assertArrayEquals(
-        asList("hello:world", "hello:WORLD").toArray(new String[2]),
-        toArray(transform(out, new Function<TestOutput.Text, String>() {
-          @Override
-          public String apply(TestOutput.Text input) {
-            return input.value();
-          }
-        }), String.class)
+        ));
+    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    try {
+      action.accept(runner);
+    } finally {
+      action.accept(runner.createPrinter());
+    }
+    assertThat(
+        out,
+        allOf(
+            hasItemAt(0, equalTo("hello:world")),
+            hasItemAt(1, equalTo("hello:WORLD")),
+            hasItemAt(2, equalTo("hello:test")),
+            hasItemAt(3, equalTo("hello:hello"))
+        )
     );
   }
 

@@ -1,6 +1,8 @@
 package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.AutocloseableIterator;
+import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
@@ -9,17 +11,13 @@ import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -60,7 +58,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Action action) {
-    throw new UnsupportedOperationException(String.format("Unsupported action type '%s'", action.getClass().getCanonicalName()));
+    throw new UnsupportedOperationException(format("Unsupported action type '%s'", action.getClass().getCanonicalName()));
   }
 
   /**
@@ -83,8 +81,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Sequential action) {
-    for (Action each : action) {
-      toRunnable(each).run();
+    try (AutocloseableIterator<Action> i = action.iterator()) {
+      while (i.hasNext()) {
+        toRunnable(i.next()).run();
+      }
     }
   }
 
@@ -97,25 +97,40 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   public void visit(Concurrent action) {
     final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
     try {
-      for (final Future<Boolean> future : pool.invokeAll(newArrayList(toCallables(action)))) {
+      Iterator<Callable<Boolean>> i = toCallables(action).iterator();
+      //noinspection unused
+      try (AutoCloseable resource = Autocloseables.toAutocloseable(i)) {
+        List<Future<Boolean>> futures = new ArrayList<>(this.threadPoolSize);
+        while (i.hasNext()) {
+          futures.add(pool.submit(i.next()));
+          if (futures.size() == this.threadPoolSize || !i.hasNext()) {
+            for (Future<Boolean> each : futures) {
+              ////
+              // Unless accessing the returned value of Future#get(), compiler may
+              // optimize execution and the action may not be executed even if this loop
+              // has ended.
+              //noinspection unused
+              each.get();
+            }
+          }
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        pool.shutdownNow();
+        throw ActionException.wrap(e);
+      } catch (ExecutionException e) {
+        if (e.getCause() instanceof Error) {
+          throw (Error) e.getCause();
+        }
         ////
-        // Unless accessing the returned value of Future#get(), compiler may
-        // optimize execution and the action may not be executed even if this loop
-        // has ended.
-        //noinspection unused
-        boolean value = future.get();
+        // It's safe to cast to RuntimeException, because checked exception cannot
+        // be thrown from inside Runnable#run()
+        throw (RuntimeException) e.getCause();
+      } catch (RuntimeException e) {
+        throw e;
+      } catch (Exception e) {
+        throw ActionException.wrap(e);
       }
-    } catch (InterruptedException e) {
-      pool.shutdownNow();
-      Thread.currentThread().interrupt();
-    } catch (ExecutionException e) {
-      if (e.getCause() instanceof Error) {
-        throw (Error) e.getCause();
-      }
-      ////
-      // It's safe to cast to RuntimeException, because checked exception cannot
-      // be thrown from inside Runnable#run()
-      throw (RuntimeException) e.getCause();
     } finally {
       while (!pool.isShutdown()) {
         pool.shutdown();
@@ -325,6 +340,82 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   /**
+   * This interface is used to suppress path calculation, which is
+   * performed by {@link WithResult}
+   * and its printer.
+   */
+  public interface IgnoredInPathCalculation {
+    abstract class Composite implements com.github.dakusui.actionunit.actions.Composite, IgnoredInPathCalculation {
+      final com.github.dakusui.actionunit.actions.Composite inner;
+
+      public Composite(com.github.dakusui.actionunit.actions.Composite inner) {
+        this.inner = inner;
+      }
+
+      @Override
+      public int size() {
+        return inner.size();
+      }
+
+      @Override
+      public AutocloseableIterator<Action> iterator() {
+        return inner.iterator();
+      }
+
+      public static <T extends Composite> T create(com.github.dakusui.actionunit.actions.Composite composite) {
+        Composite ret;
+        if (composite instanceof com.github.dakusui.actionunit.actions.Sequential) {
+          ret = new Sequential((com.github.dakusui.actionunit.actions.Sequential) composite);
+        } else if (composite instanceof com.github.dakusui.actionunit.actions.Concurrent) {
+          ret = new Concurrent((com.github.dakusui.actionunit.actions.Concurrent) composite);
+        } else {
+          throw new ActionException(format("Unknown type of composite action was given: %s", describe(composite)));
+        }
+        //noinspection unchecked
+        return (T) ret;
+      }
+    }
+
+    /**
+     * A sequential action created by and run as a part of {@code ForEach} action.
+     *
+     * @see IgnoredInPathCalculation
+     */
+    class Sequential extends Composite implements com.github.dakusui.actionunit.actions.Sequential {
+      public Sequential(com.github.dakusui.actionunit.actions.Sequential sequential) {
+        super(sequential);
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
+    }
+
+    class Concurrent extends Composite implements com.github.dakusui.actionunit.actions.Concurrent {
+      public Concurrent(com.github.dakusui.actionunit.actions.Concurrent concurrent) {
+        super(concurrent);
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
+    }
+
+    /**
+     * A "with" action created by and run as a part of {@code ForEach} action.
+     *
+     * @param <U> Type of the value with which child {@code Action} is executed.
+     */
+    class With<U> extends com.github.dakusui.actionunit.actions.With.Base<U> implements IgnoredInPathCalculation {
+      public With(Source<U> source, Action action, Sink<U>[] sinks) {
+        super(source, action, sinks);
+      }
+    }
+  }
+
+  /**
    * A simple implementation of an {@link ActionRunner}.
    */
   public static class Impl extends ActionRunner {
@@ -364,51 +455,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   public static class WithResult extends ActionRunner.Impl implements Action.Visitor {
-    /**
-     * This interface is used to suppress path calculation, which is
-     * performed by {@link WithResult}
-     * and its printer.
-     */
-    public interface IgnoredInPathCalculation {
-      /**
-       * A sequential action created by and run as a part of {@code ForEach} action.
-       *
-       * @see IgnoredInPathCalculation
-       */
-      class Sequential implements com.github.dakusui.actionunit.actions.Sequential, IgnoredInPathCalculation {
-        final com.github.dakusui.actionunit.actions.Sequential sequential;
-
-        public Sequential(com.github.dakusui.actionunit.actions.Sequential sequential) {
-          this.sequential = sequential;
-        }
-
-        @Override
-        public void accept(Visitor visitor) {
-          visitor.visit(this);
-        }
-
-        @Override
-        public int size() {
-          return sequential.size();
-        }
-
-        @Override
-        public Iterator<Action> iterator() {
-          return sequential.iterator();
-        }
-      }
-
-      /**
-       * A "with" action created by and run as a part of {@code ForEach} action.
-       *
-       * @param <U> Type of the value with which child {@code Action} is executed.
-       */
-      class With<U> extends com.github.dakusui.actionunit.actions.With.Base<U> implements IgnoredInPathCalculation {
-        public With(Source<U> source, Action action, Sink<U>[] sinks) {
-          super(source, action, sinks);
-        }
-      }
-    }
 
     public static class Path extends LinkedList<Action> {
       public Path snapshot() {
@@ -770,9 +816,9 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
     public static class Result {
       private static final Result FIRST_TIME = new Result(0, Code.NOTRUN, null);
-      public final  int       count;
-      public final  Code      code;
-      public final  Throwable thrown;
+      public final int       count;
+      public final Code      code;
+      public final Throwable thrown;
 
       private Result(int count, Code code, Throwable thrown) {
         this.count = count;

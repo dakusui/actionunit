@@ -69,7 +69,7 @@ public class ForEach<T> extends Nested.Base {
         return new ActionRunner.WithResult.IgnoredInPathCalculation.With<>(t, ForEach.this.getAction(), ForEach.this.sinks);
       }
     };
-    return new ActionRunner.WithResult.IgnoredInPathCalculation.Sequential((Sequential) ForEach.this.factory.create(transform(dataSource, func)));
+    return ActionRunner.IgnoredInPathCalculation.Composite.create(ForEach.this.factory.create(transform(dataSource, func)));
   }
 
   public enum Mode {

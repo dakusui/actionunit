@@ -3,8 +3,6 @@ package com.github.dakusui.actionunit;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -162,13 +160,13 @@ public enum Utils {
     };
   }
 
-  public static <I, O> Iterable<O> transform(Iterable<I> in, Function<? super I, ? extends O> func) {
+  public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> func) {
     checkNotNull(func);
     if (in instanceof Collection) {
       //noinspection unchecked
-      return (Iterable<O>) Collections2.transform((Collection<I>) in, func);
+      return (Iterable<O>) Autocloseables.transform((Collection<I>) in, func);
     }
-    return Iterables.transform(in, func);
+    return Autocloseables.transform(in, func);
   }
 
   /**
@@ -263,7 +261,8 @@ public enum Utils {
     try {
       checkNotNull(timeUnit).sleep(duration);
     } catch (InterruptedException e) {
-      ActionException.wrap(e);
+      throw ActionException.wrap(e);
     }
   }
+
 }
