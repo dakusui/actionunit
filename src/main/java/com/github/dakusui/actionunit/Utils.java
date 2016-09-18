@@ -163,8 +163,8 @@ public enum Utils {
   public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> func) {
     checkNotNull(func);
     if (in instanceof Collection) {
-      //noinspection unchecked
-      return (Iterable<O>) Autocloseables.transform((Collection<I>) in, func);
+      //noinspection unchecked,RedundantCast
+      return (Collection<O>) Autocloseables.<I,O>transform((Collection<I>) in, func);
     }
     return Autocloseables.transform(in, func);
   }

@@ -479,6 +479,11 @@ public class ActionsTest {
           public T next() {
             return inner.next();
           }
+
+          @Override
+          public void remove() {
+            throw new UnsupportedOperationException();
+          }
         }
         return new I();
       }

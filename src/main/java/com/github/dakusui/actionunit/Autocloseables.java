@@ -81,6 +81,11 @@ public enum Autocloseables {
       public T next() {
         return iterator.next();
       }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
     };
   }
 

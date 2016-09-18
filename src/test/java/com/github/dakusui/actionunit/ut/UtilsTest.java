@@ -200,6 +200,11 @@ public class UtilsTest {
           public String next() {
             return inner.next();
           }
+
+          @Override
+          public void remove() {
+            throw new UnsupportedOperationException();
+          }
         }
         return new Ret();
       }
@@ -277,6 +282,11 @@ public class UtilsTest {
           @Override
           public String next() {
             return inner.next();
+          }
+
+          @Override
+          public void remove() {
+            throw new UnsupportedOperationException();
           }
         }
         return new Ret();
