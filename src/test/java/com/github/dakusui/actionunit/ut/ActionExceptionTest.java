@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertNotNull;
+
 public class ActionExceptionTest {
   @Test(expected = ActionException.class)
   public void givenKnownCheckedException$whenWrap$thenActionExceptionThrown() {
@@ -29,6 +31,11 @@ public class ActionExceptionTest {
   @Test(expected = Error.class)
   public void givenUnknownCheckedExceptioni$whenWrap$thenRuntimeException() {
     throw ActionException.wrap(new UnknownCheckedExceptionForTest());
+  }
+
+  @Test
+  public void whenThrowableOnlyConstructorIsInvoked$thenInstantiatedProperly() {
+    assertNotNull(new ActionException(new Exception()));
   }
 
   public static class UnknownCheckedExceptionForTest extends Exception {
