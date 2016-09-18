@@ -315,7 +315,7 @@ public enum Actions {
    * @param timeUnit Time unit of the {@code duration}.
    */
   public static Action sleep(final long duration, final TimeUnit timeUnit) {
-    checkArgument(duration >= 0, "duration must be non-negative but %d was given", duration);
+    checkArgument(duration >= 0, "duration must be non-negative but %s was given", duration);
     checkNotNull(timeUnit);
     return new Leaf() {
       @Override

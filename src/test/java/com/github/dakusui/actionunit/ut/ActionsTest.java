@@ -11,6 +11,7 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
+import com.google.common.base.Predicates;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 
@@ -374,6 +375,12 @@ public class ActionsTest {
     assertEquals("Retry(2[seconds]x1times)", describe(retry(nop(), 1, 2, SECONDS)));
   }
 
+  @Test(timeout = 3000000)
+  public void givenNothingForChildAction$whenWhilActionPerformedWithAlwaysFalseCondition$thenQuitImmediately() {
+    Action action = repeatwhile(Predicates.alwaysFalse());
+    action.accept(new ActionRunner.Impl());
+  }
+
   @Test(timeout = 300000)
   public void forEachTest() {
     final List<String> arr = new ArrayList<>();
@@ -598,7 +605,7 @@ public class ActionsTest {
 
 
   @Test(timeout = 300000)
-  public void givenWaitForAction$whenPerform$thenExpectedAmountOfTimeSpent() {
+  public void givenSleepAction$whenPerform$thenExpectedAmountOfTimeSpent() {
     ////
     // To force JVM load classes used by this test, run the action once for warm-up.
     sleep(1, TimeUnit.MILLISECONDS).accept(new ActionRunner.Impl());
@@ -619,6 +626,16 @@ public class ActionsTest {
             lessThan(3L)
         )
     );
+  }
+
+  @Test
+  public void givenSleep$whenToString$thenLooksGood() {
+    assertEquals("sleep for 1[seconds]", sleep(1234, TimeUnit.MILLISECONDS).toString());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void givenNegative$whenSleep$thenException() {
+    sleep(-1, TimeUnit.MILLISECONDS);
   }
 
   @Test
