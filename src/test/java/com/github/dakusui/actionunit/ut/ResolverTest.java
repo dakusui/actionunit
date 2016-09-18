@@ -12,6 +12,7 @@ import java.rmi.NoSuchObjectException;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -150,6 +151,16 @@ public class ResolverTest {
 
           ));
       throw error.getCause();
+    }
+  }
+
+  @Test(expected = Error.class)
+  public void givenNull$whenResolve$thenError() {
+    try {
+      throw resolver.resolve(null);
+    } catch (Error error) {
+      assertEquals("null is not allowed here", error.getMessage());
+      throw error;
     }
   }
 }
