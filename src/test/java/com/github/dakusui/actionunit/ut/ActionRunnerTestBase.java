@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import static com.github.dakusui.actionunit.Actions.simple;
 import static org.junit.Assert.assertTrue;
 
-abstract class ActionRunnerTestBase {
+public abstract class ActionRunnerTestBase {
   private final TestUtils.Out out    = new TestUtils.Out();
   private final ActionRunner  runner = createRunner();
 

@@ -37,6 +37,7 @@ public class ActionRunnerTest {
         new ActionRunner.Impl(-1);
       } catch (IllegalArgumentException e) {
         assertEquals("Thread pool size must be larger than 0 but -1 was given.", e.getMessage());
+        throw e;
       }
     }
   }

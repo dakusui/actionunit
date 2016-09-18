@@ -124,8 +124,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         // It's safe to cast to RuntimeException, because checked exception cannot
         // be thrown from inside Runnable#run()
         throw (RuntimeException) e.getCause();
-      } catch (RuntimeException e) {
-        throw e;
       } catch (Exception e) {
         throw ActionException.wrap(e);
       }

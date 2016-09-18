@@ -325,7 +325,7 @@ public enum Actions {
 
       @Override
       public String toString() {
-        return format("Wait for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
+        return format("sleep for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
       }
     };
   }
