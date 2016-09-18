@@ -164,9 +164,9 @@ public enum Utils {
     checkNotNull(func);
     if (in instanceof Collection) {
       //noinspection unchecked,RedundantCast
-      return (Collection<O>) Autocloseables.<I,O>transform((Collection<I>) in, func);
+      return (Collection<O>) Autocloseables.transformCollection((Collection<I>) in, (Function<? super I, O>) func);
     }
-    return Autocloseables.transform(in, func);
+    return Autocloseables.transformIterable(in, func);
   }
 
   /**

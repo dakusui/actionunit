@@ -11,7 +11,7 @@ import java.util.Iterator;
 public enum Autocloseables {
   ;
 
-  public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> function) {
+  public static <I, O> Iterable<O> transformIterable(final Iterable<I> in, final Function<? super I, ? extends O> function) {
     return new AutocloseableIterator.Factory<O>() {
       @Override
       public AutocloseableIterator<O> iterator() {
@@ -25,7 +25,7 @@ public enum Autocloseables {
     };
   }
 
-  public static <I, O> Collection<O> transform(final Collection<I> in, final Function<? super I, O> function) {
+  public static <I, O> Collection<O> transformCollection(final Collection<I> in, final Function<? super I, O> function) {
     return new AbstractCollection<O>() {
       @Override
       public void clear() {
