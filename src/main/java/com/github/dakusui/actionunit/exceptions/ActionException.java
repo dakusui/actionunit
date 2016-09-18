@@ -1,32 +1,46 @@
 package com.github.dakusui.actionunit.exceptions;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 /**
  * Encapsulate a general Action error or warning.
  */
 public class ActionException extends RuntimeException {
-  private static final List<Entry<Class<? extends Throwable>, Class<? extends ActionException>>> EXCEPTION_MAP = asList(
-      createMapping(IOException.class, ActionException.class),
-      createMapping(ClassCastException.class, ActionException.class),
-      createMapping(IllegalAccessException.class, ActionException.class),
-      createMapping(TimeoutException.class, ActionException.class),
-      createMapping(InterruptedException.class, ActionException.class),
-      createMapping(RuntimeException.class, ActionException.class)
-  );
+  enum Mapping implements ExceptionMapping<ActionException> {
+    IO(IOException.class),
+    CLASS_CAST(ClassCastException.class),
+    ILLEGAL_ACCESS(IllegalAccessException.class),
+    TIMEOUT(TimeoutException.class),
+    INTERRUPTED(InterruptedException.class),
+    RUNTIME(RuntimeException.class);
+
+    private final Class<? extends Throwable>       from;
+    private final Class<? extends ActionException> to;
+
+    Mapping(Class<? extends Throwable> from) {
+      this(from, ActionException.class);
+    }
+
+    Mapping(Class<? extends Throwable> from, Class<? extends ActionException> to) {
+      this.from = checkNotNull(from);
+      this.to = checkNotNull(to);
+    }
+
+    @Override
+    public Class<? extends ActionException> getApplicationExceptionClass() {
+      return this.to;
+    }
+
+    @Override
+    public Class<? extends Throwable> getNativeExceptionClass() {
+      return this.from;
+    }
+  }
+
+  public static final ExceptionMapping.Resolver<ActionException> RESOLVER = ExceptionMapping.Resolver.Factory.create(Mapping.class);
 
   /**
    * Creates a new {@code ActionException} with a given message.
@@ -61,50 +75,12 @@ public class ActionException extends RuntimeException {
 
 
   public static <T extends ActionException> T wrap(Throwable t) {
-    //noinspection ThrowableResultOfMethodCallIgnored
-    checkNotNull(t);
     if (t instanceof Error) {
       throw (Error) t;
     }
     if (t instanceof RuntimeException) {
       throw (RuntimeException) t;
     }
-    Class<? extends ActionException> exceptionClass = figureOutExceptionClassToBeThrown(t);
-    if (exceptionClass != null) {
-      throw instantiate(exceptionClass, t);
-    }
-    ////
-    // For unknown type of checked exception. Once this line is executed, consider
-    // adding new mapping to the list.
-    throw new Error(format("Consider adding a new mapping to ActionException.EXCEPTION_MAP: %s", t.getMessage()), t);
-  }
-
-  private static Class<? extends ActionException> figureOutExceptionClassToBeThrown(final Throwable t) {
-    //noinspection ThrowableResultOfMethodCallIgnored
-    checkNotNull(t);
-    Iterator<Entry<Class<? extends Throwable>, Class<? extends ActionException>>> found = Iterables.filter(EXCEPTION_MAP, new Predicate<Entry<Class<? extends Throwable>, Class<? extends ActionException>>>() {
-      @Override
-      public boolean apply(Entry<Class<? extends Throwable>, Class<? extends ActionException>> input) {
-        return input.getKey().isAssignableFrom(t.getClass());
-      }
-    }).iterator();
-    if (found.hasNext()) {
-      return found.next().getValue();
-    }
-    return null;
-  }
-
-  private static <T extends ActionException> T instantiate(Class<T> exceptionClass, Throwable nested) {
-    try {
-      return exceptionClass.getConstructor(String.class, Throwable.class).newInstance(nested.getMessage(), nested);
-    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-      throw ActionException.wrap(e);
-    }
-  }
-
-  private static Entry<Class<? extends Throwable>, Class<? extends ActionException>> createMapping(
-      Class<? extends Throwable> from,
-      Class<? extends ActionException> to) {
-    return new SimpleEntry<Class<? extends Throwable>, Class<? extends ActionException>>(checkNotNull(from), checkNotNull(to));
+    throw RESOLVER.resolve(t);
   }
 }
