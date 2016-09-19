@@ -114,8 +114,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
             }
           }
         }
-      } catch (InterruptedException e) {
-        throw ActionException.wrap(e);
       } catch (ExecutionException e) {
         if (e.getCause() instanceof Error) {
           throw (Error) e.getCause();
@@ -125,6 +123,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         // be thrown from inside Runnable#run()
         throw (RuntimeException) e.getCause();
       } catch (Exception e) {
+        // InterruptedException should be handled by this clause, too.
         throw ActionException.wrap(e);
       }
     } finally {
@@ -150,7 +149,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   @Override
   public void visit(While action) {
     //noinspection unchecked
-    while (action.apply(this.hasValue() ? this.value() : null)) {
+    while (action.apply(getContextValue())) {
       action.getAction().accept(this);
     }
   }
@@ -170,12 +169,12 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(When when) {
+  public void visit(When action) {
     //noinspection unchecked
-    if (when.apply(this.hasValue() ? this.value() : null)) {
-      when.getAction().accept(this);
+    if (action.apply(getContextValue())) {
+      action.getAction().accept(this);
     } else {
-      when.otherwise().accept(this);
+      action.otherwise().accept(this);
     }
   }
 
@@ -292,6 +291,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
   private static void acceptTagAction(Tag tagAction, With withAction, ActionRunner runner) {
     tagAction.toLeaf(withAction.getSource(), withAction.getSinks(), runner).accept(runner);
+  }
+
+  private Object getContextValue() {
+    return this.hasValue() ? this.value() : null;
   }
 
   private Iterable<Runnable> toRunnables(final Iterable<? extends Action> actions) {
@@ -475,7 +478,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         if (action instanceof IgnoredInPathCalculation) {
           return this;
         }
-        checkState(getAction(action) == this.remove(this.size() - 1));
+        assert getAction(action) == this.remove(this.size() - 1);
         return this;
       }
 
