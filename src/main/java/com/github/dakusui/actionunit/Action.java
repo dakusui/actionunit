@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.exceptions.Abort;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.
@@ -106,8 +105,6 @@ public interface Action {
 
     /**
      * Visits an {@code action}.
-     * An implementation of this method should not attempt retry if {@link Abort} exception
-     * is thrown.
      *
      * @param action action to be visited by this object.
      */

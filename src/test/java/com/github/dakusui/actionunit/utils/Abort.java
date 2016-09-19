@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.exceptions;
+package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.actions.Retry;
 

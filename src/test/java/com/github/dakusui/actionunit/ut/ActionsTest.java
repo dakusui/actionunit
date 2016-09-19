@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.exceptions.Abort;
+import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;

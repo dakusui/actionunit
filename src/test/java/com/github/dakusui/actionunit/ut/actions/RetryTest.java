@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.actions.Retry;
-import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -27,21 +26,28 @@ public class RetryTest {
     new Retry(ActionException.class, nop(), 1, -100 /* this is not valid*/);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void givenAbort$whenCreated$thenExceptionThrown() {
-    new Retry(Abort.class  /* this is not valid*/, nop(), 1, 1);
-  }
-
   @Test
   public void givenFOREVERAsTimes$whenCreated$thenExceptionNotThrown() {
     // Make sure only an exception is not thrown on instantiation.
     new Retry(ActionException.class, nop(), 1, Retry.INFINITE);
   }
 
-  @Test(timeout = 3000000)
-  public void given0AsTimes$whenCreated$thenExceptionNotThrown() {
+  @Test(expected = RuntimeException.class, timeout = 3000000)
+  public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(ActionException.class, nop(), 0, Retry.INFINITE).accept(new ActionRunner.Impl());
+    new Retry(ActionException.class, simple(new Runnable() {
+      boolean firstTime = true;
+      @Override
+      public void run() {
+        try {
+          if (firstTime) {
+            throw new RuntimeException();
+          }
+        } finally {
+          firstTime = false;
+        }
+      }
+    }), 0, Retry.INFINITE).accept(new ActionRunner.Impl());
   }
 
   @Test
@@ -59,7 +65,7 @@ public class RetryTest {
           allOf(
               hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
               hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
-              hasItemAt(2, equalTo("    (+)RetryTest$1; 3 times"))
+              hasItemAt(2, equalTo("    (+)RetryTest$2; 3 times"))
           ));
       assertThat(
           outForTree,
@@ -95,7 +101,7 @@ public class RetryTest {
           allOf(
               hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
               hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
-              hasItemAt(2, equalTo("    (+)RetryTest$1; 3 times"))
+              hasItemAt(2, equalTo("    (+)RetryTest$2; 3 times"))
           ));
       assertThat(
           outForTree,

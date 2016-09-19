@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.exceptions.Abort;
 
 import static com.github.dakusui.actionunit.Utils.formatDuration;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -21,7 +20,6 @@ public class Retry extends ActionBase {
   public <T extends Throwable> Retry(Class<T> targetExceptionClass, Action action, long intervalInNanos, int times) {
     checkArgument(intervalInNanos >= 0);
     checkArgument(times >= 0 || times == INFINITE);
-    checkArgument(!Abort.class.isAssignableFrom(targetExceptionClass));
     this.targetExceptionClass = targetExceptionClass;
     this.action = checkNotNull(action);
     this.intervalInNanos = intervalInNanos;
