@@ -38,6 +38,12 @@ public class RetryTest {
     new Retry(ActionException.class, nop(), 1, Retry.INFINITE);
   }
 
+  @Test(timeout = 3000000)
+  public void given0AsTimes$whenCreated$thenExceptionNotThrown() {
+    // Make sure if 0 is given as retries, action will immediately quit.
+    new Retry(ActionException.class, nop(), 0, Retry.INFINITE).accept(new ActionRunner.Impl());
+  }
+
   @Test
   public void givenRetryOnNpe$whenNpeThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();

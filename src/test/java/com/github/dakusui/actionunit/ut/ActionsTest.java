@@ -437,6 +437,55 @@ public class ActionsTest {
   }
 
   @Test
+  public void givenForEachActionWithAutoCloseableDataSource$whenPerformedConcurrently$thenClosedLooksNice() {
+    String[] data = { "hello1", "hello2", "hello3", "hello4", "hello5" };
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", data),
+        CONCURRENTLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.Impl(data.length - 1));
+
+    assertThat(
+        out,
+        allOf(
+            hasItem(equalTo("hello5")),
+            hasItem(equalTo("hello2")),
+            hasItem(equalTo("hello3")),
+            hasItem(equalTo("hello4")),
+            hasItem(equalTo("hello5")),
+            hasItemAt(5, equalTo("closed"))
+        ));
+    assertEquals(6, out.size());
+  }
+
+  @Test
+  public void givenForEachActionWithEmptyAutoCloseableDataSource$whenPerformedConcurrently$thenClosedLooksNice() {
+    String[] data = {};
+    final TestUtils.Out out = new TestUtils.Out();
+    Action action = foreach(
+        autocloseableList(out, "closed", data),
+        CONCURRENTLY,
+        new Sink.Base<String>() {
+          @Override
+          public void apply(String s, Object... outer) {
+            out.writeLine(s);
+          }
+        }
+    );
+    action.accept(new ActionRunner.Impl());
+
+    assertThat(out, hasItemAt(0, equalTo("closed")));
+    assertEquals(1, out.size());
+  }
+
+  @Test
   public void givenConcurrentForEachActionWithAutoCloseableDataSource$whenPerformed$thenClosedLooksNice() {
     final TestUtils.Out out = new TestUtils.Out();
     Action action = foreach(

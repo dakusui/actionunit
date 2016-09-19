@@ -18,6 +18,7 @@ import static com.github.dakusui.actionunit.Utils.*;
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.size;
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -95,7 +96,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Concurrent action) {
-    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, size(action)));
+    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, size(action))));
     try {
       Iterator<Callable<Boolean>> i = toCallables(action).iterator();
       //noinspection unused
