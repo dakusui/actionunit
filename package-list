@@ -1,2 +1,5 @@
 com.github.dakusui.actionunit
+com.github.dakusui.actionunit.actions
+com.github.dakusui.actionunit.connectors
+com.github.dakusui.actionunit.exceptions
 com.github.dakusui.actionunit.visitors
