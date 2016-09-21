@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
+import com.github.dakusui.actionunit.connectors.Sink;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import org.hamcrest.Matchers;
@@ -68,6 +69,17 @@ public class ConnectorsTest {
   }
 
   @Test
+  public void givenPipeFromSinkWithoutDescription$whenToString$thenValueCreatedFromClassName() {
+    String toString = Connectors.toPipe(new Sink<Object>() {
+      @Override
+      public void apply(Object input, Context context) {
+      }
+    }).toString();
+
+    assertThat(toString, Matchers.startsWith("Sink(ConnectorsTest$"));
+  }
+
+  @Test
   public void givenPipeWithoutDescription$whenToString$thenValueCreatedFromClassName() {
     String toString = Connectors.toPipe(new Function<Object, Object>() {
       @Override
@@ -110,13 +122,8 @@ public class ConnectorsTest {
       }
 
       @Override
-      public boolean hasValue() {
-        return true;
-      }
-
-      @Override
-      public <T> T value() {
-        return null;
+      public Object value() {
+        return Connectors.INVALID;
       }
     };
   }

@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Concurrent;
 import com.github.dakusui.actionunit.actions.Sequential;
+import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -53,9 +54,9 @@ public class ActionRunnerTest {
 
 
   public static class Value extends Base {
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void givenNormalActionRunner$whenValue$thenUnsupportedException() {
-      getRunner().value();
+      assertEquals(Connectors.INVALID, getRunner().value());
     }
   }
 

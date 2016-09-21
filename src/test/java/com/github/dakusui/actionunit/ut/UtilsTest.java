@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.AutocloseableIterator;
+import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.Utils;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -153,7 +154,7 @@ public class UtilsTest {
   @Test
   public void givenCollection$whenTransform$thenWorksCorrectly() {
     TestUtils.Out out = new TestUtils.Out();
-    Collection<Integer> collection = (Collection<Integer>) Utils.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
+    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
       @Override
       public Integer apply(String input) {
         return input.length();
@@ -188,7 +189,7 @@ public class UtilsTest {
   @Test(expected = UnsupportedOperationException.class)
   public void givenTransformedCollection$whenCleared$thenUnsupportedException() {
     TestUtils.Out out = new TestUtils.Out();
-    Collection<Integer> collection = (Collection<Integer>) Utils.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
+    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
       @Override
       public Integer apply(String input) {
         return input.length();
@@ -246,7 +247,7 @@ public class UtilsTest {
   public void givenNonCollectionAutoclosingIterable$whenTransform$thenWorksCorrectly
       () {
     final TestUtils.Out out = new TestUtils.Out();
-    Iterable<Integer> iterable = Utils.transform(createAutoclosingIterable(out), new Function<String, Integer>() {
+    Iterable<Integer> iterable = Autocloseables.transform(createAutoclosingIterable(out), new Function<String, Integer>() {
       @Override
       public Integer apply(String input) {
         return input.length();

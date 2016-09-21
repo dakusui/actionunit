@@ -1,7 +1,5 @@
-package com.github.dakusui.actionunit.ut;
+package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.examples.Basic;
-import com.github.dakusui.actionunit.examples.NameOfAction;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -28,6 +26,17 @@ public class ExamplesTest {
     public void testExample() {
       Result result = JUnitCore.runClasses(NameOfAction.class);
       assertEquals(4, result.getRunCount());
+      assertEquals(0, result.getFailureCount());
+      assertEquals(true, result.wasSuccessful());
+    }
+  }
+
+
+  public static class ForEachExampleTest extends TestUtils.StdOutTestBase {
+    @Test
+    public void testExample() {
+      Result result = JUnitCore.runClasses(ForEachExample.class);
+      assertEquals(1, result.getRunCount());
       assertEquals(0, result.getFailureCount());
       assertEquals(true, result.wasSuccessful());
     }

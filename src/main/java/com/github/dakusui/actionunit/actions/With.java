@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.connectors.Source;
 import com.google.common.base.Function;
 
 import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.Autocloseables.transform;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;

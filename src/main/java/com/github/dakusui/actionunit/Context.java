@@ -6,7 +6,5 @@ public interface Context {
    */
   Context getParent();
 
-  boolean hasValue();
-
-  <T> T value();
+  Object value();
 }

@@ -6,8 +6,8 @@ import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
@@ -78,7 +78,7 @@ public class ActionsTest {
     assertEquals("Sequential (1 actions)", describe(sequential(nop())));
   }
 
-  @Test(timeout = 300000)
+  @Test(timeout = 3000000)
   public void concurrentTest() throws InterruptedException {
     final List<String> arr = synchronizedList(new ArrayList<String>());
     concurrent(
@@ -99,29 +99,26 @@ public class ActionsTest {
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
 
-  @Test(timeout = 300000)
+  @Test(timeout = 3000000)
   public void concurrentTest$checkConcurrency() throws InterruptedException {
     final List<Map.Entry<Long, Long>> arr = synchronizedList(new ArrayList<Map.Entry<Long, Long>>());
-    try {
-      concurrent(
-          simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add(createEntry());
-            }
-          }),
-          simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add(createEntry());
-            }
-          })
-      ).accept(new ActionRunner.Impl());
-    } finally {
-      for (Map.Entry<Long, Long> i : arr) {
-        for (Map.Entry<Long, Long> j : arr) {
-          assertThat(i.getValue(), greaterThan(j.getKey()));
-        }
+    concurrent(
+        simple(new Runnable() {
+          @Override
+          public void run() {
+            arr.add(createEntry());
+          }
+        }),
+        simple(new Runnable() {
+          @Override
+          public void run() {
+            arr.add(createEntry());
+          }
+        })
+    ).accept(new ActionRunner.Impl());
+    for (Map.Entry<Long, Long> i : arr) {
+      for (Map.Entry<Long, Long> j : arr) {
+        assertThat(i.getValue(), greaterThan(j.getKey()));
       }
     }
   }
@@ -139,54 +136,48 @@ public class ActionsTest {
     }
   }
 
-  @Test(timeout = 300000, expected = NullPointerException.class)
+  @Test(timeout = 3000000, expected = NullPointerException.class)
   public void concurrentTest$runtimeExceptionThrown() throws InterruptedException {
+    // given
     final List<String> arr = synchronizedList(new ArrayList<String>());
-    try {
-      concurrent(
-          simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add("Hello A");
-              throw new NullPointerException();
-            }
-          }),
-          simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add("Hello B");
-            }
-          })
-      ).accept(new ActionRunner.Impl());
-    } finally {
-      Collections.sort(arr);
-      assertEquals(asList("Hello A", "Hello B"), arr);
-    }
+    // when
+    concurrent(
+        simple(new Runnable() {
+          @Override
+          public void run() {
+            arr.add("Hello A");
+            throw new NullPointerException();
+          }
+        }),
+        simple(new Runnable() {
+          @Override
+          public void run() {
+            arr.add("Hello B");
+          }
+        })
+    ).accept(new ActionRunner.Impl());
   }
 
-  @Test(timeout = 300000, expected = Error.class)
+  @Test(timeout = 3000000, expected = Error.class)
   public void concurrentTest$errorThrown() throws InterruptedException {
+    // given
     final List<String> arr = synchronizedList(new ArrayList<String>());
-    try {
-      concurrent(
-          simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add("Hello A");
-              throw new Error();
-            }
-          }),
-          simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add("Hello B");
-            }
-          })
-      ).accept(new ActionRunner.Impl());
-    } finally {
-      Collections.sort(arr);
-      assertEquals(asList("Hello A", "Hello B"), arr);
-    }
+    // when
+    concurrent(
+        simple(new Runnable() {
+          @Override
+          public void run() {
+            arr.add("Hello A");
+            throw new Error();
+          }
+        }),
+        simple(new Runnable() {
+          @Override
+          public void run() {
+            arr.add("Hello B");
+          }
+        })
+    ).accept(new ActionRunner.Impl());
   }
 
   @Test
@@ -231,9 +222,8 @@ public class ActionsTest {
           1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
-      throw e.getCause();
-    } finally {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
+      throw e.getCause();
     }
   }
 
@@ -251,9 +241,8 @@ public class ActionsTest {
           100, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
-      throw e.getCause();
-    } finally {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
+      throw e.getCause();
     }
   }
 
@@ -271,9 +260,8 @@ public class ActionsTest {
           100, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (ActionException e) {
-      throw e.getCause();
-    } finally {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
+      throw e.getCause();
     }
   }
 
@@ -294,42 +282,36 @@ public class ActionsTest {
   @Test(timeout = 300000)
   public void retryTest$failOnce() {
     final List<String> arr = new ArrayList<>();
-    try {
-      retry(simple(new Runnable() {
-            int i = 0;
+    retry(simple(new Runnable() {
+          int i = 0;
 
-            @Override
-            public void run() {
-              arr.add("Hello");
-              if (i < 1) {
-                i++;
-                throw new ActionException("fail");
-              }
+          @Override
+          public void run() {
+            arr.add("Hello");
+            if (i < 1) {
+              i++;
+              throw new ActionException("fail");
             }
-          }),
-          1, 1, MILLISECONDS
-      ).accept(new ActionRunner.Impl());
-    } finally {
-      assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
-    }
+          }
+        }),
+        1, 1, MILLISECONDS
+    ).accept(new ActionRunner.Impl());
+    assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
   }
 
   @Test(expected = Abort.class)
   public void givenRetryAction$whenAbortException$thenAborted() {
     final TestUtils.Out out = new TestUtils.Out();
-    try {
-      retry(simple(new Runnable() {
-            @Override
-            public void run() {
-              out.writeLine("run");
-              throw Abort.abort();
-            }
-          }),
-          2, 1, MILLISECONDS
-      ).accept(new ActionRunner.Impl());
-    } finally {
-      assertThat(out, hasSize(1));
-    }
+    retry(simple(new Runnable() {
+          @Override
+          public void run() {
+            out.writeLine("run");
+            throw Abort.abort();
+          }
+        }),
+        2, 1, MILLISECONDS
+    ).accept(new ActionRunner.Impl());
+    assertThat(out, hasSize(1));
   }
 
   @Test(expected = IOException.class)
@@ -346,28 +328,24 @@ public class ActionsTest {
           2, 1, MILLISECONDS
       ).accept(new ActionRunner.Impl());
     } catch (Abort e) {
-      throw e.getCause();
-    } finally {
       assertThat(out, hasSize(1));
+      throw e.getCause();
     }
   }
 
   @Test(expected = ActionException.class, timeout = 300000)
   public void retryTest$failForever() {
     final List<String> arr = new ArrayList<>();
-    try {
-      retry(simple(new Runnable() {
-            @Override
-            public void run() {
-              arr.add("Hello");
-              throw new ActionException("fail");
-            }
-          }),
-          1, 1, MILLISECONDS
-      ).accept(new ActionRunner.Impl());
-    } finally {
-      assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
-    }
+    retry(simple(new Runnable() {
+          @Override
+          public void run() {
+            arr.add("Hello");
+            throw new ActionException("fail");
+          }
+        }),
+        1, 1, MILLISECONDS
+    ).accept(new ActionRunner.Impl());
+    assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
   }
 
   @Test
@@ -711,7 +689,7 @@ public class ActionsTest {
     assertEquals(asList("try", "catch", "thrown", "finally"), out);
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenExceptionNotCaught$worksFine() {
     final List<String> out = new LinkedList<>();
     try {
@@ -719,7 +697,7 @@ public class ActionsTest {
         @Override
         public void run() {
           out.add("try");
-          throw new RuntimeException("thrown");
+          throw new IllegalArgumentException("thrown");
         }
       }).recover(NullPointerException.class, new Sink<NullPointerException>() {
         @Override
@@ -733,8 +711,9 @@ public class ActionsTest {
           out.add("finally");
         }
       }).build().accept(new ActionRunner.Impl());
-    } finally {
+    } catch (IllegalArgumentException e) {
       assertEquals(asList("try", "finally"), out);
+      throw e;
     }
   }
 

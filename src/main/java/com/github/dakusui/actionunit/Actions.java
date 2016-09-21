@@ -12,7 +12,7 @@ import com.google.common.base.Predicate;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
-import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.Autocloseables.transform;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
@@ -204,13 +204,18 @@ public enum Actions {
   }
 
   @SafeVarargs
-  public static <T> Action foreach(Iterable<T> dataSource, ForEach.Mode mode, Action action, Sink<T>... sinks) {
+  public static <T> Action foreach(DataSource.Factory<T> dataSourceFactory, ForEach.Mode mode, Action action, Sink<T>... sinks) {
     return new ForEach<>(
         mode.getFactory(),
-        transform(dataSource, new ToSource<T>()),
+        new DataSource.Factory.Adapter<>(dataSourceFactory, ToSource.<T>instance()),
         action,
         sinks
     );
+  }
+
+  @SafeVarargs
+  public static <T> Action foreach(Iterable<T> dataSource, ForEach.Mode mode, Action action, Sink<T>... sinks) {
+    return foreach(new DataSource.Factory.PassThrough<>(dataSource), mode, action, sinks);
   }
 
   @SafeVarargs
@@ -372,6 +377,14 @@ public enum Actions {
     return pipe(toPipe(func), sinks);
   }
 
+  public static <I> Action sink(String description, final Sink<I> sink) {
+    return pipe(toPipe(description, sink));
+  }
+
+  public static <I> Action sink(final Sink<I> sink) {
+    return sink(null, sink);
+  }
+
   public static <I, O> TestAction.Builder<I, O> test() {
     return test(null);
   }
@@ -382,6 +395,16 @@ public enum Actions {
 
 
   public static class ToSource<T> implements Function<T, Source<T>> {
+    private static final ToSource<?> INSTANCE = new ToSource<>();
+
+    public static <T> ToSource<T> instance() {
+      //noinspection unchecked
+      return (ToSource<T>) INSTANCE;
+    }
+
+    ToSource() {
+    }
+
     @Override
     public Source<T> apply(T t) {
       return toSource(t);

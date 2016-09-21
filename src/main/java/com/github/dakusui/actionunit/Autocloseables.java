@@ -8,15 +8,50 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public enum Autocloseables {
   ;
 
-  public static <I, O> Iterable<O> transformIterable(final Iterable<I> in, final Function<? super I, ? extends O> function) {
+  public static <I, O> AutocloseableIterator<O> transform(final AutocloseableIterator<I> in, final Function<? super I, ? extends O> function) {
+    return new AutocloseableIterator<O>() {
+      @Override
+      public void close() {
+        in.close();
+      }
+
+      @Override
+      public boolean hasNext() {
+        return in.hasNext();
+      }
+
+      @Override
+      public O next() {
+        return function.apply(in.next());
+      }
+
+      @Override
+      public void remove() {
+        in.remove();
+      }
+    };
+  }
+
+  public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> func) {
+    if (in instanceof Collection) {
+      //noinspection unchecked,RedundantCast
+      return (Collection<O>) transformCollection((Collection<I>) in, (Function<? super I, O>) func);
+    }
+    return transformIterable(in, func);
+  }
+
+  public static <I, O> Iterable<O> transformIterable(final Iterable<I> in, final Function<? super I, ? extends O> func) {
+    checkNotNull(func);
     return new AutocloseableIterator.Factory<O>() {
       @Override
       public AutocloseableIterator<O> iterator() {
         Iterator<I> i = in.iterator();
-        Iterator<O> o = Iterators.transform(i, function);
+        Iterator<O> o = Iterators.transform(i, func);
         return autocloseable(
             o,
             toAutocloseable(i)
@@ -25,7 +60,8 @@ public enum Autocloseables {
     };
   }
 
-  public static <I, O> Collection<O> transformCollection(final Collection<I> in, final Function<? super I, O> function) {
+  public static <I, O> Collection<O> transformCollection(final Collection<I> in, final Function<? super I, O> func) {
+    checkNotNull(func);
     return new AbstractCollection<O>() {
       @Override
       public void clear() {
@@ -41,7 +77,7 @@ public enum Autocloseables {
       public Iterator<O> iterator() {
         Iterator<I> i = in.iterator();
         return autocloseable(
-            Iterators.transform(i, function),
+            Iterators.transform(i, func),
             toAutocloseable(i));
       }
 
@@ -53,6 +89,9 @@ public enum Autocloseables {
   }
 
   public static <T> AutocloseableIterator<T> autocloseable(final Iterator<T> iterator) {
+    if (iterator instanceof AutocloseableIterator) {
+      return (AutocloseableIterator<T>) iterator;
+    }
     return autocloseable(
         iterator,
         toAutocloseable(iterator)
