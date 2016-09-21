@@ -107,8 +107,7 @@ public class ActionUnit extends Parameterized {
   }
 
   private void validateActionReturned(FrameworkMethod method, List<Throwable> errors) {
-    if (!Action.class.isAssignableFrom(method.getType())
-        && !isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, method.getReturnType())) {
+    if (!isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, method.getReturnType())) {
       errors.add(new Exception("Method " + method.getName() + "() must return Action, its array, or its iterable"));
     }
   }

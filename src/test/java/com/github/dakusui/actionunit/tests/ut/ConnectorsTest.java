@@ -80,6 +80,17 @@ public class ConnectorsTest {
   }
 
   @Test
+  public void givenPipeFromSinkWithDescription$whenToString$thenValueCreatedFromClassName() {
+    String toString = Connectors.toPipe("SinkDescription", new Sink<Object>() {
+      @Override
+      public void apply(Object input, Context context) {
+      }
+    }).toString();
+
+    assertThat(toString, Matchers.startsWith("SinkDescription"));
+  }
+
+  @Test
   public void givenPipeWithoutDescription$whenToString$thenValueCreatedFromClassName() {
     String toString = Connectors.toPipe(new Function<Object, Object>() {
       @Override

@@ -40,7 +40,7 @@ public class Attempt<T extends Throwable> extends ActionBase {
   protected Attempt(Action attempt, Class<? extends Throwable> exceptionClass, Action recover, Sink<? extends Throwable>[] sinks, Action ensure) {
     this.attempt = attempt;
     //noinspection unchecked
-    this.exceptionClass = (Class<T>) exceptionClass;
+    this.exceptionClass = (Class<T>) checkNotNull(exceptionClass);
     this.recover = Named.Factory.create("Recover", recover);
     //noinspection unchecked
     this.sinks = (Sink<T>[]) sinks;
