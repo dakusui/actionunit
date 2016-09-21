@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
@@ -252,7 +251,7 @@ public enum Utils {
    * Returns a method without parameters which has a given {@code methodName} from
    * a Class {@code klass}.
    *
-   * @param klass A class from which method is searched.
+   * @param klass      A class from which method is searched.
    * @param methodName A name of method to be returned.
    */
   public static Method getMethod(Class<?> klass, String methodName) {
@@ -268,6 +267,5 @@ public enum Utils {
   private static Method getToStringMethod(Class<?> klass) {
     return getMethod(klass, "toString");
   }
-
 
 }

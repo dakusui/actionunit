@@ -227,7 +227,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       action.attempt.accept(this);
     } catch (Throwable e) {
       //noinspection unchecked
-      if (action.exceptionClass == null || !action.exceptionClass.isAssignableFrom(e.getClass())) {
+      if (!action.exceptionClass.isAssignableFrom(e.getClass())) {
         throw propagate(e);
       }
       //noinspection unchecked
@@ -461,7 +461,9 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         if (action instanceof IgnoredInPathCalculation) {
           return this;
         }
-        assert getAction(action) == this.remove(this.size() - 1);
+        // Value returned by this should be equal to the action given by getAction(action)
+        // at this point.
+        this.remove(this.size() - 1);
         return this;
       }
 
