@@ -156,15 +156,6 @@ public enum Utils {
     };
   }
 
-  public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> func) {
-    checkNotNull(func);
-    if (in instanceof Collection) {
-      //noinspection unchecked,RedundantCast
-      return (Collection<O>) Autocloseables.transformCollection((Collection<I>) in, (Function<? super I, O>) func);
-    }
-    return Autocloseables.transformIterable(in, func);
-  }
-
   /**
    * Returns an iterable object that covers specified range by arguments given
    * to this method.

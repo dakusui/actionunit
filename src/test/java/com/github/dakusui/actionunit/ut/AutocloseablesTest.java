@@ -38,7 +38,7 @@ public class AutocloseablesTest {
           hasItemAt(0, equalTo("1")),
           hasItemAt(1, equalTo("2"))
       ));
-    };
+    }
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -59,12 +59,12 @@ public class AutocloseablesTest {
   @Test
   public void givenTransformedCollection$whenCleared$thenRemovedFromBackingList() {
     List<String> original = new LinkedList<>(asList("Hello", "World"));
-    Collection transformed = Autocloseables.transformCollection(original, new        Function<String, String>() {
-          @Override
-          public String apply(String input) {
-            return input + "!";
-          }
-        });
+    Collection transformed = Autocloseables.transformCollection(original, new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return input + "!";
+      }
+    });
     assertEquals(2, original.size());
     assertEquals(2, transformed.size());
 
@@ -72,5 +72,46 @@ public class AutocloseablesTest {
 
     assertTrue(original.isEmpty());
     assertTrue(transformed.isEmpty());
+  }
+
+  @Test
+  public void givenTransformedIterator$whenRemovePerformed$thenDelegated() {
+    final TestUtils.Out writer = new TestUtils.Out();
+    AutocloseableIterator<String> in = new AutocloseableIterator<String>() {
+      @Override
+      public void close() {
+        writer.writeLine("close called");
+      }
+
+      @Override
+      public boolean hasNext() {
+        return false;
+      }
+
+      @Override
+      public String next() {
+        return null;
+      }
+
+      @Override
+      public void remove() {
+        writer.writeLine("remove called");
+      }
+    };
+    try (AutocloseableIterator<String> out = Autocloseables.transform(in, new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return input;
+      }
+    })) {
+      out.remove();
+    }
+
+    assertThat(writer,
+        allOf(
+            hasItemAt(0, equalTo("remove called")),
+            hasItemAt(1, equalTo("close called"))
+        ));
+    assertEquals(2, writer.size());
   }
 }

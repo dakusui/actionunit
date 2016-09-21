@@ -8,7 +8,7 @@ import com.google.common.base.Function;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.range;
-import static com.github.dakusui.actionunit.Utils.transform;
+import static com.github.dakusui.actionunit.Autocloseables.transform;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**

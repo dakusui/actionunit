@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.utils;
 
+import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -14,6 +15,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TestUtils {
+  public static final Context DUMMY_CONTEXT = new Context() {
+    @Override
+    public Context getParent() {
+      return null;
+    }
+
+    @Override
+    public Object value() {
+      return null;
+    }
+  };
+
   public static boolean isRunUnderSurefire() {
     return System.getProperty("surefire.real.class.path") != null;
   }

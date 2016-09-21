@@ -21,6 +21,27 @@ public enum Connectors {
     }
   };
 
+  public static <I> Pipe<I, Boolean> toPipe(final String description, final Sink<? super I> sink) {
+    checkNotNull(sink);
+    return new Pipe<I, Boolean>() {
+      @Override
+      public Boolean apply(I input, Context context) {
+        sink.apply(input, context);
+        return false;
+      }
+
+      public String toString() {
+        return description == null
+            ? String.format("Sink(%s)", Utils.describe(sink))
+            : description;
+      }
+    };
+  }
+
+  public static <I> Pipe<I, Boolean> toPipe(final Sink<? super I> sink) {
+    return toPipe(null, sink);
+  }
+
   public static <I, O> Pipe<I, O> toPipe(String description, final Function<? super I, ? extends O> func) {
     checkNotNull(func);
     return new Pipe.Base<I, O>(description == null
@@ -59,7 +80,8 @@ public enum Connectors {
     return new Source<V>() {
       @Override
       public V apply(Context context) {
-        return context.value();
+        //noinspection unchecked
+        return (V) context.value();
       }
 
       public String toString() {
@@ -117,12 +139,8 @@ public enum Connectors {
 
   public static Object[] composeContextValues(Context context) {
     List<Object> args = new LinkedList<>();
-    while ((context = context.getParent()) != null) {
-      if (context.hasValue()) {
-        args.add(context.value());
-      } else {
-        args.add(INVALID);
-      }
+    while (context != null && (context = context.getParent()) != null) {
+      args.add(context.value());
     }
     return args.toArray();
   }

@@ -1,12 +1,16 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Autocloseables;
+import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.DataSource;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.google.common.base.Function;
 
 import static com.github.dakusui.actionunit.Utils.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -17,15 +21,14 @@ import static org.apache.commons.lang3.StringUtils.join;
  * @param <T> A type of values on which this action is repeated.
  */
 public class ForEach<T> extends Nested.Base {
-  private final Composite.Factory   factory;
-  private final Iterable<Source<T>> dataSource;
-  private final Sink<T>[]           sinks;
+  private final Composite.Factory             factory;
+  private final DataSource.Factory<Source<T>> dataSourceFactory;
+  private final Sink<T>[]                     sinks;
 
-
-  public ForEach(Composite.Factory factory, Iterable<Source<T>> dataSource, Action action, Sink<T>[] sinks) {
+  public ForEach(Composite.Factory factory, DataSource.Factory<Source<T>> dataSourceFactory, Action action, Sink<T>[] sinks) {
     super(action);
     this.factory = factory;
-    this.dataSource = dataSource;
+    this.dataSourceFactory = checkNotNull(dataSourceFactory);
     this.sinks = sinks;
   }
 
@@ -42,9 +45,9 @@ public class ForEach<T> extends Nested.Base {
     return format("%s (%s, %s items) {%s}",
         this.getClass().getSimpleName(),
         this.factory,
-        unknownIfNegative(sizeOrNegativeIfNonCollection(this.dataSource)),
+        unknownIfNegative(this.dataSourceFactory.size()),
         join(
-            transform(
+            Autocloseables.transform(
                 asList(sinks),
                 new Function<Sink<T>, Object>() {
                   @Override
@@ -53,11 +56,10 @@ public class ForEach<T> extends Nested.Base {
                   }
                 }
             ),
-            ",")
-    );
+            ","));
   }
 
-  public Composite getElements() {
+  public Composite getElements(Context context) {
     final Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
       @Override
       public Action apply(final Source<T> t) {
@@ -69,7 +71,7 @@ public class ForEach<T> extends Nested.Base {
         return new ActionRunner.WithResult.IgnoredInPathCalculation.With<>(t, ForEach.this.getAction(), ForEach.this.sinks);
       }
     };
-    return ActionRunner.IgnoredInPathCalculation.Composite.create(ForEach.this.factory.create(transform(dataSource, func)));
+    return ActionRunner.IgnoredInPathCalculation.Composite.create(ForEach.this.factory.create(Autocloseables.transform(dataSourceFactory.create(context), func)));
   }
 
   public enum Mode {
