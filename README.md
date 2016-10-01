@@ -13,7 +13,7 @@ Following is a maven coordinate for ActionUnit.
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>actionunit</artifactId>
-      <version>[1.0.8,)</version>
+      <version>[2.1.0,)</version>
       <scope>test</scope>
     </dependency>
 ```
