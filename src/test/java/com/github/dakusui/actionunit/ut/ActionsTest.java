@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.ut;
+package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
@@ -126,7 +126,7 @@ public class ActionsTest {
   private Map.Entry<Long, Long> createEntry() {
     long before = currentTimeMillis();
     try {
-      TimeUnit.MILLISECONDS.sleep(100);
+      TimeUnit.MILLISECONDS.sleep(1000);
       return new AbstractMap.SimpleEntry<>(
           before,
           currentTimeMillis()

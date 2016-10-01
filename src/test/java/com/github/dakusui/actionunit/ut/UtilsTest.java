@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.tests.ut;
+package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.AutocloseableIterator;
 import com.github.dakusui.actionunit.Autocloseables;

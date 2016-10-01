@@ -1,11 +1,10 @@
 package com.github.dakusui.actionunit.visitors;
 
-import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.exceptions.Abort;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.AutocloseableIterator;
 import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
@@ -197,7 +196,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         } else {
           throw ActionException.wrap(lastException);
         }
-        toTask(action.action).run();
       }
       throw ActionException.wrap(lastException);
     }
@@ -851,12 +849,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         }
         this.current.leave(action);
       }
-    }
-
-    private Object contextValue() {
-      if (this.getParent() == null)
-        return null;
-      return this.value();
     }
 
     public static class Result {

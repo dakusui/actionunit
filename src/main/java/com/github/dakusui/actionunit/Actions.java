@@ -167,7 +167,7 @@ public enum Actions {
    * @param duration A parameter to specify duration to time out with {@code timeUnit} parameter.
    * @param timeUnit Time unit of {@code duration}.
    */
-  public static Action timeout(Action action, int duration, TimeUnit timeUnit) {
+  public static Action timeout(Action action, long duration, TimeUnit timeUnit) {
     checkNotNull(timeUnit);
     return new TimeOut(action, NANOSECONDS.convert(duration, timeUnit));
   }

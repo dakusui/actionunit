@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.connectors;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import org.hamcrest.Matcher;
 
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public enum Connectors {
   ;

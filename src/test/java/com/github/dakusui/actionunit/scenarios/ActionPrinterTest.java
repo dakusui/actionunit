@@ -1,8 +1,7 @@
-package com.github.dakusui.actionunit.tests.scenarios;
+package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.TestAction;
@@ -24,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.tests.scenarios.PrintingTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSink;
 import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
@@ -38,7 +36,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
-public class PrintingTest {
+public class ActionPrinterTest {
 
   public static class ImplTest {
     static Action composeAction() {
