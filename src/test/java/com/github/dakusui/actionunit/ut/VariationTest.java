@@ -59,8 +59,8 @@ public class VariationTest {
   public void testAction1() {
     Actions.foreach(
         asList("host1", "host2"),
-        Actions.<String, Integer>test()
-            .when(new Function<String, Integer>() {
+        Actions.<String, Object>test()
+            .when(new Function<String, Object>() {
               @Override
               public Integer apply(String input) {
                 return Integer.parseInt(input.substring(input.length() - 1));
