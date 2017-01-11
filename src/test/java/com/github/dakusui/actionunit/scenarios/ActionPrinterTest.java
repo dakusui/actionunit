@@ -226,13 +226,15 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("simple3"));
       i.next();
       assertThat(i.next(), containsString("ForEach"));
-      //noinspection unchecked
-      assertThat(i.next(), allOf(containsString("Given"), containsString("When"), containsString("Then")));
+      assertThat(i.next(), containsString("ExampleTest"));
+      assertThat(i.next(), containsString("Given"));
+      assertThat(i.next(), containsString("When"));
+      assertThat(i.next(), containsString("Then"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("Sequential"));
       i.next();
       assertThat(i.next(), containsString("Tag(0)"));
-      assertEquals(16, size(writer));
+      assertEquals(19, size(writer));
     }
   }
 

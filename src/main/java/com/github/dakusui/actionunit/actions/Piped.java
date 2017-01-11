@@ -108,7 +108,7 @@ public interface Piped<I, O> extends With<I> {
     @Override
     public String toString() {
       //noinspection unchecked
-      return format("%s %s:(%s) %s:(%s) %s:{%s}",
+      return format("%s%n%s:%s%n%s:%s%n%s:[%s]",
           formatClassName(),
           this.sourceName,
           describe(this.getSource()),

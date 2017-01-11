@@ -220,7 +220,11 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * @param s A line to be printed. Typically a description of an action.
    */
   protected void writeLine(String s) {
-    this.writer.writeLine(indent(this.indent) + s);
+    boolean first = true;
+    for (String each : s.split("\\n")) {
+      this.writer.writeLine(indent(this.indent + (first ? 0 : 1)) + each);
+      first = false;
+    }
   }
 
   /**

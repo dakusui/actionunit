@@ -359,7 +359,17 @@ public class ActionRunnerWithResultTest {
       action.accept(this.getPrinter());
       assertThat(
           this.getWriter().get(0),
-          equalTo("(+)HelloTestCase Given:(World) When:(Function(length)) Then:{Matcher(<5>)}"));
+          equalTo("(+)HelloTestCase"));
+      assertThat(
+          this.getWriter().get(1),
+          equalTo("  Given:World"));
+      assertThat(
+          this.getWriter().get(2),
+          equalTo("  When:Function(length)"));
+      assertThat(
+          this.getWriter().get(3),
+          equalTo("  Then:[Matcher(<5>)]"));
+
       //noinspection unchecked
       Piped<String, Integer> piped = (Piped<String, Integer>) action;
       assertEquals(1, piped.getDestinationSinks().length);
@@ -395,7 +405,10 @@ public class ActionRunnerWithResultTest {
         //  not match, the AssertionError will be thrown, which confuses JUnit and users.
         //  Thus, here we are going to throw IllegalStateException.
         //noinspection unchecked
-        if (!getWriter().get(0).startsWith("(F)HelloTestCase Given:(World) When:(Function(length)) Then:{Matcher(<5>)}(error=")) {
+        if (!getWriter().get(0).equals("(F)HelloTestCase") ||
+            !getWriter().get(1).equals("  Given:World") ||
+            !getWriter().get(2).equals("  When:Function(length)") ||
+            !getWriter().get(3).startsWith("  Then:[Matcher(<5>)](error=")) {
           //noinspection ThrowFromFinallyBlock
           throw new IllegalStateException();
         }
