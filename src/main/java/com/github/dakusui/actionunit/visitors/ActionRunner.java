@@ -737,10 +737,9 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         @Override
         public String describeAction(Action action) {
           String ret = format(
-              "(%s)%s%s",
+              "(%s)%s",
               getResultCode(action),
-              describe(action),
-              getErrorMessage(action)
+              describe(action)
           );
           int runCount = getRunCount(action);
           return runCount < 2

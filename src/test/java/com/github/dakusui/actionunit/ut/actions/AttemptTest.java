@@ -57,8 +57,8 @@ public class AttemptTest {
           outForTree,
           allOf(
               hasItemAt(0, equalTo("(+)Attempt")),
-              hasItemAt(1, equalTo("  (E)Fail(error=ThrowException)")),
-              hasItemAt(2, equalTo("    (E)AttemptTest$2(error=ThrowException)")),
+              hasItemAt(1, equalTo("  (E)Fail")),
+              hasItemAt(2, equalTo("    (E)AttemptTest$2")),
               hasItemAt(3, equalTo("  (+)Recover")),
               hasItemAt(4, equalTo("    (+)Retry(1[milliseconds]x1times)")),
               hasItemAt(5, equalTo("      (+)Tag(0); 2 times")),

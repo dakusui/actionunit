@@ -96,8 +96,8 @@ public class ActionRunnerWithResultTest {
       //noinspection unchecked
       assertThat(getWriter(),
           allOf(
-              hasItemAt(0, startsWith("(F)A failing action(error=")),
-              hasItemAt(1, equalTo("  (F)This fails always(error=Expected failure)"))
+              hasItemAt(0, startsWith("(F)A failing action")),
+              hasItemAt(1, equalTo("  (F)This fails always"))
           )
       );
     }
@@ -119,8 +119,8 @@ public class ActionRunnerWithResultTest {
       //Then printed correctly
       //noinspection unchecked
       assertThat(getWriter(), allOf(
-          hasItemAt(0, startsWith("(E)An error action(error=")),
-          hasItemAt(1, equalTo("  (E)This gives a runtime exception always(error=Expected runtime exception)"))
+          hasItemAt(0, startsWith("(E)An error action")),
+          hasItemAt(1, equalTo("  (E)This gives a runtime exception always"))
       ));
     }
   }
@@ -290,7 +290,7 @@ public class ActionRunnerWithResultTest {
       action.accept(this.getPrinter());
       assertThat(getWriter(), allOf(
           hasItemAt(0, equalTo("(+)Attempt")),
-          hasItemAt(1, equalTo("  (E)Howdy, NPE(error=Howdy, NPE)")),
+          hasItemAt(1, equalTo("  (E)Howdy, NPE")),
           hasItemAt(2, equalTo("  (+)Recover")),
           hasItemAt(3, equalTo("    (+)(nop)")),
           hasItemAt(4, equalTo("  (+)Ensure")),
@@ -408,7 +408,7 @@ public class ActionRunnerWithResultTest {
         if (!getWriter().get(0).equals("(F)HelloTestCase") ||
             !getWriter().get(1).equals("  Given:World") ||
             !getWriter().get(2).equals("  When:Function(length)") ||
-            !getWriter().get(3).startsWith("  Then:[Matcher(<5>)](error=")) {
+            !getWriter().get(3).startsWith("  Then:[Matcher(<5>)]")) {
           //noinspection ThrowFromFinallyBlock
           throw new IllegalStateException();
         }

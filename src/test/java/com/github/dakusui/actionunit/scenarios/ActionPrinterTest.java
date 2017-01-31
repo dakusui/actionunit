@@ -299,8 +299,8 @@ public class ActionPrinterTest {
 
         final TestUtils.Out out = new TestUtils.Out();
         action.accept(runner.createPrinter(out));
-        assertEquals("(E)Retry(60[seconds]x1times)(error=AlwaysFail)", out.get(0));
-        assertEquals("  (E)AlwaysFail(error=AlwaysFail)", out.get(1));
+        assertEquals("(E)Retry(60[seconds]x1times)", out.get(0));
+        assertEquals("  (E)AlwaysFail", out.get(1));
       }
     }
 
