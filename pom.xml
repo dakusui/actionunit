@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.dakusui</groupId>
     <artifactId>actionunit</artifactId>
@@ -22,7 +24,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/actionunit.git
         </developerConnection>
         <url>http://dakusui.github.io/actionuint</url>
-        <tag>actionunit-1.0.3</tag>
+        <tag>actionunit-2.1.x</tag>
     </scm>
 
     <developers>
@@ -78,13 +80,13 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-		    <compilerArgs>
-		      <!--
-		      <arg>-Xlint:all,-options,-path</arg>
-		      -->
-		    </compilerArgs>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgs>
+                        <!--
+                        <arg>-Xlint:all,-options,-path</arg>
+                        -->
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -104,7 +106,7 @@
                         <format>html</format>
                         <format>xml</format>
                     </formats>
-                    <check />
+                    <check/>
                 </configuration>
             </plugin>
             <plugin>

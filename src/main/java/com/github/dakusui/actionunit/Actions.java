@@ -9,18 +9,19 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.dakusui.actionunit.Checks.checkArgument;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
-import static com.github.dakusui.actionunit.Autocloseables.transform;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.stream.Collectors.toList;
 
 /**
  * This class contains static utility methods that return objects of type {@code Action}.
@@ -229,13 +230,8 @@ public enum Actions {
         dataSource,
         mode,
         sequential(
-            transform(asList(sinks),
-                new Function<Sink<T>, Action>() {
-                  @Override
-                  public Action apply(final Sink<T> sink) {
-                    return tag(asList(sinks).indexOf(sink));
-                  }
-                })),
+            Arrays.stream(sinks).map(sink -> tag(asList(sinks).indexOf(sink))).collect(toList())
+        ),
         sinks);
   }
 
@@ -277,14 +273,8 @@ public enum Actions {
     return with(
         value,
         sequential(
-            transform(asList(sinks),
-                new Function<Sink<T>, Action>() {
-                  @Override
-                  public Action apply(final Sink<T> sink) {
-                    return tag(asList(sinks).indexOf(sink));
-                  }
-                }
-            )),
+            Arrays.stream(sinks).map(sink -> tag(asList(sinks).indexOf(sink))).collect(toList())
+        ),
         sinks);
   }
 

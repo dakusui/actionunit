@@ -115,7 +115,7 @@ public class ActionPrinterTest {
     }
   }
 
-  public static class StdOutErrTest extends TestUtils.StdOutTestBase {
+  public static class StdOutErrTest extends TestUtils.TestBase {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
       composeAction().accept(ActionPrinter.Factory.stdout());
@@ -127,7 +127,7 @@ public class ActionPrinterTest {
     }
   }
 
-  public static class WithResultTest extends TestUtils.StdOutTestBase {
+  public static class WithResultTest extends TestUtils.TestBase {
     private static Action composeAction(final List<String> out) {
       //noinspection unchecked
       return concurrent("Concurrent (top level)",
@@ -238,7 +238,7 @@ public class ActionPrinterTest {
     }
   }
 
-  public static class WithResultVariationTest extends TestUtils.StdOutTestBase {
+  public static class WithResultVariationTest extends TestUtils.TestBase {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();

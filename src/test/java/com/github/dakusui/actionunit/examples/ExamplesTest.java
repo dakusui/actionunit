@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class ExamplesTest {
-  public static class BasicTest extends TestUtils.StdOutTestBase {
+  public static class BasicTest extends TestUtils.TestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(Basic.class);
@@ -21,7 +21,7 @@ public class ExamplesTest {
     }
   }
 
-  public static class NameOfActionTest extends TestUtils.StdOutTestBase {
+  public static class NameOfActionTest extends TestUtils.TestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(NameOfAction.class);
@@ -32,7 +32,7 @@ public class ExamplesTest {
   }
 
 
-  public static class ForEachExampleTest extends TestUtils.StdOutTestBase {
+  public static class ForEachExampleTest extends TestUtils.TestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(ForEachExample.class);

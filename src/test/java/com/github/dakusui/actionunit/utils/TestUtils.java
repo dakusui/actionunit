@@ -65,7 +65,7 @@ public class TestUtils {
   /**
    * A base class for tests which writes to stdout/stderr.
    */
-  public static class StdOutTestBase {
+  public static class TestBase {
     PrintStream stdout = System.out;
     PrintStream stderr = System.err;
 
