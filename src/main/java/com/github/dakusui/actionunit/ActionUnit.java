@@ -1,8 +1,6 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
@@ -29,8 +27,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-
-//import static com.google.common.collect.Iterables.*;
 
 /**
  * The custom runner of ActionUnit.
@@ -168,21 +164,17 @@ public class ActionUnit extends Parameterized {
         actions = asList((Action[]) result);
       } else {
         //noinspection unchecked
-        actions = Lists.newLinkedList((Iterable<? extends Action>) result);
+        actions = Utils.toList((Iterable<Action>) result);
       }
-      return Lists.transform(
-          actions,
-          new Function<Action, Entry>() {
-            @Override
-            public Entry apply(Action input) {
-              int index = actions.indexOf(input);
-              return new Entry(
-                  offset + index,
-                  named(format("%s[%s]", testMethod.getName(), index), input),
-                  testMethod.getAnnotation(PerformWith.class).value()
-              );
-            }
-          });
+      return actions.stream().map(
+          input -> {
+            int index = actions.indexOf(input);
+            return new Entry(
+                offset + index,
+                named(format("%s[%s]", testMethod.getName(), index), input),
+                testMethod.getAnnotation(PerformWith.class).value()
+            );
+          }).collect(Collectors.toList());
     } catch (IllegalAccessException | InstantiationException e) {
       throw ActionException.wrap(e);
     } catch (RuntimeException | Error e) {
