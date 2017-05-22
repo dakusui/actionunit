@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit;
 
 import com.google.common.base.Function;
 
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.Utils.sizeOrNegativeIfNonCollection;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public interface DataSource<T> extends Iterable<T> {
   @Override

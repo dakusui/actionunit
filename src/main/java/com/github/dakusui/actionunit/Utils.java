@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Preconditions;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -17,9 +16,9 @@ import java.util.concurrent.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.github.dakusui.actionunit.Checks.checkArgument;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
@@ -136,7 +135,7 @@ public enum Utils {
 
           @Override
           public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-            Preconditions.checkArgument(Parameterized.Parameters.class.equals(annotationType));
+            checkArgument(Parameterized.Parameters.class.equals(annotationType));
             //noinspection unchecked
             return (T) new Parameterized.Parameters() {
               @Override
