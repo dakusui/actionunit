@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
-import com.google.common.base.Predicate;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -31,35 +30,20 @@ public class ConnectorsTest {
 
   @Test
   public void givenSinkCreatedFromPredicate$whenToString$thenGivesStringByUtilsDescribe() {
-    String toString = Connectors.toSink(new Predicate<Object>() {
-      @Override
-      public boolean apply(Object input) {
-        return false;
-      }
-    }).toString();
+    String toString = Connectors.toSink(input -> false).toString();
     assertThat(toString, Matchers.startsWith("Predicate(ConnectorsTest$"));
   }
 
   @Test
   public void givenSinkCreatedFromPredicate$whenAppliedAndPassed$thenSucceeds() {
-    Connectors.toSink(new Predicate<Object>() {
-      @Override
-      public boolean apply(Object input) {
-        return true;
-      }
-    }).apply(new Object(), createDummyContext());
+    Connectors.toSink(input -> true).apply(new Object(), createDummyContext());
   }
 
   @Test(expected = AssertionError.class)
   public void givenSinkCreatedFromPredicate$whenAppliedAndFailed$thenAssertionFailedError() {
     // Since this test expects AssertionError is thrown, you cannot use
     // assertXyz methods which confuses test expectation in case of failure.
-    Connectors.toSink(new Predicate<Object>() {
-      @Override
-      public boolean apply(Object input) {
-        return false;
-      }
-    }).apply(new Object(), createDummyContext());
+    Connectors.toSink(input -> false).apply(new Object(), createDummyContext());
   }
 
   @Test

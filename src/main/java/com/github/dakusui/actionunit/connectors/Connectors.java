@@ -2,12 +2,12 @@ package com.github.dakusui.actionunit.connectors;
 
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
-import com.google.common.base.Predicate;
 import org.hamcrest.Matcher;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static org.junit.Assert.assertThat;
@@ -129,7 +129,7 @@ public enum Connectors {
     return new Sink.Base<O>() {
       @Override
       protected void apply(O input, Object... outer) {
-        assertTrue(predicate.apply(input));
+        assertTrue(predicate.test(input));
       }
 
       @Override
