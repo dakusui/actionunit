@@ -1,7 +1,8 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.google.common.base.Predicate;
+
+import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.Utils.describe;
 

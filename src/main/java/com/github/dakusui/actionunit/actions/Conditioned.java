@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.google.common.base.Predicate;
 
-import static com.github.dakusui.actionunit.Utils.describe;
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 
 public interface Conditioned extends Nested, Predicate {
   abstract class Base extends Nested.Base implements Conditioned {
@@ -16,9 +16,9 @@ public interface Conditioned extends Nested, Predicate {
     }
 
     @Override
-    public boolean apply(Object input) {
+    public boolean test(Object input) {
       //noinspection unchecked
-      return this.condition.apply(input);
+      return this.condition.test(input);
     }
 
     public Predicate getCondition() {

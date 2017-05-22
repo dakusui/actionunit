@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Predicate;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.Actions.*;
@@ -15,12 +14,7 @@ public class WhenTest {
     Action action = foreach(
         asList(1, 2, 3, 4),
         when(
-            new Predicate<Integer>() {
-              @Override
-              public boolean apply(Integer input) {
-                return input > 2;
-              }
-            },
+            (Integer input) -> input > 2,
             tag(0)
         ),
         new Sink.Base<Integer>() {

@@ -3,8 +3,9 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Predicate;
 import org.junit.Test;
+
+import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.Actions.repeatwhile;
 import static com.github.dakusui.actionunit.Actions.simple;
@@ -22,16 +23,11 @@ public class WhileTest {
                                   int i = 0;
 
                                   @Override
-                                  public boolean apply(Object input) {
+                                  public boolean test(Object input) {
                                     return i++ < 4;
                                   }
                                 },
-        simple(new Runnable() {
-          @Override
-          public void run() {
-            out.writeLine("Hello");
-          }
-        })
+        simple(() -> out.writeLine("Hello"))
     );
     ActionRunner.WithResult runner = new ActionRunner.WithResult();
     try {

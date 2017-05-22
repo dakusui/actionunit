@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.google.common.base.Predicates;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -191,7 +190,7 @@ public class ActionVisitorTest {
   public void givenWhileAction$whenAccept$thenVisited() {
     // given while action
     Action action = repeatwhile(
-        Predicates.alwaysTrue(),
+        v -> true,
         createSimpleAction(),
         createSimpleAction());
     // when accept
@@ -210,7 +209,8 @@ public class ActionVisitorTest {
   @Test
   public void givenWhenAction$whenAccept$thenVisited() {
     // given while action
-    Action action = when(Predicates.alwaysTrue(),
+    Action action = when(
+        v -> true,
         createSimpleAction(),
         createSimpleAction());
     // when accept

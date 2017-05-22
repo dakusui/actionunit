@@ -10,7 +10,6 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Predicates;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 
@@ -355,7 +354,7 @@ public class ActionsTest {
 
   @Test(timeout = 3000000)
   public void givenNothingForChildAction$whenWhilActionPerformedWithAlwaysFalseCondition$thenQuitImmediately() {
-    Action action = repeatwhile(Predicates.alwaysFalse());
+    Action action = repeatwhile(v -> false);
     action.accept(new ActionRunner.Impl());
   }
 

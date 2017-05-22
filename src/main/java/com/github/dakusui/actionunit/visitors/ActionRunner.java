@@ -145,7 +145,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   @Override
   public void visit(While action) {
     //noinspection unchecked
-    while (action.apply(this.value())) {
+    while (action.test(this.value())) {
       action.getAction().accept(this);
     }
   }
@@ -165,7 +165,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   @Override
   public void visit(When action) {
     //noinspection unchecked
-    if (action.apply(this.value())) {
+    if (action.test(this.value())) {
       action.getAction().accept(this);
     } else {
       action.otherwise().accept(this);
