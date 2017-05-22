@@ -316,4 +316,10 @@ public enum Utils {
       return !iRight.hasNext();
     }
   }
+
+  public static <T> int size(Iterable<? super T> iterable) {
+    if (iterable instanceof Collection)
+      return ((Collection) iterable).size();
+    return toList(iterable).size();
+  }
 }

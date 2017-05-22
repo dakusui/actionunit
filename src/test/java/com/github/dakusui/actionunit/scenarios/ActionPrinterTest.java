@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.Utils.size;
 import static com.github.dakusui.actionunit.connectors.Connectors.toSink;
 import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
-import static com.google.common.collect.Iterables.size;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
