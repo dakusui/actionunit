@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -204,11 +205,15 @@ public enum Actions {
     return retry(ActionException.class, action, times, interval, timeUnit);
   }
 
+  public static <T> Action foreach2(Iterable<T> dataSource, ForEach.Mode mode, ForEach2.ProcessorFactory<T> processorFactory) {
+    return new ForEach2.Impl<T>(processorFactory, dataSource, Objects.requireNonNull(mode).getFactory());
+  }
+
   @SafeVarargs
   public static <T> Action foreach(DataSource.Factory<T> dataSourceFactory, ForEach.Mode mode, Action action, Sink<T>... sinks) {
     return new ForEach<>(
         mode.getFactory(),
-        new DataSource.Factory.Adapter<>(dataSourceFactory, ToSource.<T>instance()),
+        new DataSource.Factory.Adapter<>(dataSourceFactory, ToSource.instance()),
         action,
         sinks
     );

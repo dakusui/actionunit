@@ -87,6 +87,13 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
+    <T> void visit(ForEach2<T> action);
+
+    /**
+     * Visits an {@code action}.
+     *
+     * @param action action to be visited by this object.
+     */
     void visit(While action);
 
     /**
@@ -158,6 +165,11 @@ public interface Action {
 
       @Override
       public void visit(ForEach action) {
+        this.visit((Action) action);
+      }
+
+      @Override
+      public <T> void visit(ForEach2<T> action) {
         this.visit((Action) action);
       }
 

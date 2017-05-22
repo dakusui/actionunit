@@ -13,6 +13,8 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.Checks.*;
 import static com.github.dakusui.actionunit.Utils.*;
@@ -137,6 +139,18 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   @Override
   public void visit(ForEach action) {
     action.getElements(this).accept(this);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T> void visit(ForEach2<T> action) {
+    action.getCompositeFactory().create(
+        StreamSupport.stream(action.data().spliterator(), false)
+            .map(
+                item -> action.createProcessor(() -> item)).collect(Collectors.toList()))
+        .accept(this);
   }
 
   /**
@@ -746,6 +760,16 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
 
         @Override
         public void visit(ForEach action) {
+          nestLevel++;
+          try {
+            super.visit(action);
+          } finally {
+            nestLevel--;
+          }
+        }
+
+        @Override
+        public <T> void visit(ForEach2<T> action) {
           nestLevel++;
           try {
             super.visit(action);

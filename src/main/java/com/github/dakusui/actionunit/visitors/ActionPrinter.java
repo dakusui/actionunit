@@ -129,6 +129,12 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
     }
   }
 
+  @Override
+  public <T> void visit(ForEach2<T> action) {
+    action.createProcessor(() -> {
+      throw new UnsupportedOperationException("This action cannot be printed");
+    }).accept(this);
+  }
 
   /**
    * {@inheritDoc}
