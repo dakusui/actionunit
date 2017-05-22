@@ -1,14 +1,14 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.Utils;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
-import com.google.common.base.Function;
 
-import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Autocloseables.transform;
+import static com.github.dakusui.actionunit.Utils.describe;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -62,7 +62,7 @@ public interface Piped<I, O> extends With<I> {
         final Source<I> source, String sourceName,
         final Pipe<I, O> pipe, String pipeName,
         final Sink<O>[] destinationSinks, String destinationSinksName) {
-      this(source, sourceName, pipe, pipeName, Connectors.<O>mutable(), destinationSinks, destinationSinksName);
+      this(source, sourceName, pipe, pipeName, Connectors.mutable(), destinationSinks, destinationSinksName);
     }
 
     private Impl(
@@ -115,22 +115,12 @@ public interface Piped<I, O> extends With<I> {
           this.pipeName,
           join(transform(
               asList(this.getSinks()),
-              new Function<Sink<I>, Object>() {
-                @Override
-                public Object apply(Sink<I> sink) {
-                  return describe(sink);
-                }
-              }),
+              Utils::describe),
               ","),
           this.destinationSinksName,
           join(transform(
               asList((Sink<O>[]) getDestinationSinks()),
-              new Function<Sink<O>, Object>() {
-                @Override
-                public Object apply(Sink<O> input) {
-                  return describe(input);
-                }
-              }),
+              Utils::describe),
               ",")
       );
     }

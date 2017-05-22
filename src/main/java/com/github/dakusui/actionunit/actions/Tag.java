@@ -4,10 +4,9 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
-import com.google.common.base.Function;
 
-import static com.github.dakusui.actionunit.Utils.range;
 import static com.github.dakusui.actionunit.Autocloseables.transform;
+import static com.github.dakusui.actionunit.Utils.range;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -62,13 +61,7 @@ public class Tag extends ActionBase {
 
   public static Action createFromRange(int from, int to) {
     return Sequential.Factory.INSTANCE.create(
-        transform(range(from, to),
-            new Function<Integer, Tag>() {
-              @Override
-              public Tag apply(Integer input) {
-                return new Tag(input);
-              }
-            }));
+        transform(range(from, to), Tag::new));
   }
 
   private class TagRunner<T> extends Leaf implements Synthesized {

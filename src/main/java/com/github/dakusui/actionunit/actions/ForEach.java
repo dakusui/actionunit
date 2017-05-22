@@ -1,16 +1,14 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Autocloseables;
-import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.DataSource;
+import com.github.dakusui.actionunit.*;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 
-import static com.github.dakusui.actionunit.Utils.*;
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.function.Function;
+
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.Utils.unknownIfNegative;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -49,12 +47,7 @@ public class ForEach<T> extends Nested.Base {
         join(
             Autocloseables.transform(
                 asList(sinks),
-                new Function<Sink<T>, Object>() {
-                  @Override
-                  public Object apply(Sink<T> sink) {
-                    return describe(sink);
-                  }
-                }
+                Utils::describe
             ),
             ","));
   }
@@ -78,7 +71,7 @@ public class ForEach<T> extends Nested.Base {
     SEQUENTIALLY {
       @Override
       public Composite.Factory getFactory() {
-        return com.github.dakusui.actionunit.actions.Sequential.Factory.INSTANCE;
+        return Sequential.Factory.INSTANCE;
       }
     },
     CONCURRENTLY {

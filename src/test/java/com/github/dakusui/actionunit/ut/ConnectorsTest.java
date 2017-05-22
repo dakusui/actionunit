@@ -4,12 +4,12 @@ import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.io.PrintStream;
+import java.util.function.Function;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;

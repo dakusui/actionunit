@@ -1,14 +1,13 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.function.Function;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 
 public enum Autocloseables {
   ;
@@ -47,16 +46,13 @@ public enum Autocloseables {
 
   public static <I, O> Iterable<O> transformIterable(final Iterable<I> in, final Function<? super I, ? extends O> func) {
     checkNotNull(func);
-    return new AutocloseableIterator.Factory<O>() {
-      @Override
-      public AutocloseableIterator<O> iterator() {
-        Iterator<I> i = in.iterator();
-        Iterator<O> o = Iterators.transform(i, func);
-        return autocloseable(
-            o,
-            toAutocloseable(i)
-        );
-      }
+    return (AutocloseableIterator.Factory<O>) () -> {
+      Iterator<I> i = in.iterator();
+      Iterator<O> o = Utils.transform(i, func);
+      return autocloseable(
+          o,
+          toAutocloseable(i)
+      );
     };
   }
 
@@ -77,7 +73,7 @@ public enum Autocloseables {
       public Iterator<O> iterator() {
         Iterator<I> i = in.iterator();
         return autocloseable(
-            Iterators.transform(i, func),
+            Utils.transform(i, func),
             toAutocloseable(i));
       }
 

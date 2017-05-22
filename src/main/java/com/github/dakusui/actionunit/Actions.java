@@ -6,11 +6,11 @@ import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Checks.checkArgument;
 import static com.github.dakusui.actionunit.Checks.checkNotNull;

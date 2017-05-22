@@ -1,13 +1,12 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -15,6 +14,7 @@ import org.junit.runner.RunWith;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
@@ -85,12 +85,7 @@ public class Basic {
     return new Action[] {
         Actions.<Integer, String>test()
             .given(100)
-            .when(new Function<Integer, String>() {
-              @Override
-              public String apply(Integer input) {
-                return Integer.toString(input + 1);
-              }
-            })
+            .when(input -> Integer.toString(input + 1))
             .then(
                 Matchers.equalToIgnoringCase("102")
             )

@@ -4,8 +4,9 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import org.junit.Test;
+
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
@@ -15,12 +16,7 @@ public class PipedTest {
   public void givenPipeInsideWith$whenPerformed() {
     Action action = with("Hello",
         pipe(
-            new Function<String, Integer>() {
-              @Override
-              public Integer apply(String input) {
-                return input.length();
-              }
-            },
+            (Function<String, Integer>) input -> input.length(),
             new Sink.Base<Integer>() {
               @Override
               protected void apply(Integer input, Object... outer) {
@@ -36,12 +32,9 @@ public class PipedTest {
   public void givenPipeInsideForEach$whenPerformed() {
     Action action = foreach(asList("Hello", "Hello1", "Hello12"),
         pipe(
-            new Function<String, Integer>() {
-              @Override
-              public Integer apply(String input) {
-                System.out.println(input);
-                return input.length();
-              }
+            (Function<String, Integer>) input -> {
+              System.out.println(input);
+              return input.length();
             },
             new Sink.Base<Integer>() {
               @Override

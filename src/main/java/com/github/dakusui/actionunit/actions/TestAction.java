@@ -5,11 +5,12 @@ import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
-import com.google.common.base.Function;
 import org.hamcrest.Matcher;
 
+import java.util.function.Function;
+
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.connectors.Connectors.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public interface TestAction<I, O> extends Piped<I, O> {
   class Base<I, O> extends Impl<I, O> implements TestAction<I, O> {

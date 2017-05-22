@@ -10,7 +10,6 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.describe;
@@ -722,12 +722,7 @@ public class ActionsTest {
     with("world",
         pipe(
             Connectors.<String>context(),
-            new Function<String, TestOutput.Text>() {
-              @Override
-              public TestOutput.Text apply(String s) {
-                return new TestOutput.Text("hello:" + s);
-              }
-            }, new Sink<TestOutput.Text>() {
+            s -> new TestOutput.Text("hello:" + s), new Sink<TestOutput.Text>() {
               @Override
               public void apply(TestOutput.Text input, Context context) {
                 assertEquals("hello:world", input.value());
@@ -740,12 +735,9 @@ public class ActionsTest {
     final TestUtils.Out out = new TestUtils.Out();
     Action action = foreach(asList("world", "WORLD", "test", "hello"),
         pipe(
-            new Function<String, TestOutput.Text>() {
-              @Override
-              public TestOutput.Text apply(String s) {
-                System.out.println("func:" + s);
-                return new TestOutput.Text("hello:" + s);
-              }
+            (Function<String, TestOutput.Text>) s -> {
+              System.out.println("func:" + s);
+              return new TestOutput.Text("hello:" + s);
             },
             new Sink<TestOutput.Text>() {
               @Override

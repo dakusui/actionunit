@@ -4,11 +4,10 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Function;
 
 import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Utils.range;
 import static com.github.dakusui.actionunit.Autocloseables.transform;
+import static com.github.dakusui.actionunit.Utils.range;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -84,13 +83,7 @@ public class Attempt<T extends Throwable> extends ActionBase {
     public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Sink<T>... sinks) {
       return this.recover(
           exceptionClass,
-          Actions.sequential(transform(range(0, sinks.length),
-              new Function<Integer, Action>() {
-                @Override
-                public Action apply(Integer input) {
-                  return tag(input);
-                }
-              })),
+          Actions.sequential(transform(range(0, sinks.length), Actions::tag)),
           sinks
       );
     }

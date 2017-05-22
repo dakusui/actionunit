@@ -6,7 +6,6 @@ import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -60,12 +59,7 @@ public class VariationTest {
     Actions.foreach(
         asList("host1", "host2"),
         Actions.<String, Object>test()
-            .when(new Function<String, Object>() {
-              @Override
-              public Integer apply(String input) {
-                return Integer.parseInt(input.substring(input.length() - 1));
-              }
-            })
+            .when(input -> Integer.parseInt(input.substring(input.length() - 1)))
             .then(notNullValue())
             .build()
     ).accept(new ActionRunner.Impl());

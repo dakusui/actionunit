@@ -9,10 +9,11 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;

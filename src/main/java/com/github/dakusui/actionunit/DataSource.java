@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.Utils.sizeOrNegativeIfNonCollection;

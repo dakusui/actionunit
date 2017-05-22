@@ -10,7 +10,6 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import org.junit.Assert;
 import org.junit.Test;
@@ -151,12 +150,9 @@ public class ActionPrinterTest {
           foreach(
               asList("hello1", "hello2", "hello3"),
               new TestAction.Builder<String, Object>("ExampleTest")
-                  .when(new Function<String, Object>() {
-                    @Override
-                    public String apply(String input) {
-                      out.add(format("hello:%s", input));
-                      return format("hello:%s", input);
-                    }
+                  .when(input -> {
+                    out.add(format("hello:%s", input));
+                    return format("hello:%s", input);
                   })
                   .then(anything()).build()
           ),

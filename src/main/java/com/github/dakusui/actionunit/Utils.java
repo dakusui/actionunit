@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -277,6 +278,23 @@ public enum Utils {
   public static <T> T[] toArray(Iterable<T> iterable, Class<T> klass) {
     //noinspection unchecked
     return toList(iterable).toArray((T[]) Array.newInstance(klass, 0));
+  }
+
+  public static <T, U> Iterator<U> transform(Iterator<T> iterator, Function<? super T, ? extends U> func) {
+    checkNotNull(iterator);
+    checkNotNull(func);
+    return new Iterator<U>() {
+
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public U next() {
+        return func.apply(iterator.next());
+      }
+    };
   }
 
   public static <T> Stream<T> toStream(Iterable<T> iterable) {

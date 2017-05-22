@@ -9,16 +9,13 @@ import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Function;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.Checks.*;
 import static com.github.dakusui.actionunit.Utils.*;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Iterables.size;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
@@ -98,7 +95,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(Concurrent action) {
-    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, size(action))));
+    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, toList(action).size())));
     try {
       Iterator<Callable<Boolean>> i = toCallables(action).iterator();
       //noinspection unused

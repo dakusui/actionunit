@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.Utils;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.google.common.base.Function;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.TestClass;
@@ -15,6 +14,7 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Utils.range;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
@@ -154,12 +154,7 @@ public class UtilsTest {
   @Test
   public void givenCollection$whenTransform$thenWorksCorrectly() {
     TestUtils.Out out = new TestUtils.Out();
-    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
-      @Override
-      public Integer apply(String input) {
-        return input.length();
-      }
-    });
+    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), String::length);
     try (AutocloseableIterator<Integer> i = (AutocloseableIterator<Integer>) collection.iterator()) {
       while (i.hasNext()) {
         out.writeLine(i.next().toString() + " characters");
