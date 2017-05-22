@@ -12,7 +12,6 @@ import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * <pre>
@@ -113,15 +112,17 @@ public interface Piped<I, O> extends With<I> {
           this.sourceName,
           describe(this.getSource()),
           this.pipeName,
-          join(transform(
-              asList(this.getSinks()),
-              Utils::describe),
-              ","),
+          String.join(
+              ",",
+              transform(
+                  asList(this.getSinks()),
+                  Utils::describe)),
           this.destinationSinksName,
-          join(transform(
-              asList((Sink<O>[]) getDestinationSinks()),
-              Utils::describe),
-              ",")
+          String.join(
+              ",",
+              transform(
+                  asList((Sink<O>[]) getDestinationSinks()),
+                  Utils::describe))
       );
     }
 

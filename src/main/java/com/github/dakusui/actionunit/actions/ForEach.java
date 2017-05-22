@@ -11,7 +11,6 @@ import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.Utils.unknownIfNegative;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * An action that is repeated on values given by an {@link Iterable&lt;T&gt;}.
@@ -44,12 +43,12 @@ public class ForEach<T> extends Nested.Base {
         this.getClass().getSimpleName(),
         this.factory,
         unknownIfNegative(this.dataSourceFactory.size()),
-        join(
+        String.join(
+            ",",
             Autocloseables.transform(
                 asList(sinks),
                 Utils::describe
-            ),
-            ","));
+            )));
   }
 
   public Composite getElements(Context context) {
