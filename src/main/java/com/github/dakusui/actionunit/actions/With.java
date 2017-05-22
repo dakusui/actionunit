@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static com.github.dakusui.actionunit.Utils.describe;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static java.lang.String.format;
 
 /**

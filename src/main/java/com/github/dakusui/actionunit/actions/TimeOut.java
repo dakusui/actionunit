@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.google.common.base.Preconditions;
 
+import static com.github.dakusui.actionunit.Checks.checkArgument;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.Utils.formatDuration;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
 public class TimeOut extends ActionBase {
@@ -18,7 +18,7 @@ public class TimeOut extends ActionBase {
    * @param timeoutInNanos Duration to time out in nano seconds.
    */
   public TimeOut(Action action, long timeoutInNanos) {
-    Preconditions.checkArgument(timeoutInNanos > 0,
+    checkArgument(timeoutInNanos > 0,
         "Timeout duration must be positive  but %d was given",
         timeoutInNanos
     );

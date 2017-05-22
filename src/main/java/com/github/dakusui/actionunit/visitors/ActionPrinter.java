@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.github.dakusui.actionunit.Utils.describe;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 
 /**
  * A simple visitor that prints actions.

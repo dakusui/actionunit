@@ -10,7 +10,7 @@ import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
 import static com.github.dakusui.actionunit.Actions.nop;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;

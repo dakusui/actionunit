@@ -3,8 +3,8 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.Action;
 
 import static com.github.dakusui.actionunit.Utils.formatDuration;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkArgument;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static java.lang.String.format;
 
 public class Retry extends ActionBase {

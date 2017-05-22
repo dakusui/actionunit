@@ -6,9 +6,9 @@ import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
 
 import static com.github.dakusui.actionunit.Autocloseables.transform;
+import static com.github.dakusui.actionunit.Checks.checkArgument;
+import static com.github.dakusui.actionunit.Checks.checkState;
 import static com.github.dakusui.actionunit.Utils.range;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 
 /**

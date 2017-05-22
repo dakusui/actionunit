@@ -9,7 +9,7 @@ import com.github.dakusui.actionunit.connectors.Source;
 
 import static com.github.dakusui.actionunit.Autocloseables.transform;
 import static com.github.dakusui.actionunit.Utils.describe;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;

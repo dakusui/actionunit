@@ -14,13 +14,27 @@ public enum Checks {
   }
 
   public static void checkArgument(boolean cond, String message, Object... args) {
+    checkArgument(cond, String.format(message, args));
+  }
+
+  public static void checkArgument(boolean cond, String message) {
     if (!cond)
-      throw new IllegalArgumentException(String.format(message, args));
+      throw new IllegalArgumentException(message);
   }
 
   public static void checkArgument(boolean cond) {
     checkArgument(cond, null);
   }
+
+  public static void checkState(boolean cond, String format, Object... args) {
+    checkState(cond, String.format(format, args));
+  }
+
+  public static void checkState(boolean cond, String message) {
+    if (!cond)
+      throw new IllegalStateException(message);
+  }
+
 
   public static <T extends RuntimeException> T propagate(Throwable t) {
     if (t instanceof Error)

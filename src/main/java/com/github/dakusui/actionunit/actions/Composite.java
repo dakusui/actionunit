@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.Utils;
 import java.util.Collection;
 
 import static com.github.dakusui.actionunit.Utils.unknownIfNegative;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static java.lang.String.format;
 
 /**

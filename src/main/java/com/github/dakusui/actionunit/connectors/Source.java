@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.Context;
 
 import java.util.Objects;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.github.dakusui.actionunit.Checks.checkState;
 import static java.lang.String.format;
 
 public interface Source<T> {

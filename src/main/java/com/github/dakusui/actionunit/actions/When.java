@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.Action;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.Utils.describe;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 
 public interface When extends Action, Conditioned {
   Action otherwise();
