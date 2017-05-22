@@ -94,6 +94,13 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
+    <E extends Throwable> void visit(Attempt2<E> action);
+
+    /**
+     * Visits an {@code action}.
+     *
+     * @param action action to be visited by this object.
+     */
     void visit(While action);
 
     /**
@@ -205,6 +212,11 @@ public interface Action {
 
       @Override
       public void visit(Attempt action) {
+        this.visit((Action) action);
+      }
+
+      @Override
+      public <T extends Throwable> void visit(Attempt2<T> action) {
         this.visit((Action) action);
       }
     }

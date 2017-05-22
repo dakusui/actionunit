@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.Utils.describe;
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.Checks.notPrintable;
+import static com.github.dakusui.actionunit.Utils.describe;
 
 /**
  * A simple visitor that prints actions.
@@ -132,7 +133,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
   @Override
   public <T> void visit(ForEach2<T> action) {
     action.createProcessor(() -> {
-      throw new UnsupportedOperationException("This action cannot be printed");
+      throw notPrintable();
     }).accept(this);
   }
 
@@ -162,6 +163,24 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
       action.attempt.accept(this);
       action.recover.accept(this);
       action.ensure.accept(this);
+    } finally {
+      leave(action);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <E extends Throwable> void visit(Attempt2<E> action) {
+    writeLine(describeAction(action));
+    enter(action);
+    try {
+      action.attempt().accept(this);
+      action.recover(() -> {
+        throw notPrintable();
+      }).accept(this);
+      action.ensure().accept(this);
     } finally {
       leave(action);
     }

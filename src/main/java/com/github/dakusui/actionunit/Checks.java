@@ -35,6 +35,9 @@ public enum Checks {
       throw new IllegalStateException(message);
   }
 
+  public static UnsupportedOperationException notPrintable() {
+    throw new UnsupportedOperationException("This action cannot be printed");
+  }
 
   public static <T extends RuntimeException> T propagate(Throwable t) {
     if (t instanceof Error)

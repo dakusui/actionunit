@@ -4,12 +4,9 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.actions.ForEach;
-import com.github.dakusui.actionunit.actions.ForEach2;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
@@ -22,15 +19,10 @@ public class ForEach2Example {
     return foreach2(
         asList("A", "B", "C"),
         ForEach.Mode.SEQUENTIALLY,
-        new ForEach2.ProcessorFactory<String>() {
-          @Override
-          public Action apply(Supplier<String> value) {
-            return sequential(
-                simple("print the given value(1st time)", () -> System.out.println(value.get())),
-                simple("print the given value(2nd time)", () -> System.out.println(value.get()))
-            );
-          }
-        }
+        value -> sequential(
+            simple("print the given value(1st time)", () -> System.out.println(value.get())),
+            simple("print the given value(2nd time)", () -> System.out.println(value.get()))
+        )
     );
   }
 

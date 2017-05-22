@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Actions;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -31,7 +32,7 @@ public interface ForEach2<T> extends Action {
 
     @Override
     public Action createProcessor(Supplier<T> data) {
-      return this.processorFactory.apply(data);
+      return Actions.named(String.format("ForEach:%s", this.data), this.processorFactory.apply(data));
     }
 
     @Override
@@ -43,8 +44,5 @@ public interface ForEach2<T> extends Action {
     public void accept(Visitor visitor) {
       visitor.visit(this);
     }
-  }
-
-  interface ProcessorFactory<T> extends Function<Supplier<T>, Action> {
   }
 }

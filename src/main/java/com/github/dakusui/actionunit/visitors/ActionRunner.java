@@ -248,6 +248,22 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
   }
 
+  @Override
+  public <E extends Throwable> void visit(Attempt2<E> action) {
+    try {
+      action.attempt().accept(this);
+    } catch (Throwable e) {
+      if (!action.exceptionClass().isAssignableFrom(e.getClass())) {
+        throw propagate(e);
+      }
+      //noinspection unchecked
+      action.recover(() -> (E) e).accept(this);
+    } finally {
+      action.ensure().accept(this);
+    }
+  }
+
+
   /**
    * Subclasses of this class must override this method and return a subclass of
    * it whose {@code visit(Action.With.Tag)} is overridden.

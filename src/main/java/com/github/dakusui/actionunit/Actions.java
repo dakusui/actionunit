@@ -205,7 +205,7 @@ public enum Actions {
     return retry(ActionException.class, action, times, interval, timeUnit);
   }
 
-  public static <T> Action foreach2(Iterable<T> dataSource, ForEach.Mode mode, ForEach2.ProcessorFactory<T> processorFactory) {
+  public static <T> Action foreach2(Iterable<T> dataSource, ForEach.Mode mode, ProcessorFactory<T> processorFactory) {
     return new ForEach2.Impl<T>(processorFactory, dataSource, Objects.requireNonNull(mode).getFactory());
   }
 
@@ -338,6 +338,10 @@ public enum Actions {
     return attempt(simple(checkNotNull(attempt)));
   }
 
+  public static <E extends Throwable> Attempt2.Builder<E> attempt2(Action attempt) {
+    return new Attempt2.Builder<>(attempt);
+  }
+
   @SafeVarargs
   public static <I, O> Action pipe(
       Source<I> source,
@@ -378,6 +382,10 @@ public enum Actions {
 
   public static <I> Action sink(final Sink<I> sink) {
     return sink(null, sink);
+  }
+
+  public static <I, O> TestAction2.Builder<I, O> test2() {
+    return new TestAction2.Builder<>();
   }
 
   public static <I, O> TestAction.Builder<I, O> test() {
