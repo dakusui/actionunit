@@ -7,8 +7,8 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Autocloseables.transform;
+import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.Utils.range;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * An action that corresponds to Java's try/catch mechanism.

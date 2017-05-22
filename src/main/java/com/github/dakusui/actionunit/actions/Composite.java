@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.AutocloseableIterator;
-import com.google.common.collect.Iterables;
+import com.github.dakusui.actionunit.Autocloseables;
+import com.github.dakusui.actionunit.Utils;
 
 import java.util.Collection;
 
@@ -66,7 +66,7 @@ public interface Composite extends Action, AutocloseableIterator.Factory<Action>
         return false;
       }
       Composite another = (Composite) object;
-      return getClass().equals(another.getClass()) && Iterables.elementsEqual(actions, another);
+      return getClass().equals(another.getClass()) && Utils.elementsEqual(actions, another);
     }
 
     @Override

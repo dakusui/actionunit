@@ -8,10 +8,7 @@ import org.junit.runners.model.TestClass;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -303,5 +300,20 @@ public enum Utils {
 
   private static Method getToStringMethod(Class<?> klass) {
     return getMethod(klass, "toString");
+  }
+
+  public static boolean elementsEqual(Iterable<?> left, Iterable<?> right) {
+    Iterator iLeft = checkNotNull(left.iterator());
+    Iterator iRight = checkNotNull(right.iterator());
+    while (true) {
+      if (iLeft.hasNext()) {
+        if (!iRight.hasNext())
+          return false;
+        if (Objects.equals(iLeft.next(), iRight.next()))
+          continue;
+        return false;
+      }
+      return !iRight.hasNext();
+    }
   }
 }
