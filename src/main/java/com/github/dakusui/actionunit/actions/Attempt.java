@@ -18,9 +18,9 @@ public interface Attempt<E extends Throwable> extends Action {
 
   class Builder<E extends Throwable> {
     private final Action attempt;
-    private Action                     ensure                  = Actions.nop();
-    private Class<E>                   exceptionClass          = null;
-    private ExceptionHandlerFactory<E> exceptionHandlerFactory = e -> {
+    private Action            ensure                  = Actions.nop();
+    private Class<E>          exceptionClass          = null;
+    private HandlerFactory<E> exceptionHandlerFactory = e -> {
       throw Checks.propagate(e.get());
     };
 
@@ -28,7 +28,7 @@ public interface Attempt<E extends Throwable> extends Action {
       this.attempt = Actions.named("Attempt:", Objects.requireNonNull(attempt));
     }
 
-    public Builder<E> recover(Class<E> exceptionClass, ExceptionHandlerFactory<E> exceptionHandlerFactory) {
+    public Builder<E> recover(Class<E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory) {
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
       this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
       return this;
@@ -46,12 +46,12 @@ public interface Attempt<E extends Throwable> extends Action {
   }
 
   class Impl<E extends Throwable> extends ActionBase implements Attempt<E> {
-    private final Action                     attempt;
-    private final Action                     ensure;
-    private final Class<E>                   exceptionClass;
-    private final ExceptionHandlerFactory<E> exceptionHandlerFactory;
+    private final Action            attempt;
+    private final Action            ensure;
+    private final Class<E>          exceptionClass;
+    private final HandlerFactory<E> exceptionHandlerFactory;
 
-    public Impl(Action attempt, Class<E> exceptionClass, ExceptionHandlerFactory<E> exceptionHandlerFactory, Action ensure) {
+    public Impl(Action attempt, Class<E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory, Action ensure) {
       this.attempt = Objects.requireNonNull(attempt);
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
       this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);

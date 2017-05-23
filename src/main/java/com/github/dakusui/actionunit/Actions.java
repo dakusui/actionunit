@@ -195,8 +195,8 @@ public enum Actions {
     return retry(ActionException.class, action, times, interval, timeUnit);
   }
 
-  public static <T> Action foreach2(Iterable<T> dataSource, ForEach.Mode mode, ExceptionHandlerFactory<T> exceptionHandlerFactory) {
-    return new ForEach.Impl<T>(exceptionHandlerFactory, dataSource, Objects.requireNonNull(mode).getFactory());
+  public static <T> Action foreach(HandlerFactory<T> handlerFactory, ForEach.Mode mode, Iterable<T> dataSource) {
+    return new ForEach.Impl<T>(handlerFactory, dataSource, Objects.requireNonNull(mode).getFactory());
   }
 
   public static Action repeatwhile(Predicate<?> condition, Action... actions) {
