@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.Actions.foreach;
+import static com.github.dakusui.actionunit.CompatActions.foreach;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +20,7 @@ public class VariationTest {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();
-    Actions.foreach(asList("a", "b"),
+    CompatActions.foreach(asList("a", "b"),
         foreach(asList("1", "2"),
             new Sink.Base<String>() {
               @Override
@@ -56,9 +56,9 @@ public class VariationTest {
 
   @Test
   public void testAction1() {
-    Actions.foreach(
+    CompatActions.foreach(
         asList("host1", "host2"),
-        Actions.<String, Object>test()
+        CompatActions.<String, Object>test()
             .when(input -> Integer.parseInt(input.substring(input.length() - 1)))
             .then(notNullValue())
             .build()
@@ -67,9 +67,9 @@ public class VariationTest {
 
   @Test
   public void testAction2() {
-    Actions.foreach(
+    CompatActions.foreach(
         asList("host1", "host2"),
-        Actions.<String, Integer>test()
+        CompatActions.<String, Integer>test()
             .given("9")
             .when(new Pipe<String, Integer>() {
               @Override
@@ -84,9 +84,9 @@ public class VariationTest {
 
   @Test
   public void testAction3() {
-    Actions.foreach(
+    CompatActions.foreach(
         asList("host1", "host2"),
-        Actions.<String, Integer>test()
+        CompatActions.<String, Integer>test()
             .given(Connectors.<String>context())
             .when(new Pipe<String, Integer>() {
               @Override

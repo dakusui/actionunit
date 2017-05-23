@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.AutocloseableIterator;
 import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.compat.*;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.connectors.Source;
@@ -137,7 +138,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(ForEach action) {
+  public void visit(CompatForEach action) {
     action.getElements(this).accept(this);
   }
 
@@ -145,7 +146,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public <T> void visit(ForEach2<T> action) {
+  public <T> void visit(ForEach<T> action) {
     action.getCompositeFactory().create(
         StreamSupport.stream(action.data().spliterator(), false)
             .map(
@@ -154,7 +155,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   @Override
-  public <E extends Throwable> void visit(Attempt2<E> action) {
+  public <E extends Throwable> void visit(Attempt<E> action) {
     try {
       action.attempt().accept(this);
     } catch (Throwable e) {
@@ -169,7 +170,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
   }
 
   @Override
-  public void visit(TestAction2 action) {
+  public void visit(TestAction action) {
     action.given().accept(this);
     action.when().accept(this);
     action.then().accept(this);
@@ -191,7 +192,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(final With action) {
+  public void visit(final CompatWith action) {
     action.getAction().accept(createChildFor(action));
   }
 
@@ -255,7 +256,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(final Attempt action) {
+  public void visit(final CompatAttempt action) {
     try {
       action.attempt.accept(this);
     } catch (Throwable e) {
@@ -284,7 +285,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    *
    * @param action action for which the returned Visitor is created.
    */
-  protected ActionRunner createChildFor(final With action) {
+  protected ActionRunner createChildFor(final CompatWith action) {
     return new ActionRunner() {
       @Override
       public ActionRunner getParent() {
@@ -314,7 +315,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     return toCallables(toRunnables(action));
   }
 
-  private static void acceptTagAction(Tag tagAction, With withAction, ActionRunner runner) {
+  private static void acceptTagAction(Tag tagAction, CompatWith withAction, ActionRunner runner) {
     tagAction.toLeaf(withAction.getSource(), withAction.getSinks(), runner).accept(runner);
   }
 
@@ -396,7 +397,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     /**
-     * A sequential action created by and run as a part of {@code ForEach} action.
+     * A sequential action created by and run as a part of {@code CompatForEach} action.
      *
      * @see IgnoredInPathCalculation
      */
@@ -423,11 +424,11 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     /**
-     * A "with" action created by and run as a part of {@code ForEach} action.
+     * A "with" action created by and run as a part of {@code CompatForEach} action.
      *
      * @param <U> Type of the value with which child {@code Action} is executed.
      */
-    class With<U> extends com.github.dakusui.actionunit.actions.With.Base<U> implements IgnoredInPathCalculation {
+    class With<U> extends CompatWithBase<U> implements IgnoredInPathCalculation {
       public With(Source<U> source, Action action, Sink<U>[] sinks) {
         super(source, action, sinks);
       }
@@ -449,7 +450,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       super(threadPoolSize);
     }
 
-    /**
+    /**Â
      * Returns {@code null} since this action runner is a top level one and
      * doesn't have any parent.
      * Subclasses of this class may override this method to return a meaningful
@@ -623,7 +624,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
      * {@inheritDoc}
      */
     @Override
-    public void visit(final ForEach action) {
+    public void visit(final CompatForEach action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -668,7 +669,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
      * {@inheritDoc}
      */
     @Override
-    public void visit(final Attempt action) {
+    public void visit(final CompatAttempt action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -683,7 +684,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
      * {@inheritDoc}
      */
     @Override
-    public void visit(final With action) {
+    public void visit(final CompatWith action) {
       visitAndRecord(
           new Runnable() {
             @Override
@@ -730,7 +731,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
 
     @Override
-    protected ActionRunner createChildFor(final With action) {
+    protected ActionRunner createChildFor(final CompatWith action) {
       return new ActionRunner.WithResult(this.resultMap, this.current) {
         @Override
         public Object value() {
@@ -781,7 +782,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         }
 
         @Override
-        public void visit(ForEach action) {
+        public void visit(CompatForEach action) {
           nestLevel++;
           try {
             super.visit(action);
@@ -791,7 +792,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         }
 
         @Override
-        public <T> void visit(ForEach2<T> action) {
+        public <T> void visit(ForEach<T> action) {
           nestLevel++;
           try {
             super.visit(action);

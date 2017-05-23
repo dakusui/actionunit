@@ -1,6 +1,9 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.compat.CompatAttempt;
+import com.github.dakusui.actionunit.compat.CompatForEach;
+import com.github.dakusui.actionunit.compat.CompatWith;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.
@@ -80,28 +83,28 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(ForEach action);
+    void visit(CompatForEach action);
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    <T> void visit(ForEach2<T> action);
+    <T> void visit(ForEach<T> action);
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    <E extends Throwable> void visit(Attempt2<E> action);
+    <E extends Throwable> void visit(Attempt<E> action);
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(TestAction2 action);
+    void visit(TestAction action);
 
     /**
      * Visits an {@code action}.
@@ -122,7 +125,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(With action);
+    void visit(CompatWith action);
 
     /**
      * Visits an {@code action}.
@@ -143,7 +146,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(Attempt action);
+    void visit(CompatAttempt action);
 
     void visit(When when);
 
@@ -178,22 +181,22 @@ public interface Action {
       }
 
       @Override
-      public void visit(ForEach action) {
+      public void visit(CompatForEach action) {
         this.visit((Action) action);
       }
 
       @Override
-      public <T> void visit(ForEach2<T> action) {
+      public <T> void visit(ForEach<T> action) {
         this.visit((Action) action);
       }
 
       @Override
-      public <T extends Throwable> void visit(Attempt2<T> action) {
+      public <T extends Throwable> void visit(Attempt<T> action) {
         this.visit((Action) action);
       }
 
       @Override
-      public void visit(TestAction2 action) {
+      public void visit(TestAction action) {
         this.visit((Action) action);
       }
 
@@ -208,7 +211,7 @@ public interface Action {
       }
 
       @Override
-      public void visit(With action) {
+      public void visit(CompatWith action) {
         this.visit((Action) action);
       }
 
@@ -229,7 +232,7 @@ public interface Action {
       }
 
       @Override
-      public void visit(Attempt action) {
+      public void visit(CompatAttempt action) {
         this.visit((Action) action);
       }
 

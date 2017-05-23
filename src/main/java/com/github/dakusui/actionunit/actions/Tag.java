@@ -12,10 +12,9 @@ import static com.github.dakusui.actionunit.Utils.range;
 import static java.lang.String.format;
 
 /**
- * A tag action. This class is used with {@link With} action and replaced at runtime
- * with a {@link Sink} object held by the {@code With} action.
+ * A tag action. This class is used with {@code CompatWith} action and replaced at runtime
+ * with a {@link Sink} object held by the {@code CompatWith} action.
  *
- * @see With
  * @see Sink
  */
 public class Tag extends ActionBase {

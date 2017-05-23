@@ -1,77 +1,199 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Pipe;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
-import org.hamcrest.Matcher;
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.connectors.Connectors.*;
+public interface TestAction extends Action {
+  Action given();
 
-public interface TestAction<I, O> extends Piped<I, O> {
-  class Base<I, O> extends Impl<I, O> implements TestAction<I, O> {
-    public Base(Source<I> given, Pipe<I, O> when, Sink<O> then) {
-      //noinspection unchecked
-      super(checkNotNull(given), "Given", checkNotNull(when), "When", new Sink[] { checkNotNull(then) }, "Then");
-    }
-  }
+  Action when();
+
+  Action then();
 
   class Builder<I, O> {
 
-    private final String testName;
-    private Source<I> given = Connectors.context();
-    private Pipe<I, O> when;
-    private Sink<O>    then;
+    private Supplier<I>    input;
+    private Function<I, O> operation;
+    private Predicate<O>   check;
 
-    public Builder(String testName) {
-      this.testName = testName;
-    }
-
-    public Builder<I, O> given(Source<I> given) {
-      this.given = checkNotNull(given);
-      return this;
-    }
-
-    public Builder<I, O> given(I setUp) {
-      return this.given(immutable(setUp));
-    }
-
-    public Builder<I, O> when(Pipe<I, O> when) {
-      this.when = checkNotNull(when);
-      return this;
-    }
-
-    public Builder<I, O> when(Function<I, O> when) {
-      return this.when(toPipe(checkNotNull(when)));
-    }
-
-
-    public Builder<I, O> then(Sink<O> then) {
-      this.then = checkNotNull(then);
-      return this;
-    }
-
-    public Builder<I, O> then(Matcher<O> then) {
-      //noinspection unchecked
-      return this.then(toSink(checkNotNull(then)));
-    }
-
-    public Action build() {
-      checkNotNull(given);
-      checkNotNull(when);
-      checkNotNull(then);
-      return new TestAction.Base<I, O>(given, when, then) {
+    public Builder<I, O> given(String description, Supplier<I> input) {
+      Objects.requireNonNull(description);
+      Objects.requireNonNull(input);
+      this.input = new Supplier<I>() {
         @Override
-        public String formatClassName() {
-          return Builder.this.testName == null
-              ? super.formatClassName()
-              : Builder.this.testName;
+        public I get() {
+          return input.get();
+        }
+
+        @Override
+        public String toString() {
+          return description;
         }
       };
+      return this;
+    }
+
+    public Builder<I, O> when(String description, Function<I, O> operation) {
+      Objects.requireNonNull(operation);
+      this.operation = new Function<I, O>() {
+        @Override
+        public O apply(I i) {
+          return operation.apply(i);
+        }
+
+        @Override
+        public String toString() {
+          return description;
+        }
+
+      };
+      return this;
+    }
+
+    public Builder<I, O> then(String description, Predicate<O> check) {
+      Objects.requireNonNull(check);
+      this.check = new Predicate<O>() {
+        @Override
+        public boolean test(O o) {
+          return check.test(o);
+        }
+
+        @Override
+        public String toString() {
+          return description;
+        }
+      };
+      return this;
+    }
+
+    public TestAction build() {
+      Objects.requireNonNull(this.input);
+      Objects.requireNonNull(this.operation);
+      Objects.requireNonNull(this.check);
+      return new Base<>(this);
+    }
+
+    static class Base<I, O> implements TestAction {
+      private final AtomicReference<Supplier<I>> input  = new AtomicReference<>(
+          () -> {
+            throw new IllegalStateException("input is not set yet.");
+          });
+      private final AtomicReference<Supplier<O>> output = new AtomicReference<>(
+          () -> {
+            throw new IllegalStateException("output is not set yet.");
+          });
+      private final Builder<I, O> builder;
+
+      public Base(Builder<I, O> builder) {
+        this.builder = builder;
+      }
+
+      public I input() {
+        return input.get().get();
+      }
+
+      O output() {
+        return output.get().get();
+      }
+
+      Function<I, O> operation() {
+        return builder.operation;
+      }
+
+      Predicate<O> check() {
+        return builder.check;
+      }
+
+      @Override
+      public Action given() {
+        return Actions.simple(
+            "Given:",
+            new Runnable() {
+              @Override
+              public void run() {
+                Base.this.input.set(toSupplier(builder.input.toString(), builder.input.get()));
+              }
+
+              @Override
+              public String toString() {
+                return input.get().toString();
+              }
+
+              private <T> Supplier<T> toSupplier(String description, T value) {
+                return new Supplier<T>() {
+                  @Override
+                  public T get() {
+                    return value;
+                  }
+
+                  @Override
+                  public String toString() {
+                    return description;
+                  }
+                };
+              }
+            }
+        );
+      }
+
+      @Override
+      public Action when() {
+        return Actions.simple(
+            "When:",
+            new Runnable() {
+              @Override
+              public void run() {
+                output.set(
+                    () -> builder.operation.apply(Base.this.input())
+                );
+              }
+
+              @Override
+              public String toString() {
+                return builder.operation.toString();
+              }
+            }
+        );
+      }
+
+
+      @Override
+      public Action then() {
+        return Actions.simple(
+            "Then:",
+            new Runnable() {
+              @Override
+              public void run() {
+                if (!check().test(output()))
+                  throw new ActionAssertionError(String.format(
+                      "%s(x) %s was not satisfied because %s(x)=<%s>; x=<%s>",
+                      operation(),
+                      check(),
+                      operation(),
+                      output(),
+                      input()
+                  ));
+              }
+
+              @Override
+              public String toString() {
+                return check().toString();
+              }
+            }
+        );
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
     }
   }
 }

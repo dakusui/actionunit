@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import static java.util.Arrays.asList;
 public class WhenTest {
   @Test
   public void test() {
-    Action action = foreach(
+    Action action = CompatActions.foreach(
         asList(1, 2, 3, 4),
         when(
             (Integer input) -> input > 2,

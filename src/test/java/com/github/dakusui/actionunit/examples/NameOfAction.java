@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import static com.github.dakusui.actionunit.Actions.foreach;
+import static com.github.dakusui.actionunit.CompatActions.foreach;
 import static com.github.dakusui.actionunit.Actions.simple;
 import static java.util.Arrays.asList;
 

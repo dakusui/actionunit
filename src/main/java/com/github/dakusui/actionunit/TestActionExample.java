@@ -1,15 +1,15 @@
 package com.github.dakusui.actionunit;
 
-import com.github.dakusui.actionunit.actions.TestAction2;
+import com.github.dakusui.actionunit.actions.TestAction;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
-public class TestAction2Example {
+public class TestActionExample {
   @Test(expected = ActionAssertionError.class)
   public void givenIncorrectTest$whenRunTest$thenExceptionThrown() {
-    Action testAction = new TestAction2.Builder<String, Integer>()
+    Action testAction = new TestAction.Builder<String, Integer>()
         .given("'Hello world'", () -> {
           System.err.println(":Hello world");
           return "Hello world";
@@ -33,7 +33,7 @@ public class TestAction2Example {
 
   @Test
   public void givenCorrectTest$whenRunTest$thenPass() {
-    new TestAction2.Builder<String, Integer>()
+    new TestAction.Builder<String, Integer>()
         .given("Hello world", () -> "Hello world")
         .when("length", String::length)
         .then(">5", i -> i > 5)

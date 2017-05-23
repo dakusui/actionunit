@@ -1,10 +1,11 @@
 package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.actions.TestAction;
+import com.github.dakusui.actionunit.compat.CompatTestAction;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -56,7 +57,7 @@ public class ActionPrinterTest {
             public void run() {
             }
           }),
-          foreach(
+          CompatActions.foreach(
               asList("hello1", "hello2", "hello3"),
               new Sink.Base<String>("block1") {
                 @Override
@@ -108,7 +109,7 @@ public class ActionPrinterTest {
       i.next();
       assertThat(i.next(), containsString("simple3"));
       i.next();
-      assertThat(i.next(), containsString("ForEach"));
+      assertThat(i.next(), containsString("CompatForEach"));
       assertEquals(13, size(writer));
     }
   }
@@ -146,16 +147,16 @@ public class ActionPrinterTest {
             public void run() {
             }
           }),
-          foreach(
+          CompatActions.foreach(
               asList("hello1", "hello2", "hello3"),
-              new TestAction.Builder<String, Object>("ExampleTest")
+              new CompatTestAction.Builder<String, Object>("ExampleTest")
                   .when(input -> {
                     out.add(format("hello:%s", input));
                     return format("hello:%s", input);
                   })
                   .then(anything()).build()
           ),
-          foreach(
+          CompatActions.foreach(
               asList("world1", "world2", "world3"),
               sequential(
                   simple(new Runnable() {
@@ -220,7 +221,7 @@ public class ActionPrinterTest {
       i.next();
       assertThat(i.next(), containsString("simple3"));
       i.next();
-      assertThat(i.next(), containsString("ForEach"));
+      assertThat(i.next(), containsString("CompatForEach"));
       assertThat(i.next(), containsString("ExampleTest"));
       assertThat(i.next(), containsString("Given"));
       assertThat(i.next(), containsString("When"));
@@ -237,7 +238,7 @@ public class ActionPrinterTest {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
-      Action action = foreach(asList("A", "B"), sequential(tag(0), tag(1)), new Sink<String>() {
+      Action action = CompatActions.foreach(asList("A", "B"), sequential(tag(0), tag(1)), new Sink<String>() {
             @Override
             public void apply(String input, Context context) {
               out1.writeLine(input + "0");
@@ -257,7 +258,7 @@ public class ActionPrinterTest {
       action.accept(runner.createPrinter(out2));
 
       assertThat(out2, allOf(
-          hasItemAt(0, containsString("(+)ForEach")),
+          hasItemAt(0, containsString("(+)CompatForEach")),
           hasItemAt(1, containsString("(+)Sequential")),
           hasItemAt(2, containsString("(+)Tag(0)")),
           hasItemAt(3, containsString("(+)Tag(1)"))
@@ -372,7 +373,7 @@ public class ActionPrinterTest {
     @Test
     public void test() {
       final TestUtils.Out out = new TestUtils.Out();
-      Action action = with("Hello", toSink(input -> {
+      Action action = CompatActions.with("Hello", toSink(input -> {
         out.writeLine(input + " applied");
         return true;
       }));

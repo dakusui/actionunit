@@ -34,7 +34,7 @@ public interface Pipe<I, O> {
      * Applies this pipe to {@code input}.
      *
      * @param input An input to apply this object.
-     * @param outer Inputs from outer {@code With} actions.
+     * @param outer Inputs from outer {@code CompatWith} actions.
      */
     abstract protected O apply(I input, Object... outer);
 

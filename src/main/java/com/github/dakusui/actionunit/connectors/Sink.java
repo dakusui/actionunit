@@ -30,7 +30,7 @@ public interface Sink<T> {
      * Applies this sink to {@code input}.
      *
      * @param input An input to apply this object.
-     * @param outer Inputs from outer {@code With} actions.
+     * @param outer Inputs from outer {@code CompatWith} actions.
      */
     abstract protected void apply(T input, Object... outer);
 

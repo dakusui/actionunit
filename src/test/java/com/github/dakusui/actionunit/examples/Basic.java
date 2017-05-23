@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -83,14 +83,14 @@ public class Basic {
   @PerformWith(Test.class)
   public Action[] testAction() {
     return new Action[] {
-        Actions.<Integer, String>test()
+        CompatActions.<Integer, String>test()
             .given(100)
             .when(input -> Integer.toString(input + 1))
             .then(
                 Matchers.equalToIgnoringCase("102")
             )
             .build(),
-        Actions.<Integer, String>test()
+        CompatActions.<Integer, String>test()
             .given(100)
             .when(new Function<Integer, String>() {
               @Override
@@ -119,7 +119,7 @@ public class Basic {
   public Action timeoutAttemptAndRetryInCombination() {
     final Runnable runnable = createRunnable();
     return timeout(
-        attempt(runnable)
+        CompatActions.attempt(runnable)
             .recover(retry(simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
             .ensure(nop())
             .build(),

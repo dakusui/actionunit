@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -8,14 +9,13 @@ import org.junit.Test;
 
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
 
 public class PipedTest {
   @Test
   public void givenPipeInsideWith$whenPerformed() {
-    Action action = with("Hello",
-        pipe(
+    Action action = CompatActions.with("Hello",
+        CompatActions.pipe(
             (Function<String, Integer>) input -> input.length(),
             new Sink.Base<Integer>() {
               @Override
@@ -30,8 +30,8 @@ public class PipedTest {
 
   @Test
   public void givenPipeInsideForEach$whenPerformed() {
-    Action action = foreach(asList("Hello", "Hello1", "Hello12"),
-        pipe(
+    Action action = CompatActions.foreach(asList("Hello", "Hello1", "Hello12"),
+        CompatActions.pipe(
             (Function<String, Integer>) input -> {
               System.out.println(input);
               return input.length();

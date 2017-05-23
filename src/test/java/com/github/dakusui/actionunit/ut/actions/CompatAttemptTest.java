@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -15,11 +16,11 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 
-public class AttemptTest {
+public class CompatAttemptTest {
   @Test
   public void givenAttemptContainingRetryInsideRecover$whenExceptionThrown$thenRetryIsDoneExpectedly() {
     Action action =
-        attempt(named("Fail",
+        CompatActions.attempt(named("Fail",
             simple(new Runnable() {
               @Override
               public void run() {
@@ -56,9 +57,9 @@ public class AttemptTest {
       assertThat(
           outForTree,
           allOf(
-              hasItemAt(0, equalTo("(+)Attempt")),
+              hasItemAt(0, equalTo("(+)CompatAttempt")),
               hasItemAt(1, equalTo("  (E)Fail")),
-              hasItemAt(2, equalTo("    (E)AttemptTest$2")),
+              hasItemAt(2, equalTo("    (E)CompatAttemptTest$2")),
               hasItemAt(3, equalTo("  (+)Recover")),
               hasItemAt(4, equalTo("    (+)Retry(1[milliseconds]x1times)")),
               hasItemAt(5, equalTo("      (+)Tag(0); 2 times")),

@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -17,11 +18,11 @@ public class WithTest {
   @Test
   public void givenWithInsideFor$whenPerform$thenWorksFine() {
     final TestUtils.Out out = new TestUtils.Out();
-    Action action = foreach(
+    Action action = CompatActions.foreach(
         asList("A", "B", "C"),
         sequential(
             tag(0),
-            with("hello", new Sink.Base<String>() {
+            CompatActions.with("hello", new Sink.Base<String>() {
               @Override
               protected void apply(String input, Object... outer) {
                 out.writeLine("  " + input);

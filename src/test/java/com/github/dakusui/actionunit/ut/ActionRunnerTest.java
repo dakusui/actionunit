@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Concurrent;
 import com.github.dakusui.actionunit.actions.Sequential;
@@ -84,7 +85,7 @@ public class ActionRunnerTest {
   }
 
 
-  public static class DoubleForEach extends Base {
+  public static class DoubleCompatForEach extends Base {
     @Test
     public void givenDoubleForEachAction$whenPerformed$thenExecutedCorrectly() {
       ////
@@ -118,10 +119,10 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return foreach(asList("A", "B"),
+      return CompatActions.foreach(asList("A", "B"),
           sequential(
               tag(0),
-              foreach(asList("a", "b"), new Sink.Base() {
+              CompatActions.foreach(asList("a", "b"), new Sink.Base() {
                 @Override
                 protected void apply(Object input, Object... outer) {
                   getWriter().writeLine("\\_inner-" + input);

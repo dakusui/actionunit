@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.connectors.Connectors;
@@ -361,7 +362,7 @@ public class ActionsTest {
   @Test(timeout = 3000000)
   public void forEachTest() {
     final List<String> arr = new ArrayList<>();
-    foreach(
+    CompatActions.foreach(
         asList("1", "2"),
         new Sink.Base<String>("print") {
           @Override
@@ -376,8 +377,8 @@ public class ActionsTest {
   @Test
   public void givenForEachAction$whenDescribe$thenLooksNice() {
     assertEquals(
-        "ForEach (Concurrent, 2 items) {(noname)}",
-        describe(foreach(
+        "CompatForEach (Concurrent, 2 items) {(noname)}",
+        describe(CompatActions.foreach(
             asList("hello", "world"),
             CONCURRENTLY,
             new Sink.Base<String>() {
@@ -392,7 +393,7 @@ public class ActionsTest {
   @Test
   public void givenForEachActionWithAutoCloseableDataSource$whenPerformed$thenClosedLooksNice() {
     final TestUtils.Out out = new TestUtils.Out();
-    Action action = foreach(
+    Action action = CompatActions.foreach(
         autocloseableList(out, "closed", "hello", "world"),
         SEQUENTIALLY,
         new Sink.Base<String>() {
@@ -417,7 +418,7 @@ public class ActionsTest {
   public void givenForEachActionWithAutoCloseableDataSource$whenPerformedConcurrently$thenClosedLooksNice() {
     String[] data = { "hello1", "hello2", "hello3", "hello4", "hello5" };
     final TestUtils.Out out = new TestUtils.Out();
-    Action action = foreach(
+    Action action = CompatActions.foreach(
         autocloseableList(out, "closed", data),
         CONCURRENTLY,
         new Sink.Base<String>() {
@@ -446,7 +447,7 @@ public class ActionsTest {
   public void givenForEachActionWithEmptyAutoCloseableDataSource$whenPerformedConcurrently$thenClosedLooksNice() {
     String[] data = {};
     final TestUtils.Out out = new TestUtils.Out();
-    Action action = foreach(
+    Action action = CompatActions.foreach(
         autocloseableList(out, "closed", data),
         CONCURRENTLY,
         new Sink.Base<String>() {
@@ -465,7 +466,7 @@ public class ActionsTest {
   @Test
   public void givenConcurrentForEachActionWithAutoCloseableDataSource$whenPerformed$thenClosedLooksNice() {
     final TestUtils.Out out = new TestUtils.Out();
-    Action action = foreach(
+    Action action = CompatActions.foreach(
         autocloseableList(out, "closed", "hello", "world"),
         CONCURRENTLY,
         new Sink.Base<String>() {
@@ -536,8 +537,8 @@ public class ActionsTest {
   @Test
   public void givenForEachActionViaNonCollection$whenDescribe$thenLooksNice() {
     assertEquals(
-        "ForEach (Sequential, ? items) {empty!}",
-        describe(foreach(
+        "CompatForEach (Sequential, ? items) {empty!}",
+        describe(CompatActions.foreach(
             new Iterable<String>() {
               @Override
               public Iterator<String> iterator() {
@@ -557,7 +558,7 @@ public class ActionsTest {
   @Test
   public void givenForEachCreatedWithoutExplicitMode$whenPerform$thenWorksFine() {
     final List<String> arr = new ArrayList<>();
-    foreach(
+    CompatActions.foreach(
         asList("1", "2"),
         sequential(
             simple(new Runnable() {
@@ -582,7 +583,7 @@ public class ActionsTest {
   @Test
   public void givenWithAction$whenPerformed$thenWorksFine() {
     final List<String> arr = new ArrayList<>();
-    with("world",
+    CompatActions.with("world",
         new Sink.Base<String>() {
           @Override
           public void apply(String input, Object... outer) {
@@ -601,7 +602,7 @@ public class ActionsTest {
    */
   @Test
   public void givenActionWithInsufficientTags$whenPerformed$thenWorksFine() {
-    with("world",
+    CompatActions.with("world",
         sequential(nop()),
         new Sink.Base<String>() {
           @Override
@@ -613,7 +614,7 @@ public class ActionsTest {
 
   @Test(expected = IllegalStateException.class)
   public void givenActionWithTooManyTags$whenPerformed$thenAppropriateErrorReported() {
-    with("world",
+    CompatActions.with("world",
         sequential(tag(0), tag(1)),
         new Sink.Base<String>() {
           @Override
@@ -667,7 +668,7 @@ public class ActionsTest {
   @Test
   public void givenAttemptAction$whenExceptionCaught$worksFine() {
     final List<String> out = new LinkedList<>();
-    attempt(new Runnable() {
+    CompatActions.attempt(new Runnable() {
       @Override
       public void run() {
         out.add("try");
@@ -692,7 +693,7 @@ public class ActionsTest {
   public void givenAttemptAction$whenExceptionNotCaught$worksFine() {
     final List<String> out = new LinkedList<>();
     try {
-      attempt(new Runnable() {
+      CompatActions.attempt(new Runnable() {
         @Override
         public void run() {
           out.add("try");
@@ -718,8 +719,8 @@ public class ActionsTest {
 
   @Test
   public void givenPipeAction$whenPerformed$thenWorksFine() {
-    with("world",
-        pipe(
+    CompatActions.with("world",
+        CompatActions.pipe(
             Connectors.<String>context(),
             s -> new TestOutput.Text("hello:" + s), new Sink<TestOutput.Text>() {
               @Override
@@ -732,8 +733,8 @@ public class ActionsTest {
   @Test
   public void givenSimplePipeAction$whenPerformed$thenWorksFine() {
     final TestUtils.Out out = new TestUtils.Out();
-    Action action = foreach(asList("world", "WORLD", "test", "hello"),
-        pipe(
+    Action action = CompatActions.foreach(asList("world", "WORLD", "test", "hello"),
+        CompatActions.pipe(
             (Function<String, TestOutput.Text>) s -> {
               System.out.println("func:" + s);
               return new TestOutput.Text("hello:" + s);
@@ -766,8 +767,8 @@ public class ActionsTest {
   @Test
   public void givenSimplestPipeAction$whenPerformed$thenWorksFine() {
     final List<TestOutput.Text> out = new LinkedList<>();
-    with("world",
-        pipe(
+    CompatActions.with("world",
+        CompatActions.pipe(
             new Function<String, TestOutput.Text>() {
               @Override
               public TestOutput.Text apply(String s) {
@@ -787,7 +788,7 @@ public class ActionsTest {
   @Test
   public void givenTestActionWithName$whenBuiltAndPerformed$thenWorksFine() {
     //noinspection unchecked
-    Actions.<String, String>test()
+    CompatActions.<String, String>test()
         .given("Hello")
         .when(new Function<String, String>() {
           @Override
@@ -807,8 +808,8 @@ public class ActionsTest {
   @Test(expected = ComparisonFailure.class)
   public void givenPipeAction$whenPerformedAndThrowsException$thenPassesThrough
       () throws Throwable {
-    with("world",
-        pipe(
+    CompatActions.with("world",
+        CompatActions.pipe(
             Connectors.<String>context(),
             new Function<String, TestOutput.Text>() {
               @Override
@@ -827,8 +828,8 @@ public class ActionsTest {
   public void givenPipeActionFromFunction$whenPerformed$thenWorksFine() throws
       Throwable {
     final List<String> out = new LinkedList<>();
-    with("world",
-        pipe(
+    CompatActions.with("world",
+        CompatActions.pipe(
             Connectors.<String>context(),
             new Function<String, TestOutput.Text>() {
               @Override

@@ -1,7 +1,10 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.compat;
 
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.actions.Named;
+import com.github.dakusui.actionunit.actions.Sequential;
+import com.github.dakusui.actionunit.actions.Tag;
 import com.github.dakusui.actionunit.connectors.Connectors;
 import com.github.dakusui.actionunit.connectors.Pipe;
 import com.github.dakusui.actionunit.connectors.Sink;
@@ -16,7 +19,7 @@ import static java.util.Arrays.asList;
 /**
  * <pre>
  * +--------+       source  +---------+
- * |  With  |<>----+------->|Source<I>|
+ * |  CompatWith  |<>----+------->|Source<I>|
  * +--------+      |        +---------+
  *      |          |
  *      |          |sinks   +---------+
@@ -36,12 +39,12 @@ import static java.util.Arrays.asList;
  * @param <I> Input type
  * @param <O> Output type
  */
-public interface Piped<I, O> extends With<I> {
+public interface Piped<I, O> extends CompatWith<I> {
   Pipe<I, O> getPipe();
 
   Sink<O>[] getDestinationSinks();
 
-  class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
+  class Impl<I, O> extends CompatWithBase<I> implements Piped<I, O> {
     protected final Source<I>  source;
     protected final Pipe<I, O> pipe;
     protected final Sink<O>[]  destinationSinks;
@@ -76,7 +79,7 @@ public interface Piped<I, O> extends With<I> {
               Sequential.Factory.INSTANCE.create(
                   asList(
                       new Tag(0),
-                      new With.Base<>(
+                      new CompatWithBase<>(
                           output,
                           Named.Factory.create(
                               destinationSinksName,

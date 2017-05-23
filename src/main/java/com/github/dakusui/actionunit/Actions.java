@@ -1,28 +1,18 @@
 package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Pipe;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.Checks.checkArgument;
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.Utils.nonameIfNull;
-import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
-import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
-import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.stream.Collectors.toList;
 
 /**
  * This class contains static utility methods that return objects of type {@code Action}.
@@ -205,44 +195,8 @@ public enum Actions {
     return retry(ActionException.class, action, times, interval, timeUnit);
   }
 
-  public static <T> Action foreach2(Iterable<T> dataSource, ForEach.Mode mode, ProcessorFactory<T> processorFactory) {
-    return new ForEach2.Impl<T>(processorFactory, dataSource, Objects.requireNonNull(mode).getFactory());
-  }
-
-  @SafeVarargs
-  public static <T> Action foreach(DataSource.Factory<T> dataSourceFactory, ForEach.Mode mode, Action action, Sink<T>... sinks) {
-    return new ForEach<>(
-        mode.getFactory(),
-        new DataSource.Factory.Adapter<>(dataSourceFactory, ToSource.instance()),
-        action,
-        sinks
-    );
-  }
-
-  @SafeVarargs
-  public static <T> Action foreach(Iterable<T> dataSource, ForEach.Mode mode, Action action, Sink<T>... sinks) {
-    return foreach(new DataSource.Factory.PassThrough<>(dataSource), mode, action, sinks);
-  }
-
-  @SafeVarargs
-  public static <T> Action foreach(Iterable<T> dataSource, Action action, Sink<T>... sinks) {
-    return foreach(dataSource, SEQUENTIALLY, action, sinks);
-  }
-
-  @SafeVarargs
-  public static <T> Action foreach(Iterable<T> dataSource, ForEach.Mode mode, final Sink<T>... sinks) {
-    return foreach(
-        dataSource,
-        mode,
-        sequential(
-            Arrays.stream(sinks).map(sink -> tag(asList(sinks).indexOf(sink))).collect(toList())
-        ),
-        sinks);
-  }
-
-  @SafeVarargs
-  public static <T> Action foreach(Iterable<T> dataSource, final Sink<T>... sinks) {
-    return foreach(dataSource, SEQUENTIALLY, sinks);
+  public static <T> Action foreach2(Iterable<T> dataSource, ForEach.Mode mode, ExceptionHandlerFactory<T> exceptionHandlerFactory) {
+    return new ForEach.Impl<T>(exceptionHandlerFactory, dataSource, Objects.requireNonNull(mode).getFactory());
   }
 
   public static Action repeatwhile(Predicate<?> condition, Action... actions) {
@@ -266,21 +220,6 @@ public enum Actions {
 
   public static Action tag(int i) {
     return new Tag(i);
-  }
-
-  @SafeVarargs
-  public static <T> Action with(T value, Action action, Sink<T>... sinks) {
-    return new With.Base<>(Connectors.immutable(value), action, sinks);
-  }
-
-  @SafeVarargs
-  public static <T> Action with(T value, final Sink<T>... sinks) {
-    return with(
-        value,
-        sequential(
-            Arrays.stream(sinks).map(sink -> tag(asList(sinks).indexOf(sink))).collect(toList())
-        ),
-        sinks);
   }
 
   /**
@@ -330,87 +269,12 @@ public enum Actions {
     };
   }
 
-  public static Attempt.Builder attempt(Action attempt) {
-    return new Attempt.Builder(checkNotNull(attempt));
+  public static <E extends Throwable> Attempt.Builder<E> attempt2(Action attempt) {
+    return new Attempt.Builder<>(attempt);
   }
 
-  public static Attempt.Builder attempt(Runnable attempt) {
-    return attempt(simple(checkNotNull(attempt)));
+  public static <I, O> TestAction.Builder<I, O> test2() {
+    return new TestAction.Builder<>();
   }
 
-  public static <E extends Throwable> Attempt2.Builder<E> attempt2(Action attempt) {
-    return new Attempt2.Builder<>(attempt);
-  }
-
-  @SafeVarargs
-  public static <I, O> Action pipe(
-      Source<I> source,
-      Pipe<I, O> piped,
-      Sink<O>... sinks
-  ) {
-    return Piped.Factory.create(source, piped, sinks);
-  }
-
-  @SafeVarargs
-  public static <I, O> Action pipe(
-      Source<I> source,
-      Function<I, O> pipe,
-      Sink<O>... sinks
-  ) {
-    return pipe(source, toPipe(pipe), sinks);
-  }
-
-  @SafeVarargs
-  public static <I, O> Action pipe(
-      Pipe<I, O> pipe,
-      Sink<O>... sinks
-  ) {
-    return pipe(Connectors.<I>context(), pipe, sinks);
-  }
-
-  @SafeVarargs
-  public static <I, O> Action pipe(
-      Function<I, O> func,
-      Sink<O>... sinks
-  ) {
-    return pipe(toPipe(func), sinks);
-  }
-
-  public static <I> Action sink(String description, final Sink<I> sink) {
-    return pipe(toPipe(description, sink));
-  }
-
-  public static <I> Action sink(final Sink<I> sink) {
-    return sink(null, sink);
-  }
-
-  public static <I, O> TestAction2.Builder<I, O> test2() {
-    return new TestAction2.Builder<>();
-  }
-
-  public static <I, O> TestAction.Builder<I, O> test() {
-    return test(null);
-  }
-
-  public static <I, O> TestAction.Builder<I, O> test(String name) {
-    return new TestAction.Builder<>(name);
-  }
-
-
-  public static class ToSource<T> implements Function<T, Source<T>> {
-    private static final ToSource<?> INSTANCE = new ToSource<>();
-
-    public static <T> ToSource<T> instance() {
-      //noinspection unchecked
-      return (ToSource<T>) INSTANCE;
-    }
-
-    ToSource() {
-    }
-
-    @Override
-    public Source<T> apply(T t) {
-      return toSource(t);
-    }
-  }
 }

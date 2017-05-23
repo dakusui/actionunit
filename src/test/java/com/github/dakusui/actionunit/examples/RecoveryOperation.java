@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -17,7 +18,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class RecoveryOperation {
   @ActionUnit.PerformWith({ Test.class })
   public Action deployment() {
-    return attempt(deployComponent())
+    return CompatActions.attempt(deployComponent())
         .recover(
             retry(
                 sequential(

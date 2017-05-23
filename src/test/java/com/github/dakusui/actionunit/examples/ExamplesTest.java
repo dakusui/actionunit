@@ -32,10 +32,10 @@ public class ExamplesTest {
   }
 
 
-  public static class ForEachExampleTest extends TestUtils.TestBase {
+  public static class CompatForEachExampleTest extends TestUtils.TestBase {
     @Test
     public void testExample() {
-      Result result = JUnitCore.runClasses(ForEachExample.class);
+      Result result = JUnitCore.runClasses(CompatForEachExample.class);
       assertEquals(1, result.getRunCount());
       assertEquals(0, result.getFailureCount());
       assertEquals(true, result.wasSuccessful());

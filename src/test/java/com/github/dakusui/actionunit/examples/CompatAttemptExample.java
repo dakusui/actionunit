@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Actions;
-import com.github.dakusui.actionunit.actions.Attempt2;
+import com.github.dakusui.actionunit.actions.Attempt;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
@@ -9,7 +9,7 @@ import org.junit.Test;
 import static com.github.dakusui.actionunit.Actions.sequential;
 import static com.github.dakusui.actionunit.Actions.simple;
 
-public class AttemptExample {
+public class CompatAttemptExample {
   @Test
   public void givenAttemptAction$whenPerform$thenWorksFine() {
     buildAttemptAction().accept(new ActionRunner.Impl());
@@ -20,7 +20,7 @@ public class AttemptExample {
     buildAttemptAction().accept(new ActionPrinter<>(ActionPrinter.Writer.Std.OUT));
   }
 
-  private Attempt2<NullPointerException> buildAttemptAction() {
+  private Attempt<NullPointerException> buildAttemptAction() {
     return Actions.<NullPointerException>attempt2(
         sequential(
             simple("print hello", () -> System.out.println("Hello 'attempt'")),

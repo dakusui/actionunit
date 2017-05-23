@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -12,19 +13,19 @@ import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
 
 @RunWith(ActionUnit.class)
-public class ForEachExample {
+public class CompatForEachExample {
   @ActionUnit.PerformWith(Test.class)
   public Action compose() {
-    return foreach(
+    return CompatActions.foreach(
         asList("A", "B", "C"),
         sequential(
-            sink(new Sink<String>() {
+            CompatActions.sink(new Sink<String>() {
               @Override
               public void apply(String input, Context context) {
                 System.out.println("input=" + input);
               }
             }),
-            sink(new Sink<String>() {
+            CompatActions.sink(new Sink<String>() {
               @Override
               public void apply(String input, Context context) {
                 System.out.println("  context=" + (context == null ? null : context.value()));

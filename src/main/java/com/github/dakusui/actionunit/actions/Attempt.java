@@ -2,113 +2,85 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.Checks;
 
-import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Autocloseables.transform;
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.Utils.range;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-/**
- * An action that corresponds to Java's try/catch mechanism.
- * In order to build an instance of this class, use {@link Builder} class.
- *
- * @param <T> Type of exception which is caught and handled by {@code recover} action.
- */
-public class Attempt<T extends Throwable> extends ActionBase {
-  public final Action    attempt;
-  public final Class<T>  exceptionClass;
-  public final Action    recover;
-  public final Sink<T>[] sinks;
-  public final Action    ensure;
+public interface Attempt<E extends Throwable> extends Action {
+  Action attempt();
 
-  /**
-   * Creates an object of this class.
-   *
-   * @param attempt        Action initially attempted by this action.
-   * @param exceptionClass Exception on which {@code recover} action is performed
-   *                       if it is thrown during {@code attempt} action's execution.
-   * @param recover        Action performed when an exception of {exceptionClass}
-   *                       is thrown.
-   * @param sinks          sink operations applied as a part of {@code recover}
-   *                       action.
-   * @param ensure         Action which will be performed regardless of {@code attempt}
-   *                       action's behavior.
-   */
-  protected Attempt(Action attempt, Class<? extends Throwable> exceptionClass, Action recover, Sink<? extends Throwable>[] sinks, Action ensure) {
-    this.attempt = attempt;
-    //noinspection unchecked
-    this.exceptionClass = (Class<T>) checkNotNull(exceptionClass);
-    this.recover = Named.Factory.create("Recover", recover);
-    //noinspection unchecked
-    this.sinks = (Sink<T>[]) sinks;
-    this.ensure = Named.Factory.create("Ensure", ensure);
-  }
+  Class<E> exceptionClass();
 
-  /**
-   * {@inheritDoc}
-   *
-   * @param visitor the visitor operating on this element.
-   */
-  @Override
-  public void accept(Visitor visitor) {
-    visitor.visit(this);
-  }
+  Action recover(Supplier<E> exception);
 
-  /**
-   * A builder to construct an instance of {@link Attempt} action.
-   */
-  public static class Builder {
+  Action ensure();
+
+  class Builder<E extends Throwable> {
     private final Action attempt;
-    private Action                      recover        = nop();
-    @SuppressWarnings("unchecked")
-    private Sink<? extends Throwable>[] recoverWith    = new Sink[0];
-    private Action                      ensure         = nop();
-    private Class<? extends Throwable>  exceptionClass = ActionException.class;
+    private Action                     ensure                  = Actions.nop();
+    private Class<E>                   exceptionClass          = null;
+    private ExceptionHandlerFactory<E> exceptionHandlerFactory = e -> {
+      throw Checks.propagate(e.get());
+    };
 
     public Builder(Action attempt) {
-      this.attempt = checkNotNull(attempt);
+      this.attempt = Actions.named("Attempt:", Objects.requireNonNull(attempt));
     }
 
-    @SafeVarargs
-    public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Action action, Sink<T>... sinks) {
-      this.exceptionClass = checkNotNull(exceptionClass);
-      this.recover = checkNotNull(action);
-      this.recoverWith = sinks;
+    public Builder<E> recover(Class<E> exceptionClass, ExceptionHandlerFactory<E> exceptionHandlerFactory) {
+      this.exceptionClass = Objects.requireNonNull(exceptionClass);
+      this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
       return this;
     }
 
-    @SafeVarargs
-    public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Sink<T>... sinks) {
-      return this.recover(
-          exceptionClass,
-          Actions.sequential(transform(range(0, sinks.length), Actions::tag)),
-          sinks
-      );
+    public Attempt<E> ensure(Action action) {
+      this.ensure = Actions.named("Ensure:", Objects.requireNonNull(action));
+      return this.build();
     }
 
-    @SafeVarargs
-    public final Builder recover(Action action, Sink<ActionException>... sinks) {
-      return recover(ActionException.class, action, sinks);
+    public Attempt<E> build() {
+      Checks.checkState(exceptionClass != null, "Exception class isn't set yet.");
+      return new Impl<>(attempt, exceptionClass, exceptionHandlerFactory, ensure);
+    }
+  }
+
+  class Impl<E extends Throwable> extends ActionBase implements Attempt<E> {
+    private final Action                     attempt;
+    private final Action                     ensure;
+    private final Class<E>                   exceptionClass;
+    private final ExceptionHandlerFactory<E> exceptionHandlerFactory;
+
+    public Impl(Action attempt, Class<E> exceptionClass, ExceptionHandlerFactory<E> exceptionHandlerFactory, Action ensure) {
+      this.attempt = Objects.requireNonNull(attempt);
+      this.exceptionClass = Objects.requireNonNull(exceptionClass);
+      this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
+      this.ensure = Objects.requireNonNull(ensure);
     }
 
-    @SafeVarargs
-    public final Builder recover(Sink<ActionException>... sinks) {
-      return recover(ActionException.class, sinks);
+    @Override
+    public Action attempt() {
+      return this.attempt;
     }
 
-    public Builder ensure(Action action) {
-      this.ensure = checkNotNull(action);
-      return this;
+    @Override
+    public Class<E> exceptionClass() {
+      return this.exceptionClass;
     }
 
-    public Builder ensure(Runnable runnable) {
-      return this.ensure(simple(runnable));
+    @Override
+    public Action recover(Supplier<E> exception) {
+      return Actions.named(String.format("Recover(%s):", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
     }
 
-    public <T extends Throwable> Attempt<T> build() {
-      return new Attempt<>(this.attempt, this.exceptionClass, this.recover, this.recoverWith, this.ensure);
+    @Override
+    public Action ensure() {
+      return this.ensure;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
     }
   }
 }

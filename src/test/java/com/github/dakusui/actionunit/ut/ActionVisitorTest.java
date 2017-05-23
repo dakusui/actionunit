@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.actions.TestAction2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
@@ -105,13 +105,13 @@ public class ActionVisitorTest {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = foreach(singletonList("hello"));
+    Action action = CompatActions.foreach(singletonList("hello"));
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("ForEach"))
+        hasItemAt(0, startsWith("CompatForEach"))
     );
     assertThat(
         out,
@@ -122,13 +122,13 @@ public class ActionVisitorTest {
   @Test
   public void givenWithAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = with("Hello");
+    Action action = CompatActions.with("Hello");
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("With"))
+        hasItemAt(0, startsWith("CompatWith"))
     );
     assertThat(
         out,
@@ -173,13 +173,13 @@ public class ActionVisitorTest {
   @Test
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
-    Action action = attempt(createSimpleAction()).build();
+    Action action = CompatActions.attempt(createSimpleAction()).build();
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("Attempt"))
+        hasItemAt(0, startsWith("CompatAttempt"))
     );
     assertThat(
         out,

@@ -13,7 +13,7 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEach2Example {
+public class CompatForEach2Example {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     return foreach2(

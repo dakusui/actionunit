@@ -3,6 +3,10 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.compat.CompatAttempt;
+import com.github.dakusui.actionunit.compat.CompatForEach;
+import com.github.dakusui.actionunit.compat.CompatWith;
+import com.github.dakusui.actionunit.compat.Piped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +92,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public void visit(With action) {
+  public void visit(CompatWith action) {
     writeLine(describeAction(action));
     if (!(action instanceof Piped)) {
       enter(action);
@@ -119,7 +123,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public void visit(ForEach action) {
+  public void visit(CompatForEach action) {
     writeLine(describeAction(action));
     enter(action);
     try {
@@ -130,7 +134,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
   }
 
   @Override
-  public <T> void visit(ForEach2<T> action) {
+  public <T> void visit(ForEach<T> action) {
     action.createProcessor(() -> {
       throw notPrintable();
     }).accept(this);
@@ -140,7 +144,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public <E extends Throwable> void visit(Attempt2<E> action) {
+  public <E extends Throwable> void visit(Attempt<E> action) {
     writeLine(describeAction(action));
     enter(action);
     try {
@@ -155,7 +159,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
   }
 
   @Override
-  public void visit(TestAction2 action) {
+  public void visit(TestAction action) {
     writeLine(describeAction(action));
     enter(action);
     try {
@@ -186,7 +190,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public void visit(Attempt action) {
+  public void visit(CompatAttempt action) {
     writeLine(describeAction(action));
     enter(action);
     try {
