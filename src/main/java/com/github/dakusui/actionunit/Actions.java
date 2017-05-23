@@ -33,18 +33,7 @@ public enum Actions {
    * @see Leaf
    */
   public static Action simple(final Runnable runnable) {
-    checkNotNull(runnable);
-    return new Leaf() {
-      @Override
-      public void perform() {
-        runnable.run();
-      }
-
-      @Override
-      public String toString() {
-        return Utils.describe(runnable);
-      }
-    };
+    return Leaf.create(runnable);
   }
 
   /**

@@ -764,7 +764,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
      * @see ActionPrinter
      */
     public ActionPrinter createPrinter(ActionPrinter.Writer writer) {
-      return new ActionPrinter<ActionPrinter.Writer>(writer) {
+      return new ActionPrinter(writer) {
         int nestLevel = 0;
         final Path current = new Path();
 

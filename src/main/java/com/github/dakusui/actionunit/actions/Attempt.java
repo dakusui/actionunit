@@ -16,6 +16,10 @@ public interface Attempt<E extends Throwable> extends Action {
 
   Action ensure();
 
+  static <E extends Throwable> Attempt.Builder<E> builder(Action attempt) {
+    return new Builder<E>(attempt);
+  }
+
   class Builder<E extends Throwable> {
     private final Action attempt;
     private Action            ensure                  = Actions.nop();

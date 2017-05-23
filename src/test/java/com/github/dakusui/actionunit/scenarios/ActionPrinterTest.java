@@ -95,7 +95,7 @@ public class ActionPrinterTest {
 
     @Test
     public void givenNew() {
-      ActionPrinter<ActionPrinter.Writer> printer = ActionPrinter.Factory.create();
+      ActionPrinter printer = ActionPrinter.Factory.create();
       composeAction().accept(printer);
       ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.getWriter();
       Iterator<String> i = writer.iterator();
@@ -207,7 +207,7 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter<ActionPrinter.Writer> printer = ActionPrinter.Factory.create();
+      ActionPrinter printer = ActionPrinter.Factory.create();
       composeAction(out).accept(printer);
       ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.<ActionPrinter.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();

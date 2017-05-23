@@ -13,7 +13,8 @@ import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
 
 @RunWith(ActionUnit.class)
-public class CompatForEachExample {
+public class
+CompatForEachExample {
   @ActionUnit.PerformWith(Test.class)
   public Action compose() {
     return CompatActions.foreach(

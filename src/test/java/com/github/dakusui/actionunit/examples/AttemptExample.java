@@ -17,7 +17,7 @@ public class AttemptExample {
 
   @Test
   public void givenAttemptAction$whenPrint$thenWorksFine() {
-    buildAttemptAction().accept(new ActionPrinter<>(ActionPrinter.Writer.Std.OUT));
+    buildAttemptAction().accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
   }
 
   private Attempt<NullPointerException> buildAttemptAction() {

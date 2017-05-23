@@ -25,7 +25,7 @@ public class ActionUnitTest {
 
     @Test
     public void run(Action action) {
-      action.accept(new ActionPrinter<>(ActionPrinter.Writer.Std.OUT));
+      action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
     }
   }
 

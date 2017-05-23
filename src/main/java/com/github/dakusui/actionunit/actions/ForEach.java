@@ -14,6 +14,40 @@ public interface ForEach<T> extends Action {
 
   Composite.Factory getCompositeFactory();
 
+  static <E> ForEach.Builder<E> builder(Iterable<? extends E> elements) {
+    return new ForEach.Builder<>(elements);
+  }
+
+  class Builder<E> {
+    private final Iterable<? extends E> elements;
+    private Mode mode = Mode.SEQUENTIALLY;
+
+    Builder(Iterable<? extends E> elements) {
+      this.elements = Objects.requireNonNull(elements);
+    }
+
+    public Builder<E> sequentially() {
+      this.mode = Mode.SEQUENTIALLY;
+      return this;
+    }
+
+    public Builder<E> concurrently() {
+      this.mode = Mode.CONCURRENTLY;
+      return this;
+    }
+
+    public ForEach<E> perform(HandlerFactory<E> operation) {
+      Objects.requireNonNull(operation);
+      Objects.requireNonNull(operation);
+      //noinspection unchecked
+      return new ForEach.Impl<>(
+          operation,
+          (Iterable<E>) this.elements,
+          this.mode.getFactory()
+      );
+    }
+  }
+
   enum Mode {
     SEQUENTIALLY {
       @Override
@@ -36,8 +70,8 @@ public interface ForEach<T> extends Action {
     private final Iterable<T>                   data;
     private final Composite.Factory             compositeFactory;
 
-    public Impl(Function<Supplier<T>, Action> processorFactory, Iterable<T> data, Composite.Factory compositeFactory) {
-      this.processorFactory = Objects.requireNonNull(processorFactory);
+    public Impl(Function<Supplier<T>, Action> handlerFactory, Iterable<T> data, Composite.Factory compositeFactory) {
+      this.processorFactory = Objects.requireNonNull(handlerFactory);
       this.data = Objects.requireNonNull(data);
       this.compositeFactory = Objects.requireNonNull(compositeFactory);
     }

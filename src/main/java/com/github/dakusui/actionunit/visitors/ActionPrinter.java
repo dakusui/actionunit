@@ -26,11 +26,11 @@ import static com.github.dakusui.actionunit.Utils.describe;
  * action.accept(new ActionPrinter());
  * </code>
  */
-public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visitor.Base {
+public class ActionPrinter extends Action.Visitor.Base {
   /*
    * A writer through which this object's output is printed.
    */
-  private final W writer;
+  private final Writer writer;
 
   /*
    * current indent level.
@@ -43,7 +43,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * @param writer A writer through which this object's output is printed.
    * @see Writer
    */
-  public ActionPrinter(W writer) {
+  public ActionPrinter(Writer writer) {
     super();
     this.writer = checkNotNull(writer);
     this.indent = 0;
@@ -241,7 +241,7 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
   /**
    * Returns a writer of this object.
    */
-  public W getWriter() {
+  public Writer getWriter() {
     return this.writer;
   }
 
@@ -367,40 +367,40 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
   public enum Factory {
     ;
 
-    public static ActionPrinter<Writer> create(Writer writer) {
-      return new ActionPrinter<>(checkNotNull(writer));
+    public static ActionPrinter create(Writer writer) {
+      return new ActionPrinter(checkNotNull(writer));
     }
 
-    public static ActionPrinter<Writer> create() {
+    public static ActionPrinter create() {
       return create(new Writer.Impl());
     }
 
     public static ActionPrinter stdout() {
-      return new ActionPrinter<>(Writer.Std.OUT);
+      return new ActionPrinter(Writer.Std.OUT);
     }
 
     public static ActionPrinter stderr() {
-      return new ActionPrinter<>(Writer.Std.ERR);
+      return new ActionPrinter(Writer.Std.ERR);
     }
 
     public static ActionPrinter trace() {
-      return new ActionPrinter<>(Writer.Slf4J.TRACE);
+      return new ActionPrinter(Writer.Slf4J.TRACE);
     }
 
     public static ActionPrinter debug() {
-      return new ActionPrinter<>(Writer.Slf4J.DEBUG);
+      return new ActionPrinter(Writer.Slf4J.DEBUG);
     }
 
     public static ActionPrinter info() {
-      return new ActionPrinter<>(Writer.Slf4J.INFO);
+      return new ActionPrinter(Writer.Slf4J.INFO);
     }
 
     public static ActionPrinter warn() {
-      return new ActionPrinter<>(Writer.Slf4J.WARN);
+      return new ActionPrinter(Writer.Slf4J.WARN);
     }
 
     public static ActionPrinter error() {
-      return new ActionPrinter<>(Writer.Slf4J.ERROR);
+      return new ActionPrinter(Writer.Slf4J.ERROR);
     }
   }
 }
