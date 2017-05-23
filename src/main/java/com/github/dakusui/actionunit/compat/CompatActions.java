@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.compat;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
-import com.github.dakusui.actionunit.DataSource;
 import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.compat.actions.Tag;
 import com.github.dakusui.actionunit.compat.actions.*;
