@@ -265,11 +265,11 @@ public enum Actions {
     };
   }
 
-  public static <E extends Throwable> Attempt.Builder<E> attempt2(Action attempt) {
+  public static <E extends Throwable> Attempt.Builder<E> attempt(Action attempt) {
     return new Attempt.Builder<>(attempt);
   }
 
-  public static <I, O> TestAction.Builder<I, O> test2() {
+    public static <I, O> TestAction.Builder<I, O> test() {
     return new TestAction.Builder<>();
   }
 
