@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.Action;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.CompatActions.test;
+import static com.github.dakusui.actionunit.compat.CompatActions.test;
 import static com.github.dakusui.actionunit.Utils.describe;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.StringContains.containsString;

@@ -5,10 +5,13 @@ import com.github.dakusui.actionunit.AutocloseableIterator;
 import com.github.dakusui.actionunit.Autocloseables;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.*;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
+import com.github.dakusui.actionunit.compat.actions.CompatForEach;
+import com.github.dakusui.actionunit.compat.actions.CompatWith;
+import com.github.dakusui.actionunit.compat.actions.CompatWithBase;
+import com.github.dakusui.actionunit.compat.connectors.Connectors;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import java.util.*;

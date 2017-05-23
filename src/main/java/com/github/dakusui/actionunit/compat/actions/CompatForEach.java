@@ -1,10 +1,10 @@
-package com.github.dakusui.actionunit.compat;
+package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.*;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Nested;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.function.Function;

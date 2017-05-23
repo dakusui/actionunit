@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 
 import static com.github.dakusui.actionunit.Autocloseables.transform;
 import static com.github.dakusui.actionunit.Checks.checkArgument;

@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Pipe;
-import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Connectors;
+import com.github.dakusui.actionunit.compat.connectors.Pipe;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 

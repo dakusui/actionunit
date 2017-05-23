@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.CompatActions;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.compat.Piped;
-import com.github.dakusui.actionunit.connectors.Pipe;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.compat.actions.Piped;
+import com.github.dakusui.actionunit.compat.connectors.Pipe;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;

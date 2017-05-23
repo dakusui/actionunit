@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
-import com.github.dakusui.actionunit.CompatActions;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;

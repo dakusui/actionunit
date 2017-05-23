@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.CompatActions;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.compat.CompatTestAction;
-import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.compat.actions.CompatTestAction;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.Actions.*;
 import static com.github.dakusui.actionunit.Utils.size;
-import static com.github.dakusui.actionunit.connectors.Connectors.toSink;
+import static com.github.dakusui.actionunit.compat.connectors.Connectors.toSink;
 import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.lang.String.format;

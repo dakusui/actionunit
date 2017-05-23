@@ -3,10 +3,10 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.CompatAttempt;
-import com.github.dakusui.actionunit.compat.CompatForEach;
-import com.github.dakusui.actionunit.compat.CompatWith;
-import com.github.dakusui.actionunit.compat.Piped;
+import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
+import com.github.dakusui.actionunit.compat.actions.CompatForEach;
+import com.github.dakusui.actionunit.compat.actions.CompatWith;
+import com.github.dakusui.actionunit.compat.actions.Piped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

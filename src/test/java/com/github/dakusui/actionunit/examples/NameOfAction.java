@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.actions.Named;
-import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import static com.github.dakusui.actionunit.CompatActions.foreach;
+import static com.github.dakusui.actionunit.compat.CompatActions.foreach;
 import static com.github.dakusui.actionunit.Actions.simple;
 import static java.util.Arrays.asList;
 

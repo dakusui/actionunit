@@ -1,19 +1,22 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.compat;
 
+import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.DataSource;
 import com.github.dakusui.actionunit.actions.ForEach;
-import com.github.dakusui.actionunit.compat.*;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Pipe;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.compat.actions.*;
+import com.github.dakusui.actionunit.compat.connectors.Connectors;
+import com.github.dakusui.actionunit.compat.connectors.Pipe;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 
 import java.util.Arrays;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
-import static com.github.dakusui.actionunit.connectors.Connectors.toPipe;
-import static com.github.dakusui.actionunit.connectors.Connectors.toSource;
+import static com.github.dakusui.actionunit.compat.connectors.Connectors.toPipe;
+import static com.github.dakusui.actionunit.compat.connectors.Connectors.toSource;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 

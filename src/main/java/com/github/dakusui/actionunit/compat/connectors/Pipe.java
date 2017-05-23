@@ -1,9 +1,7 @@
-package com.github.dakusui.actionunit.connectors;
+package com.github.dakusui.actionunit.compat.connectors;
 
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
-
-import static com.github.dakusui.actionunit.connectors.Connectors.composeContextValues;
 
 /**
  * Executes an operation based on an input value and gives an output value.
@@ -27,7 +25,7 @@ public interface Pipe<I, O> {
 
     @Override
     public O apply(I input, Context context) {
-      return this.apply(input, composeContextValues(context));
+      return this.apply(input, Connectors.composeContextValues(context));
     }
 
     /**

@@ -1,16 +1,16 @@
-package com.github.dakusui.actionunit.compat;
+package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Pipe;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.compat.connectors.Connectors;
+import com.github.dakusui.actionunit.compat.connectors.Pipe;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 import org.hamcrest.Matcher;
 
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.connectors.Connectors.*;
+import static com.github.dakusui.actionunit.compat.connectors.Connectors.*;
 
 public interface CompatTestAction<I, O> extends Piped<I, O> {
   class Base<I, O> extends Impl<I, O> implements CompatTestAction<I, O> {

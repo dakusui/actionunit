@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.connectors.Source;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

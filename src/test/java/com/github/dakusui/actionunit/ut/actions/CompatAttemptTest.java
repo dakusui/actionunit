@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.CompatActions;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;

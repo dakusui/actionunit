@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.connectors;
+package com.github.dakusui.actionunit.compat.connectors;
 
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.Utils;
