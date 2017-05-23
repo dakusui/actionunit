@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.utils;
 
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;

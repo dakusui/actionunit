@@ -1,10 +1,9 @@
 package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.Utils;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.actions.Sequential;
-import com.github.dakusui.actionunit.actions.Tag;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;

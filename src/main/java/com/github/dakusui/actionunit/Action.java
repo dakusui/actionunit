@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
 import com.github.dakusui.actionunit.compat.actions.CompatForEach;
 import com.github.dakusui.actionunit.compat.actions.CompatWith;
+import com.github.dakusui.actionunit.compat.actions.Tag;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.

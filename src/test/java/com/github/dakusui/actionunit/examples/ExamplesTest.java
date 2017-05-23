@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
+import com.github.dakusui.actionunit.compat.examples.CompatForEachExample;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

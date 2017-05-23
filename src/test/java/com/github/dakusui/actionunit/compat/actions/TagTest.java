@@ -1,10 +1,10 @@
-package com.github.dakusui.actionunit.ut.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.Action;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.Actions.nop;
-import static com.github.dakusui.actionunit.Actions.tag;
+import static com.github.dakusui.actionunit.compat.CompatActions.tag;
 import static junit.framework.TestCase.assertFalse;
 
 public class TagTest {

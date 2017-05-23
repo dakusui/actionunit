@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
@@ -568,7 +568,7 @@ public class ActionsTest {
                      }
                    }
             ),
-            tag(0)
+            CompatActions.tag(0)
         ),
         new Sink.Base<String>("print") {
           @Override
@@ -615,7 +615,7 @@ public class ActionsTest {
   @Test(expected = IllegalStateException.class)
   public void givenActionWithTooManyTags$whenPerformed$thenAppropriateErrorReported() {
     CompatActions.with("world",
-        sequential(tag(0), tag(1)),
+        sequential(CompatActions.tag(0), CompatActions.tag(1)),
         new Sink.Base<String>() {
           @Override
           public void apply(String input, Object... outer) {

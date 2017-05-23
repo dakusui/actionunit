@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.compat;
 
 public interface Context {
   /**

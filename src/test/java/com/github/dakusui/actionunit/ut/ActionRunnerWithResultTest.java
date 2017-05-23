@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.compat.actions.Piped;
 import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
@@ -304,7 +304,7 @@ public class ActionRunnerWithResultTest {
   public static class TagTest extends Base {
     @Test(expected = UnsupportedOperationException.class)
     public void givenTagAction$whenPerformed$thenWorksFine() {
-      Action action = tag(0);
+      Action action = CompatActions.tag(0);
       action.accept(this.getRunner());
       action.accept(this.getPrinter());
     }

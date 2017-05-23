@@ -121,14 +121,14 @@ public class ActionRunnerTest {
     private Action composeAction() {
       return CompatActions.foreach(asList("A", "B"),
           sequential(
-              tag(0),
+              CompatActions.tag(0),
               CompatActions.foreach(asList("a", "b"), new Sink.Base() {
                 @Override
                 protected void apply(Object input, Object... outer) {
                   getWriter().writeLine("\\_inner-" + input);
                 }
               }),
-              tag(0)
+              CompatActions.tag(0)
           ),
           new Sink.Base() {
             @Override

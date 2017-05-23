@@ -16,7 +16,7 @@ public class WhenTest {
         asList(1, 2, 3, 4),
         when(
             (Integer input) -> input > 2,
-            tag(0)
+            CompatActions.tag(0)
         ),
         new Sink.Base<Integer>() {
           @Override

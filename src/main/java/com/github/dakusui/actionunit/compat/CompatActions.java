@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.DataSource;
 import com.github.dakusui.actionunit.actions.ForEach;
+import com.github.dakusui.actionunit.compat.actions.Tag;
 import com.github.dakusui.actionunit.compat.actions.*;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Pipe;
@@ -49,7 +50,7 @@ public enum CompatActions {
         dataSource,
         mode,
         Actions.sequential(
-            Arrays.stream(sinks).map(sink -> Actions.tag(asList(sinks).indexOf(sink))).collect(toList())
+            Arrays.stream(sinks).map(sink -> tag(asList(sinks).indexOf(sink))).collect(toList())
         ),
         sinks);
   }
@@ -69,7 +70,7 @@ public enum CompatActions {
     return with(
         value,
         Actions.sequential(
-            Arrays.stream(sinks).map(sink -> Actions.tag(asList(sinks).indexOf(sink))).collect(toList())
+            Arrays.stream(sinks).map(sink -> tag(asList(sinks).indexOf(sink))).collect(toList())
         ),
         sinks);
   }
@@ -130,6 +131,10 @@ public enum CompatActions {
 
   public static <I> Action sink(final Sink<I> sink) {
     return sink(null, sink);
+  }
+
+  public static Action tag(int i) {
+    return new Tag(i);
   }
 
   public static class ToSource<T> implements Function<T, Source<T>> {

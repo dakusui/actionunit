@@ -1,8 +1,8 @@
-package com.github.dakusui.actionunit.ut.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -30,7 +30,7 @@ public class CompatAttemptTest {
         ).recover(
             RuntimeException.class,
             retry(RuntimeException.class,
-                tag(0),
+                CompatActions.tag(0),
                 1,
                 1, MILLISECONDS),
             new Sink<RuntimeException>() {

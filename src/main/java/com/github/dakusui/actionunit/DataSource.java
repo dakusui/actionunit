@@ -1,5 +1,7 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.compat.Context;
+
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.Checks.checkNotNull;

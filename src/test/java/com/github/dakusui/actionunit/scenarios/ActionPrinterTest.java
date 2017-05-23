@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.compat.actions.CompatTestAction;
@@ -165,7 +165,7 @@ public class ActionPrinterTest {
 
                     }
                   }),
-                  tag(0)
+                  CompatActions.tag(0)
               ),
               new Sink<String>() {
                 @Override
@@ -238,7 +238,7 @@ public class ActionPrinterTest {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
-      Action action = CompatActions.foreach(asList("A", "B"), sequential(tag(0), tag(1)), new Sink<String>() {
+      Action action = CompatActions.foreach(asList("A", "B"), sequential(CompatActions.tag(0), CompatActions.tag(1)), new Sink<String>() {
             @Override
             public void apply(String input, Context context) {
               out1.writeLine(input + "0");

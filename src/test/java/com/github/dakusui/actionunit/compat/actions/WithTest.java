@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.ut.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
@@ -21,7 +21,7 @@ public class WithTest {
     Action action = CompatActions.foreach(
         asList("A", "B", "C"),
         sequential(
-            tag(0),
+            CompatActions.tag(0),
             CompatActions.with("hello", new Sink.Base<String>() {
               @Override
               protected void apply(String input, Object... outer) {

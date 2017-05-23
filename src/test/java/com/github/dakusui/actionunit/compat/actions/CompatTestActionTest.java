@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.ut.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.Action;
 import org.hamcrest.Matchers;
@@ -10,7 +10,7 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 
-public class TestActionCompatTest {
+public class CompatTestActionTest {
   @Test
   public void givenTesAction() {
     Action action = test().when(input -> input).then(Matchers.anything()).build();

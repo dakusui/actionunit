@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;

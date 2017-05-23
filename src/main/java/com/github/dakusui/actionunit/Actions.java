@@ -218,10 +218,6 @@ public enum Actions {
   }
 
 
-  public static Action tag(int i) {
-    return new Tag(i);
-  }
-
   /**
    * Returns an action that does nothing.
    */

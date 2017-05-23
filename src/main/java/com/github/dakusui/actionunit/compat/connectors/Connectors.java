@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.compat.connectors;
 
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.Utils;
 import org.hamcrest.Matcher;
 

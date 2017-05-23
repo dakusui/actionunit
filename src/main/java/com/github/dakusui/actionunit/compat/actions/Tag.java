@@ -1,7 +1,10 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.Context;
+import com.github.dakusui.actionunit.actions.ActionBase;
+import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 

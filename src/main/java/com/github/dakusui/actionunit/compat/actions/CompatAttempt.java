@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Named;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
@@ -85,7 +86,7 @@ public class CompatAttempt<T extends Throwable> extends ActionBase {
     public final <T extends Throwable> Builder recover(Class<T> exceptionClass, Sink<T>... sinks) {
       return this.recover(
           exceptionClass,
-          Actions.sequential(transform(range(0, sinks.length), Actions::tag)),
+          Actions.sequential(transform(range(0, sinks.length), CompatActions::tag)),
           sinks
       );
     }
