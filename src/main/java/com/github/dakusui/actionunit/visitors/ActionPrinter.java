@@ -100,7 +100,6 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
     }
   }
 
-
   /**
    * {@inheritDoc}
    */
@@ -141,6 +140,37 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
+  public <E extends Throwable> void visit(Attempt2<E> action) {
+    writeLine(describeAction(action));
+    enter(action);
+    try {
+      action.attempt().accept(this);
+      action.recover(() -> {
+        throw notPrintable();
+      }).accept(this);
+      action.ensure().accept(this);
+    } finally {
+      leave(action);
+    }
+  }
+
+  @Override
+  public void visit(TestAction2 action) {
+    writeLine(describeAction(action));
+    enter(action);
+    try {
+      action.given().accept(this);
+      action.when().accept(this);
+      action.then().accept(this);
+    } finally {
+      leave(action);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void visit(While action) {
     writeLine(describeAction(action));
     enter(action);
@@ -172,24 +202,6 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
    * {@inheritDoc}
    */
   @Override
-  public <E extends Throwable> void visit(Attempt2<E> action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.attempt().accept(this);
-      action.recover(() -> {
-        throw notPrintable();
-      }).accept(this);
-      action.ensure().accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void visit(Retry action) {
     writeLine(describeAction(action));
     enter(action);
@@ -199,7 +211,6 @@ public class ActionPrinter<W extends ActionPrinter.Writer> extends Action.Visito
       leave(action);
     }
   }
-
 
   /**
    * {@inheritDoc}

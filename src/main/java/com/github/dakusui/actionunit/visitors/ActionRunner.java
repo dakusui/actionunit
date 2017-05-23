@@ -153,6 +153,28 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         .accept(this);
   }
 
+  @Override
+  public <E extends Throwable> void visit(Attempt2<E> action) {
+    try {
+      action.attempt().accept(this);
+    } catch (Throwable e) {
+      if (!action.exceptionClass().isAssignableFrom(e.getClass())) {
+        throw propagate(e);
+      }
+      //noinspection unchecked
+      action.recover(() -> (E) e).accept(this);
+    } finally {
+      action.ensure().accept(this);
+    }
+  }
+
+  @Override
+  public void visit(TestAction2 action) {
+    action.given().accept(this);
+    action.when().accept(this);
+    action.then().accept(this);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -247,22 +269,6 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       action.ensure.accept(this);
     }
   }
-
-  @Override
-  public <E extends Throwable> void visit(Attempt2<E> action) {
-    try {
-      action.attempt().accept(this);
-    } catch (Throwable e) {
-      if (!action.exceptionClass().isAssignableFrom(e.getClass())) {
-        throw propagate(e);
-      }
-      //noinspection unchecked
-      action.recover(() -> (E) e).accept(this);
-    } finally {
-      action.ensure().accept(this);
-    }
-  }
-
 
   /**
    * Subclasses of this class must override this method and return a subclass of

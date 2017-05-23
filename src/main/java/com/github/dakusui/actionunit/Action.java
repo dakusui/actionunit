@@ -101,6 +101,13 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
+    void visit(TestAction2 action);
+
+    /**
+     * Visits an {@code action}.
+     *
+     * @param action action to be visited by this object.
+     */
     void visit(While action);
 
     /**
@@ -181,6 +188,16 @@ public interface Action {
       }
 
       @Override
+      public <T extends Throwable> void visit(Attempt2<T> action) {
+        this.visit((Action) action);
+      }
+
+      @Override
+      public void visit(TestAction2 action) {
+        this.visit((Action) action);
+      }
+
+      @Override
       public void visit(While action) {
         this.visit((Action) action);
       }
@@ -194,6 +211,7 @@ public interface Action {
       public void visit(With action) {
         this.visit((Action) action);
       }
+
 
       @Override
       public void visit(When action) {
@@ -215,10 +233,6 @@ public interface Action {
         this.visit((Action) action);
       }
 
-      @Override
-      public <T extends Throwable> void visit(Attempt2<T> action) {
-        this.visit((Action) action);
-      }
     }
   }
 

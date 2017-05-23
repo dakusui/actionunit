@@ -2,6 +2,8 @@ package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.Context;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -9,10 +11,9 @@ import org.junit.Before;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.AbstractList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class TestUtils {
   public static final Context DUMMY_CONTEXT = new Context() {
@@ -89,6 +90,62 @@ public class TestUtils {
     public void restoreStdOutErr() {
       System.setOut(stdout);
       System.setOut(stderr);
+    }
+  }
+
+  public static class MatcherBuilder<V, U> {
+    String         predicateName = "P";
+    Predicate<U>   p             = null;
+    String         functionName  = "f";
+    Function<V, U> f             = null;
+
+    public MatcherBuilder<V, U> f(String name, Function<V, U> f) {
+      this.functionName = Objects.requireNonNull(name);
+      this.f = Objects.requireNonNull(f);
+      return this;
+    }
+
+    public MatcherBuilder<V, U> p(String name, Predicate<U> p) {
+      this.predicateName = Objects.requireNonNull(name);
+      this.p = Objects.requireNonNull(p);
+      return this;
+    }
+
+    public Matcher<V> build() {
+      Objects.requireNonNull(p);
+      Objects.requireNonNull(f);
+      return new BaseMatcher<V>() {
+        @SuppressWarnings("unchecked")
+        @Override
+        public boolean matches(Object item) {
+          return p.test(f.apply((V) item));
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void describeMismatch(Object item, Description description) {
+          description
+              .appendText("was false because " + functionName + "(x)=")
+              .appendValue(f.apply((V) item))
+              .appendText("; x=")
+              .appendValue(item)
+          ;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+          description.appendText(String.format("%s(%s(x))", predicateName, functionName));
+        }
+      };
+    }
+
+    public static <T> MatcherBuilder<T, T> simple() {
+      return new MatcherBuilder<T, T>()
+          .f("passthrough", t -> t);
+    }
+
+    public static <T, U> MatcherBuilder<T, U> matcherBuilder() {
+      return new MatcherBuilder<>();
     }
   }
 }

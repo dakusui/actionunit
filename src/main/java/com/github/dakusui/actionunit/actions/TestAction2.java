@@ -1,64 +1,199 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface TestAction2<I, O> extends Action {
-  Action given(Supplier<I> given);
+public interface TestAction2 extends Action {
+  Action given();
 
-  Action when(Function<I, O> given);
+  Action when();
 
-  Action then(Predicate<O> then);
+  Action then();
 
   class Builder<I, O> {
-    Function<Supplier<I>, Action>    given;
-    Function<Function<I, O>, Action> when;
-    Function<Predicate<O>, Action>   then;
 
-    public Builder() {
-    }
+    private Supplier<I>    input;
+    private Function<I, O> operation;
+    private Predicate<O>   check;
 
-    public Builder<I, O> given(Function<Supplier<I>, Action> given) {
-      this.given = Objects.requireNonNull(given);
-      return this;
-    }
-
-    public Builder<I, O> when(Function<Function<I, O>, Action> when) {
-      this.when = Objects.requireNonNull(when);
-      return this;
-    }
-
-    public Builder<I, O> then(Function<Predicate<O>, Action> then) {
-      this.then = Objects.requireNonNull(then);
-      return this;
-    }
-
-    public TestAction2<I, O> build() {
-      return new TestAction2<I, O>() {
+    public Builder<I, O> given(String description, Supplier<I> input) {
+      Objects.requireNonNull(description);
+      Objects.requireNonNull(input);
+      this.input = new Supplier<I>() {
         @Override
-        public Action given(Supplier<I> given) {
-          return Builder.this.given.apply(given);
+        public I get() {
+          return input.get();
         }
 
         @Override
-        public Action when(Function<I, O> when) {
-          return Builder.this.when.apply(when);
-        }
-
-        @Override
-        public Action then(Predicate<O> then) {
-          return Builder.this.then.apply(then);
-        }
-
-        @Override
-        public void accept(Visitor visitor) {
-          visitor.visit(this);
+        public String toString() {
+          return description;
         }
       };
+      return this;
+    }
+
+    public Builder<I, O> when(String description, Function<I, O> operation) {
+      Objects.requireNonNull(operation);
+      this.operation = new Function<I, O>() {
+        @Override
+        public O apply(I i) {
+          return operation.apply(i);
+        }
+
+        @Override
+        public String toString() {
+          return description;
+        }
+
+      };
+      return this;
+    }
+
+    public Builder<I, O> then(String description, Predicate<O> check) {
+      Objects.requireNonNull(check);
+      this.check = new Predicate<O>() {
+        @Override
+        public boolean test(O o) {
+          return check.test(o);
+        }
+
+        @Override
+        public String toString() {
+          return description;
+        }
+      };
+      return this;
+    }
+
+    public TestAction2 build() {
+      Objects.requireNonNull(this.input);
+      Objects.requireNonNull(this.operation);
+      Objects.requireNonNull(this.check);
+      return new Base<>(this);
+    }
+
+    static class Base<I, O> implements TestAction2 {
+      private final AtomicReference<Supplier<I>> input  = new AtomicReference<>(
+          () -> {
+            throw new IllegalStateException("input is not set yet.");
+          });
+      private final AtomicReference<Supplier<O>> output = new AtomicReference<>(
+          () -> {
+            throw new IllegalStateException("output is not set yet.");
+          });
+      private final Builder<I, O> builder;
+
+      public Base(Builder<I, O> builder) {
+        this.builder = builder;
+      }
+
+      public I input() {
+        return input.get().get();
+      }
+
+      O output() {
+        return output.get().get();
+      }
+
+      Function<I, O> operation() {
+        return builder.operation;
+      }
+
+      Predicate<O> check() {
+        return builder.check;
+      }
+
+      @Override
+      public Action given() {
+        return Actions.simple(
+            "Given:",
+            new Runnable() {
+              @Override
+              public void run() {
+                Base.this.input.set(toSupplier(builder.input.toString(), builder.input.get()));
+              }
+
+              @Override
+              public String toString() {
+                return input.get().toString();
+              }
+
+              private <T> Supplier<T> toSupplier(String description, T value) {
+                return new Supplier<T>() {
+                  @Override
+                  public T get() {
+                    return value;
+                  }
+
+                  @Override
+                  public String toString() {
+                    return description;
+                  }
+                };
+              }
+            }
+        );
+      }
+
+      @Override
+      public Action when() {
+        return Actions.simple(
+            "When:",
+            new Runnable() {
+              @Override
+              public void run() {
+                output.set(
+                    () -> builder.operation.apply(Base.this.input())
+                );
+              }
+
+              @Override
+              public String toString() {
+                return builder.operation.toString();
+              }
+            }
+        );
+      }
+
+
+      @Override
+      public Action then() {
+        return Actions.simple(
+            "Then:",
+            new Runnable() {
+              @Override
+              public void run() {
+                if (!check().test(output()))
+                  throw new ActionAssertionError(String.format(
+                      "%s(x) %s was not satisfied because %s(x)=<%s>; x=<%s>",
+                      operation(),
+                      check(),
+                      operation(),
+                      output(),
+                      input()
+                  ));
+              }
+
+              @Override
+              public String toString() {
+                return check().toString();
+              }
+            }
+        );
+      }
+
+      @Override
+      public void accept(Visitor visitor) {
+        visitor.visit(this);
+      }
     }
   }
 }

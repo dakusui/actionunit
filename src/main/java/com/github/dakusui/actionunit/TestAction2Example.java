@@ -1,34 +1,42 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.actions.TestAction2;
+import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-
 public class TestAction2Example {
+  @Test(expected = ActionAssertionError.class)
+  public void givenIncorrectTest$whenRunTest$thenExceptionThrown() {
+    Action testAction = new TestAction2.Builder<String, Integer>()
+        .given("'Hello world'", () -> {
+          System.err.println(":Hello world");
+          return "Hello world";
+        })
+        .when("length", s -> {
+          System.err.println(":length");
+          return s.length();
+        })
+        .then(">20", i -> {
+          System.err.println(":>20");
+          return i > 20;
+        })
+        .build();
+    try {
+      testAction.accept(new ActionRunner.Impl());
+    } finally {
+      testAction.accept(new ActionPrinter<>(ActionPrinter.Writer.Std.OUT));
+    }
+  }
+
+
   @Test
-  public void given$when$then() {
-    Actions.<String, Integer>test2()
-        .given(new Function<Supplier<String>, Action>() {
-          @Override
-          public Action apply(Supplier<String> stringSupplier) {
-            return null;
-          }
-        })
-        .when(new Function<Function<String, Integer>, Action>() {
-          @Override
-          public Action apply(Function<String, Integer> stringIntegerFunction) {
-            return null;
-          }
-        })
-        .then(new Function<Predicate<Integer>, Action>() {
-          @Override
-          public Action apply(Predicate<Integer> integerPredicate) {
-            return null;
-          }
-        })
+  public void givenCorrectTest$whenRunTest$thenPass() {
+    new TestAction2.Builder<String, Integer>()
+        .given("Hello world", () -> "Hello world")
+        .when("length", String::length)
+        .then(">5", i -> i > 5)
         .build()
         .accept(new ActionRunner.Impl());
   }
