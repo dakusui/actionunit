@@ -22,9 +22,9 @@ public interface Attempt<E extends Throwable> extends Action {
 
   class Builder<E extends Throwable> {
     private final Action attempt;
-    private Action            ensure                  = Actions.nop();
-    private Class<? extends E>          exceptionClass          = null;
-    private HandlerFactory<E> exceptionHandlerFactory = e -> {
+    private Action             ensure                  = Actions.nop();
+    private Class<? extends E> exceptionClass          = null;
+    private HandlerFactory<E>  exceptionHandlerFactory = e -> {
       throw Checks.propagate(e.get());
     };
 
