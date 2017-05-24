@@ -1,10 +1,9 @@
 package com.github.dakusui.actionunit.helpers;
 
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.core.Action;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
@@ -85,29 +84,6 @@ public enum Actions {
   public static Action sequential(Iterable<? extends Action> actions) {
     return Sequential.Factory.INSTANCE.create(actions);
   }
-
-  /**
-   * Creates an action object which times out after duration specified by given parameters.
-   *
-   * @param action   An action performed by the returned object.
-   * @param duration A parameter to specify duration to time out with {@code timeUnit} parameter.
-   * @param timeUnit Time unit of {@code duration}.
-   */
-  public static Action timeout(Action action, long duration, TimeUnit timeUnit) {
-    checkNotNull(timeUnit);
-    return new TimeOut(action, NANOSECONDS.convert(duration, timeUnit));
-  }
-
-  public static Action repeatwhile(Predicate<?> condition, Action... actions) {
-    Action action = nop();
-    if (actions.length == 1) {
-      action = actions[0];
-    } else if (actions.length > 1) {
-      action = sequential(actions);
-    }
-    return new While.Impl(condition, action);
-  }
-
 
   /**
    * Returns an action that does nothing.

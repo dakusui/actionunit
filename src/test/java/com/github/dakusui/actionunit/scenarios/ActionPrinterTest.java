@@ -336,7 +336,7 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTimeoutAction$whenPerformed$thenResultPrinted() {
-      Action action = timeout(nop(), 1, TimeUnit.MINUTES);
+      Action action = CompatActions.timeout(nop(), 1, TimeUnit.MINUTES);
       ActionRunner.WithResult runner = new ActionRunner.WithResult();
       action.accept(runner);
       final TestUtils.Out out = new TestUtils.Out();

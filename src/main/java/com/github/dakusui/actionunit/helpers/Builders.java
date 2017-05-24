@@ -1,10 +1,11 @@
 package com.github.dakusui.actionunit.helpers;
 
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.core.Action;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
@@ -20,23 +21,31 @@ public enum Builders {
     return ForEach.builder(asList(elements));
   }
 
-  public static <T extends Throwable> Attempt.Builder<T> attempt(Action attemptee) {
-    return Attempt.builder(attemptee);
+  public static TimeOut.Builder timeout(Action action) {
+    return new TimeOut.Builder(action);
   }
 
-  public static <T> HandlerFactory<T> handlerFactory(String description, Consumer<T> handlerBody) {
-    return HandlerFactory.create(description, handlerBody);
+  public static <T extends Throwable> Attempt.Builder<T> attempt(Action attemptee) {
+    return Attempt.builder(attemptee);
   }
 
   public static Retry.Builder retry(Action action) {
     return Retry.builder(action);
   }
 
-  public static <I, O> TestAction.Builder<I, O> verify() {
-    return new TestAction.Builder<>();
+  public static <T> While.Builder<T> loopWhile(Predicate<T> condition) {
+    return new While.Builder<>(condition);
   }
 
-  public static When.Builder when(Predicate<?> condition) {
+  public static <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
+    return new TestAction.Builder<I, O>().given(description, given);
+  }
+
+  public static <T> When.Builder<T> when(Predicate<T> condition) {
     return new When.Builder<>(condition);
+  }
+
+  public static <T> HandlerFactory<T> handlerFactory(String description, Consumer<T> handlerBody) {
+    return HandlerFactory.create(description, handlerBody);
   }
 }

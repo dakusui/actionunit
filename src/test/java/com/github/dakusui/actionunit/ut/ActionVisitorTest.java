@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -156,7 +155,7 @@ public class ActionVisitorTest {
   @Test
   public void givenTimeOutAction$whenAccept$thenVisited() {
     // given timeout action
-    Action action = timeout(createSimpleAction(), 1, TimeUnit.NANOSECONDS);
+    Action action = CompatActions.timeout(createSimpleAction(), 1, TimeUnit.NANOSECONDS);
     // when accept
     action.accept(visitor);
     // then visited
@@ -190,7 +189,7 @@ public class ActionVisitorTest {
   @Test
   public void givenWhileAction$whenAccept$thenVisited() {
     // given while action
-    Action action = repeatwhile(
+    Action action = CompatActions.repeatwhile(
         v -> true,
         createSimpleAction(),
         createSimpleAction());

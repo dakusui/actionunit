@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.helpers.Actions.repeatwhile;
+import static com.github.dakusui.actionunit.compat.CompatActions.repeatwhile;
 import static com.github.dakusui.actionunit.compat.CompatActions.simple;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;

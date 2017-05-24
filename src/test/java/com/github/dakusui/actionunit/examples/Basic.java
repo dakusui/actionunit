@@ -118,7 +118,7 @@ public class Basic {
   @PerformWith({ DryRun.class, Test.class })
   public Action timeoutAttemptAndRetryInCombination() {
     final Runnable runnable = createRunnable();
-    return timeout(
+    return CompatActions.timeout(
         CompatActions.attempt(runnable)
             .recover(CompatActions.retry(CompatActions.simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
             .ensure(nop())

@@ -1,34 +1,34 @@
 package com.github.dakusui.actionunit.compat;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.DataSource;
-import com.github.dakusui.actionunit.helpers.Actions;
-import com.github.dakusui.actionunit.helpers.Builders;
-import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.Leaf;
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.actions.Sequential;
-import com.github.dakusui.actionunit.compat.actions.Tag;
 import com.github.dakusui.actionunit.compat.actions.*;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.DataSource;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.compat.connectors.Connectors.toPipe;
 import static com.github.dakusui.actionunit.compat.connectors.Connectors.toSource;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
+@Deprecated
 public enum CompatActions {
   ;
 
@@ -251,6 +251,28 @@ public enum CompatActions {
 
   public static Action when(Predicate<?> condition, Action action) {
     return when(condition, action, Actions.nop());
+  }
+
+  public static <T> Action repeatwhile(Predicate<T> condition, Action... actions) {
+    Action action = Actions.nop();
+    if (actions.length == 1) {
+      action = actions[0];
+    } else if (actions.length > 1) {
+      action = Actions.sequential(actions);
+    }
+    return Builders.loopWhile(condition).perform(action);
+  }
+
+  /**
+   * Creates an action object which times out after duration specified by given parameters.
+   *
+   * @param action   An action performed by the returned object.
+   * @param duration A parameter to specify duration to time out with {@code timeUnit} parameter.
+   * @param timeUnit Time unit of {@code duration}.
+   */
+  public static Action timeout(Action action, long duration, TimeUnit timeUnit) {
+    checkNotNull(timeUnit);
+    return Builders.timeout(action).in(duration, timeUnit);
   }
 
   public static class ToSource<T> implements Function<T, Source<T>> {

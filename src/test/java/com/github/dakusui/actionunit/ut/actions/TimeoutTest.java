@@ -1,9 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Utils;
-import com.github.dakusui.actionunit.actions.TimeOut;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class TimeoutTest {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeDuration$whenCreated$thenExceptionThrown() {
-    new TimeOut(nop(), -2);
+    Builders.timeout(nop()).in(-2, SECONDS);
   }
 
   @Test(expected = InterruptedException.class)
@@ -30,7 +31,7 @@ public class TimeoutTest {
         main.interrupt();
       }
     });
-    Action action = timeout(
+    Action action = CompatActions.timeout(
         sleep(5, SECONDS),
         10, SECONDS
     );
@@ -44,6 +45,6 @@ public class TimeoutTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void givenNonPositive$whenCreateTimeoutAction$thenIllegalArgument() {
-    timeout(nop(), 0, TimeUnit.SECONDS);
+    CompatActions.timeout(nop(), 0, TimeUnit.SECONDS);
   }
 }

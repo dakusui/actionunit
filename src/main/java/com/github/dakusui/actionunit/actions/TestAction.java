@@ -57,7 +57,7 @@ public interface TestAction extends Action {
       return this;
     }
 
-    public Builder<I, O> then(String description, Predicate<O> check) {
+    public TestAction then(String description, Predicate<O> check) {
       Objects.requireNonNull(check);
       this.check = new Predicate<O>() {
         @Override
@@ -70,10 +70,6 @@ public interface TestAction extends Action {
           return description;
         }
       };
-      return this;
-    }
-
-    public TestAction build() {
       Objects.requireNonNull(this.input);
       Objects.requireNonNull(this.operation);
       Objects.requireNonNull(this.check);

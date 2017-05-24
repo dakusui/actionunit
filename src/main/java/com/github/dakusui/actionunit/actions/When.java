@@ -9,24 +9,24 @@ import java.util.function.Predicate;
 import static com.github.dakusui.actionunit.helpers.Utils.describe;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
-public interface When extends Action, Conditioned {
+public interface When<T> extends Action, Conditioned<T> {
   Action otherwise();
 
   class Builder<T> {
-    Predicate condition;
-    Action    action;
+    Predicate<T> condition;
+    Action       action;
     Action otherwise = Actions.nop();
 
     public Builder(Predicate<T> condition) {
       this.condition = Objects.requireNonNull(condition);
     }
 
-    public Builder perform(Action action) {
+    public Builder<T> perform(Action action) {
       this.action = action;
       return this;
     }
 
-    public Builder otherwise(Action action) {
+    public Builder<T> otherwise(Action action) {
       this.otherwise = action;
       return this;
     }
@@ -34,15 +34,15 @@ public interface When extends Action, Conditioned {
     /**
      * Builds an instance of  {@code When}.
      */
-    public When build() {
-      return new When.Impl(this.condition, this.action, this.otherwise);
+    public When<T> build() {
+      return new When.Impl<>(this.condition, this.action, this.otherwise);
     }
   }
 
-  class Impl extends Conditioned.Base implements When {
+  class Impl<T> extends Conditioned.Base<T> implements When<T> {
     private final Action otherwise;
 
-    public Impl(Predicate condition, Action action, Action otherwise) {
+    public Impl(Predicate<T> condition, Action action, Action otherwise) {
       super(condition, action);
       this.otherwise = checkNotNull(otherwise);
     }

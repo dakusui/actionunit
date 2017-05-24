@@ -175,7 +175,7 @@ public class ActionsTest {
   @Test
   public void timeoutTest() {
     final List<String> arr = new ArrayList<>();
-    timeout(CompatActions.simple(new Runnable() {
+    CompatActions.timeout(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello");
@@ -190,16 +190,16 @@ public class ActionsTest {
 
   @Test
   public void givenTimeoutAction$whenDescribe$thenLooksNice() {
-    assertEquals("TimeOut(1[milliseconds])", describe(timeout(nop(), 1, MILLISECONDS)));
-    assertEquals("TimeOut(10[seconds])", describe(timeout(nop(), 10000, MILLISECONDS)));
-    assertEquals("TimeOut(1000[days])", describe(timeout(nop(), 1000, DAYS)));
+    assertEquals("TimeOut(1[milliseconds])", describe(CompatActions.timeout(nop(), 1, MILLISECONDS)));
+    assertEquals("TimeOut(10[seconds])", describe(CompatActions.timeout(nop(), 10000, MILLISECONDS)));
+    assertEquals("TimeOut(1000[days])", describe(CompatActions.timeout(nop(), 1000, DAYS)));
   }
 
   @Test(expected = TimeoutException.class)
   public void timeoutTest$timeout() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(
+      CompatActions.timeout(
           CompatActions.simple(new Runnable() {
             @Override
             public void run() {
@@ -223,7 +223,7 @@ public class ActionsTest {
   public void givenTimeOutAtTopLevel$whenRuntimeExceptionThrownFromInside$thenRuntimeException() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(CompatActions.simple(new Runnable() {
+      CompatActions.timeout(CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               arr.add("Hello");
@@ -242,7 +242,7 @@ public class ActionsTest {
   public void givenTimeOutAtTopLevel$whenErrorThrownFromInside$thenError() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(CompatActions.simple(new Runnable() {
+      CompatActions.timeout(CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               arr.add("Hello");
@@ -347,7 +347,7 @@ public class ActionsTest {
 
   @Test(timeout = 3000000)
   public void givenNothingForChildAction$whenWhilActionPerformedWithAlwaysFalseCondition$thenQuitImmediately() {
-    Action action = repeatwhile(v -> false);
+    Action action = CompatActions.repeatwhile(v -> false);
     action.accept(new ActionRunner.Impl());
   }
 

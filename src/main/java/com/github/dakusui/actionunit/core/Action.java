@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.compat.CompatVisitor;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
 import com.github.dakusui.actionunit.compat.actions.CompatForEach;
 import com.github.dakusui.actionunit.compat.actions.CompatWith;
@@ -36,7 +37,7 @@ public interface Action {
    *
    * @see Base
    */
-  interface Visitor {
+  interface Visitor extends CompatVisitor {
     /**
      * Visits an {@code action}.
      *
@@ -84,13 +85,6 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(CompatForEach action);
-
-    /**
-     * Visits an {@code action}.
-     *
-     * @param action action to be visited by this object.
-     */
     <T> void visit(ForEach<T> action);
 
     /**
@@ -126,13 +120,6 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(CompatWith action);
-
-    /**
-     * Visits an {@code action}.
-     *
-     * @param action action to be visited by this object.
-     */
     void visit(Retry action);
 
     /**
@@ -147,9 +134,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(CompatAttempt action);
-
-    void visit(When when);
+    void visit(When action);
 
     abstract class Base implements Visitor {
 
