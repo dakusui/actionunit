@@ -39,7 +39,7 @@ public class ActionRunnerTest {
 
     @Override
     public ActionPrinter getPrinter(ActionPrinter.Impl.Writer writer) {
-      return ActionPrinter.Impl.Factory.create(writer);
+      return ActionPrinter.create(writer);
     }
   }
 

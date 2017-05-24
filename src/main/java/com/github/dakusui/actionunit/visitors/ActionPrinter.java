@@ -22,10 +22,46 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
   /*
    * current indent level.
    */
-  protected       int indent;
+  protected       int    indent;
 
   public ActionPrinter(Writer writer) {
     this.writer = checkNotNull(writer);
+  }
+
+  public static ActionPrinter create() {
+    return create(new Writer.Impl());
+  }
+
+  public static ActionPrinter create(Writer writer) {
+    return new Impl(checkNotNull(writer));
+  }
+
+  public static ActionPrinter stdout() {
+    return new Impl(Writer.Std.OUT);
+  }
+
+  public static ActionPrinter stderr() {
+    return new Impl(Writer.Std.ERR);
+  }
+
+  public static ActionPrinter trace() {
+    return new Impl(Writer.Slf4J.TRACE);
+  }
+
+  public static ActionPrinter debug() {
+    return new Impl(Writer.Slf4J.DEBUG);
+  }
+
+  public static ActionPrinter info() {
+    return new Impl(Writer.Slf4J.INFO);
+  }
+
+  public static ActionPrinter warn() {
+    return new Impl(Writer.Slf4J.WARN);
+  }
+
+  public static ActionPrinter error() {
+    return new Impl(Writer.Slf4J.ERROR);
   }
 
   protected void enter(Action action) {
@@ -313,49 +349,6 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
      */
     public Writer getWriter() {
       return this.writer;
-    }
-
-    /**
-     * A factory class to create {@link Impl} objects.
-     */
-    public enum Factory {
-      ;
-
-      public static ActionPrinter create(Writer writer) {
-        return new Impl(checkNotNull(writer));
-      }
-
-      public static ActionPrinter create() {
-        return create(new Writer.Impl());
-      }
-
-      public static ActionPrinter stdout() {
-        return new Impl(Writer.Std.OUT);
-      }
-
-      public static ActionPrinter stderr() {
-        return new Impl(Writer.Std.ERR);
-      }
-
-      public static ActionPrinter trace() {
-        return new Impl(Writer.Slf4J.TRACE);
-      }
-
-      public static ActionPrinter debug() {
-        return new Impl(Writer.Slf4J.DEBUG);
-      }
-
-      public static ActionPrinter info() {
-        return new Impl(Writer.Slf4J.INFO);
-      }
-
-      public static ActionPrinter warn() {
-        return new Impl(Writer.Slf4J.WARN);
-      }
-
-      public static ActionPrinter error() {
-        return new Impl(Writer.Slf4J.ERROR);
-      }
     }
   }
 }

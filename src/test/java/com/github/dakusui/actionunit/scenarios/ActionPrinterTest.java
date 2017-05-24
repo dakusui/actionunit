@@ -70,32 +70,32 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTrace() {
-      composeAction().accept(ActionPrinter.Impl.Factory.trace());
+      composeAction().accept(ActionPrinter.trace());
     }
 
     @Test
     public void givenDebug$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Impl.Factory.debug());
+      composeAction().accept(ActionPrinter.debug());
     }
 
     @Test
     public void givenInfo$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Impl.Factory.info());
+      composeAction().accept(ActionPrinter.info());
     }
 
     @Test
     public void givenWarn() {
-      composeAction().accept(ActionPrinter.Impl.Factory.warn());
+      composeAction().accept(ActionPrinter.warn());
     }
 
     @Test
     public void givenError() {
-      composeAction().accept(ActionPrinter.Impl.Factory.error());
+      composeAction().accept(ActionPrinter.error());
     }
 
     @Test
     public void givenNew() {
-      ActionPrinter printer = ActionPrinter.Impl.Factory.create();
+      ActionPrinter printer = ActionPrinter.create();
       composeAction().accept(printer);
       ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
       Iterator<String> i = writer.iterator();
@@ -117,12 +117,12 @@ public class ActionPrinterTest {
   public static class StdOutErrTest extends TestUtils.TestBase {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Impl.Factory.stdout());
+      composeAction().accept(ActionPrinter.stdout());
     }
 
     @Test
     public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Impl.Factory.stderr());
+      composeAction().accept(ActionPrinter.stderr());
     }
   }
 
@@ -207,7 +207,7 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter printer = ActionPrinter.Impl.Factory.create();
+      ActionPrinter printer = ActionPrinter.create();
       composeAction(out).accept(printer);
       composeAction(out).accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
       ActionPrinter.Impl.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).<ActionPrinter.Impl.Writer.Impl>getWriter();
