@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.actions.Retry;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -35,7 +36,7 @@ public class RetryTest {
   @Test(expected = RuntimeException.class, timeout = 3000000)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(ActionException.class, simple(new Runnable() {
+    new Retry(ActionException.class, CompatActions.simple(new Runnable() {
       boolean firstTime = true;
       @Override
       public void run() {
@@ -127,7 +128,7 @@ public class RetryTest {
     return retry(
         exceptionToBeCaught,
         named("PassOn2ndRetry",
-            simple(new Runnable() {
+            CompatActions.simple(new Runnable() {
               int tried = 0;
 
               @Override

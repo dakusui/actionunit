@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.actions.Attempt;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -8,9 +7,10 @@ import org.junit.Test;
 
 import static com.github.dakusui.actionunit.Actions.sequential;
 import static com.github.dakusui.actionunit.Actions.simple;
+import static com.github.dakusui.actionunit.Builders.attempt;
 
 public class AttemptExample {
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenPerform$thenWorksFine() {
     buildAttemptAction().accept(new ActionRunner.Impl());
   }
@@ -20,8 +20,8 @@ public class AttemptExample {
     buildAttemptAction().accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
   }
 
-  private Attempt<NullPointerException> buildAttemptAction() {
-    return Actions.<NullPointerException>attempt(
+  private Attempt<? super NullPointerException> buildAttemptAction() {
+    return attempt(
         sequential(
             simple("print hello", () -> System.out.println("Hello 'attempt'")),
             simple("throw exception", () -> {
@@ -42,6 +42,4 @@ public class AttemptExample {
         })
     );
   }
-
-
 }

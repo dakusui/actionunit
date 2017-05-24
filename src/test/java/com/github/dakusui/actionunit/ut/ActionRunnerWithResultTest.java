@@ -116,13 +116,15 @@ public class ActionRunnerWithResultTest {
       } catch (RuntimeException e) {
         action.accept(this.getPrinter());
       }
+      action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
       ////
       //Then printed correctly
       //noinspection unchecked
-      assertThat(getWriter(), allOf(
-          hasItemAt(0, startsWith("(E)An error action")),
-          hasItemAt(1, equalTo("  (E)This gives a runtime exception always"))
-      ));
+      assertThat(getWriter(),
+          allOf(
+              hasItemAt(0, startsWith("(E)An error action")),
+              hasItemAt(1, equalTo("  (E)This gives a runtime exception always"))
+          ));
     }
   }
 
@@ -270,7 +272,7 @@ public class ActionRunnerWithResultTest {
     @Test
     public void givenFailingAttemptAction$whenPerformed$thenWorksFine() {
       Action action = CompatActions.attempt(
-          simple(new Runnable() {
+          CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               throw new NullPointerException(this.toString());

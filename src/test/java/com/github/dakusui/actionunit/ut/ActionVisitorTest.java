@@ -47,7 +47,7 @@ public class ActionVisitorTest {
   }
 
   private Action createSimpleAction() {
-    return Actions.simple(new Runnable() {
+    return CompatActions.simple(new Runnable() {
       @Override
       public void run() {
       }

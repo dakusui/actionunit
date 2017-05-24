@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Utils;
 
 import static com.github.dakusui.actionunit.Checks.checkNotNull;
 
@@ -12,10 +11,11 @@ import static com.github.dakusui.actionunit.Checks.checkNotNull;
  * framework should extend this class.
  */
 public abstract class Leaf extends ActionBase {
-  public Leaf() {
+  protected Leaf() {
   }
 
-  public static Action create(Runnable runnable) {
+  public static Action create(String description, Runnable runnable) {
+    checkNotNull(description);
     checkNotNull(runnable);
     return new Leaf() {
       @Override
@@ -25,7 +25,7 @@ public abstract class Leaf extends ActionBase {
 
       @Override
       public String toString() {
-        return Utils.describe(runnable);
+        return description;
       }
     };
   }

@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -29,7 +30,7 @@ public class ActionsTest {
   @Test
   public void simpleTest() {
     final List<String> arr = new ArrayList<>();
-    simple(new Runnable() {
+    CompatActions.simple(new Runnable() {
       @Override
       public void run() {
         arr.add("Hello");
@@ -42,13 +43,13 @@ public class ActionsTest {
   public void sequentialTest() {
     final List<String> arr = new ArrayList<>();
     sequential(
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello A");
           }
         }),
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello B");
@@ -73,13 +74,13 @@ public class ActionsTest {
   public void concurrentTest() throws InterruptedException {
     final List<String> arr = synchronizedList(new ArrayList<String>());
     concurrent(
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello A");
           }
         }),
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello B");
@@ -94,13 +95,13 @@ public class ActionsTest {
   public void concurrentTest$checkConcurrency() throws InterruptedException {
     final List<Map.Entry<Long, Long>> arr = synchronizedList(new ArrayList<Map.Entry<Long, Long>>());
     concurrent(
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add(createEntry());
           }
         }),
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add(createEntry());
@@ -133,14 +134,14 @@ public class ActionsTest {
     final List<String> arr = synchronizedList(new ArrayList<String>());
     // when
     concurrent(
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello A");
             throw new NullPointerException();
           }
         }),
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello B");
@@ -155,14 +156,14 @@ public class ActionsTest {
     final List<String> arr = synchronizedList(new ArrayList<String>());
     // when
     concurrent(
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello A");
             throw new Error();
           }
         }),
-        simple(new Runnable() {
+        CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello B");
@@ -174,7 +175,7 @@ public class ActionsTest {
   @Test
   public void timeoutTest() {
     final List<String> arr = new ArrayList<>();
-    timeout(simple(new Runnable() {
+    timeout(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello");
@@ -199,7 +200,7 @@ public class ActionsTest {
     final List<String> arr = new ArrayList<>();
     try {
       timeout(
-          simple(new Runnable() {
+          CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               arr.add("Hello");
@@ -222,7 +223,7 @@ public class ActionsTest {
   public void givenTimeOutAtTopLevel$whenRuntimeExceptionThrownFromInside$thenRuntimeException() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(simple(new Runnable() {
+      timeout(CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               arr.add("Hello");
@@ -241,7 +242,7 @@ public class ActionsTest {
   public void givenTimeOutAtTopLevel$whenErrorThrownFromInside$thenError() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(simple(new Runnable() {
+      timeout(CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               arr.add("Hello");
@@ -259,7 +260,7 @@ public class ActionsTest {
   @Test(timeout = 300000)
   public void retryTest() {
     final List<String> arr = new ArrayList<>();
-    retry(simple(new Runnable() {
+    retry(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello");
@@ -273,7 +274,7 @@ public class ActionsTest {
   @Test(timeout = 300000)
   public void retryTest$failOnce() {
     final List<String> arr = new ArrayList<>();
-    retry(simple(new Runnable() {
+    retry(CompatActions.simple(new Runnable() {
           int i = 0;
 
           @Override
@@ -293,7 +294,7 @@ public class ActionsTest {
   @Test(expected = Abort.class)
   public void givenRetryAction$whenAbortException$thenAborted() {
     final TestUtils.Out out = new TestUtils.Out();
-    retry(simple(new Runnable() {
+    retry(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             out.writeLine("run");
@@ -309,7 +310,7 @@ public class ActionsTest {
   public void givenRetryAction$whenAbortException2$thenAbortedAndRootExceptionStoredProperly() throws Throwable {
     final TestUtils.Out out = new TestUtils.Out();
     try {
-      retry(simple(new Runnable() {
+      retry(CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               out.writeLine("Hello");
@@ -327,7 +328,7 @@ public class ActionsTest {
   @Test(expected = ActionException.class, timeout = 300000)
   public void retryTest$failForever() {
     final List<String> arr = new ArrayList<>();
-    retry(simple(new Runnable() {
+    retry(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello");

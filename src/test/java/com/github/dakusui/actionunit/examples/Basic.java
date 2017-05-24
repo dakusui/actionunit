@@ -120,7 +120,7 @@ public class Basic {
     final Runnable runnable = createRunnable();
     return timeout(
         CompatActions.attempt(runnable)
-            .recover(retry(simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
+            .recover(retry(CompatActions.simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
             .ensure(nop())
             .build(),
         10,

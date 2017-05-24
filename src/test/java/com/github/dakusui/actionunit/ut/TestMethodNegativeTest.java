@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ public class TestMethodNegativeTest {
   public static class NoParameter {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return Actions.simple(new Runnable() {
+      return CompatActions.simple(new Runnable() {
         @Override
         public void run() {
           System.out.println("This method will not be executed.");
@@ -43,7 +43,7 @@ public class TestMethodNegativeTest {
   public static class TooManyParameters {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return Actions.simple(new Runnable() {
+      return CompatActions.simple(new Runnable() {
         @Override
         public void run() {
           System.out.println("This method will not be executed.");
@@ -68,7 +68,7 @@ public class TestMethodNegativeTest {
   public static class MismatchParameter {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return Actions.simple(new Runnable() {
+      return CompatActions.simple(new Runnable() {
         @Override
         public void run() {
           System.out.println("This method will not be executed.");
@@ -94,7 +94,7 @@ public class TestMethodNegativeTest {
   public static class NoRunnerMethod {
     @ActionUnit.PerformWith(RunWith.class)
     public Action testMethod() {
-      return Actions.simple(new Runnable() {
+      return CompatActions.simple(new Runnable() {
         @Override
         public void run() {
           System.out.println("This method will not be executed.");

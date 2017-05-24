@@ -107,7 +107,7 @@ public class CompatAttempt<T extends Throwable> extends ActionBase {
     }
 
     public Builder ensure(Runnable runnable) {
-      return this.ensure(simple(runnable));
+      return this.ensure(CompatActions.simple(runnable));
     }
 
     public <T extends Throwable> CompatAttempt<T> build() {

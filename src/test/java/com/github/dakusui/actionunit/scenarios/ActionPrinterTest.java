@@ -37,10 +37,10 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Enclosed.class)
 public class ActionPrinterTest {
 
-  public static class ImplTest {
+  public static class ImplTest extends TestUtils.TestBase {
     static Action composeAction() {
-      return concurrent("Concurrent (top level)",
-          sequential("Sequential (1st child)",
+      return CompatActions.concurrent("Concurrent (top level)",
+          CompatActions.sequential("Sequential (1st child)",
               simple("simple1", new Runnable() {
                 @Override
                 public void run() {
@@ -104,13 +104,13 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("Sequential (1st child)"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
-      i.next();
+      //      i.next();
       assertThat(i.next(), containsString("simple2"));
-      i.next();
+      //      i.next();
       assertThat(i.next(), containsString("simple3"));
-      i.next();
+      //      i.next();
       assertThat(i.next(), containsString("CompatForEach"));
-      assertEquals(13, size(writer));
+      assertEquals(10, size(writer));
     }
   }
 
@@ -129,8 +129,8 @@ public class ActionPrinterTest {
   public static class WithResultTest extends TestUtils.TestBase {
     private static Action composeAction(final List<String> out) {
       //noinspection unchecked
-      return concurrent("Concurrent (top level)",
-          sequential("Sequential (1st child)",
+      return CompatActions.concurrent("Concurrent (top level)",
+          CompatActions.sequential("Sequential (1st child)",
               simple("simple1", new Runnable() {
                 @Override
                 public void run() {
@@ -159,7 +159,7 @@ public class ActionPrinterTest {
           CompatActions.foreach(
               asList("world1", "world2", "world3"),
               sequential(
-                  simple(new Runnable() {
+                  CompatActions.simple(new Runnable() {
                     @Override
                     public void run() {
 
@@ -209,6 +209,7 @@ public class ActionPrinterTest {
       List<String> out = new LinkedList<>();
       ActionPrinter printer = ActionPrinter.Factory.create();
       composeAction(out).accept(printer);
+      composeAction(out).accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
       ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.<ActionPrinter.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
@@ -216,21 +217,18 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("Sequential (1st child)"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
-      i.next();
       assertThat(i.next(), containsString("simple2"));
-      i.next();
       assertThat(i.next(), containsString("simple3"));
-      i.next();
       assertThat(i.next(), containsString("CompatForEach"));
       assertThat(i.next(), containsString("ExampleTest"));
       assertThat(i.next(), containsString("Given"));
       assertThat(i.next(), containsString("When"));
       assertThat(i.next(), containsString("Then"));
-      assertThat(i.next(), containsString("Sequential"));
+      assertThat(i.next(), containsString("CompatForEach"));
       assertThat(i.next(), containsString("Sequential"));
       i.next();
       assertThat(i.next(), containsString("Tag(0)"));
-      assertEquals(19, size(writer));
+      assertEquals(16, size(writer));
     }
   }
 
@@ -278,7 +276,7 @@ public class ActionPrinterTest {
 
     @Test(expected = IllegalStateException.class)
     public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = retry(simple(new Runnable() {
+      Action action = retry(CompatActions.simple(new Runnable() {
         @Override
         public void run() {
           throw new IllegalStateException(this.toString());
@@ -304,7 +302,7 @@ public class ActionPrinterTest {
     public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out = new TestUtils.Out();
       Action action = retry(
-          simple(new Runnable() {
+          CompatActions.simple(new Runnable() {
             boolean tried = false;
 
             @Override

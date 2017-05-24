@@ -23,7 +23,7 @@ public interface Attempt<E extends Throwable> extends Action {
   class Builder<E extends Throwable> {
     private final Action attempt;
     private Action            ensure                  = Actions.nop();
-    private Class<E>          exceptionClass          = null;
+    private Class<? extends E>          exceptionClass          = null;
     private HandlerFactory<E> exceptionHandlerFactory = e -> {
       throw Checks.propagate(e.get());
     };
@@ -32,7 +32,7 @@ public interface Attempt<E extends Throwable> extends Action {
       this.attempt = Actions.named("Attempt:", Objects.requireNonNull(attempt));
     }
 
-    public Builder<E> recover(Class<E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory) {
+    public Builder<E> recover(Class<? extends E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory) {
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
       this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
       return this;
@@ -45,7 +45,7 @@ public interface Attempt<E extends Throwable> extends Action {
 
     public Attempt<E> build() {
       Checks.checkState(exceptionClass != null, "Exception class isn't set yet.");
-      return new Impl<>(attempt, exceptionClass, exceptionHandlerFactory, ensure);
+      return new Impl<E>(attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensure);
     }
   }
 

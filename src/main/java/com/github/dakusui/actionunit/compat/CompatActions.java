@@ -2,7 +2,10 @@ package com.github.dakusui.actionunit.compat;
 
 import com.github.dakusui.actionunit.Action;
 import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.Utils;
 import com.github.dakusui.actionunit.actions.ForEach;
+import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.compat.actions.Tag;
 import com.github.dakusui.actionunit.compat.actions.*;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
@@ -79,7 +82,7 @@ public enum CompatActions {
   }
 
   public static CompatAttempt.Builder attempt(Runnable attempt) {
-    return attempt(Actions.simple(checkNotNull(attempt)));
+    return attempt(simple(checkNotNull(attempt)));
   }
 
   @SafeVarargs
@@ -134,6 +137,54 @@ public enum CompatActions {
 
   public static Action tag(int i) {
     return new Tag(i);
+  }
+
+  /**
+   * Creates a simple action object.
+   *
+   * @param runnable An object whose {@code run()} method run by a returned {@code Action} object.
+   * @see Leaf
+   */
+  public static Action simple(final Runnable runnable) {
+    return createLeafAction(runnable);
+  }
+
+  /**
+   * Creates an action which runs given {@code actions} in a concurrent manner.
+   *
+   * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
+   * @param actions {@code Action} objects performed by a returned {@code Action} object.
+   * @see Sequential.Impl
+   */
+  public static Action concurrent(String summary, Action... actions) {
+    return concurrent(summary, asList(actions));
+  }
+
+  /**
+   * Creates an action which runs given {@code actions} in a concurrent manner.
+   *
+   * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
+   * @param actions {@code Action} objects performed by returned {@code Action} object.
+   * @see Sequential.Impl
+   */
+  public static Action concurrent(String summary, Iterable<? extends Action> actions) {
+    return Actions.named(summary, Actions.concurrent(actions));
+  }
+
+  /**
+   * Creates an action which runs given {@code actions} in a sequential manner.
+   *
+   * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
+   * @param actions {@code Action} objects performed by returned {@code Action} object.
+   * @see Sequential.Impl
+   */
+  public static Action sequential(String summary, Action... actions) {
+    return Actions.sequential(summary, asList(actions));
+  }
+
+  @Deprecated
+  public static Action createLeafAction(Runnable runnable) {
+    return Leaf.create(Utils.describe(runnable), runnable);
   }
 
   public static class ToSource<T> implements Function<T, Source<T>> {

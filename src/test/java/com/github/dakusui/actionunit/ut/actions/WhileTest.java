@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.Actions.repeatwhile;
-import static com.github.dakusui.actionunit.Actions.simple;
+import static com.github.dakusui.actionunit.compat.CompatActions.simple;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;

@@ -75,7 +75,7 @@ public class CompatActionsTest {
       CompatActions.foreach(
           asList("1", "2"),
           sequential(
-              simple(new Runnable() {
+              CompatActions.simple(new Runnable() {
                        @Override
                        public void run() {
                          arr.add("Hello!");

@@ -29,22 +29,13 @@ public enum Actions {
   /**
    * Creates a simple action object.
    *
+   * @param description  A string used by {@code describe()} method of a returned {@code Action} object.
    * @param runnable An object whose {@code run()} method run by a returned {@code Action} object.
    * @see Leaf
    */
-  public static Action simple(final Runnable runnable) {
-    return Leaf.create(runnable);
-  }
-
-  /**
-   * Creates a simple action object.
-   *
-   * @param summary  A string used by {@code describe()} method of a returned {@code Action} object.
-   * @param runnable An object whose {@code run()} method run by a returned {@code Action} object.
-   * @see Leaf
-   */
-  public static Action simple(final String summary, final Runnable runnable) {
-    return named(summary, simple(runnable));
+  public static Action simple(final String description, final Runnable runnable) {
+    return Leaf.create(description, runnable);
+    //return named(summary, CompatActions.simple(runnable));
   }
 
   /**
@@ -65,28 +56,6 @@ public enum Actions {
    */
   public static Action concurrent(Action... actions) {
     return concurrent(asList(actions));
-  }
-
-  /**
-   * Creates an action which runs given {@code actions} in a concurrent manner.
-   *
-   * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
-   * @param actions {@code Action} objects performed by a returned {@code Action} object.
-   * @see Sequential.Impl
-   */
-  public static Action concurrent(String summary, Action... actions) {
-    return concurrent(summary, asList(actions));
-  }
-
-  /**
-   * Creates an action which runs given {@code actions} in a concurrent manner.
-   *
-   * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
-   * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Sequential.Impl
-   */
-  public static Action concurrent(String summary, Iterable<? extends Action> actions) {
-    return named(summary, concurrent(actions));
   }
 
   /**
@@ -117,17 +86,6 @@ public enum Actions {
    */
   public static Action sequential(Iterable<? extends Action> actions) {
     return Sequential.Factory.INSTANCE.create(actions);
-  }
-
-  /**
-   * Creates an action which runs given {@code actions} in a sequential manner.
-   *
-   * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
-   * @param actions {@code Action} objects performed by returned {@code Action} object.
-   * @see Sequential.Impl
-   */
-  public static Action sequential(String summary, Action... actions) {
-    return sequential(summary, asList(actions));
   }
 
   /**

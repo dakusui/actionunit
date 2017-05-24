@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.github.dakusui.actionunit.Actions.named;
 import static com.github.dakusui.actionunit.Actions.simple;
 import static org.junit.Assert.assertTrue;
 
@@ -32,7 +33,7 @@ public abstract class ActionRunnerTestBase {
   }
 
   public Action createPassingAction(final int durationInMilliseconds) {
-    return simple("A passing action", new Runnable() {
+    return named("A passing action", simple("This passes always", new Runnable() {
       @Override
       public void run() {
         try {
@@ -41,12 +42,7 @@ public abstract class ActionRunnerTestBase {
           throw ActionException.wrap(e);
         }
       }
-
-      @Override
-      public String toString() {
-        return "This passes always";
-      }
-    });
+    }));
   }
 
   public Action createPassingAction() {
@@ -54,30 +50,21 @@ public abstract class ActionRunnerTestBase {
   }
 
   public Action createFailingAction() {
-    return simple("A failing action", new Runnable() {
-      @Override
-      public void run() {
-        assertTrue("Expected failure", false);
-      }
-
-      @Override
-      public String toString() {
-        return "This fails always";
-      }
-    });
+    return named(
+        "A failing action",
+        simple(
+            "This fails always",
+            () -> assertTrue("Expected failure", false))
+    );
   }
 
   public Action createErrorAction() {
-    return simple("An error action", new Runnable() {
-      @Override
-      public void run() {
-        throw new RuntimeException("Expected runtime exception");
-      }
-
-      @Override
-      public String toString() {
-        return "This gives a runtime exception always";
-      }
-    });
+    return named("An error action",
+        simple("This gives a runtime exception always", new Runnable() {
+          @Override
+          public void run() {
+            throw new RuntimeException("Expected runtime exception");
+          }
+        }));
   }
 }

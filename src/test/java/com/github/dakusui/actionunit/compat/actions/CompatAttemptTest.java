@@ -21,7 +21,7 @@ public class CompatAttemptTest {
   public void givenAttemptContainingRetryInsideRecover$whenExceptionThrown$thenRetryIsDoneExpectedly() {
     Action action =
         CompatActions.attempt(named("Fail",
-            simple(new Runnable() {
+            CompatActions.simple(new Runnable() {
               @Override
               public void run() {
                 throw new RuntimeException("ThrowException");

@@ -13,7 +13,7 @@ import java.util.List;
 
 import static com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import static com.github.dakusui.actionunit.compat.CompatActions.foreach;
-import static com.github.dakusui.actionunit.Actions.simple;
+import static com.github.dakusui.actionunit.compat.CompatActions.simple;
 import static java.util.Arrays.asList;
 
 /**
