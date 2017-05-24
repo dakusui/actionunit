@@ -1,12 +1,8 @@
 package com.github.dakusui.actionunit.visitors;
 
-
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
-import com.github.dakusui.actionunit.compat.actions.CompatForEach;
-import com.github.dakusui.actionunit.compat.actions.CompatWith;
-import com.github.dakusui.actionunit.compat.actions.Piped;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionPrinter;
+import com.github.dakusui.actionunit.core.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,216 +14,18 @@ import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.helpers.Checks.notPrintable;
 import static com.github.dakusui.actionunit.helpers.Utils.describe;
 
-/**
- * A simple visitor that prints actions.
- * Typically, an instance of this class will be applied to a given action in a following manner.
- * <p/>
- * <code>
- * action.accept(new ActionPrinter());
- * </code>
- */
-public class ActionPrinter extends Action.Visitor.Base {
+public abstract class ActionPrinter extends Action.Visitor.Base {
   /*
    * A writer through which this object's output is printed.
    */
-  private final Writer writer;
-
+  protected final Writer writer;
   /*
    * current indent level.
    */
-  private int indent;
+  protected       int indent;
 
-  /**
-   * Creates an object of this class.
-   *
-   * @param writer A writer through which this object's output is printed.
-   * @see Writer
-   */
   public ActionPrinter(Writer writer) {
-    super();
     this.writer = checkNotNull(writer);
-    this.indent = 0;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(Action action) {
-    writeLine(this.describeAction(action));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(Named action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.getAction().accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(Composite action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      for (Action child : action) {
-        child.accept(this);
-      }
-    } finally {
-      leave(action);
-    }
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public <T> void visit(CompatWith<T> action) {
-    writeLine(describeAction(action));
-    if (!(action instanceof Piped)) {
-      enter(action);
-      try {
-        action.getAction().accept(this);
-      } finally {
-        leave(action);
-      }
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(When action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.getAction().accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(CompatForEach action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.getAction().accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-  @Override
-  public <T> void visit(ForEach<T> action) {
-    action.createProcessor(() -> {
-      throw notPrintable();
-    }).accept(this);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public <E extends Throwable> void visit(Attempt<E> action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.attempt().accept(this);
-      action.recover(() -> {
-        throw notPrintable();
-      }).accept(this);
-      action.ensure().accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-  @Override
-  public void visit(TestAction action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.given().accept(this);
-      action.when().accept(this);
-      action.then().accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(While action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.getAction().accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(CompatAttempt action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.attempt.accept(this);
-      action.recover.accept(this);
-      action.ensure.accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(Retry action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.action.accept(this);
-    } finally {
-      leave(action);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(TimeOut action) {
-    writeLine(describeAction(action));
-    enter(action);
-    try {
-      action.action.accept(this);
-    } finally {
-      leave(action);
-    }
   }
 
   protected void enter(Action action) {
@@ -236,13 +34,6 @@ public class ActionPrinter extends Action.Visitor.Base {
 
   protected void leave(Action action) {
     indent--;
-  }
-
-  /**
-   * Returns a writer of this object.
-   */
-  public Writer getWriter() {
-    return this.writer;
   }
 
   /**
@@ -272,23 +63,23 @@ public class ActionPrinter extends Action.Visitor.Base {
    *
    * @param indent Level of indentation.
    */
-  protected String indent(int indent) {
-    String ret = "";
+  private String indent(int indent) {
+    StringBuilder ret = new StringBuilder();
     for (int i = 0; i < indent; i++) {
-      ret += indent();
+      ret.append(indent());
     }
-    return ret;
+    return ret.toString();
   }
 
   /**
    * An extension point to customize a string used for indentation.
    */
-  protected String indent() {
+  private String indent() {
     return "  ";
   }
 
   /**
-   * An interface that abstracts various destinations to which {@link ActionPrinter}'s
+   * An interface that abstracts various destinations to which {@link ActionPrinter.Impl}'s
    * output goes.
    */
   public interface Writer {
@@ -357,50 +148,214 @@ public class ActionPrinter extends Action.Visitor.Base {
           LOGGER.error(s);
         }
       };
-      private static final Logger LOGGER = LoggerFactory.getLogger(Slf4J.class);
+      private static final Logger LOGGER = LoggerFactory.getLogger(ActionPrinter.Impl.Writer.Slf4J.class);
     }
   }
 
   /**
-   * A factory class to create {@link ActionPrinter} objects.
+   * A simple visitor that prints actions.
+   * Typically, an instance of this class will be applied to a given action in a following manner.
+   * <p/>
+   * <code>
+   * action.accept(new Impl());
+   * </code>
    */
-  public enum Factory {
-    ;
+  public static class Impl extends CompatActionPrinter {
 
-    public static ActionPrinter create(Writer writer) {
-      return new ActionPrinter(checkNotNull(writer));
+    /**
+     * Creates an object of this class.
+     *
+     * @param writer A writer through which this object's output is printed.
+     * @see Writer
+     */
+    public Impl(Writer writer) {
+      super(writer);
+      this.indent = 0;
     }
 
-    public static ActionPrinter create() {
-      return create(new Writer.Impl());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(Action action) {
+      writeLine(this.describeAction(action));
     }
 
-    public static ActionPrinter stdout() {
-      return new ActionPrinter(Writer.Std.OUT);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(Named action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        action.getAction().accept(this);
+      } finally {
+        leave(action);
+      }
     }
 
-    public static ActionPrinter stderr() {
-      return new ActionPrinter(Writer.Std.ERR);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(Composite action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        for (Action child : action) {
+          child.accept(this);
+        }
+      } finally {
+        leave(action);
+      }
     }
 
-    public static ActionPrinter trace() {
-      return new ActionPrinter(Writer.Slf4J.TRACE);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(When action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        action.getAction().accept(this);
+      } finally {
+        leave(action);
+      }
     }
 
-    public static ActionPrinter debug() {
-      return new ActionPrinter(Writer.Slf4J.DEBUG);
+
+    @Override
+    public <T> void visit(ForEach<T> action) {
+      action.createProcessor(() -> {
+        throw notPrintable();
+      }).accept(this);
     }
 
-    public static ActionPrinter info() {
-      return new ActionPrinter(Writer.Slf4J.INFO);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <E extends Throwable> void visit(Attempt<E> action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        action.attempt().accept(this);
+        action.recover(() -> {
+          throw notPrintable();
+        }).accept(this);
+        action.ensure().accept(this);
+      } finally {
+        leave(action);
+      }
     }
 
-    public static ActionPrinter warn() {
-      return new ActionPrinter(Writer.Slf4J.WARN);
+    @Override
+    public void visit(TestAction action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        action.given().accept(this);
+        action.when().accept(this);
+        action.then().accept(this);
+      } finally {
+        leave(action);
+      }
     }
 
-    public static ActionPrinter error() {
-      return new ActionPrinter(Writer.Slf4J.ERROR);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(While action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        action.getAction().accept(this);
+      } finally {
+        leave(action);
+      }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(Retry action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        action.action.accept(this);
+      } finally {
+        leave(action);
+      }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visit(TimeOut action) {
+      writeLine(describeAction(action));
+      enter(action);
+      try {
+        action.action.accept(this);
+      } finally {
+        leave(action);
+      }
+    }
+
+    /**
+     * Returns a writer of this object.
+     */
+    public Writer getWriter() {
+      return this.writer;
+    }
+
+    /**
+     * A factory class to create {@link Impl} objects.
+     */
+    public enum Factory {
+      ;
+
+      public static Impl create(Writer writer) {
+        return new Impl(checkNotNull(writer));
+      }
+
+      public static Impl create() {
+        return create(new Writer.Impl());
+      }
+
+      public static Impl stdout() {
+        return new Impl(Writer.Std.OUT);
+      }
+
+      public static Impl stderr() {
+        return new Impl(Writer.Std.ERR);
+      }
+
+      public static Impl trace() {
+        return new Impl(Writer.Slf4J.TRACE);
+      }
+
+      public static Impl debug() {
+        return new Impl(Writer.Slf4J.DEBUG);
+      }
+
+      public static Impl info() {
+        return new Impl(Writer.Slf4J.INFO);
+      }
+
+      public static Impl warn() {
+        return new Impl(Writer.Slf4J.WARN);
+      }
+
+      public static Impl error() {
+        return new Impl(Writer.Slf4J.ERROR);
+      }
     }
   }
 }

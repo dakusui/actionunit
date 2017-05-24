@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.Context;
@@ -70,34 +70,34 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTrace() {
-      composeAction().accept(ActionPrinter.Factory.trace());
+      composeAction().accept(ActionPrinter.Impl.Factory.trace());
     }
 
     @Test
     public void givenDebug$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.debug());
+      composeAction().accept(ActionPrinter.Impl.Factory.debug());
     }
 
     @Test
     public void givenInfo$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.info());
+      composeAction().accept(ActionPrinter.Impl.Factory.info());
     }
 
     @Test
     public void givenWarn() {
-      composeAction().accept(ActionPrinter.Factory.warn());
+      composeAction().accept(ActionPrinter.Impl.Factory.warn());
     }
 
     @Test
     public void givenError() {
-      composeAction().accept(ActionPrinter.Factory.error());
+      composeAction().accept(ActionPrinter.Impl.Factory.error());
     }
 
     @Test
     public void givenNew() {
-      ActionPrinter printer = ActionPrinter.Factory.create();
+      ActionPrinter.Impl printer = ActionPrinter.Impl.Factory.create();
       composeAction().accept(printer);
-      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.getWriter();
+      ActionPrinter.Impl.Writer.Impl writer = (ActionPrinter.Impl.Writer.Impl) printer.getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
@@ -117,12 +117,12 @@ public class ActionPrinterTest {
   public static class StdOutErrTest extends TestUtils.TestBase {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.stdout());
+      composeAction().accept(ActionPrinter.Impl.Factory.stdout());
     }
 
     @Test
     public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.stderr());
+      composeAction().accept(ActionPrinter.Impl.Factory.stderr());
     }
   }
 
@@ -207,10 +207,10 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter printer = ActionPrinter.Factory.create();
+      ActionPrinter.Impl printer = ActionPrinter.Impl.Factory.create();
       composeAction(out).accept(printer);
-      composeAction(out).accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
-      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.<ActionPrinter.Writer.Impl>getWriter();
+      composeAction(out).accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
+      ActionPrinter.Impl.Writer.Impl writer = (ActionPrinter.Impl.Writer.Impl) printer.<ActionPrinter.Impl.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));

@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.Context;
@@ -34,7 +34,7 @@ public class ActionRunnerWithResultTest {
     }
 
     @Override
-    public ActionPrinter getPrinter(ActionPrinter.Writer writer) {
+    public ActionPrinter.Impl getPrinter(ActionPrinter.Impl.Writer writer) {
       return ((CompatActionRunnerWithResult) getRunner()).createPrinter(writer);
     }
   }
@@ -116,7 +116,7 @@ public class ActionRunnerWithResultTest {
       } catch (RuntimeException e) {
         action.accept(this.getPrinter());
       }
-      action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
+      action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
       ////
       //Then printed correctly
       //noinspection unchecked

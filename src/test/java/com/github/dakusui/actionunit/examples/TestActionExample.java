@@ -26,7 +26,7 @@ public class TestActionExample {
     try {
       testAction.accept(new ActionRunner.Impl());
     } finally {
-      testAction.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
+      testAction.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
     }
   }
 

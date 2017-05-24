@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.compat;
+package com.github.dakusui.actionunit.compat.visitors;
 
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
 import com.github.dakusui.actionunit.compat.actions.CompatForEach;

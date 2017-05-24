@@ -37,7 +37,7 @@ public class TestUtils {
   }
 
 
-  public static class Out extends AbstractList<String> implements ActionPrinter.Writer {
+  public static class Out extends AbstractList<String> implements ActionPrinter.Impl.Writer {
     private List<String> out = new LinkedList<>();
 
     public void writeLine(String s) {

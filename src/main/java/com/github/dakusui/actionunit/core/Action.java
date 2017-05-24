@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.CompatVisitor;
+import com.github.dakusui.actionunit.compat.visitors.CompatVisitor;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.

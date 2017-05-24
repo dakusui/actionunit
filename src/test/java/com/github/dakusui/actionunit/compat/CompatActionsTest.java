@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.compat;
 
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Sink;

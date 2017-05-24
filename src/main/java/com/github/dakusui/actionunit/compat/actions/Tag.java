@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.compat.CompatVisitor;
+import com.github.dakusui.actionunit.compat.visitors.CompatVisitor;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;

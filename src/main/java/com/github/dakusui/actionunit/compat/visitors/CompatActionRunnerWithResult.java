@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.compat;
+package com.github.dakusui.actionunit.compat.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
@@ -17,12 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.Utils.describe;
 import static java.lang.String.format;
 
-/**
- * Created by hiroshi.ukai on 5/24/17.
- */
 public class CompatActionRunnerWithResult extends ActionRunner.Impl implements Action.Visitor {
 
   public static class Path extends LinkedList<Action> {
@@ -297,24 +293,24 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
   }
 
   /**
-   * Creates an {@code ActionPrinter} which prints execution results of this
+   * Creates an {@code Impl} which prints execution results of this
    * object.
    * Results are written to standard output.
    *
-   * @see ActionPrinter
+   * @see ActionPrinter.Impl
    */
-  public ActionPrinter createPrinter() {
+  public ActionPrinter.Impl createPrinter() {
     return createPrinter(ActionPrinter.Writer.Std.OUT);
   }
 
   /**
-   * Creates an {@code ActionPrinter} which prints execution results of this
+   * Creates an {@code Impl} which prints execution results of this
    * object with a given {@code writer}.
    *
-   * @see ActionPrinter
+   * @see ActionPrinter.Impl
    */
-  public ActionPrinter createPrinter(ActionPrinter.Writer writer) {
-    return new ActionPrinter(writer) {
+  public ActionPrinter.Impl createPrinter(ActionPrinter.Impl.Writer writer) {
+    return new ActionPrinter.Impl(writer) {
       int nestLevel = 0;
       final Path current = new Path();
 
@@ -323,7 +319,7 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
         String ret = format(
             "(%s)%s",
             getResultCode(action),
-            describe(action)
+            super.describeAction(action)
         );
         int runCount = getRunCount(action);
         return runCount < 2

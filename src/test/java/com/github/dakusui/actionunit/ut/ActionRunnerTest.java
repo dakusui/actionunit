@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunner;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
@@ -37,8 +38,8 @@ public class ActionRunnerTest {
     }
 
     @Override
-    public ActionPrinter getPrinter(ActionPrinter.Writer writer) {
-      return ActionPrinter.Factory.create(writer);
+    public ActionPrinter.Impl getPrinter(ActionPrinter.Impl.Writer writer) {
+      return ActionPrinter.Impl.Factory.create(writer);
     }
   }
 
@@ -71,7 +72,7 @@ public class ActionRunnerTest {
           visitor.visit(this);
         }
       };
-      ActionRunner.IgnoredInPathCalculation.Composite.create(action);
+      CompatActionRunner.IgnoredInPathCalculation.Composite.create(action);
     }
 
     @Test

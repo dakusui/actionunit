@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;

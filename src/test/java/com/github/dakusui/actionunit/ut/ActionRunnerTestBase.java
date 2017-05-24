@@ -18,9 +18,9 @@ public abstract class ActionRunnerTestBase {
 
   protected abstract ActionRunner createRunner();
 
-  public abstract ActionPrinter getPrinter(ActionPrinter.Writer writer);
+  public abstract ActionPrinter.Impl getPrinter(ActionPrinter.Impl.Writer writer);
 
-  public ActionPrinter getPrinter() {
+  public ActionPrinter.Impl getPrinter() {
     return getPrinter(getWriter());
   }
 

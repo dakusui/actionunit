@@ -26,7 +26,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionRunner.Impl());
       } finally {
-        action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
       }
     }
 
@@ -38,7 +38,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionRunner.Impl());
       } finally {
-        action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
       }
     }
 
@@ -50,7 +50,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionRunner.Impl());
       } finally {
-        action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
       }
     }
 
@@ -63,7 +63,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionRunner.Impl());
       } finally {
-        action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
       }
     }
   }
@@ -94,7 +94,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionRunner.Impl());
       } finally {
-        action.accept(new ActionPrinter(ActionPrinter.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
       }
     }
   }
