@@ -176,9 +176,9 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public void visit(While action) {
+  public <T> void visit(While<T> action) {
     //noinspection unchecked
-    while (action.test(this.value())) {
+    while (action.test((T) this.value())) {
       action.getAction().accept(this);
     }
   }

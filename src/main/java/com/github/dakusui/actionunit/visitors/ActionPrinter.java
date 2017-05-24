@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.helpers.Checks.notPrintable;
@@ -22,46 +23,52 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
   /*
    * current indent level.
    */
+  @SuppressWarnings("WeakerAccess")
   protected       int    indent;
 
   public ActionPrinter(Writer writer) {
     this.writer = checkNotNull(writer);
   }
 
-  public static ActionPrinter create() {
-    return create(new Writer.Impl());
-  }
+  public interface Factory extends Function<Writer, ActionPrinter> {
+    Factory DEFAULT_INSTANCE = Impl::new;
+    Factory REPORTER         = ActionReporter::new;
 
-  public static ActionPrinter create(Writer writer) {
-    return new Impl(checkNotNull(writer));
-  }
+    default ActionPrinter create(Writer writer) {
+      return this.apply(writer);
+    }
 
-  public static ActionPrinter stdout() {
-    return new Impl(Writer.Std.OUT);
-  }
+    default ActionPrinter create() {
+      return this.apply(new Writer.Impl());
+    }
 
-  public static ActionPrinter stderr() {
-    return new Impl(Writer.Std.ERR);
-  }
+    default ActionPrinter stdout() {
+      return this.apply(Writer.Std.OUT);
+    }
 
-  public static ActionPrinter trace() {
-    return new Impl(Writer.Slf4J.TRACE);
-  }
+    default ActionPrinter stderr() {
+      return this.apply(Writer.Std.ERR);
+    }
 
-  public static ActionPrinter debug() {
-    return new Impl(Writer.Slf4J.DEBUG);
-  }
+    default ActionPrinter trace() {
+      return this.apply(Writer.Slf4J.TRACE);
+    }
 
-  public static ActionPrinter info() {
-    return new Impl(Writer.Slf4J.INFO);
-  }
+    default ActionPrinter debug() {
+      return this.apply(Writer.Slf4J.DEBUG);
+    }
 
-  public static ActionPrinter warn() {
-    return new Impl(Writer.Slf4J.WARN);
-  }
+    default ActionPrinter info() {
+      return this.apply(Writer.Slf4J.INFO);
+    }
 
-  public static ActionPrinter error() {
-    return new Impl(Writer.Slf4J.ERROR);
+    default ActionPrinter warn() {
+      return this.apply(Writer.Slf4J.WARN);
+    }
+
+    default ActionPrinter error() {
+      return this.apply(Writer.Slf4J.ERROR);
+    }
   }
 
   protected void enter(Action action) {

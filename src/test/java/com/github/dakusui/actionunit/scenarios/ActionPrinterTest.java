@@ -70,32 +70,32 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTrace() {
-      composeAction().accept(ActionPrinter.trace());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.trace());
     }
 
     @Test
     public void givenDebug$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.debug());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.debug());
     }
 
     @Test
     public void givenInfo$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.info());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.info());
     }
 
     @Test
     public void givenWarn() {
-      composeAction().accept(ActionPrinter.warn());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.warn());
     }
 
     @Test
     public void givenError() {
-      composeAction().accept(ActionPrinter.error());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.error());
     }
 
     @Test
     public void givenNew() {
-      ActionPrinter printer = ActionPrinter.create();
+      ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
       composeAction().accept(printer);
       ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
       Iterator<String> i = writer.iterator();
@@ -104,11 +104,8 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("Sequential (1st child)"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
-      //      i.next();
       assertThat(i.next(), containsString("simple2"));
-      //      i.next();
       assertThat(i.next(), containsString("simple3"));
-      //      i.next();
       assertThat(i.next(), containsString("CompatForEach"));
       assertEquals(10, size(writer));
     }
@@ -117,12 +114,12 @@ public class ActionPrinterTest {
   public static class StdOutErrTest extends TestUtils.TestBase {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.stdout());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.stdout());
     }
 
     @Test
     public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.stderr());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.stderr());
     }
   }
 
@@ -207,10 +204,10 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter printer = ActionPrinter.create();
+      ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
       composeAction(out).accept(printer);
       composeAction(out).accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
-      ActionPrinter.Impl.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).<ActionPrinter.Impl.Writer.Impl>getWriter();
+      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).<ActionPrinter.Impl.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
