@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.AutocloseableIterator;
-import com.github.dakusui.actionunit.core.Autocloseables;
+import com.github.dakusui.actionunit.core.AutocloseableIterator;
+import com.github.dakusui.actionunit.helpers.Autocloseables;
 import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.Collection;

@@ -7,7 +7,7 @@ import com.github.dakusui.actionunit.compat.DataSource;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Autocloseables;
+import com.github.dakusui.actionunit.helpers.Autocloseables;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 

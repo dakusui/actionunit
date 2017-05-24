@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.helpers;
+package com.github.dakusui.actionunit.core;
 
 import java.util.Iterator;
 

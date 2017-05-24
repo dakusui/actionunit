@@ -9,7 +9,7 @@ import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import static com.github.dakusui.actionunit.helpers.Actions.*;
-import static com.github.dakusui.actionunit.core.Autocloseables.transform;
+import static com.github.dakusui.actionunit.helpers.Autocloseables.transform;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.helpers.Utils.range;
 

@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.helpers.AutocloseableIterator;
-import com.github.dakusui.actionunit.core.Autocloseables;
+import com.github.dakusui.actionunit.core.AutocloseableIterator;
+import com.github.dakusui.actionunit.helpers.Autocloseables;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;

@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 
-import static com.github.dakusui.actionunit.core.Autocloseables.transform;
+import static com.github.dakusui.actionunit.helpers.Autocloseables.transform;
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkState;
 import static com.github.dakusui.actionunit.helpers.Utils.range;
