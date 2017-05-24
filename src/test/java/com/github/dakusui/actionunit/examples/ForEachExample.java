@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.examples;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +33,7 @@ public class ForEachExample {
     ).sequentially(
     ).perform(
         i -> sequential(
-            simple("print the given value(1st time)", () -> System.out.println(i.get())),
+            simple("print the given value(1st time)", () -> System.out.println("BEGIN:" + i.get())),
             forEachOf(
                 "a", "b", "c"
             ).sequentially(
@@ -43,14 +43,14 @@ public class ForEachExample {
                     simple("print i and j", () -> System.out.printf("  i=%s, j=%s%n", i.get(), j.get()))
                 )
             ),
-            simple("print the given value(2nd time)", () -> System.out.println(i.get()))
+            simple("print the given value(2nd time)", () -> System.out.println("END:" + i.get()))
         )
     );
   }
 
   @Test
   public void runAction(Action action) {
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {

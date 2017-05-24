@@ -201,7 +201,7 @@ public class CompatActionsTest {
             }
           }
       );
-      action.accept(new ActionRunner.WithResult());
+      action.accept(new CompatActionRunnerWithResult());
 
       assertThat(
           out,
@@ -312,7 +312,7 @@ public class CompatActionsTest {
                 }
               }
           ));
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
         action.accept(runner);
       } finally {

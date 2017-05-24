@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.compat.CompatActions;
@@ -55,7 +56,7 @@ public class RetryTest {
   public void givenRetryOnNpe$whenNpeThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {
@@ -91,7 +92,7 @@ public class RetryTest {
   public void givenRetryOnActionException$whenActionExceptionThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {

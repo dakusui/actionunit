@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
 import java.util.function.Predicate;
@@ -29,7 +29,7 @@ public class WhileTest {
                                 },
         simple(() -> out.writeLine("Hello"))
     );
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {

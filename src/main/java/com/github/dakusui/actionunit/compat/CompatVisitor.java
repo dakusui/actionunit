@@ -28,7 +28,7 @@ public interface CompatVisitor {
    *
    * @param action action to be visited by this object.
    */
-  default void visit(CompatWith action) {
+  default <T> void visit(CompatWith<T> action) {
     this.visit((Action) action);
   }
 

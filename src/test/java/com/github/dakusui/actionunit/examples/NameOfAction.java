@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.examples;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +76,7 @@ public class NameOfAction {
    */
   @Test
   public void runAction(Action action) {
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     ////
     // Here, this line will print lines like
     //   action name:aMethodToTestSomething

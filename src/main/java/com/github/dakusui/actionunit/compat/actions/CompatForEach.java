@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Nested;
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.core.DataSource;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
@@ -66,7 +67,7 @@ public class CompatForEach<T> extends Nested.Base {
       }
 
       private ActionRunner.IgnoredInPathCalculation.With createWithAction(final Source<T> t) {
-        return new ActionRunner.WithResult.IgnoredInPathCalculation.With<T>(t, CompatForEach.this.getAction(), CompatForEach.this.sinks);
+        return new CompatActionRunnerWithResult.IgnoredInPathCalculation.With<T>(t, CompatForEach.this.getAction(), CompatForEach.this.sinks);
       }
     };
     return ActionRunner.IgnoredInPathCalculation.Composite.create(CompatForEach.this.factory.create(Autocloseables.transform(dataSourceFactory.create(context), func)));

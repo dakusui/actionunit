@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.scenarios;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.Context;
@@ -10,7 +11,6 @@ import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -195,7 +195,7 @@ public class ActionPrinterTest {
     public void givenComplicatedTestAction$whenPerformed$thenWorksFine() {
       List<String> out = new LinkedList<>();
       Action action = composeAction(out);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
         action.accept(runner);
         assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
@@ -248,7 +248,7 @@ public class ActionPrinterTest {
             }
           }
       );
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 
@@ -267,7 +267,7 @@ public class ActionPrinterTest {
     @Test
     public void givenRetryAction$whenPerformed$thenResultPrinted() {
       Action action = CompatActions.retry(nop(), 1, 1, TimeUnit.MINUTES);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       final TestUtils.Out out = new TestUtils.Out();
       action.accept(runner.createPrinter(out));
@@ -286,7 +286,7 @@ public class ActionPrinterTest {
           return "AlwaysFail";
         }
       }), 1, 1, TimeUnit.MINUTES);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
         action.accept(runner);
       } finally {
@@ -323,7 +323,7 @@ public class ActionPrinterTest {
           }),
           1, // once
           1, MILLISECONDS);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
         action.accept(runner);
       } finally {
@@ -337,7 +337,7 @@ public class ActionPrinterTest {
     @Test
     public void givenTimeoutAction$whenPerformed$thenResultPrinted() {
       Action action = CompatActions.timeout(nop(), 1, TimeUnit.MINUTES);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       final TestUtils.Out out = new TestUtils.Out();
       action.accept(runner.createPrinter(out));
@@ -352,7 +352,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
     }
 
@@ -364,7 +364,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
     }
 
@@ -375,7 +375,7 @@ public class ActionPrinterTest {
         out.writeLine(input + " applied");
         return true;
       }));
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       action.accept(runner.createPrinter(out));
       assertEquals("Hello applied", out.get(0));

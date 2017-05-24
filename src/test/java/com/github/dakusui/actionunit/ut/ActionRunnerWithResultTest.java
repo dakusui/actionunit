@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.Context;
@@ -8,7 +9,6 @@ import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -29,13 +29,13 @@ import static org.junit.Assert.assertEquals;
 public class ActionRunnerWithResultTest {
   public abstract static class Base extends ActionRunnerTestBase {
     @Override
-    protected ActionRunner.WithResult createRunner() {
-      return new ActionRunner.WithResult();
+    protected CompatActionRunnerWithResult createRunner() {
+      return new CompatActionRunnerWithResult();
     }
 
     @Override
     public ActionPrinter getPrinter(ActionPrinter.Writer writer) {
-      return ((ActionRunner.WithResult) getRunner()).createPrinter(writer);
+      return ((CompatActionRunnerWithResult) getRunner()).createPrinter(writer);
     }
   }
 

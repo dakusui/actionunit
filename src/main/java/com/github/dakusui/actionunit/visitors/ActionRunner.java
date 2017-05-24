@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.visitors;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Autocloseables;
@@ -192,7 +193,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    * {@inheritDoc}
    */
   @Override
-  public void visit(final CompatWith action) {
+  public <T> void visit(final CompatWith<T> action) {
     action.getAction().accept(createChildFor(action));
   }
 
@@ -240,13 +241,10 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    */
   @Override
   public void visit(final TimeOut action) {
-    runWithTimeout(new Callable<Object>() {
-                     @Override
-                     public Object call() throws Exception {
-                       action.action.accept(ActionRunner.this);
-                       return true;
-                     }
-                   },
+    runWithTimeout((Callable<Object>) () -> {
+          action.action.accept(ActionRunner.this);
+          return true;
+        },
         action.durationInNanos,
         NANOSECONDS
     );
@@ -265,7 +263,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
         throw propagate(e);
       }
       //noinspection unchecked
-      new WithResult.IgnoredInPathCalculation.With<>(Connectors.toSource(e), action.recover, action.sinks).accept(this);
+      new CompatActionRunnerWithResult.IgnoredInPathCalculation.With<>(Connectors.toSource(e), action.recover, action.sinks).accept(this);
     } finally {
       action.ensure.accept(this);
     }
@@ -285,7 +283,7 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
    *
    * @param action action for which the returned Visitor is created.
    */
-  protected ActionRunner createChildFor(final CompatWith action) {
+  protected <T> ActionRunner createChildFor(final CompatWith<T> action) {
     return new ActionRunner() {
       @Override
       public ActionRunner getParent() {
@@ -315,53 +313,34 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     return toCallables(toRunnables(action));
   }
 
-  private static void acceptTagAction(Tag tagAction, CompatWith withAction, ActionRunner runner) {
+  protected static <T> void acceptTagAction(Tag tagAction, CompatWith<T> withAction, ActionRunner runner) {
     tagAction.toLeaf(withAction.getSource(), withAction.getSinks(), runner).accept(runner);
   }
 
   private Iterable<Runnable> toRunnables(final Iterable<? extends Action> actions) {
     return Autocloseables.transform(
         actions,
-        new Function<Action, Runnable>() {
-          @Override
-          public Runnable apply(final Action input) {
-            return toRunnable(input);
-          }
-        }
+        (Function<Action, Runnable>) this::toRunnable
     );
   }
 
   private Runnable toRunnable(final Action action) {
-    return new Runnable() {
-      @Override
-      public void run() {
-        action.accept(ActionRunner.this);
-      }
-    };
+    return () -> action.accept(ActionRunner.this);
   }
 
-  @SuppressWarnings("WeakerAccess")
-  Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
+  protected Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
     return Autocloseables.transform(
         runnables,
-        new Function<Runnable, Callable<Boolean>>() {
-          @Override
-          public Callable<Boolean> apply(final Runnable input) {
-            return new Callable<Boolean>() {
-              @Override
-              public Boolean call() throws Exception {
-                input.run();
-                return true;
-              }
-            };
-          }
+        input -> (Callable<Boolean>) () -> {
+          input.run();
+          return true;
         }
     );
   }
 
   /**
    * This interface is used to suppress path calculation, which is
-   * performed by {@link WithResult}
+   * performed by {@link CompatActionRunnerWithResult}
    * and its printer.
    */
   public interface IgnoredInPathCalculation {
@@ -450,7 +429,8 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       super(threadPoolSize);
     }
 
-    /**Â
+    /**
+     * Â
      * Returns {@code null} since this action runner is a top level one and
      * doesn't have any parent.
      * Subclasses of this class may override this method to return a meaningful
@@ -473,472 +453,4 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
     }
   }
 
-  public static class WithResult extends ActionRunner.Impl implements Action.Visitor {
-
-    public static class Path extends LinkedList<Action> {
-      public Path snapshot() {
-        Path ret = new Path();
-        ret.addAll(this);
-        return ret;
-      }
-
-      public Path enter(Action action) {
-        if (action instanceof IgnoredInPathCalculation) {
-          return this;
-        }
-        action = getAction(action);
-        this.add(action);
-        return this;
-      }
-
-      public Path leave(Action action) {
-        if (action instanceof IgnoredInPathCalculation) {
-          return this;
-        }
-        // Value returned by this should be equal to the action given by getAction(action)
-        // at this point.
-        this.remove(this.size() - 1);
-        return this;
-      }
-
-      private Action getAction(Action action) {
-        if (action instanceof Synthesized) {
-          action = ((Synthesized) action).getParent();
-        }
-        return action;
-      }
-    }
-
-    private final Map<Path, Result> resultMap;
-
-    protected final Path current;
-
-
-    /**
-     * Creates an instance of this class.
-     */
-    public WithResult() {
-      this(new Path());
-    }
-
-    protected WithResult(Path current) {
-      this(new ConcurrentHashMap<Path, Result>(), current);
-    }
-
-    protected WithResult(Map<Path, Result> resultMap, Path current) {
-      this.resultMap = checkNotNull(resultMap);
-      this.current = checkNotNull(current).snapshot();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final Action action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final Leaf action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final Named action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final Composite action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final Sequential action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final Concurrent action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final CompatForEach action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final While action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final When action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final CompatAttempt action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final CompatWith action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final Retry action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(final TimeOut action) {
-      visitAndRecord(
-          new Runnable() {
-            @Override
-            public void run() {
-              WithResult.super.visit(action);
-            }
-          },
-          action);
-    }
-
-    @Override
-    protected Iterable<Callable<Boolean>> toCallables(final Concurrent action) {
-      return toCallables(toRunnablesWithNewInstance(action));
-    }
-
-    @Override
-    protected ActionRunner createChildFor(final CompatWith action) {
-      return new ActionRunner.WithResult(this.resultMap, this.current) {
-        @Override
-        public Object value() {
-          //noinspection unchecked
-          return action.getSource().apply(ActionRunner.WithResult.this);
-        }
-
-        @Override
-        public void visit(Tag tagAction) {
-          acceptTagAction(tagAction, action, this);
-        }
-      };
-    }
-
-    /**
-     * Creates an {@code ActionPrinter} which prints execution results of this
-     * object.
-     * Results are written to standard output.
-     *
-     * @see ActionPrinter
-     */
-    public ActionPrinter createPrinter() {
-      return createPrinter(ActionPrinter.Writer.Std.OUT);
-    }
-
-    /**
-     * Creates an {@code ActionPrinter} which prints execution results of this
-     * object with a given {@code writer}.
-     *
-     * @see ActionPrinter
-     */
-    public ActionPrinter createPrinter(ActionPrinter.Writer writer) {
-      return new ActionPrinter(writer) {
-        int nestLevel = 0;
-        final Path current = new Path();
-
-        @Override
-        public String describeAction(Action action) {
-          String ret = format(
-              "(%s)%s",
-              getResultCode(action),
-              describe(action)
-          );
-          int runCount = getRunCount(action);
-          return runCount < 2
-              ? ret
-              : format("%s; %s times", ret, runCount);
-        }
-
-        @Override
-        public void visit(CompatForEach action) {
-          nestLevel++;
-          try {
-            super.visit(action);
-          } finally {
-            nestLevel--;
-          }
-        }
-
-        @Override
-        public <T> void visit(ForEach<T> action) {
-          nestLevel++;
-          try {
-            super.visit(action);
-          } finally {
-            nestLevel--;
-          }
-        }
-
-        @Override
-        protected void enter(Action action) {
-          this.current.enter(action);
-          super.enter(action);
-        }
-
-        @Override
-        protected void leave(Action action) {
-          super.leave(action);
-          this.current.leave(action);
-        }
-
-
-        private Result.Code getResultCode(Action action) {
-          Path path = this.current.snapshot().enter(action);
-          if (resultMap.containsKey(path)) {
-            return resultMap.get(path).code;
-          }
-          return Result.Code.NOTRUN;
-        }
-
-        private int getRunCount(Action action) {
-          Path path = this.current.snapshot().enter(action);
-          if (resultMap.containsKey(path)) {
-            return resultMap.get(path).count;
-          }
-          return 0;
-        }
-
-        private String getErrorMessage(Action action) {
-          Path path = this.current.snapshot().enter(action);
-          if (resultMap.containsKey(path)) {
-            Throwable throwable = resultMap.get(path).thrown;
-            if (throwable != null) {
-              return format("(error=%s)", throwable.getMessage());
-            }
-          }
-          return "";
-        }
-
-      };
-    }
-
-    private Iterable<Runnable> toRunnablesWithNewInstance(final Iterable<? extends Action> actions) {
-      return Autocloseables.transform(
-          actions,
-          new Function<Action, Runnable>() {
-            @Override
-            public Runnable apply(final Action action) {
-              return new Runnable() {
-                @Override
-                public void run() {
-                  action.accept(new WithResult(
-                      WithResult.this.resultMap,
-                      WithResult.this.current.snapshot()
-                  ));
-                }
-              };
-            }
-          }
-      );
-    }
-
-    private void visitAndRecord(Runnable visit, Action action) {
-      boolean succeeded = false;
-      Throwable thrown = null;
-      this.current.enter(action);
-      try {
-        visit.run();
-        succeeded = true;
-      } catch (Error | RuntimeException e) {
-        thrown = e;
-        throw e;
-      } finally {
-        if (!(action instanceof IgnoredInPathCalculation)) {
-          Path path = this.current.snapshot();
-          Result current = resultMap.containsKey(path)
-              ? resultMap.get(path)
-              : Result.FIRST_TIME;
-          if (succeeded) {
-            resultMap.put(this.current.snapshot(), current.next(Result.Code.PASSED, null));
-          } else {
-            if (thrown instanceof AssertionError) {
-              resultMap.put(this.current.snapshot(), current.next(Result.Code.FAIL, thrown));
-            } else {
-              resultMap.put(this.current.snapshot(), current.next(Result.Code.ERROR, thrown));
-            }
-          }
-        }
-        this.current.leave(action);
-      }
-    }
-
-    public static class Result {
-      private static final Result FIRST_TIME = new Result(0, Code.NOTRUN, null);
-      public final int       count;
-      public final Code      code;
-      public final Throwable thrown;
-
-      private Result(int count, Code code, Throwable thrown) {
-        this.count = count;
-        this.code = checkNotNull(code);
-        this.thrown = thrown;
-      }
-
-      public Result next(Code code, Throwable thrown) {
-        return new Result(this.count + 1, code, thrown);
-      }
-
-      public enum Code {
-        /**
-         * Not run yet
-         */
-        NOTRUN(" "),
-        /**
-         * Action was performed successfully.
-         */
-        PASSED("+"),
-        /**
-         * An exception but {@link AssertionError} was thrown.
-         */
-        ERROR("E"),
-        /**
-         * Mismatched expectation.
-         */
-        FAIL("F");
-
-
-        private final String symbol;
-
-        Code(String symbol) {
-          this.symbol = symbol;
-        }
-
-        public String toString() {
-          return this.symbol;
-        }
-      }
-    }
-  }
 }

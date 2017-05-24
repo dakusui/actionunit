@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
@@ -76,7 +77,7 @@ public class ActionRunnerTest {
     @Test
     public void givenHiddenSequential$whenSize$thenBackingSizeWillBeReturned() {
       assertEquals(2,
-          new ActionRunner.WithResult.IgnoredInPathCalculation.Sequential((Sequential) sequential(
+          new CompatActionRunnerWithResult.IgnoredInPathCalculation.Sequential((Sequential) sequential(
               nop(),
               nop()
           )).size()

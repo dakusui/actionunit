@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.examples;
 
+import com.github.dakusui.actionunit.compat.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,7 +59,7 @@ public class RecoveryOperation {
 
   @Test
   public void runAction(Action action) {
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     action.accept(runner);
     action.accept(runner.createPrinter());
   }

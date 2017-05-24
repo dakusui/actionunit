@@ -92,7 +92,7 @@ public class ActionPrinter extends Action.Visitor.Base {
    * {@inheritDoc}
    */
   @Override
-  public void visit(CompatWith action) {
+  public <T> void visit(CompatWith<T> action) {
     writeLine(describeAction(action));
     if (!(action instanceof Piped)) {
       enter(action);
