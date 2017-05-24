@@ -1,13 +1,12 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -15,8 +14,9 @@ import org.junit.runner.RunWith;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder
@@ -83,19 +83,14 @@ public class Basic {
   @PerformWith(Test.class)
   public Action[] testAction() {
     return new Action[] {
-        Actions.<Integer, String>test()
+        CompatActions.<Integer, String>test()
             .given(100)
-            .when(new Function<Integer, String>() {
-              @Override
-              public String apply(Integer input) {
-                return Integer.toString(input + 1);
-              }
-            })
+            .when(input -> Integer.toString(input + 1))
             .then(
                 Matchers.equalToIgnoringCase("102")
             )
             .build(),
-        Actions.<Integer, String>test()
+        CompatActions.<Integer, String>test()
             .given(100)
             .when(new Function<Integer, String>() {
               @Override
@@ -123,9 +118,9 @@ public class Basic {
   @PerformWith({ DryRun.class, Test.class })
   public Action timeoutAttemptAndRetryInCombination() {
     final Runnable runnable = createRunnable();
-    return timeout(
-        attempt(runnable)
-            .recover(retry(simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
+    return CompatActions.timeout(
+        CompatActions.attempt(runnable)
+            .recover(CompatActions.retry(CompatActions.simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
             .ensure(nop())
             .build(),
         10,
@@ -162,7 +157,7 @@ public class Basic {
 
   @DryRun
   public void print(Action action) {
-    action.accept(new ActionPrinter<>(ActionPrinter.Writer.Std.OUT));
+    action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
   }
 
   @AfterClass

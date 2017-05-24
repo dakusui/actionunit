@@ -1,5 +1,9 @@
 package com.github.dakusui.actionunit.actions;
 
+import com.github.dakusui.actionunit.core.Action;
+
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+
 /**
  * A skeletal base class of a simple action, which cannot be divided into smaller
  * actions.
@@ -7,7 +11,23 @@ package com.github.dakusui.actionunit.actions;
  * framework should extend this class.
  */
 public abstract class Leaf extends ActionBase {
-  public Leaf() {
+  protected Leaf() {
+  }
+
+  public static Action create(String description, Runnable runnable) {
+    checkNotNull(description);
+    checkNotNull(runnable);
+    return new Leaf() {
+      @Override
+      public void perform() {
+        runnable.run();
+      }
+
+      @Override
+      public String toString() {
+        return description;
+      }
+    };
   }
 
   @Override

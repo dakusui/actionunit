@@ -1,11 +1,10 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.AutocloseableIterator;
-import com.github.dakusui.actionunit.Autocloseables;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.core.AutocloseableIterator;
+import com.github.dakusui.actionunit.helpers.Autocloseables;
+import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.google.common.base.Function;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.TestClass;
@@ -15,10 +14,10 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Utils.range;
+import static com.github.dakusui.actionunit.helpers.Utils.range;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
-import static com.google.common.collect.Iterables.toArray;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -33,9 +32,8 @@ import static org.junit.Assert.assertFalse;
 public class UtilsTest {
   @Test
   public void whenRangeIntIsInvoked$thenWorksRight() {
-    List<Integer> result = asList(toArray(
-        range(1),
-        Integer.class));
+    List<Integer> result = Utils.toList(
+        range(1));
     assertEquals(
         singletonList(0),
         result
@@ -44,9 +42,8 @@ public class UtilsTest {
 
   @Test
   public void whenRangeIntIntIsInvoked$thenWorksRight() {
-    List<Integer> result = asList(toArray(
-        range(0, 3),
-        Integer.class));
+    List<Integer> result = Utils.toList(
+        range(0, 3));
 
     assertEquals(
         asList(0, 1, 2),
@@ -61,9 +58,8 @@ public class UtilsTest {
 
   @Test
   public void whenRangeIntIntInIsInvoked$thenWorksRight() {
-    List<Integer> result = asList(toArray(
-        range(0, 3, 1),
-        Integer.class));
+    List<Integer> result = Utils.toList(
+        range(0, 3, 1));
     assertEquals(
         asList(0, 1, 2),
         result
@@ -72,9 +68,8 @@ public class UtilsTest {
 
   @Test
   public void givenStartAndStopAreAscendingAndNegativeStep$whenRangeIntIntInIsInvoked$thenEmptyReturned() {
-    List<Integer> result = asList(toArray(
-        range(0, 3, -1),
-        Integer.class));
+    List<Integer> result = Utils.toList(
+        range(0, 3, -1));
     assertEquals(
         emptyList(),
         result
@@ -83,9 +78,8 @@ public class UtilsTest {
 
   @Test
   public void givenStartAndStopAreDescendingAndNegativeStep$whenRangeIntIntInIsInvoked$thenWorksRight() {
-    List<Integer> result = asList(toArray(
-        range(3, 0, -1),
-        Integer.class));
+    List<Integer> result = Utils.toList(
+        range(3, 0, -1));
     assertEquals(
         asList(3, 2, 1),
         result
@@ -99,9 +93,8 @@ public class UtilsTest {
 
   @Test
   public void givenNearIntegerMax$whenGoBeyondMaximum$thenImmediatelyStops() {
-    List<Integer> result = asList(toArray(
-        range(Integer.MAX_VALUE, 0, 1),
-        Integer.class));
+    List<Integer> result = Utils.toList(
+        range(Integer.MAX_VALUE, 0, 1));
     assertEquals(
         emptyList(),
         result
@@ -110,9 +103,8 @@ public class UtilsTest {
 
   @Test
   public void givenNearIntegerMin$whenGoBeyondMaximum$thenImmediatelyStops() {
-    List<Integer> result = asList(toArray(
-        range(Integer.MIN_VALUE, 0, -1),
-        Integer.class));
+    List<Integer> result = Utils.toList(
+        range(Integer.MIN_VALUE, 0, -1));
     assertEquals(
         emptyList(),
         result
@@ -154,12 +146,7 @@ public class UtilsTest {
   @Test
   public void givenCollection$whenTransform$thenWorksCorrectly() {
     TestUtils.Out out = new TestUtils.Out();
-    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
-      @Override
-      public Integer apply(String input) {
-        return input.length();
-      }
-    });
+    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), String::length);
     try (AutocloseableIterator<Integer> i = (AutocloseableIterator<Integer>) collection.iterator()) {
       while (i.hasNext()) {
         out.writeLine(i.next().toString() + " characters");

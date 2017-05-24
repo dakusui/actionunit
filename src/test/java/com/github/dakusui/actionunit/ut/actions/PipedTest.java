@@ -1,26 +1,23 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import java.util.function.Function;
+
 import static java.util.Arrays.asList;
 
 public class PipedTest {
   @Test
   public void givenPipeInsideWith$whenPerformed() {
-    Action action = with("Hello",
-        pipe(
-            new Function<String, Integer>() {
-              @Override
-              public Integer apply(String input) {
-                return input.length();
-              }
-            },
+    Action action = CompatActions.with("Hello",
+        CompatActions.pipe(
+            (Function<String, Integer>) input -> input.length(),
             new Sink.Base<Integer>() {
               @Override
               protected void apply(Integer input, Object... outer) {
@@ -34,14 +31,11 @@ public class PipedTest {
 
   @Test
   public void givenPipeInsideForEach$whenPerformed() {
-    Action action = foreach(asList("Hello", "Hello1", "Hello12"),
-        pipe(
-            new Function<String, Integer>() {
-              @Override
-              public Integer apply(String input) {
-                System.out.println(input);
-                return input.length();
-              }
+    Action action = CompatActions.foreach(asList("Hello", "Hello1", "Hello12"),
+        CompatActions.pipe(
+            (Function<String, Integer>) input -> {
+              System.out.println(input);
+              return input.length();
             },
             new Sink.Base<Integer>() {
               @Override
@@ -57,7 +51,7 @@ public class PipedTest {
             }
         )
     );
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {

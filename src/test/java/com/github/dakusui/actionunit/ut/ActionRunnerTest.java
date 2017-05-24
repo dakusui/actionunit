@@ -1,11 +1,14 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunner;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Concurrent;
 import com.github.dakusui.actionunit.actions.Sequential;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Connectors;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
@@ -18,7 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
@@ -35,8 +38,8 @@ public class ActionRunnerTest {
     }
 
     @Override
-    public ActionPrinter getPrinter(ActionPrinter.Writer writer) {
-      return ActionPrinter.Factory.create(writer);
+    public ActionPrinter getPrinter(ActionPrinter.Impl.Writer writer) {
+      return ActionPrinter.Factory.DEFAULT_INSTANCE.create(writer);
     }
   }
 
@@ -69,13 +72,13 @@ public class ActionRunnerTest {
           visitor.visit(this);
         }
       };
-      ActionRunner.IgnoredInPathCalculation.Composite.create(action);
+      CompatActionRunner.IgnoredInPathCalculation.Composite.create(action);
     }
 
     @Test
     public void givenHiddenSequential$whenSize$thenBackingSizeWillBeReturned() {
       assertEquals(2,
-          new ActionRunner.WithResult.IgnoredInPathCalculation.Sequential((Sequential) sequential(
+          new CompatActionRunnerWithResult.IgnoredInPathCalculation.Sequential((Sequential) sequential(
               nop(),
               nop()
           )).size()
@@ -84,7 +87,7 @@ public class ActionRunnerTest {
   }
 
 
-  public static class DoubleForEach extends Base {
+  public static class DoubleCompatForEach extends Base {
     @Test
     public void givenDoubleForEachAction$whenPerformed$thenExecutedCorrectly() {
       ////
@@ -118,16 +121,16 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return foreach(asList("A", "B"),
+      return CompatActions.foreach(asList("A", "B"),
           sequential(
-              tag(0),
-              foreach(asList("a", "b"), new Sink.Base() {
+              CompatActions.tag(0),
+              CompatActions.foreach(asList("a", "b"), new Sink.Base() {
                 @Override
                 protected void apply(Object input, Object... outer) {
                   getWriter().writeLine("\\_inner-" + input);
                 }
               }),
-              tag(0)
+              CompatActions.tag(0)
           ),
           new Sink.Base() {
             @Override

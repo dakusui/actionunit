@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.github.dakusui.actionunit.helpers.Utils;
 import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
@@ -18,13 +18,13 @@ import java.lang.annotation.*;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.Actions.named;
-import static com.github.dakusui.actionunit.Utils.createTestClassMock;
-import static com.github.dakusui.actionunit.Utils.isGivenTypeExpected_ArrayOfExpected_OrIterable;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Iterables.*;
+import static com.github.dakusui.actionunit.helpers.Actions.named;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.propagate;
+import static com.github.dakusui.actionunit.helpers.Utils.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -57,7 +57,7 @@ public class ActionUnit extends Parameterized {
   public ActionUnit(Class<?> klass) throws Throwable {
     super(klass);
     try {
-      runners = asList(toArray(createRunners(), Runner.class));
+      runners = toList(createRunners());
     } catch (RuntimeException e) {
       if (e.getCause() instanceof InitializationError) {
         throw e.getCause();
@@ -82,7 +82,7 @@ public class ActionUnit extends Parameterized {
     return this.runners;
   }
 
-  protected void validateActionMethods(List<Throwable> errors) {
+  private void validateActionMethods(List<Throwable> errors) {
     List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(PerformWith.class);
     for (FrameworkMethod eachMethod : methods) {
       validateNonStaticPublic(eachMethod, errors);
@@ -114,39 +114,33 @@ public class ActionUnit extends Parameterized {
 
 
   private Iterable<Runner> createRunners() {
-    return transform(
-        collectActions(),
-        new Function<Entry, Runner>() {
+    return collectActions().stream().map(input -> {
+      try {
+        return new CustomRunner(getTestClass().getJavaClass(), input.action, input.id) {
           @Override
-          public Runner apply(final Entry input) {
-            try {
-              return new CustomRunner(getTestClass().getJavaClass(), input.action, input.id) {
-                @Override
-                protected List<FrameworkMethod> computeTestMethods() {
-                  List<FrameworkMethod> ret = new LinkedList<>();
-                  for (Class<? extends Annotation> each : input.anns) {
-                    ret.addAll(getTestClass().getAnnotatedMethods(each));
-                  }
-                  return ret;
-                }
-
-                @Override
-                protected Class<? extends Annotation>[] getAnnotationsForTestMethods() {
-                  return input.anns;
-                }
-              };
-            } catch (InitializationError initializationError) {
-              throw propagate(initializationError);
+          protected List<FrameworkMethod> computeTestMethods() {
+            List<FrameworkMethod> ret = new LinkedList<>();
+            for (Class<? extends Annotation> each : input.anns) {
+              ret.addAll(getTestClass().getAnnotatedMethods(each));
             }
+            return ret;
           }
-        }
-    );
+
+          @Override
+          protected Class<? extends Annotation>[] getAnnotationsForTestMethods() {
+            return input.anns;
+          }
+        };
+      } catch (InitializationError initializationError) {
+        throw propagate(initializationError);
+      }
+    }).collect(Collectors.toList());
   }
 
-  private Iterable<Entry> collectActions() {
-    Iterable<Entry> ret = emptyList();
+  private List<Entry> collectActions() {
+    List<Entry> ret = emptyList();
     for (FrameworkMethod each : getTestClass().getAnnotatedMethods(PerformWith.class)) {
-      ret = concat(ret, createActions(each, size(ret)));
+      ret = Stream.concat(ret.stream(), createActions(each, ret.size()).stream()).collect(Collectors.toList());
     }
     return ret;
   }
@@ -172,21 +166,17 @@ public class ActionUnit extends Parameterized {
         actions = asList((Action[]) result);
       } else {
         //noinspection unchecked
-        actions = Lists.newLinkedList((Iterable<? extends Action>) result);
+        actions = Utils.toList((Iterable<Action>) result);
       }
-      return Lists.transform(
-          actions,
-          new Function<Action, Entry>() {
-            @Override
-            public Entry apply(Action input) {
-              int index = actions.indexOf(input);
-              return new Entry(
-                  offset + index,
-                  named(format("%s[%s]", testMethod.getName(), index), input),
-                  testMethod.getAnnotation(PerformWith.class).value()
-              );
-            }
-          });
+      return actions.stream().map(
+          input -> {
+            int index = actions.indexOf(input);
+            return new Entry(
+                offset + index,
+                named(format("%s[%s]", testMethod.getName(), index), input),
+                testMethod.getAnnotation(PerformWith.class).value()
+            );
+          }).collect(Collectors.toList());
     } catch (IllegalAccessException | InstantiationException e) {
       throw ActionException.wrap(e);
     } catch (RuntimeException | Error e) {

@@ -1,9 +1,12 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.core;
 
-import com.google.common.base.Function;
+import com.github.dakusui.actionunit.compat.Context;
+import com.github.dakusui.actionunit.helpers.Autocloseables;
 
-import static com.github.dakusui.actionunit.Utils.sizeOrNegativeIfNonCollection;
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.function.Function;
+
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Utils.sizeOrNegativeIfNonCollection;
 
 public interface DataSource<T> extends Iterable<T> {
   @Override
@@ -25,12 +28,7 @@ public interface DataSource<T> extends Iterable<T> {
       @Override
       final public DataSource<T> create(Context context) {
         final Iterable<T> iterable = checkNotNull(iterable(context));
-        return new DataSource<T>() {
-          @Override
-          public AutocloseableIterator<T> iterator() {
-            return Autocloseables.autocloseable(iterable.iterator());
-          }
-        };
+        return () -> Autocloseables.autocloseable(iterable.iterator());
       }
 
       abstract protected Iterable<T> iterable(Context context);
@@ -76,12 +74,7 @@ public interface DataSource<T> extends Iterable<T> {
 
       @Override
       public DataSource<U> create(final Context context) {
-        return new DataSource<U>() {
-          @Override
-          public AutocloseableIterator<U> iterator() {
-            return Autocloseables.transform(base.create(context).iterator(), translator);
-          }
-        };
+        return () -> Autocloseables.transform(base.create(context).iterator(), translator);
       }
 
       @Override

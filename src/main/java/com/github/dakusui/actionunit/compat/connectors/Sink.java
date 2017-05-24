@@ -1,7 +1,7 @@
-package com.github.dakusui.actionunit.connectors;
+package com.github.dakusui.actionunit.compat.connectors;
 
-import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.compat.Context;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 /**
  * Executes an operation based on an input value.
@@ -30,7 +30,7 @@ public interface Sink<T> {
      * Applies this sink to {@code input}.
      *
      * @param input An input to apply this object.
-     * @param outer Inputs from outer {@code With} actions.
+     * @param outer Inputs from outer {@code CompatWith} actions.
      */
     abstract protected void apply(T input, Object... outer);
 

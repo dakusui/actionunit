@@ -1,15 +1,40 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.google.common.base.Preconditions;
+import com.github.dakusui.actionunit.core.Action;
 
-import static com.github.dakusui.actionunit.Utils.formatDuration;
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Utils.formatDuration;
 import static java.lang.String.format;
 
 public class TimeOut extends ActionBase {
   public final Action action;
   public final long   durationInNanos;
+
+
+  public static class Builder {
+    Action action;
+    long duration = -1;
+
+    public Builder(Action action) {
+      this.action = Objects.requireNonNull(action);
+    }
+
+    public TimeOut in(long duration, TimeUnit timeUnit) {
+      checkArgument(duration > 0,
+          "Timeout duration must be positive  but %d was given",
+          duration
+      );
+      this.duration = duration;
+      return new TimeOut(
+          this.action,
+          Objects.requireNonNull(timeUnit).toNanos(this.duration)
+      );
+    }
+  }
 
   /**
    * Creates an object of this class.
@@ -17,8 +42,9 @@ public class TimeOut extends ActionBase {
    * @param action         Action to be monitored and interrupted by this object.
    * @param timeoutInNanos Duration to time out in nano seconds.
    */
-  public TimeOut(Action action, long timeoutInNanos) {
-    Preconditions.checkArgument(timeoutInNanos > 0,
+  private TimeOut(Action action, long timeoutInNanos) {
+    // This check is still necessary because the value can overflow.
+    checkArgument(timeoutInNanos > 0,
         "Timeout duration must be positive  but %d was given",
         timeoutInNanos
     );

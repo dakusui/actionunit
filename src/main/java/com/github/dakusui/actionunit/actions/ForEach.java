@@ -1,84 +1,58 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Autocloseables;
-import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.DataSource;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions;
 
-import static com.github.dakusui.actionunit.Utils.*;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.join;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-/**
- * An action that is repeated on values given by an {@link Iterable&lt;T&gt;}.
- *
- * @param <T> A type of values on which this action is repeated.
- */
-public class ForEach<T> extends Nested.Base {
-  private final Composite.Factory             factory;
-  private final DataSource.Factory<Source<T>> dataSourceFactory;
-  private final Sink<T>[]                     sinks;
+public interface ForEach<T> extends Action {
+  Iterable<T> data();
 
-  public ForEach(Composite.Factory factory, DataSource.Factory<Source<T>> dataSourceFactory, Action action, Sink<T>[] sinks) {
-    super(action);
-    this.factory = factory;
-    this.dataSourceFactory = checkNotNull(dataSourceFactory);
-    this.sinks = sinks;
+  Action createProcessor(Supplier<T> data);
+
+  Composite.Factory getCompositeFactory();
+
+  static <E> ForEach.Builder<E> builder(Iterable<? extends E> elements) {
+    return new ForEach.Builder<>(elements);
   }
 
-  @Override
-  public void accept(Visitor visitor) {
-    visitor.visit(this);
+  class Builder<E> {
+    private final Iterable<? extends E> elements;
+    private Mode mode = Mode.SEQUENTIALLY;
+
+    Builder(Iterable<? extends E> elements) {
+      this.elements = Objects.requireNonNull(elements);
+    }
+
+    public Builder<E> sequentially() {
+      this.mode = Mode.SEQUENTIALLY;
+      return this;
+    }
+
+    public Builder<E> concurrently() {
+      this.mode = Mode.CONCURRENTLY;
+      return this;
+    }
+
+    public ForEach<E> perform(HandlerFactory<E> operation) {
+      Objects.requireNonNull(operation);
+      Objects.requireNonNull(operation);
+      //noinspection unchecked
+      return new ForEach.Impl<>(
+          operation,
+          (Iterable<E>) this.elements,
+          this.mode.getFactory()
+      );
+    }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String toString() {
-    return format("%s (%s, %s items) {%s}",
-        this.getClass().getSimpleName(),
-        this.factory,
-        unknownIfNegative(this.dataSourceFactory.size()),
-        join(
-            Autocloseables.transform(
-                asList(sinks),
-                new Function<Sink<T>, Object>() {
-                  @Override
-                  public Object apply(Sink<T> sink) {
-                    return describe(sink);
-                  }
-                }
-            ),
-            ","));
-  }
-
-  public Composite getElements(Context context) {
-    final Function<Source<T>, Action> func = new Function<Source<T>, Action>() {
-      @Override
-      public Action apply(final Source<T> t) {
-        //noinspection unchecked
-        return createWithAction(t);
-      }
-
-      private With createWithAction(final Source<T> t) {
-        return new ActionRunner.WithResult.IgnoredInPathCalculation.With<>(t, ForEach.this.getAction(), ForEach.this.sinks);
-      }
-    };
-    return ActionRunner.IgnoredInPathCalculation.Composite.create(ForEach.this.factory.create(Autocloseables.transform(dataSourceFactory.create(context), func)));
-  }
-
-  public enum Mode {
+  enum Mode {
     SEQUENTIALLY {
       @Override
       public Composite.Factory getFactory() {
-        return com.github.dakusui.actionunit.actions.Sequential.Factory.INSTANCE;
+        return Sequential.Factory.INSTANCE;
       }
     },
     CONCURRENTLY {
@@ -89,5 +63,37 @@ public class ForEach<T> extends Nested.Base {
     };
 
     public abstract Composite.Factory getFactory();
+  }
+
+  class Impl<T> extends ActionBase implements ForEach<T> {
+    private final Function<Supplier<T>, Action> processorFactory;
+    private final Iterable<T>                   data;
+    private final Composite.Factory             compositeFactory;
+
+    public Impl(Function<Supplier<T>, Action> handlerFactory, Iterable<T> data, Composite.Factory compositeFactory) {
+      this.processorFactory = Objects.requireNonNull(handlerFactory);
+      this.data = Objects.requireNonNull(data);
+      this.compositeFactory = Objects.requireNonNull(compositeFactory);
+    }
+
+    @Override
+    public Iterable<T> data() {
+      return this.data;
+    }
+
+    @Override
+    public Action createProcessor(Supplier<T> data) {
+      return Actions.named(String.format("ForEach:%s", this.data), this.processorFactory.apply(data));
+    }
+
+    @Override
+    public Composite.Factory getCompositeFactory() {
+      return this.compositeFactory;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
   }
 }

@@ -1,14 +1,14 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Autocloseables;
-import com.github.dakusui.actionunit.AutocloseableIterator;
-import com.google.common.collect.Iterables;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.AutocloseableIterator;
+import com.github.dakusui.actionunit.helpers.Autocloseables;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.Collection;
 
-import static com.github.dakusui.actionunit.Utils.unknownIfNegative;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Utils.unknownIfNegative;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static java.lang.String.format;
 
 /**
@@ -66,7 +66,7 @@ public interface Composite extends Action, AutocloseableIterator.Factory<Action>
         return false;
       }
       Composite another = (Composite) object;
-      return getClass().equals(another.getClass()) && Iterables.elementsEqual(actions, another);
+      return getClass().equals(another.getClass()) && Utils.elementsEqual(actions, another);
     }
 
     @Override

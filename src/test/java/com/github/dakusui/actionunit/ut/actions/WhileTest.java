@@ -1,13 +1,14 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Predicate;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.repeatwhile;
-import static com.github.dakusui.actionunit.Actions.simple;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.actionunit.compat.CompatActions.repeatwhile;
+import static com.github.dakusui.actionunit.compat.CompatActions.simple;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -22,18 +23,13 @@ public class WhileTest {
                                   int i = 0;
 
                                   @Override
-                                  public boolean apply(Object input) {
+                                  public boolean test(Object input) {
                                     return i++ < 4;
                                   }
                                 },
-        simple(new Runnable() {
-          @Override
-          public void run() {
-            out.writeLine("Hello");
-          }
-        })
+        simple(() -> out.writeLine("Hello"))
     );
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {

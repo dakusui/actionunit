@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 /**
  * A skeletal base class of all {@code Action}s.

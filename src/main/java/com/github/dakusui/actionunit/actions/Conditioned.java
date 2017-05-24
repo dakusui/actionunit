@@ -1,27 +1,27 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.google.common.base.Predicate;
+import com.github.dakusui.actionunit.core.Action;
 
-import static com.github.dakusui.actionunit.Utils.describe;
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.function.Predicate;
 
-public interface Conditioned extends Nested, Predicate {
-  abstract class Base extends Nested.Base implements Conditioned {
-    private final Predicate condition;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
-    public Base(Predicate condition, Action action) {
+public interface Conditioned<T> extends Nested, Predicate<T> {
+  abstract class Base<T> extends Nested.Base implements Conditioned<T> {
+    private final Predicate<T> condition;
+
+    public Base(Predicate<T> condition, Action action) {
       super(action);
       this.condition = checkNotNull(condition);
     }
 
     @Override
-    public boolean apply(Object input) {
+    public boolean test(T input) {
       //noinspection unchecked
-      return this.condition.apply(input);
+      return this.condition.test(input);
     }
 
-    public Predicate getCondition() {
+    public Predicate<T> getCondition() {
       return condition;
     }
   }

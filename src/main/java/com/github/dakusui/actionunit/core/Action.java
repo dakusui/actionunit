@@ -1,6 +1,7 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.compat.visitors.CompatVisitor;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.
@@ -32,7 +33,7 @@ public interface Action {
    *
    * @see Base
    */
-  interface Visitor {
+  interface Visitor extends CompatVisitor {
     /**
      * Visits an {@code action}.
      *
@@ -45,165 +46,112 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(Leaf action);
+    default void visit(Leaf action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Named action);
+    default void visit(Named action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Composite action);
+    default void visit(Composite action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Sequential action);
+    default void visit(Sequential action) {
+      this.visit((Composite) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Concurrent action);
+    default void visit(Concurrent action) {
+      this.visit((Composite) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(ForEach action);
+    default <T> void visit(ForEach<T> action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(While action);
+    default <T> void visit(While<T> action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Tag action);
+    default <T> void visit(When<T> action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(With action);
+    default <T extends Throwable> void visit(Attempt<T> action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Retry action);
+    default void visit(TestAction action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(TimeOut action);
+    default void visit(Retry action) {
+      this.visit((Action) action);
+    }
 
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Attempt action);
-
-    void visit(When when);
+    default void visit(TimeOut action) {
+      this.visit((Action) action);
+    }
 
     abstract class Base implements Visitor {
-
       protected Base() {
       }
-
-      @Override
-      public void visit(Leaf action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(Named action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(Composite action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(Sequential action) {
-        this.visit((Composite) action);
-      }
-
-      @Override
-      public void visit(Concurrent action) {
-        this.visit((Composite) action);
-      }
-
-      @Override
-      public void visit(ForEach action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(While action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(Tag action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(With action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(When action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(Retry action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(TimeOut action) {
-        this.visit((Action) action);
-      }
-
-      @Override
-      public void visit(Attempt action) {
-        this.visit((Action) action);
-      }
     }
-  }
-
-  /**
-   * This interface is used to let path calculation know an action is synthesized
-   * by another and the creator action should be taken into account in the calculation,
-   * instead of itself.
-   */
-  interface Synthesized {
-    Action getParent();
   }
 }

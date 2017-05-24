@@ -1,13 +1,14 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -17,9 +18,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class RecoveryOperation {
   @ActionUnit.PerformWith({ Test.class })
   public Action deployment() {
-    return attempt(deployComponent())
+    return CompatActions.attempt(deployComponent())
         .recover(
-            retry(
+            CompatActions.retry(
                 sequential(
                     cleanUp(),
                     deployComponent()),
@@ -58,7 +59,7 @@ public class RecoveryOperation {
 
   @Test
   public void runAction(Action action) {
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     action.accept(runner);
     action.accept(runner.createPrinter());
   }

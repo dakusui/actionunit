@@ -1,13 +1,15 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.actions.Retry;
+import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,7 +37,7 @@ public class RetryTest {
   @Test(expected = RuntimeException.class, timeout = 3000000)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(ActionException.class, simple(new Runnable() {
+    new Retry(ActionException.class, CompatActions.simple(new Runnable() {
       boolean firstTime = true;
       @Override
       public void run() {
@@ -54,7 +56,7 @@ public class RetryTest {
   public void givenRetryOnNpe$whenNpeThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {
@@ -90,7 +92,7 @@ public class RetryTest {
   public void givenRetryOnActionException$whenActionExceptionThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {
@@ -124,10 +126,10 @@ public class RetryTest {
 
 
   private <T extends Throwable, U extends RuntimeException> Action composeRetryAction(final TestUtils.Out out, Class<T> exceptionToBeCaught, final U exceptionToBeThrown) {
-    return retry(
+    return CompatActions.retry(
         exceptionToBeCaught,
         named("PassOn2ndRetry",
-            simple(new Runnable() {
+            CompatActions.simple(new Runnable() {
               int tried = 0;
 
               @Override

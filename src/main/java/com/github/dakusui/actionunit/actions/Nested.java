@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
 public interface Nested extends Action {
   Action getAction();

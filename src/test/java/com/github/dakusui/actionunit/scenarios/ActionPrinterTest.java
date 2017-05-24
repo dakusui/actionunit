@@ -1,17 +1,16 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Context;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.actions.TestAction;
-import com.github.dakusui.actionunit.connectors.Sink;
+import com.github.dakusui.actionunit.compat.actions.CompatTestAction;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -23,11 +22,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.connectors.Connectors.toSink;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Utils.size;
+import static com.github.dakusui.actionunit.compat.connectors.Connectors.toSink;
 import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
-import static com.google.common.collect.Iterables.size;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -38,10 +37,10 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Enclosed.class)
 public class ActionPrinterTest {
 
-  public static class ImplTest {
+  public static class ImplTest extends TestUtils.TestBase {
     static Action composeAction() {
-      return concurrent("Concurrent (top level)",
-          sequential("Sequential (1st child)",
+      return CompatActions.concurrent("Concurrent (top level)",
+          CompatActions.sequential("Sequential (1st child)",
               simple("simple1", new Runnable() {
                 @Override
                 public void run() {
@@ -58,7 +57,7 @@ public class ActionPrinterTest {
             public void run() {
             }
           }),
-          foreach(
+          CompatActions.foreach(
               asList("hello1", "hello2", "hello3"),
               new Sink.Base<String>("block1") {
                 @Override
@@ -71,67 +70,64 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTrace() {
-      composeAction().accept(ActionPrinter.Factory.trace());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.trace());
     }
 
     @Test
     public void givenDebug$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.debug());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.debug());
     }
 
     @Test
     public void givenInfo$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.info());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.info());
     }
 
     @Test
     public void givenWarn() {
-      composeAction().accept(ActionPrinter.Factory.warn());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.warn());
     }
 
     @Test
     public void givenError() {
-      composeAction().accept(ActionPrinter.Factory.error());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.error());
     }
 
     @Test
     public void givenNew() {
-      ActionPrinter<ActionPrinter.Writer> printer = ActionPrinter.Factory.create();
+      ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
       composeAction().accept(printer);
-      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.getWriter();
+      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
       assertThat(i.next(), containsString("Sequential (1st child)"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
-      i.next();
       assertThat(i.next(), containsString("simple2"));
-      i.next();
       assertThat(i.next(), containsString("simple3"));
-      i.next();
-      assertThat(i.next(), containsString("ForEach"));
-      assertEquals(13, size(writer));
+      assertThat(i.next(), containsString("CompatForEach"));
+      assertEquals(10, size(writer));
     }
   }
 
-  public static class StdOutErrTest extends TestUtils.StdOutTestBase {
+  public static class StdOutErrTest extends TestUtils.TestBase {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.stdout());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.stdout());
     }
 
     @Test
     public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.stderr());
+      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.stderr());
     }
   }
 
-  public static class WithResultTest extends TestUtils.StdOutTestBase {
+  public static class WithResultTest extends TestUtils.TestBase {
     private static Action composeAction(final List<String> out) {
       //noinspection unchecked
-      return concurrent("Concurrent (top level)",
-          sequential("Sequential (1st child)",
+      return CompatActions.concurrent("Concurrent (top level)",
+          CompatActions.sequential("Sequential (1st child)",
               simple("simple1", new Runnable() {
                 @Override
                 public void run() {
@@ -148,28 +144,25 @@ public class ActionPrinterTest {
             public void run() {
             }
           }),
-          foreach(
+          CompatActions.foreach(
               asList("hello1", "hello2", "hello3"),
-              new TestAction.Builder<String, Object>("ExampleTest")
-                  .when(new Function<String, Object>() {
-                    @Override
-                    public String apply(String input) {
-                      out.add(format("hello:%s", input));
-                      return format("hello:%s", input);
-                    }
+              new CompatTestAction.Builder<String, Object>("ExampleTest")
+                  .when(input -> {
+                    out.add(format("hello:%s", input));
+                    return format("hello:%s", input);
                   })
                   .then(anything()).build()
           ),
-          foreach(
+          CompatActions.foreach(
               asList("world1", "world2", "world3"),
               sequential(
-                  simple(new Runnable() {
+                  CompatActions.simple(new Runnable() {
                     @Override
                     public void run() {
 
                     }
                   }),
-                  tag(0)
+                  CompatActions.tag(0)
               ),
               new Sink<String>() {
                 @Override
@@ -199,7 +192,7 @@ public class ActionPrinterTest {
     public void givenComplicatedTestAction$whenPerformed$thenWorksFine() {
       List<String> out = new LinkedList<>();
       Action action = composeAction(out);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
         action.accept(runner);
         assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
@@ -211,38 +204,36 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter<ActionPrinter.Writer> printer = ActionPrinter.Factory.create();
+      ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
       composeAction(out).accept(printer);
-      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) printer.<ActionPrinter.Writer.Impl>getWriter();
+      composeAction(out).accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
+      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).<ActionPrinter.Impl.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
       assertThat(i.next(), containsString("Sequential (1st child)"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("simple1"));
-      i.next();
       assertThat(i.next(), containsString("simple2"));
-      i.next();
       assertThat(i.next(), containsString("simple3"));
-      i.next();
-      assertThat(i.next(), containsString("ForEach"));
+      assertThat(i.next(), containsString("CompatForEach"));
       assertThat(i.next(), containsString("ExampleTest"));
       assertThat(i.next(), containsString("Given"));
       assertThat(i.next(), containsString("When"));
       assertThat(i.next(), containsString("Then"));
-      assertThat(i.next(), containsString("Sequential"));
+      assertThat(i.next(), containsString("CompatForEach"));
       assertThat(i.next(), containsString("Sequential"));
       i.next();
       assertThat(i.next(), containsString("Tag(0)"));
-      assertEquals(19, size(writer));
+      assertEquals(16, size(writer));
     }
   }
 
-  public static class WithResultVariationTest extends TestUtils.StdOutTestBase {
+  public static class WithResultVariationTest extends TestUtils.TestBase {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
-      Action action = foreach(asList("A", "B"), sequential(tag(0), tag(1)), new Sink<String>() {
+      Action action = CompatActions.foreach(asList("A", "B"), sequential(CompatActions.tag(0), CompatActions.tag(1)), new Sink<String>() {
             @Override
             public void apply(String input, Context context) {
               out1.writeLine(input + "0");
@@ -254,7 +245,7 @@ public class ActionPrinterTest {
             }
           }
       );
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 
@@ -262,7 +253,7 @@ public class ActionPrinterTest {
       action.accept(runner.createPrinter(out2));
 
       assertThat(out2, allOf(
-          hasItemAt(0, containsString("(+)ForEach")),
+          hasItemAt(0, containsString("(+)CompatForEach")),
           hasItemAt(1, containsString("(+)Sequential")),
           hasItemAt(2, containsString("(+)Tag(0)")),
           hasItemAt(3, containsString("(+)Tag(1)"))
@@ -272,8 +263,8 @@ public class ActionPrinterTest {
 
     @Test
     public void givenRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = retry(nop(), 1, 1, TimeUnit.MINUTES);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      Action action = CompatActions.retry(nop(), 1, 1, TimeUnit.MINUTES);
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       final TestUtils.Out out = new TestUtils.Out();
       action.accept(runner.createPrinter(out));
@@ -282,7 +273,7 @@ public class ActionPrinterTest {
 
     @Test(expected = IllegalStateException.class)
     public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = retry(simple(new Runnable() {
+      Action action = CompatActions.retry(CompatActions.simple(new Runnable() {
         @Override
         public void run() {
           throw new IllegalStateException(this.toString());
@@ -292,7 +283,7 @@ public class ActionPrinterTest {
           return "AlwaysFail";
         }
       }), 1, 1, TimeUnit.MINUTES);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
         action.accept(runner);
       } finally {
@@ -307,8 +298,8 @@ public class ActionPrinterTest {
     @Test
     public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out = new TestUtils.Out();
-      Action action = retry(
-          simple(new Runnable() {
+      Action action = CompatActions.retry(
+          CompatActions.simple(new Runnable() {
             boolean tried = false;
 
             @Override
@@ -329,7 +320,7 @@ public class ActionPrinterTest {
           }),
           1, // once
           1, MILLISECONDS);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
         action.accept(runner);
       } finally {
@@ -342,8 +333,8 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTimeoutAction$whenPerformed$thenResultPrinted() {
-      Action action = timeout(nop(), 1, TimeUnit.MINUTES);
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      Action action = CompatActions.timeout(nop(), 1, TimeUnit.MINUTES);
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       final TestUtils.Out out = new TestUtils.Out();
       action.accept(runner.createPrinter(out));
@@ -358,7 +349,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
     }
 
@@ -370,21 +361,18 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
     }
 
     @Test
     public void test() {
       final TestUtils.Out out = new TestUtils.Out();
-      Action action = with("Hello", toSink(new Predicate<Object>() {
-        @Override
-        public boolean apply(Object input) {
-          out.writeLine(input + " applied");
-          return true;
-        }
+      Action action = CompatActions.with("Hello", toSink(input -> {
+        out.writeLine(input + " applied");
+        return true;
       }));
-      ActionRunner.WithResult runner = new ActionRunner.WithResult();
+      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       action.accept(runner);
       action.accept(runner.createPrinter(out));
       assertEquals("Hello applied", out.get(0));

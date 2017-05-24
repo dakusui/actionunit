@@ -1,22 +1,24 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
-import com.google.common.base.Function;
+import com.github.dakusui.actionunit.compat.visitors.CompatVisitor;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.Context;
+import com.github.dakusui.actionunit.actions.ActionBase;
+import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.actions.Sequential;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 
-import static com.github.dakusui.actionunit.Utils.range;
-import static com.github.dakusui.actionunit.Autocloseables.transform;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static com.github.dakusui.actionunit.helpers.Autocloseables.transform;
+import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.helpers.Checks.checkState;
+import static com.github.dakusui.actionunit.helpers.Utils.range;
 import static java.lang.String.format;
 
 /**
- * A tag action. This class is used with {@link With} action and replaced at runtime
- * with a {@link Sink} object held by the {@code With} action.
+ * A tag action. This class is used with {@code CompatWith} action and replaced at runtime
+ * with a {@link Sink} object held by the {@code CompatWith} action.
  *
- * @see With
  * @see Sink
  */
 public class Tag extends ActionBase {
@@ -62,16 +64,10 @@ public class Tag extends ActionBase {
 
   public static Action createFromRange(int from, int to) {
     return Sequential.Factory.INSTANCE.create(
-        transform(range(from, to),
-            new Function<Integer, Tag>() {
-              @Override
-              public Tag apply(Integer input) {
-                return new Tag(input);
-              }
-            }));
+        transform(range(from, to), Tag::new));
   }
 
-  private class TagRunner<T> extends Leaf implements Synthesized {
+  private class TagRunner<T> extends Leaf implements CompatVisitor.Synthesized {
     private final Sink<T>[] sinks;
     private final Source<T> source;
     private final Context   context;

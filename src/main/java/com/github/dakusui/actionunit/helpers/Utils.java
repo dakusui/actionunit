@@ -1,21 +1,22 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.helpers;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.google.common.base.Preconditions;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
@@ -132,7 +133,7 @@ public enum Utils {
 
           @Override
           public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-            Preconditions.checkArgument(Parameterized.Parameters.class.equals(annotationType));
+            checkArgument(Parameterized.Parameters.class.equals(annotationType));
             //noinspection unchecked
             return (T) new Parameterized.Parameters() {
               @Override
@@ -264,8 +265,61 @@ public enum Utils {
     }
   }
 
+  public static <T> List<T> toList(Iterable<T> iterable) {
+    return new LinkedList<T>() {{
+      for (T each : iterable)
+        add(each);
+    }};
+  }
+
+  public static <T> T[] toArray(Iterable<T> iterable, Class<T> klass) {
+    //noinspection unchecked
+    return toList(iterable).toArray((T[]) Array.newInstance(klass, 0));
+  }
+
+  public static <T, U> Iterator<U> transform(Iterator<T> iterator, Function<? super T, ? extends U> func) {
+    checkNotNull(iterator);
+    checkNotNull(func);
+    return new Iterator<U>() {
+
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public U next() {
+        return func.apply(iterator.next());
+      }
+    };
+  }
+
+  public static <T> Stream<T> toStream(Iterable<T> iterable) {
+    return StreamSupport.stream(iterable.spliterator(), false);
+  }
+
   private static Method getToStringMethod(Class<?> klass) {
     return getMethod(klass, "toString");
   }
 
+  public static boolean elementsEqual(Iterable<?> left, Iterable<?> right) {
+    Iterator iLeft = checkNotNull(left.iterator());
+    Iterator iRight = checkNotNull(right.iterator());
+    while (true) {
+      if (iLeft.hasNext()) {
+        if (!iRight.hasNext())
+          return false;
+        if (Objects.equals(iLeft.next(), iRight.next()))
+          continue;
+        return false;
+      }
+      return !iRight.hasNext();
+    }
+  }
+
+  public static <T> int size(Iterable<? super T> iterable) {
+    if (iterable instanceof Collection)
+      return ((Collection) iterable).size();
+    return toList(iterable).size();
+  }
 }

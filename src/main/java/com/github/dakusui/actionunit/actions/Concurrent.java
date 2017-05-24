@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 
 /**
  * An interface that represents a sequence of actions to be executed concurrently.

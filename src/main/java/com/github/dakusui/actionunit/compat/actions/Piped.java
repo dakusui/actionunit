@@ -1,23 +1,24 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.Context;
-import com.github.dakusui.actionunit.connectors.Connectors;
-import com.github.dakusui.actionunit.connectors.Pipe;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.connectors.Source;
-import com.google.common.base.Function;
+import com.github.dakusui.actionunit.compat.Context;
+import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.actions.Named;
+import com.github.dakusui.actionunit.actions.Sequential;
+import com.github.dakusui.actionunit.compat.connectors.Connectors;
+import com.github.dakusui.actionunit.compat.connectors.Pipe;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.compat.connectors.Source;
 
-import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Autocloseables.transform;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Autocloseables.transform;
+import static com.github.dakusui.actionunit.helpers.Utils.describe;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * <pre>
  * +--------+       source  +---------+
- * |  With  |<>----+------->|Source<I>|
+ * |  CompatWith  |<>----+------->|Source<I>|
  * +--------+      |        +---------+
  *      |          |
  *      |          |sinks   +---------+
@@ -37,12 +38,12 @@ import static org.apache.commons.lang3.StringUtils.join;
  * @param <I> Input type
  * @param <O> Output type
  */
-public interface Piped<I, O> extends With<I> {
+public interface Piped<I, O> extends CompatWith<I> {
   Pipe<I, O> getPipe();
 
   Sink<O>[] getDestinationSinks();
 
-  class Impl<I, O> extends With.Base<I> implements Piped<I, O> {
+  class Impl<I, O> extends CompatWithBase<I> implements Piped<I, O> {
     protected final Source<I>  source;
     protected final Pipe<I, O> pipe;
     protected final Sink<O>[]  destinationSinks;
@@ -62,7 +63,7 @@ public interface Piped<I, O> extends With<I> {
         final Source<I> source, String sourceName,
         final Pipe<I, O> pipe, String pipeName,
         final Sink<O>[] destinationSinks, String destinationSinksName) {
-      this(source, sourceName, pipe, pipeName, Connectors.<O>mutable(), destinationSinks, destinationSinksName);
+      this(source, sourceName, pipe, pipeName, Connectors.mutable(), destinationSinks, destinationSinksName);
     }
 
     private Impl(
@@ -77,7 +78,7 @@ public interface Piped<I, O> extends With<I> {
               Sequential.Factory.INSTANCE.create(
                   asList(
                       new Tag(0),
-                      new With.Base<>(
+                      new CompatWithBase<>(
                           output,
                           Named.Factory.create(
                               destinationSinksName,
@@ -113,25 +114,17 @@ public interface Piped<I, O> extends With<I> {
           this.sourceName,
           describe(this.getSource()),
           this.pipeName,
-          join(transform(
-              asList(this.getSinks()),
-              new Function<Sink<I>, Object>() {
-                @Override
-                public Object apply(Sink<I> sink) {
-                  return describe(sink);
-                }
-              }),
-              ","),
+          String.join(
+              ",",
+              transform(
+                  asList(this.getSinks()),
+                  Utils::describe)),
           this.destinationSinksName,
-          join(transform(
-              asList((Sink<O>[]) getDestinationSinks()),
-              new Function<Sink<O>, Object>() {
-                @Override
-                public Object apply(Sink<O> input) {
-                  return describe(input);
-                }
-              }),
-              ",")
+          String.join(
+              ",",
+              transform(
+                  asList((Sink<O>[]) getDestinationSinks()),
+                  Utils::describe))
       );
     }
 

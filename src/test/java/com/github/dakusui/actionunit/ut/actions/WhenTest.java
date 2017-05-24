@@ -1,27 +1,21 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.connectors.Sink;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
-import com.google.common.base.Predicate;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.compat.connectors.Sink;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
 
 public class WhenTest {
   @Test
   public void test() {
-    Action action = foreach(
+    Action action = CompatActions.foreach(
         asList(1, 2, 3, 4),
-        when(
-            new Predicate<Integer>() {
-              @Override
-              public boolean apply(Integer input) {
-                return input > 2;
-              }
-            },
-            tag(0)
+        CompatActions.when(
+            (Integer input) -> input > 2,
+            CompatActions.tag(0)
         ),
         new Sink.Base<Integer>() {
           @Override
@@ -31,7 +25,7 @@ public class WhenTest {
         }
     );
 
-    ActionRunner.WithResult runner = new ActionRunner.WithResult();
+    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
       action.accept(runner);
     } finally {
