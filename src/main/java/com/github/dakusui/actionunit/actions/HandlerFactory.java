@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 
 import java.util.Objects;
 import java.util.function.Consumer;

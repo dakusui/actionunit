@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.utils;
 
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.helpers.Utils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;

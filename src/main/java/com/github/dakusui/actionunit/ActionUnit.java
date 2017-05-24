@@ -1,6 +1,8 @@
 package com.github.dakusui.actionunit;
 
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.helpers.Utils;
 import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
@@ -19,10 +21,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.Actions.named;
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.Checks.propagate;
-import static com.github.dakusui.actionunit.Utils.*;
+import static com.github.dakusui.actionunit.helpers.Actions.named;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.propagate;
+import static com.github.dakusui.actionunit.helpers.Utils.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -80,7 +82,7 @@ public class ActionUnit extends Parameterized {
     return this.runners;
   }
 
-  protected void validateActionMethods(List<Throwable> errors) {
+  private void validateActionMethods(List<Throwable> errors) {
     List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(PerformWith.class);
     for (FrameworkMethod eachMethod : methods) {
       validateNonStaticPublic(eachMethod, errors);

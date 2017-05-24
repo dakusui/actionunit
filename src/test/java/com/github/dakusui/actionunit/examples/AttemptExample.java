@@ -5,9 +5,9 @@ import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.sequential;
-import static com.github.dakusui.actionunit.Actions.simple;
-import static com.github.dakusui.actionunit.Builders.attempt;
+import static com.github.dakusui.actionunit.helpers.Actions.sequential;
+import static com.github.dakusui.actionunit.helpers.Actions.simple;
+import static com.github.dakusui.actionunit.helpers.Builders.attempt;
 
 public class AttemptExample {
   @Test(expected = IllegalArgumentException.class)

@@ -1,12 +1,11 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.*;
 import static java.util.Arrays.asList;
 
 public class WhenTest {
@@ -14,7 +13,7 @@ public class WhenTest {
   public void test() {
     Action action = CompatActions.foreach(
         asList(1, 2, 3, 4),
-        when(
+        CompatActions.when(
             (Integer input) -> input > 2,
             CompatActions.tag(0)
         ),

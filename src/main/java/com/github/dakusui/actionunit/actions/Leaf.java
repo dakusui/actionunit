@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
 /**
  * A skeletal base class of a simple action, which cannot be divided into smaller

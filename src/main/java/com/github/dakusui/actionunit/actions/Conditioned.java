@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
 public interface Conditioned extends Nested, Predicate {
   abstract class Base extends Nested.Base implements Conditioned {

@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -9,8 +9,8 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.Actions.nop;
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Actions.nop;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;

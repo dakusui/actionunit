@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.compat.connectors.Sink;

@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.visitors;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.AutocloseableIterator;
-import com.github.dakusui.actionunit.Autocloseables;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.AutocloseableIterator;
+import com.github.dakusui.actionunit.core.Autocloseables;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.actions.*;
@@ -17,8 +17,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.Checks.*;
-import static com.github.dakusui.actionunit.Utils.*;
+import static com.github.dakusui.actionunit.helpers.Checks.*;
+import static com.github.dakusui.actionunit.helpers.Utils.*;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;

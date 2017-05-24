@@ -1,14 +1,14 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Builders.forEachOf;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)

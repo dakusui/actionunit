@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -29,7 +29,7 @@ public class CompatAttemptTest {
             }))
         ).recover(
             RuntimeException.class,
-            retry(RuntimeException.class,
+            CompatActions.retry(RuntimeException.class,
                 CompatActions.tag(0),
                 1,
                 1, MILLISECONDS),

@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.compat.connectors;
 
 import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.helpers.Utils;
 import org.hamcrest.Matcher;
 
 import java.util.LinkedList;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 

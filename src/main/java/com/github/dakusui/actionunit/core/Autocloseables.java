@@ -1,13 +1,15 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.helpers.AutocloseableIterator;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
 public enum Autocloseables {
   ;

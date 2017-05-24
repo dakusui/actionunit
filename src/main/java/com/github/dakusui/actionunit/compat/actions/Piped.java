@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.compat.actions;
 
 import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
@@ -9,9 +9,9 @@ import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 
-import static com.github.dakusui.actionunit.Autocloseables.transform;
-import static com.github.dakusui.actionunit.Utils.describe;
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.core.Autocloseables.transform;
+import static com.github.dakusui.actionunit.helpers.Utils.describe;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 

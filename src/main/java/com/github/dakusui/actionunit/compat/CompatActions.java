@@ -1,10 +1,12 @@
 package com.github.dakusui.actionunit.compat;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Actions;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.compat.actions.Tag;
 import com.github.dakusui.actionunit.compat.actions.*;
@@ -12,11 +14,14 @@ import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.compat.connectors.Connectors.toPipe;
 import static com.github.dakusui.actionunit.compat.connectors.Connectors.toSource;
@@ -179,12 +184,72 @@ public enum CompatActions {
    * @see Sequential.Impl
    */
   public static Action sequential(String summary, Action... actions) {
-    return Actions.sequential(summary, asList(actions));
+    return sequential(summary, asList(actions));
   }
 
   @Deprecated
   public static Action createLeafAction(Runnable runnable) {
     return Leaf.create(Utils.describe(runnable), runnable);
+  }
+
+  /**
+   * Creates an action which retries given {@code action}.
+   *
+   * @param targetExceptionClass Exception class to be traped by returned {@code Action}.
+   * @param action               An action retried by the returned {@code Action}.
+   * @param times                How many times given {@code action} will be retried. If 0 is given, no retry will happen.
+   *                             If {@link Retry#INFINITE} is given, returned
+   *                             action will re-try infinitely until {@code action} successes.
+   * @param interval             Interval between actions.
+   * @param timeUnit             Time unit of {@code interval}.
+   */
+  public static <T extends Throwable> Action retry(Class<T> targetExceptionClass, Action action, int times, long interval, TimeUnit timeUnit) {
+    /*
+    checkNotNull(timeUnit);
+    //noinspection unchecked
+    return new Retry(targetExceptionClass, action, NANOSECONDS.convert(interval, timeUnit), times);
+    */
+    return Builders.retry(action)
+        .times(times)
+        .on(targetExceptionClass)
+        .withIntervalOf(interval, timeUnit);
+  }
+
+  /**
+   * Creates an action which retries given {@code action}.
+   *
+   * @param action   An action retried by the returned {@code Action}.
+   * @param times    How many times given {@code action} will be retried. If 0 is given, no retry will happen.
+   *                 If {@link Retry#INFINITE} is given, returned
+   *                 action will re-try infinitely until {@code action} successes.
+   * @param interval Interval between actions.
+   * @param timeUnit Time unit of {@code interval}.
+   */
+  public static Action retry(Action action, int times, long interval, TimeUnit timeUnit) {
+    return retry(ActionException.class, action, times, interval, timeUnit);
+  }
+
+  /**
+   * Creates an action which runs given {@code actions} in a sequential manner.
+   *
+   * @param summary A string used by {@code describe()} method of a returned {@code Action} object.
+   * @param actions {@code Action} objects performed by returned {@code Action} object.
+   * @see Sequential.Impl
+   */
+  public static Action sequential(String summary, Iterable<? extends Action> actions) {
+    return Actions.named(summary, Actions.sequential(actions));
+  }
+
+  public static Action when(Predicate<?> condition, Action action, Action otherwise) {
+    //return new When.Impl(condition, action, otherwise);
+    return Builders.when(condition)
+        .perform(action)
+        .otherwise(otherwise)
+        .build();
+  }
+
+  public static Action when(Predicate<?> condition, Action action) {
+    return when(condition, action, Actions.nop());
   }
 
   public static class ToSource<T> implements Function<T, Source<T>> {

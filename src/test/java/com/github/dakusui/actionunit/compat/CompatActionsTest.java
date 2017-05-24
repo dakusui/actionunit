@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.compat;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -18,8 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Utils.describe;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Utils.describe;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.CONCURRENTLY;
 import static com.github.dakusui.actionunit.actions.ForEach.Mode.SEQUENTIALLY;
 import static com.github.dakusui.actionunit.ut.ActionsTest.autocloseableList;

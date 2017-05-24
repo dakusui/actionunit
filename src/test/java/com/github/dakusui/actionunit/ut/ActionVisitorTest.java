@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -139,7 +139,7 @@ public class ActionVisitorTest {
   @Test
   public void givenRetryAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = retry(createSimpleAction(), 1, 1, TimeUnit.NANOSECONDS);
+    Action action = CompatActions.retry(createSimpleAction(), 1, 1, TimeUnit.NANOSECONDS);
     // when accept
     action.accept(visitor);
     // then visited
@@ -210,7 +210,7 @@ public class ActionVisitorTest {
   @Test
   public void givenWhenAction$whenAccept$thenVisited() {
     // given while action
-    Action action = when(
+    Action action = CompatActions.when(
         v -> true,
         createSimpleAction(),
         createSimpleAction());

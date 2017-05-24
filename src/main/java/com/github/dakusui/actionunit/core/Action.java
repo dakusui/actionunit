@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;

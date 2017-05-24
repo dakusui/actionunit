@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.AutocloseableIterator;
-import com.github.dakusui.actionunit.Autocloseables;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.helpers.AutocloseableIterator;
+import com.github.dakusui.actionunit.core.Autocloseables;
+import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Utils.range;
+import static com.github.dakusui.actionunit.helpers.Utils.range;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;

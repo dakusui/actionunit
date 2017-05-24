@@ -1,17 +1,17 @@
 package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
-import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Autocloseables.transform;
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.Utils.range;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.core.Autocloseables.transform;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Utils.range;
 
 /**
  * An action that corresponds to Java's try/catch mechanism.

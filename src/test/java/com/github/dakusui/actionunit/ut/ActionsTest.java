@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Actions;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -15,8 +15,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Utils.describe;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Utils.describe;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
@@ -260,7 +260,7 @@ public class ActionsTest {
   @Test(timeout = 300000)
   public void retryTest() {
     final List<String> arr = new ArrayList<>();
-    retry(CompatActions.simple(new Runnable() {
+    CompatActions.retry(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello");
@@ -274,7 +274,7 @@ public class ActionsTest {
   @Test(timeout = 300000)
   public void retryTest$failOnce() {
     final List<String> arr = new ArrayList<>();
-    retry(CompatActions.simple(new Runnable() {
+    CompatActions.retry(CompatActions.simple(new Runnable() {
           int i = 0;
 
           @Override
@@ -294,7 +294,7 @@ public class ActionsTest {
   @Test(expected = Abort.class)
   public void givenRetryAction$whenAbortException$thenAborted() {
     final TestUtils.Out out = new TestUtils.Out();
-    retry(CompatActions.simple(new Runnable() {
+    CompatActions.retry(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             out.writeLine("run");
@@ -310,7 +310,7 @@ public class ActionsTest {
   public void givenRetryAction$whenAbortException2$thenAbortedAndRootExceptionStoredProperly() throws Throwable {
     final TestUtils.Out out = new TestUtils.Out();
     try {
-      retry(CompatActions.simple(new Runnable() {
+      CompatActions.retry(CompatActions.simple(new Runnable() {
             @Override
             public void run() {
               out.writeLine("Hello");
@@ -328,7 +328,7 @@ public class ActionsTest {
   @Test(expected = ActionException.class, timeout = 300000)
   public void retryTest$failForever() {
     final List<String> arr = new ArrayList<>();
-    retry(CompatActions.simple(new Runnable() {
+    CompatActions.retry(CompatActions.simple(new Runnable() {
           @Override
           public void run() {
             arr.add("Hello");
@@ -342,7 +342,7 @@ public class ActionsTest {
 
   @Test
   public void givenRetryAction$whenDescribe$thenLooksNice() {
-    assertEquals("Retry(2[seconds]x1times)", describe(retry(nop(), 1, 2, SECONDS)));
+    assertEquals("Retry(2[seconds]x1times)", describe(CompatActions.retry(nop(), 1, 2, SECONDS)));
   }
 
   @Test(timeout = 3000000)

@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.compat;
 
-import com.github.dakusui.actionunit.AutocloseableIterator;
-import com.github.dakusui.actionunit.Autocloseables;
+import com.github.dakusui.actionunit.helpers.AutocloseableIterator;
+import com.github.dakusui.actionunit.core.Autocloseables;
 
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.Utils.sizeOrNegativeIfNonCollection;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Utils.sizeOrNegativeIfNonCollection;
 
 public interface DataSource<T> extends Iterable<T> {
   @Override

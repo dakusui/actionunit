@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.compat.Context;
 
 import java.util.Objects;
 
-import static com.github.dakusui.actionunit.Checks.checkState;
+import static com.github.dakusui.actionunit.helpers.Checks.checkState;
 import static java.lang.String.format;
 
 public interface Source<T> {

@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.compat.CompatActions;
@@ -16,7 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder
@@ -120,7 +120,7 @@ public class Basic {
     final Runnable runnable = createRunnable();
     return timeout(
         CompatActions.attempt(runnable)
-            .recover(retry(CompatActions.simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
+            .recover(CompatActions.retry(CompatActions.simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
             .ensure(nop())
             .build(),
         10,

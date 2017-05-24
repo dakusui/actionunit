@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.Actions.nop;
+import static com.github.dakusui.actionunit.helpers.Actions.nop;
 import static com.github.dakusui.actionunit.compat.CompatActions.tag;
 import static junit.framework.TestCase.assertFalse;
 

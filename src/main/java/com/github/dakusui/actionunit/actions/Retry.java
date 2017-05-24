@@ -1,11 +1,16 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 
-import static com.github.dakusui.actionunit.Utils.formatDuration;
-import static com.github.dakusui.actionunit.Checks.checkArgument;
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Utils.formatDuration;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 public class Retry extends ActionBase {
   /**
@@ -44,4 +49,34 @@ public class Retry extends ActionBase {
     //noinspection unchecked
     return (Class<T>) this.targetExceptionClass;
   }
+
+  public static Builder builder(Action action) {
+    return new Builder(action);
+  }
+
+  public static class Builder {
+    private Action action;
+    private int                        times                = INFINITE;
+    private Class<? extends Throwable> targetExceptionClass = ActionException.class;
+
+    public Builder(Action action) {
+      this.action = requireNonNull(action);
+    }
+
+    public Builder times(int times) {
+      this.times = times;
+      return this;
+    }
+
+    public Builder on(Class<? extends Throwable> targetExceptionClass) {
+      this.targetExceptionClass = Objects.requireNonNull(targetExceptionClass);
+      return this;
+    }
+
+    public Retry withIntervalOf(long interval, TimeUnit timeUnit) {
+      checkArgument(interval > 0);
+      return new Retry(targetExceptionClass, action, requireNonNull(timeUnit).toNanos(interval), times);
+    }
+  }
+
 }

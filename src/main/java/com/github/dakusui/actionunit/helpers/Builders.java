@@ -1,10 +1,10 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.helpers;
 
-import com.github.dakusui.actionunit.actions.Attempt;
-import com.github.dakusui.actionunit.actions.ForEach;
-import com.github.dakusui.actionunit.actions.HandlerFactory;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.actions.*;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;
 
@@ -26,5 +26,17 @@ public enum Builders {
 
   public static <T> HandlerFactory<T> handlerFactory(String description, Consumer<T> handlerBody) {
     return HandlerFactory.create(description, handlerBody);
+  }
+
+  public static Retry.Builder retry(Action action) {
+    return Retry.builder(action);
+  }
+
+  public static <I, O> TestAction.Builder<I, O> verify() {
+    return new TestAction.Builder<>();
+  }
+
+  public static When.Builder when(Predicate<?> condition) {
+    return new When.Builder<>(condition);
   }
 }

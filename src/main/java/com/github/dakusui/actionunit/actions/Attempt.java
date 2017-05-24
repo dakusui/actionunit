@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.Actions;
-import com.github.dakusui.actionunit.Checks;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
 import java.util.function.Supplier;

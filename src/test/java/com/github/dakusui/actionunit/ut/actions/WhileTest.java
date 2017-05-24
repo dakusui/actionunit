@@ -1,13 +1,13 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.Actions.repeatwhile;
+import static com.github.dakusui.actionunit.helpers.Actions.repeatwhile;
 import static com.github.dakusui.actionunit.compat.CompatActions.simple;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;

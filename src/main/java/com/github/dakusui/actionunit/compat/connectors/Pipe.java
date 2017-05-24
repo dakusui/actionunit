@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.compat.connectors;
 
 import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.Utils;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 /**
  * Executes an operation based on an input value and gives an output value.

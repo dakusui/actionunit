@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
@@ -22,8 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.Actions.*;
-import static com.github.dakusui.actionunit.Utils.size;
+import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Utils.size;
 import static com.github.dakusui.actionunit.compat.connectors.Connectors.toSink;
 import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
@@ -266,7 +266,7 @@ public class ActionPrinterTest {
 
     @Test
     public void givenRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = retry(nop(), 1, 1, TimeUnit.MINUTES);
+      Action action = CompatActions.retry(nop(), 1, 1, TimeUnit.MINUTES);
       ActionRunner.WithResult runner = new ActionRunner.WithResult();
       action.accept(runner);
       final TestUtils.Out out = new TestUtils.Out();
@@ -276,7 +276,7 @@ public class ActionPrinterTest {
 
     @Test(expected = IllegalStateException.class)
     public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = retry(CompatActions.simple(new Runnable() {
+      Action action = CompatActions.retry(CompatActions.simple(new Runnable() {
         @Override
         public void run() {
           throw new IllegalStateException(this.toString());
@@ -301,7 +301,7 @@ public class ActionPrinterTest {
     @Test
     public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out = new TestUtils.Out();
-      Action action = retry(
+      Action action = CompatActions.retry(
           CompatActions.simple(new Runnable() {
             boolean tried = false;
 

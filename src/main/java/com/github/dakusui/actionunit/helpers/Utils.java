@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit;
+package com.github.dakusui.actionunit.helpers;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import org.junit.runners.Parameterized;
@@ -14,8 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.Checks.checkArgument;
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;

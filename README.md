@@ -36,7 +36,7 @@ Following is an example of actionunit.
 
 ```java
 
-    import com.github.dakusui.actionunit.Action;
+    import com.github.dakusui.actionunit.core.Action;
     import com.github.dakusui.actionunit.ActionUnit;
     import com.github.dakusui.actionunit.visitors.ActionRunner;
     import org.junit.Test;
@@ -45,8 +45,8 @@ Following is an example of actionunit.
     import java.lang.annotation.Retention;
     import java.lang.annotation.RetentionPolicy;
     
-    import static com.github.dakusui.actionunit.Actions.sequential;
-    import static com.github.dakusui.actionunit.Actions.simple;
+    import static com.github.dakusui.actionunit.helpers.Actions.sequential;
+    import static com.github.dakusui.actionunit.helpers.Actions.simple;
     
     
     @RunWith(ActionUnit.class)

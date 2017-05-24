@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -8,8 +8,8 @@ import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.Actions.named;
-import static com.github.dakusui.actionunit.Actions.simple;
+import static com.github.dakusui.actionunit.helpers.Actions.named;
+import static com.github.dakusui.actionunit.helpers.Actions.simple;
 import static org.junit.Assert.assertTrue;
 
 public abstract class ActionRunnerTestBase {

@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.compat.actions;
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Leaf;
@@ -8,10 +8,10 @@ import com.github.dakusui.actionunit.actions.Sequential;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 
-import static com.github.dakusui.actionunit.Autocloseables.transform;
-import static com.github.dakusui.actionunit.Checks.checkArgument;
-import static com.github.dakusui.actionunit.Checks.checkState;
-import static com.github.dakusui.actionunit.Utils.range;
+import static com.github.dakusui.actionunit.core.Autocloseables.transform;
+import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.helpers.Checks.checkState;
+import static com.github.dakusui.actionunit.helpers.Utils.range;
 import static java.lang.String.format;
 
 /**

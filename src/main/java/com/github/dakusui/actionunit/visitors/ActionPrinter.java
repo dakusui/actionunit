@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.visitors;
 
 
-import com.github.dakusui.actionunit.Action;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
 import com.github.dakusui.actionunit.compat.actions.CompatForEach;
@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.Checks.notPrintable;
-import static com.github.dakusui.actionunit.Utils.describe;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.Checks.notPrintable;
+import static com.github.dakusui.actionunit.helpers.Utils.describe;
 
 /**
  * A simple visitor that prints actions.

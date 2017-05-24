@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.Action;
-import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
@@ -10,7 +10,9 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.github.dakusui.actionunit.Builders.*;
+import static com.github.dakusui.actionunit.helpers.Actions.concurrent;
+import static com.github.dakusui.actionunit.helpers.Actions.simple;
+import static com.github.dakusui.actionunit.helpers.Builders.*;
 import static java.util.Arrays.asList;
 
 @RunWith(Enclosed.class)
@@ -67,20 +69,27 @@ public class BuildersTest {
   }
 
   public static class AttemptTest {
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void given$when$then() {
-      Action action = attempt(CompatActions.createLeafAction(() -> {
+      Action action = attempt(
+          simple("throw IllegalStateException", () -> {
             throw new IllegalStateException();
           })
       ).recover(
           RuntimeException.class,
-          handlerFactory("print messages and stack trace.", e -> {
-            System.out.println("Following is the captured exception.");
-            e.printStackTrace();
-            System.out.println("Recovered.");
-          })
+          e -> concurrent(
+              simple("print capture", () -> {
+              }),
+              simple("print stacktrace", () -> {
+                e.get().printStackTrace(System.out);
+                throw Checks.propagate(e.get());
+              }),
+              simple("print recovery", () -> {
+                System.out.println("Recovered.");
+              })
+          )
       ).ensure(
-          CompatActions.createLeafAction(() -> System.out.println("Bye"))
+          simple("Say 'bye'", () -> System.out.println("Bye"))
       );
       try {
         action.accept(new ActionRunner.Impl());
