@@ -95,9 +95,9 @@ public class ActionPrinterTest {
 
     @Test
     public void givenNew() {
-      ActionPrinter.Impl printer = ActionPrinter.Impl.Factory.create();
+      ActionPrinter printer = ActionPrinter.Impl.Factory.create();
       composeAction().accept(printer);
-      ActionPrinter.Impl.Writer.Impl writer = (ActionPrinter.Impl.Writer.Impl) printer.getWriter();
+      ActionPrinter.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
@@ -207,10 +207,10 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter.Impl printer = ActionPrinter.Impl.Factory.create();
+      ActionPrinter printer = ActionPrinter.Impl.Factory.create();
       composeAction(out).accept(printer);
       composeAction(out).accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
-      ActionPrinter.Impl.Writer.Impl writer = (ActionPrinter.Impl.Writer.Impl) printer.<ActionPrinter.Impl.Writer.Impl>getWriter();
+      ActionPrinter.Impl.Writer.Impl writer = (ActionPrinter.Writer.Impl) ((ActionPrinter.Impl) printer).<ActionPrinter.Impl.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));

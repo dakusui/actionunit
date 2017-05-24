@@ -321,39 +321,39 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
     public enum Factory {
       ;
 
-      public static Impl create(Writer writer) {
+      public static ActionPrinter create(Writer writer) {
         return new Impl(checkNotNull(writer));
       }
 
-      public static Impl create() {
+      public static ActionPrinter create() {
         return create(new Writer.Impl());
       }
 
-      public static Impl stdout() {
+      public static ActionPrinter stdout() {
         return new Impl(Writer.Std.OUT);
       }
 
-      public static Impl stderr() {
+      public static ActionPrinter stderr() {
         return new Impl(Writer.Std.ERR);
       }
 
-      public static Impl trace() {
+      public static ActionPrinter trace() {
         return new Impl(Writer.Slf4J.TRACE);
       }
 
-      public static Impl debug() {
+      public static ActionPrinter debug() {
         return new Impl(Writer.Slf4J.DEBUG);
       }
 
-      public static Impl info() {
+      public static ActionPrinter info() {
         return new Impl(Writer.Slf4J.INFO);
       }
 
-      public static Impl warn() {
+      public static ActionPrinter warn() {
         return new Impl(Writer.Slf4J.WARN);
       }
 
-      public static Impl error() {
+      public static ActionPrinter error() {
         return new Impl(Writer.Slf4J.ERROR);
       }
     }
