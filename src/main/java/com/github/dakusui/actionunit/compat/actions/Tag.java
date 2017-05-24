@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.compat.actions;
 
+import com.github.dakusui.actionunit.compat.CompatVisitor;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
@@ -66,7 +67,7 @@ public class Tag extends ActionBase {
         transform(range(from, to), Tag::new));
   }
 
-  private class TagRunner<T> extends Leaf implements Synthesized {
+  private class TagRunner<T> extends Leaf implements CompatVisitor.Synthesized {
     private final Sink<T>[] sinks;
     private final Source<T> source;
     private final Context   context;

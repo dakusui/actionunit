@@ -3,6 +3,8 @@ package com.github.dakusui.actionunit.compat;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
 import com.github.dakusui.actionunit.compat.actions.CompatForEach;
 import com.github.dakusui.actionunit.compat.actions.CompatWith;
+import com.github.dakusui.actionunit.compat.actions.Tag;
+import com.github.dakusui.actionunit.core.Action;
 
 public interface CompatVisitor {
   /**
@@ -10,19 +12,52 @@ public interface CompatVisitor {
    *
    * @param action action to be visited by this object.
    */
-  void visit(CompatForEach action);
+  void visit(Action action);
 
   /**
    * Visits an {@code action}.
    *
    * @param action action to be visited by this object.
    */
-  void visit(CompatWith action);
+  default void visit(CompatForEach action) {
+    this.visit((Action) action);
+  }
 
   /**
    * Visits an {@code action}.
    *
    * @param action action to be visited by this object.
    */
-  void visit(CompatAttempt action);
+  default void visit(CompatWith action) {
+    this.visit((Action) action);
+  }
+
+  /**
+   * Visits an {@code action}.
+   *
+   * @param action action to be visited by this object.
+   */
+  default void visit(CompatAttempt action) {
+    this.visit((Action) action);
+  }
+
+  /**
+   * Visits an {@code action}.
+   *
+   * @param action action to be visited by this object.
+   */
+  default void visit(Tag action) {
+    this.visit((Action) action);
+  }
+
+  ;
+
+  /**
+   * This interface is used to let path calculation know an action is synthesized
+   * by another and the creator action should be taken into account in the calculation,
+   * instead of itself.
+   */
+  interface Synthesized {
+    Action getParent();
+  }
 }

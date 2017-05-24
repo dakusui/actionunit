@@ -12,7 +12,7 @@ import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEach2Example {
+public class ForEachExample {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     return forEachOf(
@@ -37,7 +37,6 @@ public class ForEach2Example {
             forEachOf(
                 "a", "b", "c"
             ).sequentially(
-
             ).perform(
                 j -> sequential(
                     sleep(1, MILLISECONDS),

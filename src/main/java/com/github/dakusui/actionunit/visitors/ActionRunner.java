@@ -502,8 +502,8 @@ public abstract class ActionRunner extends Action.Visitor.Base implements Action
       }
 
       private Action getAction(Action action) {
-        if (action instanceof Action.Synthesized) {
-          action = ((Action.Synthesized) action).getParent();
+        if (action instanceof Synthesized) {
+          action = ((Synthesized) action).getParent();
         }
         return action;
       }

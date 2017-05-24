@@ -9,8 +9,7 @@ import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
-public enum Builders {
-  ;
+public interface Builders {
 
   public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
     return ForEach.builder(elements);
