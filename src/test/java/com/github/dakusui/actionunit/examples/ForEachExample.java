@@ -1,22 +1,24 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
+import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.helpers.Builders2;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
-import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
+import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEachExample {
+public class ForEachExample implements Actions2, Builders2 {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     return forEachOf(
-        "A", "B", "C"
+        asList("A", "B", "C")
     ).sequentially(
     ).perform(
         value -> sequential(
@@ -54,7 +56,7 @@ public class ForEachExample {
     try {
       action.accept(runner);
     } finally {
-      action.accept(runner.createPrinter());
+      action.accept(ActionPrinter.Factory.REPORTER.stdout());
     }
   }
 }

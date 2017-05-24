@@ -272,7 +272,7 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
 
     @Override
     public <T> void visit(ForEach<T> action) {
-      action.createProcessor(() -> {
+      action.createHandler(() -> {
         throw notPrintable();
       }).accept(this);
     }

@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 public interface ForEach<T> extends Action {
   Iterable<T> data();
 
-  Action createProcessor(Supplier<T> data);
+  Action createHandler(Supplier<T> data);
 
   Composite.Factory getCompositeFactory();
 
@@ -82,7 +82,7 @@ public interface ForEach<T> extends Action {
     }
 
     @Override
-    public Action createProcessor(Supplier<T> data) {
+    public Action createHandler(Supplier<T> data) {
       return Actions.named(String.format("ForEach:%s", this.data), this.processorFactory.apply(data));
     }
 

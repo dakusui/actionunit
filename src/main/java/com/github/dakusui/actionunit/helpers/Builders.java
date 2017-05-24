@@ -9,7 +9,8 @@ import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
-public interface Builders {
+public enum Builders {
+  ;
 
   public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
     return ForEach.builder(elements);
@@ -24,8 +25,8 @@ public interface Builders {
     return new TimeOut.Builder(action);
   }
 
-  public static <T extends Throwable> Attempt.Builder<T> attempt(Action attemptee) {
-    return Attempt.builder(attemptee);
+  public static <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
+    return Attempt.builder(action);
   }
 
   public static Retry.Builder retry(Action action) {
