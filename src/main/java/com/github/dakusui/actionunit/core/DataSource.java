@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit.compat;
+package com.github.dakusui.actionunit.core;
 
-import com.github.dakusui.actionunit.core.AutocloseableIterator;
+import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.helpers.Autocloseables;
 
 import java.util.function.Function;
@@ -28,12 +28,7 @@ public interface DataSource<T> extends Iterable<T> {
       @Override
       final public DataSource<T> create(Context context) {
         final Iterable<T> iterable = checkNotNull(iterable(context));
-        return new DataSource<T>() {
-          @Override
-          public AutocloseableIterator<T> iterator() {
-            return Autocloseables.autocloseable(iterable.iterator());
-          }
-        };
+        return () -> Autocloseables.autocloseable(iterable.iterator());
       }
 
       abstract protected Iterable<T> iterable(Context context);
@@ -79,12 +74,7 @@ public interface DataSource<T> extends Iterable<T> {
 
       @Override
       public DataSource<U> create(final Context context) {
-        return new DataSource<U>() {
-          @Override
-          public AutocloseableIterator<U> iterator() {
-            return Autocloseables.transform(base.create(context).iterator(), translator);
-          }
-        };
+        return () -> Autocloseables.transform(base.create(context).iterator(), translator);
       }
 
       @Override

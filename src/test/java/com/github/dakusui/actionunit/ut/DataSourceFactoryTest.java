@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.compat.DataSource;
+import com.github.dakusui.actionunit.core.DataSource;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 

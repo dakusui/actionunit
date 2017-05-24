@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.compat;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.DataSource;
 import com.github.dakusui.actionunit.helpers.Actions;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.helpers.Utils;
