@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.visitors.CompatActionPrinter;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,6 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
 
   public interface Factory extends Function<Writer, ActionPrinter> {
     Factory DEFAULT_INSTANCE = Impl::new;
-    Factory REPORTER         = ActionReporter::new;
 
     default ActionPrinter create(Writer writer) {
       return this.apply(writer);
@@ -96,29 +96,9 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
   protected void writeLine(String s) {
     boolean first = true;
     for (String each : s.split("\\n")) {
-      this.writer.writeLine(indent(this.indent + (first ? 0 : 1)) + each);
+      this.writer.writeLine(Utils.spaces(this.indent * 2 + (first ? 0 : 1)) + each);
       first = false;
     }
-  }
-
-  /**
-   * An extension point to customize indentation style.
-   *
-   * @param indent Level of indentation.
-   */
-  private String indent(int indent) {
-    StringBuilder ret = new StringBuilder();
-    for (int i = 0; i < indent; i++) {
-      ret.append(indent());
-    }
-    return ret.toString();
-  }
-
-  /**
-   * An extension point to customize a string used for indentation.
-   */
-  private String indent() {
-    return "  ";
   }
 
   /**

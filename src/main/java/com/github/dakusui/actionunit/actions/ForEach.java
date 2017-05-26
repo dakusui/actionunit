@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -66,12 +65,12 @@ public interface ForEach<T> extends Action {
   }
 
   class Impl<T> extends ActionBase implements ForEach<T> {
-    private final Function<Supplier<T>, Action> processorFactory;
+    private final Function<Supplier<T>, Action> handlerFactory;
     private final Iterable<T>                   data;
     private final Composite.Factory             compositeFactory;
 
     public Impl(Function<Supplier<T>, Action> handlerFactory, Iterable<T> data, Composite.Factory compositeFactory) {
-      this.processorFactory = Objects.requireNonNull(handlerFactory);
+      this.handlerFactory = Objects.requireNonNull(handlerFactory);
       this.data = Objects.requireNonNull(data);
       this.compositeFactory = Objects.requireNonNull(compositeFactory);
     }
@@ -83,7 +82,7 @@ public interface ForEach<T> extends Action {
 
     @Override
     public Action createHandler(Supplier<T> data) {
-      return Actions.named(String.format("ForEach:%s", this.data), this.processorFactory.apply(data));
+      return this.handlerFactory.apply(data);
     }
 
     @Override
@@ -94,6 +93,10 @@ public interface ForEach<T> extends Action {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
+    }
+
+    public String toString() {
+      return String.format("ForEach:%s", this.data);
     }
   }
 }

@@ -43,10 +43,10 @@ public class CompatAttempt<T extends Throwable> extends ActionBase {
     this.attempt = attempt;
     //noinspection unchecked
     this.exceptionClass = (Class<T>) checkNotNull(exceptionClass);
-    this.recover = Named.Factory.create("Recover", recover);
+    this.recover = Named.create("Recover", recover);
     //noinspection unchecked
     this.sinks = (Sink<T>[]) sinks;
-    this.ensure = Named.Factory.create("Ensure", ensure);
+    this.ensure = Named.create("Ensure", ensure);
   }
 
   /**
