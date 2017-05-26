@@ -74,13 +74,13 @@ public interface Piped<I, O> extends CompatWith<I> {
       //noinspection unchecked
       super(
           source,
-          Named.Factory.create(pipeName,
+          Named.create(pipeName,
               Sequential.Factory.INSTANCE.create(
                   asList(
                       new Tag(0),
                       new CompatWithBase<>(
                           output,
-                          Named.Factory.create(
+                          Named.create(
                               destinationSinksName,
                               Tag.createFromRange(0, destinationSinks.length)
                           ),

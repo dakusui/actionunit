@@ -32,9 +32,7 @@ public class AttemptExample {
         NullPointerException.class,
         e -> simple(
             "print stacktrace",
-            () -> {
-              e.get().printStackTrace(System.out);
-            })
+            () -> e.get().printStackTrace(System.out))
     ).ensure(simple(
         "print bye",
         () -> {

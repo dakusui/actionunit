@@ -9,6 +9,16 @@ import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
  */
 public interface Named extends Nested {
   /**
+   * Creates an action with the given {@code name} and {@code action}.
+   *
+   * @param name   A name of the returned action.
+   * @param action An action body of the returned action.
+   */
+  static Named create(String name, Action action) {
+    return new Impl(name, action);
+  }
+
+  /**
    * Returns a name of this action.
    */
   String getName();
@@ -21,7 +31,7 @@ public interface Named extends Nested {
   /**
    * A skeletal base class to implement {@code Named} action.
    */
-  class Base extends ActionBase implements Named {
+  class Impl extends ActionBase implements Named {
     private final String name;
     private final Action action;
 
@@ -31,7 +41,7 @@ public interface Named extends Nested {
      * @param name   Name of this object.
      * @param action Action to be performed as a body of this object.
      */
-    public Base(String name, Action action) {
+    public Impl(String name, Action action) {
       this.name = checkNotNull(name);
       this.action = checkNotNull(action);
     }
@@ -43,7 +53,7 @@ public interface Named extends Nested {
      */
     @Override
     public void accept(Visitor visitor) {
-      visitor.visit((Named)this);
+      visitor.visit(this);
     }
 
     /**
@@ -67,23 +77,6 @@ public interface Named extends Nested {
      */
     public String toString() {
       return this.getName();
-    }
-  }
-
-  /**
-   * A factory that creates {@link Named} action object.
-   */
-  enum Factory {
-    ;
-
-    /**
-     * Creates an action with the given {@code name} and {@code action}.
-     *
-     * @param name   A name of the returned action.
-     * @param action An action body of the returned action.
-     */
-    public static Named create(String name, Action action) {
-      return new Base(name, action);
     }
   }
 }

@@ -42,7 +42,7 @@ public enum Actions {
    * @param action action to be named.
    */
   public static Action named(String name, Action action) {
-    return Named.Factory.create(name, action);
+    return Named.create(name, action);
   }
 
   /**

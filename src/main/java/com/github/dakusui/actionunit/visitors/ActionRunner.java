@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Autocloseables;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,17 +18,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.propagate;
-import static com.github.dakusui.actionunit.helpers.Utils.*;
+import static com.github.dakusui.actionunit.helpers.Utils.runWithTimeout;
+import static com.github.dakusui.actionunit.helpers.Utils.sleep;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.stream.Collectors.toList;
 
 /**
  * A simple visitor that invokes actions.
@@ -102,7 +104,7 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    */
   @Override
   public void visit(Concurrent action) {
-    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, toList(action).size())));
+    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, Utils.toList(action).size())));
     try {
       Iterator<Callable<Boolean>> i = toCallables(action).iterator();
       //noinspection unused
@@ -146,8 +148,12 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
     action.getCompositeFactory().create(
         StreamSupport.stream(action.data().spliterator(), false)
             .map(
-                item -> action.createProcessor(() -> item)).collect(Collectors.toList()))
-        .accept(this);
+                (T item) ->
+                    action.createHandler(
+                        () -> item
+                    )
+            ).collect(toList())
+    ).accept(this);
   }
 
   @Override

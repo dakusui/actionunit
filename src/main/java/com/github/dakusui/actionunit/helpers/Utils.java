@@ -11,12 +11,14 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
@@ -321,5 +323,35 @@ public enum Utils {
     if (iterable instanceof Collection)
       return ((Collection) iterable).size();
     return toList(iterable).size();
+  }
+
+  /**
+   * Borrowed from the following place.
+   * https://stackoverflow.com/questions/22694884/filter-java-stream-to-1-and-only-1-element
+   */
+  public static <T, E extends RuntimeException> Collector<T, List<T>, Optional<T>> singletonCollector(Supplier<E> exceptionSupplier) throws E {
+    return Collector.of(
+        ArrayList::new,
+        List::add,
+        (left, right) -> {
+          left.addAll(right);
+          return left;
+        },
+        list -> {
+          if (list.size() > 1)
+            throw exceptionSupplier.get();
+          return list.isEmpty()
+              ? Optional.empty()
+              : Optional.of(list.get(0));
+        }
+    );
+  }
+
+  public static String spaces(int numSpaces) {
+    StringBuilder ret = new StringBuilder();
+    for (int i = 0; i < numSpaces; i++) {
+      ret.append(" ");
+    }
+    return ret.toString();
   }
 }
