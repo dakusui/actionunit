@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.compat.actions.Tag;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Autocloseables;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ActionReporter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.LinkedList;
@@ -300,7 +301,7 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    * @see ActionPrinter.Impl
    */
   public ActionPrinter.Impl createPrinter() {
-    return createPrinter(ActionPrinter.Writer.Std.OUT);
+    return createPrinter(ActionReporter.Writer.Std.OUT);
   }
 
   /**
@@ -309,7 +310,7 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    *
    * @see ActionPrinter.Impl
    */
-  public ActionPrinter.Impl createPrinter(ActionPrinter.Impl.Writer writer) {
+  public ActionPrinter.Impl createPrinter(ActionReporter.Writer writer) {
     return new ActionPrinter.Impl(writer) {
       int nestLevel = 0;
       final Path current = new Path();

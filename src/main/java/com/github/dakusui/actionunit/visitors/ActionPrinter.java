@@ -4,12 +4,7 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.visitors.CompatActionPrinter;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
@@ -20,55 +15,15 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
   /*
    * A writer through which this object's output is printed.
    */
-  protected final Writer writer;
+  protected final ActionReporter.Writer writer;
   /*
    * current indent level.
    */
   @SuppressWarnings("WeakerAccess")
-  protected       int    indent;
+  protected       int                   indent;
 
-  public ActionPrinter(Writer writer) {
+  public ActionPrinter(ActionReporter.Writer writer) {
     this.writer = checkNotNull(writer);
-  }
-
-  public interface Factory extends Function<Writer, ActionPrinter> {
-    Factory DEFAULT_INSTANCE = Impl::new;
-
-    default ActionPrinter create(Writer writer) {
-      return this.apply(writer);
-    }
-
-    default ActionPrinter create() {
-      return this.apply(new Writer.Impl());
-    }
-
-    default ActionPrinter stdout() {
-      return this.apply(Writer.Std.OUT);
-    }
-
-    default ActionPrinter stderr() {
-      return this.apply(Writer.Std.ERR);
-    }
-
-    default ActionPrinter trace() {
-      return this.apply(Writer.Slf4J.TRACE);
-    }
-
-    default ActionPrinter debug() {
-      return this.apply(Writer.Slf4J.DEBUG);
-    }
-
-    default ActionPrinter info() {
-      return this.apply(Writer.Slf4J.INFO);
-    }
-
-    default ActionPrinter warn() {
-      return this.apply(Writer.Slf4J.WARN);
-    }
-
-    default ActionPrinter error() {
-      return this.apply(Writer.Slf4J.ERROR);
-    }
   }
 
   protected void enter(Action action) {
@@ -101,77 +56,43 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
     }
   }
 
-  /**
-   * An interface that abstracts various destinations to which {@link ActionPrinter.Impl}'s
-   * output goes.
-   */
-  public interface Writer {
-    void writeLine(String s);
+  public interface Factory extends Function<ActionReporter.Writer, ActionPrinter> {
+    Factory DEFAULT_INSTANCE = Impl::new;
 
-    class Impl implements Writer, Iterable<String> {
-      List<String> arr = new ArrayList<>();
-
-      @Override
-      public void writeLine(String s) {
-        arr.add(s);
-      }
-
-      @Override
-      public Iterator<String> iterator() {
-        return this.arr.iterator();
-      }
+    default ActionPrinter create(ActionReporter.Writer writer) {
+      return this.apply(writer);
     }
 
-    enum Std implements Writer {
-      OUT {
-        @Override
-        public void writeLine(String s) {
-          System.out.println(s);
-        }
-      },
-      ERR {
-        @Override
-        public void writeLine(String s) {
-          System.err.println(s);
-        }
-      };
-
-      @Override
-      public abstract void writeLine(String s);
+    default ActionPrinter create() {
+      return this.apply(new ActionReporter.Writer.Impl());
     }
 
-    enum Slf4J implements Writer {
-      TRACE {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.trace(s);
-        }
-      },
-      DEBUG {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.debug(s);
-        }
-      },
-      INFO {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.info(s);
-        }
-      },
-      WARN {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.warn(s);
-        }
-      },
-      ERROR {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.error(s);
-        }
-      };
-      private static final Logger LOGGER = LoggerFactory.getLogger(ActionPrinter.Impl.Writer.Slf4J.class);
+    default ActionPrinter stdout() {
+      return this.apply(ActionReporter.Writer.Std.OUT);
+    }
+
+    default ActionPrinter stderr() {
+      return this.apply(ActionReporter.Writer.Std.ERR);
+    }
+
+    default ActionPrinter trace() {
+      return this.apply(ActionReporter.Writer.Slf4J.TRACE);
+    }
+
+    default ActionPrinter debug() {
+      return this.apply(ActionReporter.Writer.Slf4J.DEBUG);
+    }
+
+    default ActionPrinter info() {
+      return this.apply(ActionReporter.Writer.Slf4J.INFO);
+    }
+
+    default ActionPrinter warn() {
+      return this.apply(ActionReporter.Writer.Slf4J.WARN);
+    }
+
+    default ActionPrinter error() {
+      return this.apply(ActionReporter.Writer.Slf4J.ERROR);
     }
   }
 
@@ -189,9 +110,9 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
      * Creates an object of this class.
      *
      * @param writer A writer through which this object's output is printed.
-     * @see Writer
+     * @see ActionReporter.Writer
      */
-    public Impl(Writer writer) {
+    public Impl(ActionReporter.Writer writer) {
       super(writer);
       this.indent = 0;
     }
@@ -334,7 +255,7 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
     /**
      * Returns a writer of this object.
      */
-    public Writer getWriter() {
+    public ActionReporter.Writer getWriter() {
       return this.writer;
     }
   }

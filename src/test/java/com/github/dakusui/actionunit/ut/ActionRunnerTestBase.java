@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ActionReporter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.concurrent.TimeUnit;
@@ -18,7 +19,7 @@ public abstract class ActionRunnerTestBase {
 
   protected abstract ActionRunner createRunner();
 
-  public abstract ActionPrinter getPrinter(ActionPrinter.Impl.Writer writer);
+  public abstract ActionPrinter getPrinter(ActionReporter.Writer writer);
 
   public ActionPrinter getPrinter() {
     return getPrinter(getWriter());

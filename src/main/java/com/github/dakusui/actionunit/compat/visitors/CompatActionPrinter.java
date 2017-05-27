@@ -5,12 +5,13 @@ import com.github.dakusui.actionunit.compat.actions.CompatForEach;
 import com.github.dakusui.actionunit.compat.actions.CompatWith;
 import com.github.dakusui.actionunit.compat.actions.Piped;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ActionReporter;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
 public abstract class CompatActionPrinter extends ActionPrinter {
 
-  public CompatActionPrinter(Writer writer) {
+  public CompatActionPrinter(ActionReporter.Writer writer) {
     super(writer);
   }
 

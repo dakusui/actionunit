@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ActionReporter;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class TestActionExample {
     try {
       testAction.accept(new ActionRunner.Impl());
     } finally {
-      testAction.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
+      testAction.accept(new ActionPrinter.Impl(ActionReporter.Writer.Std.OUT));
     }
   }
 

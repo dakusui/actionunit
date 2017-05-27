@@ -90,7 +90,7 @@ public class ForEachExample implements Actions2, Builders2 {
   public void runAction2(Action action) {
     new ActionReporter.Builder(action)
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
-        .to(ActionPrinter.Writer.Std.ERR)
+        .to(ActionReporter.Writer.Std.ERR)
         .build()
         .perform();
   }

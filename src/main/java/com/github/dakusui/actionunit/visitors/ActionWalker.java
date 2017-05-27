@@ -29,7 +29,7 @@ abstract class ActionWalker implements Action.Visitor {
       handler.accept(action);
       succeeded(node);
     } catch (Error | Wrapped e) {
-      notfinished(node);
+      notFinished(node);
       throw e;
     } catch (RuntimeException e) {
       failed(node, e);
@@ -39,7 +39,7 @@ abstract class ActionWalker implements Action.Visitor {
     }
   }
 
-  <A extends Action> void notfinished(Node<A> node) {
+  <A extends Action> void notFinished(Node<A> node) {
   }
 
   <A extends Action> void succeeded(Node<A> node) {

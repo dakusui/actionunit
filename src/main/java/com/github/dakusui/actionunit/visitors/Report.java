@@ -39,11 +39,11 @@ public class Report implements Iterable<Node<Action>> {
     ).failed(t);
   }
 
-  public void notfinished(Node<Action> node) {
+  public void notFinished(Node<Action> node) {
     Objects.requireNonNull(
         this.records.get(node),
         ""
-    ).notfinished();
+    ).notFinished();
   }
 
   @Override
@@ -93,7 +93,7 @@ public class Report implements Iterable<Node<Action>> {
       runs.add(Record.Run.failed(t));
     }
 
-    public void notfinished() {
+    public void notFinished() {
       runs.add(Record.Run.NOT_FINISHED);
     }
 

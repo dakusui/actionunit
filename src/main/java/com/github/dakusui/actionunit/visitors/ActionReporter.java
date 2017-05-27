@@ -4,7 +4,12 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -14,14 +19,14 @@ import static java.lang.String.format;
 import static java.util.stream.StreamSupport.stream;
 
 public class ActionReporter extends ActionWalker implements Action.Visitor {
-  private final ActionPrinter.Writer    writer;
+  private final Writer                  writer;
   private final Report.Record.Formatter formatter;
   private final Report                  report;
 
   public static class Builder {
     private final Action action;
     private Report.Record.Formatter formatter = Report.Record.Formatter.DEFAULT_INSTANCE;
-    private ActionPrinter.Writer    writer    = ActionPrinter.Writer.Std.OUT;
+    private Writer                  writer    = Writer.Std.OUT;
 
 
     public Builder(Action action) {
@@ -33,7 +38,7 @@ public class ActionReporter extends ActionWalker implements Action.Visitor {
       return this;
     }
 
-    public Builder to(ActionPrinter.Writer writer) {
+    public Builder to(Writer writer) {
       this.writer = Objects.requireNonNull(writer);
       return this;
     }
@@ -43,7 +48,7 @@ public class ActionReporter extends ActionWalker implements Action.Visitor {
     }
   }
 
-  private ActionReporter(Node<Action> tree, ActionPrinter.Writer writer, Report.Record.Formatter formatter) {
+  private ActionReporter(Node<Action> tree, Writer writer, Report.Record.Formatter formatter) {
     this.report = new Report(tree);
     this.writer = writer;
     this.formatter = formatter;
@@ -173,8 +178,9 @@ public class ActionReporter extends ActionWalker implements Action.Visitor {
             || Objects.equals(Utils.describe(a.getContent()), Utils.describe(b.getContent()));
   }
 
-  <A extends Action> void notfinished(Node<A> node) {
-    this.report.notfinished((Node<Action>) node);
+  @SuppressWarnings("unchecked")
+  <A extends Action> void notFinished(Node<A> node) {
+    this.report.notFinished((Node<Action>) node);
   }
 
   @SuppressWarnings("unchecked")
@@ -185,5 +191,79 @@ public class ActionReporter extends ActionWalker implements Action.Visitor {
   @SuppressWarnings("unchecked")
   <A extends Action> void failed(Node<A> node, Throwable e) {
     this.report.failed((Node<Action>) node, e);
+  }
+
+  /**
+   * An interface that abstracts various destinations to which {@link ActionPrinter.Impl}'s
+   * output goes.
+   */
+  public interface Writer {
+    void writeLine(String s);
+
+    class Impl implements Writer, Iterable<String> {
+      List<String> arr = new ArrayList<>();
+
+      @Override
+      public void writeLine(String s) {
+        arr.add(s);
+      }
+
+      @Override
+      public Iterator<String> iterator() {
+        return this.arr.iterator();
+      }
+    }
+
+    enum Std implements Writer {
+      OUT {
+        @Override
+        public void writeLine(String s) {
+          System.out.println(s);
+        }
+      },
+      ERR {
+        @Override
+        public void writeLine(String s) {
+          System.err.println(s);
+        }
+      };
+
+      @Override
+      public abstract void writeLine(String s);
+    }
+
+    enum Slf4J implements Writer {
+      TRACE {
+        @Override
+        public void writeLine(String s) {
+          LOGGER.trace(s);
+        }
+      },
+      DEBUG {
+        @Override
+        public void writeLine(String s) {
+          LOGGER.debug(s);
+        }
+      },
+      INFO {
+        @Override
+        public void writeLine(String s) {
+          LOGGER.info(s);
+        }
+      },
+      WARN {
+        @Override
+        public void writeLine(String s) {
+          LOGGER.warn(s);
+        }
+      },
+      ERROR {
+        @Override
+        public void writeLine(String s) {
+          LOGGER.error(s);
+        }
+      };
+      private static final Logger LOGGER = LoggerFactory.getLogger(Writer.Slf4J.class);
+    }
   }
 }
