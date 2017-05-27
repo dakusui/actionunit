@@ -14,39 +14,52 @@ import static java.lang.String.format;
 import static java.util.stream.StreamSupport.stream;
 
 public class ActionReporter extends ActionWalker implements Action.Visitor {
-  private final Report report;
+  private final ActionPrinter.Writer    writer;
+  private final Report.Record.Formatter formatter;
+  private final Report                  report;
 
-  public static void perform(Action action) {
-    ActionReporter actionReporter = new ActionReporter(action);
-    try {
-      action.accept(actionReporter);
-    } finally {
-      Node.walk(
-          actionReporter.report.root,
-          (actionNode, nodes) -> System.out.printf(
-              ">%s[%s]%s%n",
-              Utils.spaces(nodes.size()),
-              formatRecord(actionReporter.report.get(actionNode)),
-              actionNode.getContent()
-          ));
+  public static class Builder {
+    private final Action action;
+    private Report.Record.Formatter formatter = Report.Record.Formatter.DEFAULT_INSTANCE;
+    private ActionPrinter.Writer    writer    = ActionPrinter.Writer.Std.OUT;
 
+
+    public Builder(Action action) {
+      this.action = Objects.requireNonNull(action);
+    }
+
+    public Builder with(Report.Record.Formatter formatter) {
+      this.formatter = Objects.requireNonNull(formatter);
+      return this;
+    }
+
+    public Builder to(ActionPrinter.Writer writer) {
+      this.writer = Objects.requireNonNull(writer);
+      return this;
+    }
+
+    public ActionReporter build() {
+      return new ActionReporter(TreeBuilder.traverse(action), writer, formatter);
     }
   }
 
-  private static String formatRecord(Report.Record runs) {
-    StringBuilder b = new StringBuilder();
-    runs.forEach(run -> {
-      b.append(run.toString());
-    });
-    return b.toString();
-  }
-
-  private ActionReporter(Action action) {
-    this(TreeBuilder.traverse(action));
-  }
-
-  private ActionReporter(Node<Action> tree) {
+  private ActionReporter(Node<Action> tree, ActionPrinter.Writer writer, Report.Record.Formatter formatter) {
     this.report = new Report(tree);
+    this.writer = writer;
+    this.formatter = formatter;
+  }
+
+  public void perform() {
+    Objects.requireNonNull(formatter);
+    try {
+      this.report.root.getContent().accept(this);
+    } finally {
+      Node.walk(
+          this.report.root,
+          (actionNode, nodes) -> writer.writeLine(
+              formatter.format(actionNode, this.report.get(actionNode), nodes.size())
+          ));
+    }
   }
 
   @Override
@@ -114,17 +127,6 @@ public class ActionReporter extends ActionWalker implements Action.Visitor {
     );
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  <A extends Action> void before(Node<A> node) {
-    if (current.isEmpty()) {
-      this.current.push((Node<Action>) node);
-      root = (Node<Action>) node;
-    } else {
-      this.current.push((Node<Action>) node);
-    }
-  }
-
   @Override
   <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
     if (parent == null) {
@@ -171,6 +173,10 @@ public class ActionReporter extends ActionWalker implements Action.Visitor {
             || Objects.equals(Utils.describe(a.getContent()), Utils.describe(b.getContent()));
   }
 
+  <A extends Action> void notfinished(Node<A> node) {
+    this.report.notfinished((Node<Action>) node);
+  }
+
   @SuppressWarnings("unchecked")
   <A extends Action> void succeeded(Node<A> node) {
     this.report.succeeded((Node<Action>) node);
@@ -179,9 +185,5 @@ public class ActionReporter extends ActionWalker implements Action.Visitor {
   @SuppressWarnings("unchecked")
   <A extends Action> void failed(Node<A> node, Throwable e) {
     this.report.failed((Node<Action>) node, e);
-  }
-
-  <A extends Action> void error(Node<A> node, Error e) {
-    this.report.error(node, e);
   }
 }

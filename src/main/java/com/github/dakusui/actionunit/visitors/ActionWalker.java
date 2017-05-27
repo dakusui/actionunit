@@ -18,21 +18,28 @@ abstract class ActionWalker implements Action.Visitor {
   }
 
   <A extends Action> void handle(A action, Consumer<A> handler) {
+    class Wrapped extends RuntimeException {
+      Wrapped(Throwable t) {
+        super(t);
+      }
+    }
     @SuppressWarnings("unchecked") Node<A> node = toNode(this.current.peek(), action);
     before(node);
     try {
       handler.accept(action);
       succeeded(node);
-    } catch (Error e) {
-      error(node, e);
+    } catch (Error | Wrapped e) {
+      notfinished(node);
       throw e;
     } catch (RuntimeException e) {
-      e.printStackTrace();
       failed(node, e);
-      throw new Error(e);
+      throw new Wrapped(e);
     } finally {
       after(node);
     }
+  }
+
+  <A extends Action> void notfinished(Node<A> node) {
   }
 
   <A extends Action> void succeeded(Node<A> node) {
@@ -41,18 +48,19 @@ abstract class ActionWalker implements Action.Visitor {
   <A extends Action> void failed(Node<A> node, Throwable e) {
   }
 
-  <A extends Action> void error(Node<A> node, Error e) {
-  }
-
   @SuppressWarnings({ "unchecked", "WeakerAccess" })
   <A extends Action> void before(Node<A> node) {
     if (current.isEmpty()) {
-      this.current.push((Node<Action>) node);
+      pushNode(node);
       root = (Node<Action>) node;
     } else {
-      this.current.peek().add((Node<Action>) node);
-      this.current.push((Node<Action>) node);
+      pushNode(node);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  <A extends Action> void pushNode(Node<A> node) {
+    this.current.push((Node<Action>) node);
   }
 
   @SuppressWarnings("WeakerAccess")

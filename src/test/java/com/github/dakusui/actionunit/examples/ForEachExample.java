@@ -6,10 +6,7 @@ import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResul
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
-import com.github.dakusui.actionunit.visitors.Node;
-import com.github.dakusui.actionunit.visitors.TreeBuilder;
+import com.github.dakusui.actionunit.visitors.*;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,8 +64,7 @@ public class ForEachExample implements Actions2, Builders2 {
             simple("print the given value(1st time)", () -> System.out.println("BEGIN:" + i.get())),
             forEachOf(
                 "a", "b", "c"
-            ).sequentially(
-            ).perform(
+            ).sequentially().perform(
                 j -> sequential(
                     sleep(1, MILLISECONDS),
                     simple("print i and j", () -> System.out.printf("  i=%s, j=%s%n", i.get(), j.get()))
@@ -92,7 +88,11 @@ public class ForEachExample implements Actions2, Builders2 {
 
   @Test
   public void runAction2(Action action) {
-    ActionReporter.perform(action);
+    new ActionReporter.Builder(action)
+        .with(Report.Record.Formatter.DEFAULT_INSTANCE)
+        .to(ActionPrinter.Writer.Std.ERR)
+        .build()
+        .perform();
   }
 
 

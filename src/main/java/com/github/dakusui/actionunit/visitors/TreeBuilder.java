@@ -96,6 +96,13 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
     handle(action, this::handleAction);
   }
 
+  @SuppressWarnings("unchecked")
+  <A extends Action> void pushNode(Node<A> node) {
+    if (!current.isEmpty())
+      this.current.peek().add((Node<Action>) node);
+    this.current.push((Node<Action>) node);
+  }
+
   private void handleAction(Action a) {
   }
 }

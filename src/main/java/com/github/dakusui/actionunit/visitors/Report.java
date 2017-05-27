@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.*;
 
@@ -15,13 +16,6 @@ public class Report implements Iterable<Node<Action>> {
 
   private void prepare(Node<Action> node) {
     this.records.put(node, new Record());
-  }
-
-  void started(Node<Action> node) {
-    Objects.requireNonNull(
-        this.records.get(node),
-        ""
-    ).started();
   }
 
   void succeeded(Node<Action> node) {
@@ -45,6 +39,12 @@ public class Report implements Iterable<Node<Action>> {
     ).failed(t);
   }
 
+  public void notfinished(Node<Action> node) {
+    Objects.requireNonNull(
+        this.records.get(node),
+        ""
+    ).notfinished();
+  }
 
   @Override
   public String toString() {
@@ -61,11 +61,29 @@ public class Report implements Iterable<Node<Action>> {
   }
 
   public static class Record implements Iterable<Record.Run> {
-    final List<Record.Run> runs = new LinkedList<>();
-
-    void started() {
-      runs.add(Record.Run.STARTED);
+    @FunctionalInterface
+    public interface Formatter {
+      Formatter DEFAULT_INSTANCE = new Formatter() {
+        @Override
+        public String format(Node<Action> actionNode, Record record, int indentLevel) {
+          return String.format(
+              "%s[%s]%s",
+              Utils.spaces(indentLevel * 2),
+              formatRecord(record).replaceAll("o{4,}","o..."),
+              actionNode.getContent()
+          );
+        }
+        private String formatRecord(Report.Record runs) {
+          StringBuilder b = new StringBuilder();
+          runs.forEach(run -> {
+            b.append(run.toString());
+          });
+          return b.toString();
+        }
+      };
+      String format(Node<Action> actionNode, Record record, int indentLevel);
     }
+    final List<Record.Run> runs = new LinkedList<>();
 
     void succeeded() {
       runs.add(Record.Run.SUCCEEDED);
@@ -75,8 +93,8 @@ public class Report implements Iterable<Node<Action>> {
       runs.add(Record.Run.failed(t));
     }
 
-    public <A extends Action> void error(Node<A> node, Error e) {
-      runs.add(Record.Run.error(e));
+    public void notfinished() {
+      runs.add(Record.Run.NOT_FINISHED);
     }
 
     @Override
@@ -93,21 +111,6 @@ public class Report implements Iterable<Node<Action>> {
       boolean wasSuccessful();
 
       Throwable exception();
-      Run STARTED = new Record.Run() {
-        @Override
-        public boolean wasSuccessful() {
-          return false;
-        }
-
-        @Override
-        public Throwable exception() {
-          throw new IllegalStateException();
-        }
-
-        public String toString() {
-          return "-";
-        }
-      };
 
       Record.Run SUCCEEDED = new Record.Run() {
         @Override
@@ -145,25 +148,21 @@ public class Report implements Iterable<Node<Action>> {
         };
       }
 
-      static Run error(Error e) {
-        Objects.requireNonNull(e);
-        return new Record.Run() {
-          @Override
-          public boolean wasSuccessful() {
-            return false;
-          }
+      Record.Run NOT_FINISHED = new Record.Run() {
+        @Override
+        public boolean wasSuccessful() {
+          return false;
+        }
 
-          @Override
-          public Throwable exception() {
-            return e;
-          }
+        @Override
+        public Throwable exception() {
+          throw new IllegalStateException();
+        }
 
-          @Override
-          public String toString() {
-            return "E";
-          }
-        };
-      }
+        public String toString() {
+          return "-";
+        }
+      };
     }
   }
 }
