@@ -11,7 +11,7 @@ import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -39,7 +39,7 @@ public class ActionRunnerTest {
     }
 
     @Override
-    public ActionPrinter getPrinter(ActionReporter.Writer writer) {
+    public ActionPrinter getPrinter(ReportingActionRunner.Writer writer) {
       return ActionPrinter.Factory.DEFAULT_INSTANCE.create(writer);
     }
   }

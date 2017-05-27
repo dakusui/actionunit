@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class AttemptExample {
 
   @Test
   public void givenAttemptAction$whenPrint$thenWorksFine() {
-    buildAttemptAction().accept(new ActionPrinter.Impl(ActionReporter.Writer.Std.OUT));
+    buildAttemptAction().accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
   }
 
   private Attempt<? super NullPointerException> buildAttemptAction() {

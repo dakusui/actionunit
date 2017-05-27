@@ -109,7 +109,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    default <T> void visit(When<T> action) {
+    default <T>void visit(When<T> action) {
       this.visit((Action) action);
     }
 

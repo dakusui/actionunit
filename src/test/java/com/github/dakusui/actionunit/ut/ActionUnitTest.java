@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -26,7 +26,7 @@ public class ActionUnitTest {
 
     @Test
     public void run(Action action) {
-      action.accept(new ActionPrinter.Impl(ActionReporter.Writer.Std.OUT));
+      action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
     }
   }
 

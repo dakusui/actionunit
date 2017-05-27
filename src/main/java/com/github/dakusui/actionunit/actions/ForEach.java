@@ -11,7 +11,7 @@ public interface ForEach<T> extends Action {
 
   Action createHandler(Supplier<T> data);
 
-  Composite.Factory getCompositeFactory();
+  Mode getMode();
 
   static <E> ForEach.Builder<E> builder(Iterable<? extends E> elements) {
     return new ForEach.Builder<>(elements);
@@ -42,7 +42,7 @@ public interface ForEach<T> extends Action {
       return new ForEach.Impl<>(
           operation,
           (Iterable<E>) this.elements,
-          this.mode.getFactory()
+          this.mode
       );
     }
   }
@@ -67,12 +67,12 @@ public interface ForEach<T> extends Action {
   class Impl<T> extends ActionBase implements ForEach<T> {
     private final Function<Supplier<T>, Action> handlerFactory;
     private final Iterable<T>                   data;
-    private final Composite.Factory             compositeFactory;
+    private final Mode                          mode;
 
-    public Impl(Function<Supplier<T>, Action> handlerFactory, Iterable<T> data, Composite.Factory compositeFactory) {
+    public Impl(Function<Supplier<T>, Action> handlerFactory, Iterable<T> data, Mode mode) {
       this.handlerFactory = Objects.requireNonNull(handlerFactory);
       this.data = Objects.requireNonNull(data);
-      this.compositeFactory = Objects.requireNonNull(compositeFactory);
+      this.mode = Objects.requireNonNull(mode);
     }
 
     @Override
@@ -86,8 +86,8 @@ public interface ForEach<T> extends Action {
     }
 
     @Override
-    public Composite.Factory getCompositeFactory() {
-      return this.compositeFactory;
+    public Mode getMode() {
+      return this.mode;
     }
 
     @Override

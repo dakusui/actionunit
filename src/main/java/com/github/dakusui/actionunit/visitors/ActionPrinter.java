@@ -15,14 +15,14 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
   /*
    * A writer through which this object's output is printed.
    */
-  protected final ActionReporter.Writer writer;
+  protected final ReportingActionRunner.Writer writer;
   /*
    * current indent level.
    */
   @SuppressWarnings("WeakerAccess")
-  protected       int                   indent;
+  protected       int                          indent;
 
-  public ActionPrinter(ActionReporter.Writer writer) {
+  public ActionPrinter(ReportingActionRunner.Writer writer) {
     this.writer = checkNotNull(writer);
   }
 
@@ -56,43 +56,43 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
     }
   }
 
-  public interface Factory extends Function<ActionReporter.Writer, ActionPrinter> {
+  public interface Factory extends Function<ReportingActionRunner.Writer, ActionPrinter> {
     Factory DEFAULT_INSTANCE = Impl::new;
 
-    default ActionPrinter create(ActionReporter.Writer writer) {
+    default ActionPrinter create(ReportingActionRunner.Writer writer) {
       return this.apply(writer);
     }
 
     default ActionPrinter create() {
-      return this.apply(new ActionReporter.Writer.Impl());
+      return this.apply(new ReportingActionRunner.Writer.Impl());
     }
 
     default ActionPrinter stdout() {
-      return this.apply(ActionReporter.Writer.Std.OUT);
+      return this.apply(ReportingActionRunner.Writer.Std.OUT);
     }
 
     default ActionPrinter stderr() {
-      return this.apply(ActionReporter.Writer.Std.ERR);
+      return this.apply(ReportingActionRunner.Writer.Std.ERR);
     }
 
     default ActionPrinter trace() {
-      return this.apply(ActionReporter.Writer.Slf4J.TRACE);
+      return this.apply(ReportingActionRunner.Writer.Slf4J.TRACE);
     }
 
     default ActionPrinter debug() {
-      return this.apply(ActionReporter.Writer.Slf4J.DEBUG);
+      return this.apply(ReportingActionRunner.Writer.Slf4J.DEBUG);
     }
 
     default ActionPrinter info() {
-      return this.apply(ActionReporter.Writer.Slf4J.INFO);
+      return this.apply(ReportingActionRunner.Writer.Slf4J.INFO);
     }
 
     default ActionPrinter warn() {
-      return this.apply(ActionReporter.Writer.Slf4J.WARN);
+      return this.apply(ReportingActionRunner.Writer.Slf4J.WARN);
     }
 
     default ActionPrinter error() {
-      return this.apply(ActionReporter.Writer.Slf4J.ERROR);
+      return this.apply(ReportingActionRunner.Writer.Slf4J.ERROR);
     }
   }
 
@@ -110,9 +110,9 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
      * Creates an object of this class.
      *
      * @param writer A writer through which this object's output is printed.
-     * @see ActionReporter.Writer
+     * @see ReportingActionRunner.Writer
      */
-    public Impl(ActionReporter.Writer writer) {
+    public Impl(ReportingActionRunner.Writer writer) {
       super(writer);
       this.indent = 0;
     }
@@ -255,7 +255,7 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
     /**
      * Returns a writer of this object.
      */
-    public ActionReporter.Writer getWriter() {
+    public ReportingActionRunner.Writer getWriter() {
       return this.writer;
     }
   }

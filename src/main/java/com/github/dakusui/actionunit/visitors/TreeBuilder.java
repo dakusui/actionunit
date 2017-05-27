@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class TreeBuilder extends ActionWalker implements Action.Visitor {
   public static Node<Action> traverse(Action action) {
@@ -63,6 +64,41 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
         (ForEach<T> a) -> a.createHandler(() -> {
           throw new UnsupportedOperationException();
         }).accept(this));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public <T> void visit(While2<T> action) {
+    handle(
+        action,
+        (While2<T> while$) -> {
+          Supplier<T> value = () -> {
+            throw new UnsupportedOperationException();
+          };
+          while$.createHandler(value).accept(TreeBuilder.this);
+        }
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public <T> void visit(When2<T> action) {
+    handle(
+        action,
+        (When2<T> when) -> {
+          Supplier<T> value = () ->  {
+            throw new UnsupportedOperationException();
+          };
+          //noinspection unchecked
+          if (when.check().test(value.get())) {
+            when.perform(value).accept(TreeBuilder.this);
+          } else {
+            when.otherwise(value).accept(TreeBuilder.this);
+          }
+        }
+    );
   }
 
   @Override

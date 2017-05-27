@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -37,7 +37,7 @@ public class TestUtils {
   }
 
 
-  public static class Out extends AbstractList<String> implements ActionReporter.Writer {
+  public static class Out extends AbstractList<String> implements ReportingActionRunner.Writer {
     private List<String> out = new LinkedList<>();
 
     public void writeLine(String s) {

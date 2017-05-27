@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
@@ -29,7 +30,6 @@ import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.stream.Collectors.toList;
 
 /**
  * A simple visitor that invokes actions.
@@ -91,8 +91,8 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public void visit(Sequential action) {
-    try (AutocloseableIterator<Action> i = action.iterator()) {
+  public void visit(Sequential sequential) {
+    try (AutocloseableIterator<Action> i = sequential.iterator()) {
       while (i.hasNext()) {
         toRunnable(i.next()).run();
       }
@@ -103,10 +103,10 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public void visit(Concurrent action) {
-    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, Utils.toList(action).size())));
+  public void visit(Concurrent concurrent) {
+    final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, Utils.toList(concurrent).size())));
     try {
-      Iterator<Callable<Boolean>> i = toCallables(action).iterator();
+      Iterator<Callable<Boolean>> i = toCallables(concurrent).iterator();
       //noinspection unused
       try (AutoCloseable resource = Autocloseables.toAutocloseable(i)) {
         List<Future<Boolean>> futures = new ArrayList<>(this.threadPoolSize);
@@ -144,16 +144,13 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public <T> void visit(ForEach<T> action) {
-    action.getCompositeFactory().create(
-        StreamSupport.stream(action.data().spliterator(), false)
-            .map(
-                (T item) ->
-                    action.createHandler(
-                        () -> item
-                    )
-            ).collect(toList())
-    ).accept(this);
+  public <T> void visit(ForEach<T> forEach) {
+    StreamSupport.stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
+        .map((T item) -> (Supplier<T>) () -> item)
+        .map(forEach::createHandler)
+        .forEach((Action eachChild) -> {
+          eachChild.accept(this);
+        });
   }
 
   @Override
@@ -172,20 +169,20 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
   }
 
   @Override
-  public void visit(TestAction action) {
-    action.given().accept(this);
-    action.when().accept(this);
-    action.then().accept(this);
+  public void visit(TestAction test) {
+    test.given().accept(this);
+    test.when().accept(this);
+    test.then().accept(this);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public <T> void visit(While<T> action) {
+  public <T> void visit(While<T> while$) {
     //noinspection unchecked
-    while (action.test((T) this.value())) {
-      action.getAction().accept(this);
+    while (while$.test((T) this.value())) {
+      while$.getAction().accept(this);
     }
   }
 
@@ -194,12 +191,12 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public void visit(When action) {
+  public void visit(When when) {
     //noinspection unchecked
-    if (action.test(this.value())) {
-      action.getAction().accept(this);
+    if (when.test(this.value())) {
+      when.getAction().accept(this);
     } else {
-      action.otherwise().accept(this);
+      when.otherwise().accept(this);
     }
   }
 
@@ -207,16 +204,16 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public void visit(Retry action) {
+  public void visit(Retry retry) {
     try {
-      toRunnable(action.action).run();
+      toRunnable(retry.action).run();
     } catch (Throwable e) {
       Throwable lastException = e;
-      for (int i = 0; i < action.times || action.times == Retry.INFINITE; i++) {
-        if (action.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
-          sleep(action.intervalInNanos, NANOSECONDS);
+      for (int i = 0; i < retry.times || retry.times == Retry.INFINITE; i++) {
+        if (retry.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
+          sleep(retry.intervalInNanos, NANOSECONDS);
           try {
-            toRunnable(action.action).run();
+            toRunnable(retry.action).run();
             return;
           } catch (Throwable t) {
             lastException = t;

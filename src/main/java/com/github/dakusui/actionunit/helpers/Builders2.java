@@ -13,8 +13,17 @@ public interface Builders2 {
     return Builders.forEachOf(elements);
   }
 
+  @SuppressWarnings("unchecked")
   default <E> ForEach.Builder<E> forEachOf(E... elements) {
     return Builders.forEachOf(elements);
+  }
+
+  default <T> While2.Builder<T> loopWhile(Supplier<T> value, Predicate<T> condition) {
+    return Builders.repeatWhile(value, condition);
+  }
+
+  default <T> When2.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
+    return Builders.when(value, condition);
   }
 
   default TimeOut.Builder timeout(Action action) {
@@ -29,16 +38,8 @@ public interface Builders2 {
     return Builders.retry(action);
   }
 
-  default <T> While.Builder<T> loopWhile(Predicate<T> condition) {
-    return Builders.loopWhile(condition);
-  }
-
   default <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
     return Builders.given(description, given);
-  }
-
-  default <T> When.Builder<T> when(Predicate<T> condition) {
-    return Builders.when(condition);
   }
 
   default <T> HandlerFactory<T> handlerFactory(String description, Consumer<T> handlerBody) {

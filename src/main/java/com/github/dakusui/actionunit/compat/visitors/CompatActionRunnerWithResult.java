@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.compat.actions.Tag;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Autocloseables;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.LinkedList;
@@ -141,30 +141,30 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    * {@inheritDoc}
    */
   @Override
-  public void visit(final Sequential action) {
+  public void visit(final Sequential sequential) {
     visitAndRecord(
         new Runnable() {
           @Override
           public void run() {
-            CompatActionRunnerWithResult.super.visit(action);
+            CompatActionRunnerWithResult.super.visit(sequential);
           }
         },
-        action);
+        sequential);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void visit(final Concurrent action) {
+  public void visit(final Concurrent concurrent) {
     visitAndRecord(
         new Runnable() {
           @Override
           public void run() {
-            CompatActionRunnerWithResult.super.visit(action);
+            CompatActionRunnerWithResult.super.visit(concurrent);
           }
         },
-        action);
+        concurrent);
   }
 
   /**
@@ -186,30 +186,30 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    * {@inheritDoc}
    */
   @Override
-  public void visit(final While action) {
+  public void visit(final While while$) {
     visitAndRecord(
         new Runnable() {
           @Override
           public void run() {
-            CompatActionRunnerWithResult.super.visit(action);
+            CompatActionRunnerWithResult.super.visit(while$);
           }
         },
-        action);
+        while$);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void visit(final When action) {
+  public void visit(final When when) {
     visitAndRecord(
         new Runnable() {
           @Override
           public void run() {
-            CompatActionRunnerWithResult.super.visit(action);
+            CompatActionRunnerWithResult.super.visit(when);
           }
         },
-        action);
+        when);
   }
 
   /**
@@ -246,15 +246,15 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    * {@inheritDoc}
    */
   @Override
-  public void visit(final Retry action) {
+  public void visit(final Retry retry) {
     visitAndRecord(
         new Runnable() {
           @Override
           public void run() {
-            CompatActionRunnerWithResult.super.visit(action);
+            CompatActionRunnerWithResult.super.visit(retry);
           }
         },
-        action);
+        retry);
   }
 
   /**
@@ -301,7 +301,7 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    * @see ActionPrinter.Impl
    */
   public ActionPrinter.Impl createPrinter() {
-    return createPrinter(ActionReporter.Writer.Std.OUT);
+    return createPrinter(ReportingActionRunner.Writer.Std.OUT);
   }
 
   /**
@@ -310,7 +310,7 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    *
    * @see ActionPrinter.Impl
    */
-  public ActionPrinter.Impl createPrinter(ActionReporter.Writer writer) {
+  public ActionPrinter.Impl createPrinter(ReportingActionRunner.Writer writer) {
     return new ActionPrinter.Impl(writer) {
       int nestLevel = 0;
       final Path current = new Path();

@@ -11,7 +11,7 @@ import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -98,7 +98,7 @@ public class ActionPrinterTest {
     public void givenNew() {
       ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
       composeAction().accept(printer);
-      ActionReporter.Writer.Impl writer = (ActionReporter.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
+      ReportingActionRunner.Writer.Impl writer = (ReportingActionRunner.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
@@ -207,8 +207,8 @@ public class ActionPrinterTest {
       List<String> out = new LinkedList<>();
       ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
       composeAction(out).accept(printer);
-      composeAction(out).accept(new ActionPrinter.Impl(ActionReporter.Writer.Std.OUT));
-      ActionReporter.Writer.Impl writer = (ActionReporter.Writer.Impl) ((ActionPrinter.Impl) printer).<ActionReporter.Writer.Impl>getWriter();
+      composeAction(out).accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+      ReportingActionRunner.Writer.Impl writer = (ReportingActionRunner.Writer.Impl) ((ActionPrinter.Impl) printer).<ReportingActionRunner.Writer.Impl>getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));

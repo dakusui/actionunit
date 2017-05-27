@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -26,6 +27,32 @@ public class ForEachExample implements Actions2, Builders2 {
     ).sequentially(
     ).perform(
         value -> sequential(
+            simple("print the given value(1st time)", () -> System.out.println(value.get())),
+            simple("print the given value(2nd time)", () -> {
+              if (c.getAndIncrement() > 1)
+                throw new RuntimeException();
+              System.out.println(value.get());
+            }),
+            simple("print the given value(3rd time)", () -> System.out.println(value.get()))
+        )
+    );
+  }
+
+  @PerformWith(Test.class)
+  public Action composeSingleLoopWithWhenClause() {
+    AtomicInteger c = new AtomicInteger(0);
+    return forEachOf(
+        asList("A", "B", "C")
+    ).sequentially(
+    ).perform(
+        (Supplier<String> value) -> sequential(
+            when(value, "C"::equals)
+                .perform(
+                    v -> simple("print to stderr", () -> System.err.println(v.get()))
+                )
+                .otherwise(
+                    v -> simple("print to stdout", () -> System.out.println(v.get()))
+                ),
             simple("print the given value(1st time)", () -> System.out.println(value.get())),
             simple("print the given value(2nd time)", () -> {
               if (c.getAndIncrement() > 1)
@@ -88,9 +115,9 @@ public class ForEachExample implements Actions2, Builders2 {
 
   @Test
   public void runAction2(Action action) {
-    new ActionReporter.Builder(action)
+    new ReportingActionRunner.Builder(action)
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
-        .to(ActionReporter.Writer.Std.ERR)
+        .to(ReportingActionRunner.Writer.Std.ERR)
         .build()
         .perform();
   }

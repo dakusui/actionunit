@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionReporter;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.hamcrest.Matchers;
 import org.junit.*;
@@ -158,7 +158,7 @@ public class Basic {
 
   @DryRun
   public void print(Action action) {
-    action.accept(new ActionPrinter.Impl(ActionReporter.Writer.Std.OUT));
+    action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
   }
 
   @AfterClass

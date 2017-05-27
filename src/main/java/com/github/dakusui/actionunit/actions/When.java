@@ -32,9 +32,9 @@ public interface When<T> extends Action, Conditioned<T> {
     }
 
     /**
-     * Builds an instance of  {@code When}.
+     * Builds an instance of {@code When}.
      */
-    public When<T> build() {
+    public When<T> $() {
       return new When.Impl<>(this.condition, this.action, this.otherwise);
     }
   }

@@ -1,9 +1,6 @@
 package com.github.dakusui.actionunit.compat;
 
-import com.github.dakusui.actionunit.actions.ForEach;
-import com.github.dakusui.actionunit.actions.Leaf;
-import com.github.dakusui.actionunit.actions.Retry;
-import com.github.dakusui.actionunit.actions.Sequential;
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.compat.actions.*;
 import com.github.dakusui.actionunit.compat.connectors.Connectors;
 import com.github.dakusui.actionunit.compat.connectors.Pipe;
@@ -243,10 +240,7 @@ public enum CompatActions {
 
   public static Action when(Predicate<?> condition, Action action, Action otherwise) {
     //return new When.Impl(condition, action, otherwise);
-    return Builders.when(condition)
-        .perform(action)
-        .otherwise(otherwise)
-        .build();
+    return new When.Builder<>(condition).perform(action).otherwise(otherwise).$();
   }
 
   public static Action when(Predicate<?> condition, Action action) {
@@ -260,7 +254,7 @@ public enum CompatActions {
     } else if (actions.length > 1) {
       action = Actions.sequential(actions);
     }
-    return Builders.loopWhile(condition).perform(action);
+    return new While.Impl<>(condition, action);
   }
 
   /**
