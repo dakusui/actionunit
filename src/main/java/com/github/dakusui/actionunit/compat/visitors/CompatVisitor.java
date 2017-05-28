@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.compat.visitors;
 
-import com.github.dakusui.actionunit.actions.CompatWhile;
-import com.github.dakusui.actionunit.actions.CompatWhen;
+import com.github.dakusui.actionunit.compat.actions.CompatWhile;
+import com.github.dakusui.actionunit.compat.actions.CompatWhen;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
 import com.github.dakusui.actionunit.compat.actions.CompatForEach;
 import com.github.dakusui.actionunit.compat.actions.CompatWith;

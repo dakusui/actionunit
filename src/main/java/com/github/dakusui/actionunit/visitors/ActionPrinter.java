@@ -1,6 +1,8 @@
 package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.compat.actions.CompatWhen;
+import com.github.dakusui.actionunit.compat.actions.CompatWhile;
 import com.github.dakusui.actionunit.compat.visitors.CompatActionPrinter;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Utils;

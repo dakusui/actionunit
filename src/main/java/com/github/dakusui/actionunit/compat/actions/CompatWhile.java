@@ -1,5 +1,6 @@
-package com.github.dakusui.actionunit.actions;
+package com.github.dakusui.actionunit.compat.actions;
 
+import com.github.dakusui.actionunit.actions.Conditioned;
 import com.github.dakusui.actionunit.core.Action;
 
 import java.util.Objects;

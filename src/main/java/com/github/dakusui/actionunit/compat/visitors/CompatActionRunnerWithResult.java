@@ -1,10 +1,7 @@
 package com.github.dakusui.actionunit.compat.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
-import com.github.dakusui.actionunit.compat.actions.CompatForEach;
-import com.github.dakusui.actionunit.compat.actions.CompatWith;
-import com.github.dakusui.actionunit.compat.actions.Tag;
+import com.github.dakusui.actionunit.compat.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Autocloseables;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
