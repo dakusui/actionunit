@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResul
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.*;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEachExample implements Actions2, Builders2 {
+public class ForEachExample extends TestUtils.TestBase implements Actions2, Builders2 {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     AtomicInteger c = new AtomicInteger(0);
@@ -117,7 +118,7 @@ public class ForEachExample implements Actions2, Builders2 {
   public void runAction2(Action action) {
     new ReportingActionRunner.Builder(action)
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
-        .to(ReportingActionRunner.Writer.Std.ERR)
+        .to(ReportingActionRunner.Writer.Std.OUT)
         .build()
         .perform();
   }

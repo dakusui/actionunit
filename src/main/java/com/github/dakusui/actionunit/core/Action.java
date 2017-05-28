@@ -100,7 +100,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    default <T> void visit(While<T> action) {
+    default <T> void visit(While2<T> action) {
       this.visit((Action) action);
     }
 
@@ -109,7 +109,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    default <T>void visit(When<T> action) {
+    default <T>void visit(When2<T> action) {
       this.visit((Action) action);
     }
 

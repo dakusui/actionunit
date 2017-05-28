@@ -354,4 +354,8 @@ public enum Utils {
     }
     return ret.toString();
   }
+
+  public static <T> Supplier<T> toSupplier(T value) {
+    return () -> value;
+  }
 }

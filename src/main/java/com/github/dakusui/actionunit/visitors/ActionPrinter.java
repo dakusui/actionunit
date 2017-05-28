@@ -51,7 +51,7 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
   protected void writeLine(String s) {
     boolean first = true;
     for (String each : s.split("\\n")) {
-      this.writer.writeLine(Utils.spaces(this.indent * 2 + (first ? 0 : 1)) + each);
+      this.writer.writeLine(Utils.spaces((this.indent + (first ? 0 : 1)) * 2) + each);
       first = false;
     }
   }

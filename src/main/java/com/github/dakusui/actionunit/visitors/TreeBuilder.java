@@ -92,11 +92,8 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
             throw new UnsupportedOperationException();
           };
           //noinspection unchecked
-          if (when.check().test(value.get())) {
-            when.perform(value).accept(TreeBuilder.this);
-          } else {
-            when.otherwise(value).accept(TreeBuilder.this);
-          }
+          when.perform(value).accept(TreeBuilder.this);
+          when.otherwise(value).accept(TreeBuilder.this);
         }
     );
   }

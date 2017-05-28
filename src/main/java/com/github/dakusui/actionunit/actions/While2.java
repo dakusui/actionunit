@@ -29,7 +29,7 @@ public interface While2<T> extends Action {
       return this;
     }
 
-    While2<T> $() {
+    public While2<T> $() {
       return new While2<T>() {
         @Override
         public Supplier<T> value() {

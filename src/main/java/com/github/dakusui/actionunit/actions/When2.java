@@ -37,34 +37,61 @@ public interface When2<T> extends Action {
     }
 
     public When2<T> build() {
-      Objects.requireNonNull(handlerFactoryForPerform);
-      Objects.requireNonNull(handlerFactoryForOtherwise);
-      return new When2<T>() {
-        @Override
-        public void accept(Visitor visitor) {
-          visitor.visit(this);
-        }
+      return new When2.Impl<T>(
+          value,
+          condition,
+          handlerFactoryForPerform,
+          handlerFactoryForOtherwise
+      );
+    }
+  }
 
-        @Override
-        public Supplier<T> value() {
-          return value;
-        }
+  class Impl<T> extends ActionBase implements When2<T> {
+    final private Supplier<T>       value;
+    final private Predicate<T>      condition;
+    final private HandlerFactory<T> handlerFactoryForPerform;
+    final private HandlerFactory<T> handlerFactoryForOtherwise;
 
-        @Override
-        public Predicate<T> check() {
-          return condition;
-        }
+    public Impl(
+        Supplier<T> value,
+        Predicate<T> condition,
+        HandlerFactory<T> handlerFactoryForPerform,
+        HandlerFactory<T> handlerFactoryForOtherwise
+    ) {
+      this.value = Objects.requireNonNull(value);
+      this.condition = Objects.requireNonNull(condition);
+      this.handlerFactoryForPerform = Objects.requireNonNull(handlerFactoryForPerform);
+      this.handlerFactoryForOtherwise = Objects.requireNonNull(handlerFactoryForOtherwise);
+    }
 
-        @Override
-        public Action perform(Supplier<T> value) {
-          return handlerFactoryForPerform.apply(Objects.requireNonNull(value));
-        }
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
 
-        @Override
-        public Action otherwise(Supplier<T> value) {
-          return handlerFactoryForOtherwise.apply(Objects.requireNonNull(value));
-        }
-      };
+    @Override
+    public Supplier<T> value() {
+      return value;
+    }
+
+    @Override
+    public Predicate<T> check() {
+      return condition;
+    }
+
+    @Override
+    public Action perform(Supplier<T> value) {
+      return handlerFactoryForPerform.apply(Objects.requireNonNull(value));
+    }
+
+    @Override
+    public Action otherwise(Supplier<T> value) {
+      return handlerFactoryForOtherwise.apply(Objects.requireNonNull(value));
+    }
+
+    @Override
+    public String toString() {
+      return "When:";
     }
   }
 }
