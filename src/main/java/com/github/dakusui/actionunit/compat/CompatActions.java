@@ -239,8 +239,8 @@ public enum CompatActions {
   }
 
   public static Action when(Predicate<?> condition, Action action, Action otherwise) {
-    //return new When.Impl(condition, action, otherwise);
-    return new When.Builder<>(condition).perform(action).otherwise(otherwise).$();
+    //return new CompatWhen.Impl(condition, action, otherwise);
+    return new CompatWhen.Builder<>(condition).perform(action).otherwise(otherwise).$();
   }
 
   public static Action when(Predicate<?> condition, Action action) {
@@ -254,7 +254,7 @@ public enum CompatActions {
     } else if (actions.length > 1) {
       action = Actions.sequential(actions);
     }
-    return new While.Impl<>(condition, action);
+    return new CompatWhile.Impl<>(condition, action);
   }
 
   /**

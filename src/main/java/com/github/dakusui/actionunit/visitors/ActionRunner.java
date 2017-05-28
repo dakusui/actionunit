@@ -179,7 +179,7 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public <T> void visit(While<T> while$) {
+  public <T> void visit(CompatWhile<T> while$) {
     //noinspection unchecked
     while (while$.test((T) this.value())) {
       while$.getAction().accept(this);
@@ -191,7 +191,7 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public void visit(When when) {
+  public void visit(CompatWhen when) {
     //noinspection unchecked
     if (when.test(this.value())) {
       when.getAction().accept(this);

@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.compat.visitors;
 
-import com.github.dakusui.actionunit.actions.When;
-import com.github.dakusui.actionunit.actions.While;
+import com.github.dakusui.actionunit.actions.CompatWhile;
+import com.github.dakusui.actionunit.actions.CompatWhen;
 import com.github.dakusui.actionunit.compat.actions.CompatAttempt;
 import com.github.dakusui.actionunit.compat.actions.CompatForEach;
 import com.github.dakusui.actionunit.compat.actions.CompatWith;
@@ -30,7 +30,7 @@ public interface CompatVisitor {
    *
    * @param action action to be visited by this object.
    */
-  default <T> void visit(While<T> action) {
+  default <T> void visit(CompatWhile<T> action) {
     this.visit((Action) action);
   }
 
@@ -39,7 +39,7 @@ public interface CompatVisitor {
    *
    * @param action action to be visited by this object.
    */
-  default <T> void visit(When<T> action) {
+  default <T> void visit(CompatWhen<T> action) {
     this.visit((Action) action);
   }
 

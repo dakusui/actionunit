@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import static com.github.dakusui.actionunit.helpers.Utils.describe;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
-public interface When<T> extends Action, Conditioned<T> {
+public interface CompatWhen<T> extends Action, Conditioned<T> {
   Action otherwise();
 
   class Builder<T> {
@@ -32,14 +32,14 @@ public interface When<T> extends Action, Conditioned<T> {
     }
 
     /**
-     * Builds an instance of {@code When}.
+     * Builds an instance of {@code CompatWhen}.
      */
-    public When<T> $() {
-      return new When.Impl<>(this.condition, this.action, this.otherwise);
+    public CompatWhen<T> $() {
+      return new CompatWhen.Impl<>(this.condition, this.action, this.otherwise);
     }
   }
 
-  class Impl<T> extends Conditioned.Base<T> implements When<T> {
+  class Impl<T> extends Conditioned.Base<T> implements CompatWhen<T> {
     private final Action otherwise;
 
     public Impl(Predicate<T> condition, Action action, Action otherwise) {
@@ -59,7 +59,7 @@ public interface When<T> extends Action, Conditioned<T> {
 
     @Override
     public String toString() {
-      return "When (" + describe(this.getCondition()) + ")";
+      return "CompatWhen (" + describe(this.getCondition()) + ")";
     }
   }
 }

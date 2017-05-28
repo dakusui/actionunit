@@ -160,7 +160,7 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
      * {@inheritDoc}
      */
     @Override
-    public void visit(When action) {
+    public void visit(CompatWhen action) {
       writeLine(describeAction(action));
       enter(action);
       try {
@@ -213,7 +213,7 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
      * {@inheritDoc}
      */
     @Override
-    public void visit(While action) {
+    public void visit(CompatWhile action) {
       writeLine(describeAction(action));
       enter(action);
       try {

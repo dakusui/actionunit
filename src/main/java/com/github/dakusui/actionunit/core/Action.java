@@ -19,7 +19,7 @@ public interface Action {
   /**
    * A visitor of actions, in the style of the visitor design pattern. Classes implementing
    * this interface are used to operate on an action when the kind of element is unknown at compile
-   * time. When a visitor is passed to an element's accept method, the visitXYZ method most applicable
+   * time. CompatWhen a visitor is passed to an element's accept method, the visitXYZ method most applicable
    * to that element is invoked.
    * <p/>
    * WARNING: It is possible that methods will be added to this interface to accommodate new, currently

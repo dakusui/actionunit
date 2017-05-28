@@ -369,7 +369,7 @@ public class ActionRunnerWithResultTest {
           equalTo("  Given:World"));
       assertThat(
           this.getWriter().get(2),
-          equalTo("  When:Function(length)"));
+          equalTo("  CompatWhen:Function(length)"));
       assertThat(
           this.getWriter().get(3),
           equalTo("  Then:[Matcher(<5>)]"));
@@ -411,7 +411,7 @@ public class ActionRunnerWithResultTest {
         //noinspection unchecked
         if (!getWriter().get(0).equals("(F)HelloTestCase") ||
             !getWriter().get(1).equals("  Given:World") ||
-            !getWriter().get(2).equals("  When:Function(length)") ||
+            !getWriter().get(2).equals("  CompatWhen:Function(length)") ||
             !getWriter().get(3).startsWith("  Then:[Matcher(<5>)]")) {
           //noinspection ThrowFromFinallyBlock
           throw new IllegalStateException();

@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.helpers.Utils.describe;
 
-public interface While<T> extends Conditioned<T> {
+public interface CompatWhile<T> extends Conditioned<T> {
   class Builder<T> {
     Predicate<T> condition;
     Action       action;
@@ -16,12 +16,12 @@ public interface While<T> extends Conditioned<T> {
       this.condition = Objects.requireNonNull(condition);
     }
 
-    public While<T> perform(Action action) {
+    public CompatWhile<T> perform(Action action) {
       return new Impl<>(this.condition, Objects.requireNonNull(action));
     }
   }
 
-  class Impl<T> extends Conditioned.Base<T> implements While<T> {
+  class Impl<T> extends Conditioned.Base<T> implements CompatWhile<T> {
     public Impl(Predicate<T> condition, Action action) {
       super(condition, action);
     }
@@ -33,7 +33,7 @@ public interface While<T> extends Conditioned<T> {
 
     @Override
     public String toString() {
-      return "While (" + describe(this.getCondition()) + ")";
+      return "CompatWhile (" + describe(this.getCondition()) + ")";
     }
   }
 }

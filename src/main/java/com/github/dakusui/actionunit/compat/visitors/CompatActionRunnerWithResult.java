@@ -186,7 +186,7 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    * {@inheritDoc}
    */
   @Override
-  public void visit(final While while$) {
+  public void visit(final CompatWhile while$) {
     visitAndRecord(
         new Runnable() {
           @Override
@@ -201,7 +201,7 @@ public class CompatActionRunnerWithResult extends ActionRunner.Impl implements A
    * {@inheritDoc}
    */
   @Override
-  public void visit(final When when) {
+  public void visit(final CompatWhen when) {
     visitAndRecord(
         new Runnable() {
           @Override

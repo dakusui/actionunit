@@ -198,7 +198,7 @@ public class ActionVisitorTest {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("While"))
+        hasItemAt(0, startsWith("CompatWhile"))
     );
     assertThat(
         out,
@@ -218,7 +218,7 @@ public class ActionVisitorTest {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("When"))
+        hasItemAt(0, startsWith("CompatWhen"))
     );
     assertThat(
         out,

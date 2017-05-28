@@ -16,7 +16,7 @@ public interface CompatTestAction<I, O> extends Piped<I, O> {
   class Base<I, O> extends Impl<I, O> implements CompatTestAction<I, O> {
     public Base(Source<I> given, Pipe<I, O> when, Sink<O> then) {
       //noinspection unchecked
-      super(checkNotNull(given), "Given", checkNotNull(when), "When", new Sink[] { checkNotNull(then) }, "Then");
+      super(checkNotNull(given), "Given", checkNotNull(when), "CompatWhen", new Sink[] { checkNotNull(then) }, "Then");
     }
   }
 
