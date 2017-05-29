@@ -21,8 +21,8 @@ import static org.junit.Assert.assertThat;
  * Tests for ActionVisitor.
  */
 public class ActionVisitorTest implements Actions2, Builders2 {
-  final TestUtils.Out out = new TestUtils.Out();
-  Action.Visitor visitor = new Action.Visitor.Base() {
+  final   TestUtils.Out  out     = new TestUtils.Out();
+  private Action.Visitor visitor = new Action.Visitor.Base() {
     @Override
     public void visit(Action action) {
       out.writeLine(action.toString());
@@ -104,7 +104,7 @@ public class ActionVisitorTest implements Actions2, Builders2 {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("CompatForEach"))
+        hasItemAt(0, startsWith("ForEach"))
     );
     assertThat(
         out,
@@ -149,13 +149,15 @@ public class ActionVisitorTest implements Actions2, Builders2 {
   @Test
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
-    Action action = attempt(createSimpleAction()).build();
+    Action action = attempt(createSimpleAction())
+        .recover(Exception.class, e -> nop())
+        .build();
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("CompatAttempt"))
+        hasItemAt(0, startsWith("Attempt"))
     );
     assertThat(
         out,
@@ -180,7 +182,7 @@ public class ActionVisitorTest implements Actions2, Builders2 {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("CompatWhile"))
+        hasItemAt(0, startsWith("While"))
     );
     assertThat(
         out,
@@ -193,7 +195,7 @@ public class ActionVisitorTest implements Actions2, Builders2 {
     // given while action
     Action action = when(
         () -> "Hello",
-        v -> "Hello".equals(v)
+        "Hello"::equals
     ).perform(
         v -> createSimpleAction()
     ).otherwise(
@@ -204,7 +206,7 @@ public class ActionVisitorTest implements Actions2, Builders2 {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("CompatWhen"))
+        hasItemAt(0, startsWith("When"))
     );
     assertThat(
         out,

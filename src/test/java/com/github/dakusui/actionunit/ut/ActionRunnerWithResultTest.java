@@ -9,8 +9,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.function.Function;
-
 import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.helpers.Builders.attempt;
 import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
@@ -42,25 +40,6 @@ public class ActionRunnerWithResultTest {
 
   public static class SimpleAction extends Base {
     @Test
-    public void givenPassingAction$whenSimplyPrinted$thenPrintedCorrectly() {
-      ////
-      // Given simple action
-      Action action = createPassingAction();
-      ////
-      //When printed (without being run)
-      performAndPrintAction(action);
-      ////
-      //Then printed correctly
-      //noinspection unchecked
-      assertThat(getWriter(),
-          allOf(
-              hasItemAt(0, equalTo("( )A passing action")),
-              hasItemAt(1, equalTo("  ( )This passes always"))
-          )
-      );
-    }
-
-    @Test
     public void givenPassingAction$whenRunAndPrinted$thenPrintedCorrectly() {
       ////
       // Given simple action
@@ -73,8 +52,8 @@ public class ActionRunnerWithResultTest {
       //noinspection unchecked
       assertThat(getWriter(),
           allOf(
-              hasItemAt(0, equalTo("(+)A passing action")),
-              hasItemAt(1, equalTo("  (+)This passes always"))
+              hasItemAt(0, equalTo("[o]A passing action")),
+              hasItemAt(1, equalTo("  [o]This passes always"))
           )
       );
     }
@@ -96,8 +75,8 @@ public class ActionRunnerWithResultTest {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("(F)A failing action")),
-                hasItemAt(1, equalTo("  (F)This fails always"))
+                hasItemAt(0, startsWith("[x]A failing action")),
+                hasItemAt(1, equalTo("  [x]This fails always"))
             )
         );
       }
@@ -119,8 +98,8 @@ public class ActionRunnerWithResultTest {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("(E)An error action")),
-                hasItemAt(1, equalTo("  (E)This gives a runtime exception always"))
+                hasItemAt(0, startsWith("[x]An error action")),
+                hasItemAt(1, equalTo("  [x]This gives a runtime exception always"))
             ));
       }
     }
@@ -131,7 +110,10 @@ public class ActionRunnerWithResultTest {
     public void givenConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = concurrent(createPassingAction(100), createPassingAction(200), createPassingAction(300));
+      Action action = concurrent(
+          createPassingAction(1, 100),
+          createPassingAction(2, 200),
+          createPassingAction(3, 300));
       ////
       //When performed and printed
       performAndPrintAction(action);
@@ -139,13 +121,13 @@ public class ActionRunnerWithResultTest {
       //Then printed correctly
       //noinspection unchecked
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("(+)Concurrent (3 actions)")),
-          hasItemAt(1, equalTo("  (+)A passing action")),
-          hasItemAt(2, equalTo("    (+)This passes always")),
-          hasItemAt(3, equalTo("  (+)A passing action")),
-          hasItemAt(4, equalTo("    (+)This passes always")),
-          hasItemAt(5, equalTo("  (+)A passing action")),
-          hasItemAt(6, equalTo("    (+)This passes always"))
+          hasItemAt(0, equalTo("[o]Concurrent (3 actions)")),
+          hasItemAt(1, equalTo("  [o]A passing action-1")),
+          hasItemAt(2, equalTo("    [o]This passes always")),
+          hasItemAt(3, equalTo("  [o]A passing action-2")),
+          hasItemAt(4, equalTo("    [o]This passes always")),
+          hasItemAt(5, equalTo("  [o]A passing action-3")),
+          hasItemAt(6, equalTo("    [o]This passes always"))
       ));
       assertThat(getWriter(), hasSize(7));
     }
@@ -173,10 +155,10 @@ public class ActionRunnerWithResultTest {
       //Then printed correctly
       //noinspection unchecked
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("(+)CompatForEach (Sequential, 3 items) {Sink-1,Sink-2}")),
-          hasItemAt(1, equalTo("  (+)Sequential (2 actions); 3 times")),
-          hasItemAt(2, equalTo("    (+)Tag(0); 3 times")),
-          hasItemAt(3, equalTo("    (+)Tag(1); 3 times"))
+          hasItemAt(0, equalTo("[o]ForEach")),
+          hasItemAt(1, equalTo("  [ooo]Sequential (2 actions)")),
+          hasItemAt(2, equalTo("    [ooo]Sink-1")),
+          hasItemAt(3, equalTo("    [ooo]Sink-2"))
       ));
       assertThat(getWriter(), hasSize(4));
     }
@@ -203,10 +185,10 @@ public class ActionRunnerWithResultTest {
         //Then printed correctly
         //noinspection unchecked
         assertThat(getWriter(), allOf(
-            hasItemAt(0, startsWith("(E)CompatForEach (Sequential, 3 items) {Sink-1,Sink-2}")),
-            hasItemAt(1, startsWith("  (E)Sequential (2 actions)")),
-            hasItemAt(2, startsWith("    (E)Tag(0)")),
-            hasItemAt(3, startsWith("    ( )Tag(1)"))
+            hasItemAt(0, startsWith("[x]ForEach")),
+            hasItemAt(1, startsWith("  [x]Sequential (2 actions)")),
+            hasItemAt(2, startsWith("    [x]Sink-1")),
+            hasItemAt(3, startsWith("    []Sink-2"))
         ));
         assertThat(getWriter(), hasSize(4));
       }
@@ -226,12 +208,12 @@ public class ActionRunnerWithResultTest {
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("(+)CompatAttempt")),
-          hasItemAt(1, equalTo("  (+)(nop)")),
-          hasItemAt(2, equalTo("  ( )Recover")),
-          hasItemAt(3, equalTo("    ( )(nop)")),
-          hasItemAt(4, equalTo("  (+)Ensure")),
-          hasItemAt(5, equalTo("    (+)(nop)"))
+          hasItemAt(0, equalTo("[o]Attempt")),
+          hasItemAt(1, equalTo("  [o](nop)")),
+          hasItemAt(2, equalTo("  []Recover(Exception)")),
+          hasItemAt(3, equalTo("    [](nop)")),
+          hasItemAt(4, equalTo("  [o]Ensure")),
+          hasItemAt(5, equalTo("    [o](nop)"))
       ));
       assertThat(getWriter(), hasSize(6));
     }
@@ -253,12 +235,12 @@ public class ActionRunnerWithResultTest {
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("(+)CompatAttempt")),
-          hasItemAt(1, equalTo("  (E)Howdy, NPE")),
-          hasItemAt(2, equalTo("  (+)Recover")),
-          hasItemAt(3, equalTo("    (+)(nop)")),
-          hasItemAt(4, equalTo("  (+)Ensure")),
-          hasItemAt(5, equalTo("    (+)(nop)"))
+          hasItemAt(0, equalTo("[o]Attempt")),
+          hasItemAt(1, equalTo("  [x]Howdy, NPE")),
+          hasItemAt(2, equalTo("  [o]Recover(NullPointerException)")),
+          hasItemAt(3, equalTo("    [o](nop)")),
+          hasItemAt(4, equalTo("  [o]Ensure")),
+          hasItemAt(5, equalTo("    [o](nop)"))
       ));
       assertThat(getWriter(), hasSize(6));
     }
@@ -267,33 +249,32 @@ public class ActionRunnerWithResultTest {
   public static class TestTest extends Base {
     @Test
     public void givenTestAction$whenPerformed$thenWorksFine() {
-      Action action = Builders.<String, Integer>given("HelloTestCase", () -> "World")
-          .when("",
-              new Function<String, Integer>() {
-                @Override
-                public Integer apply(String input) {
-                  return input.length();
-                }
-
-                @Override
-                public String toString() {
-                  return "length";
-                }
-              })
-          .then("", v -> v == 5);
+      Action action = Builders
+          .<String, Integer>given("string 'World'", () -> "World")
+          .when("length", String::length)
+          .then("==5", v -> v == 5);
       performAndPrintAction(action);
       assertThat(
           this.getWriter().get(0),
-          equalTo("(+)HelloTestCase"));
+          equalTo("[o]TestAction"));
       assertThat(
           this.getWriter().get(1),
-          equalTo("  Given:World"));
+          equalTo("  [o]Given"));
       assertThat(
           this.getWriter().get(2),
-          equalTo("  CompatWhen:Function(length)"));
+          equalTo("    [o]string 'World'"));
       assertThat(
           this.getWriter().get(3),
-          equalTo("  Then:[Matcher(<5>)]"));
+          equalTo("  [o]When"));
+      assertThat(
+          this.getWriter().get(4),
+          equalTo("    [o]length"));
+      assertThat(
+          this.getWriter().get(5),
+          equalTo("  [o]Then"));
+      assertThat(
+          this.getWriter().get(6),
+          equalTo("    [o]==5"));
     }
 
 

@@ -33,6 +33,18 @@ public abstract class ActionRunnerTestBase {
     return this.out;
   }
 
+  public Action createPassingAction(int index, final int durationInMilliseconds) {
+    return named(
+        String.format("A passing action-%d", index),
+        simple("This passes always", () -> {
+          try {
+            TimeUnit.MICROSECONDS.sleep(durationInMilliseconds);
+          } catch (InterruptedException e) {
+            throw ActionException.wrap(e);
+          }
+        }));
+  }
+
   public Action createPassingAction(final int durationInMilliseconds) {
     return named("A passing action", simple("This passes always", new Runnable() {
       @Override

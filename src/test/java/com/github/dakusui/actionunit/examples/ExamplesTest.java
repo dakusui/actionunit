@@ -36,19 +36,9 @@ public class ExamplesTest {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(ForEachExample.class);
-      assertEquals(100, result.getRunCount());
-      assertEquals(0, result.getFailureCount());
-      assertEquals(true, result.wasSuccessful());
-    }
-  }
-
-  public static class WhenExampleTest extends TestUtils.TestBase {
-    @Test
-    public void testExample() {
-      Result result = JUnitCore.runClasses(WhenExampleTest.class);
-      assertEquals(100, result.getRunCount());
-      assertEquals(0, result.getFailureCount());
-      assertEquals(true, result.wasSuccessful());
+      assertEquals(8, result.getRunCount());
+      assertEquals(1, result.getFailureCount());
+      assertEquals(false, result.wasSuccessful());
     }
   }
 
@@ -56,7 +46,7 @@ public class ExamplesTest {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(WhileExample.class);
-      assertEquals(100, result.getRunCount());
+      assertEquals(1, result.getRunCount());
       assertEquals(0, result.getFailureCount());
       assertEquals(true, result.wasSuccessful());
     }

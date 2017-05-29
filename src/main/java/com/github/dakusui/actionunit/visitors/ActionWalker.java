@@ -9,31 +9,31 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 
 abstract class ActionWalker implements Action.Visitor {
-  final Deque<Node<Action>> current;
+  protected final ThreadLocal<Deque<Node<Action>>> _current;
   Node<Action> root;
 
   ActionWalker() {
-    this.current = new LinkedList<>();
+    this._current = new ThreadLocal<>();
+    this._current.set(new LinkedList<>());
     this.root = null;
   }
 
   <A extends Action> void handle(A action, Consumer<A> handler) {
-    class Wrapped extends RuntimeException {
-      private Wrapped(Throwable t) {
-        super(t);
-      }
-    }
-    @SuppressWarnings("unchecked") Node<A> node = toNode(this.current.peek(), action);
+    @SuppressWarnings("unchecked") Node<A> node =
+        toNode(
+            this.getCurrentPath().peek(),
+            action
+        );
     before(node);
     try {
       handler.accept(action);
       succeeded(node);
-    } catch (Error | Wrapped e) {
+    } catch (ReportingActionRunner.Wrapped e) {
       notFinished(node);
       throw e;
-    } catch (RuntimeException e) {
+    } catch (Error | RuntimeException e) {
       failed(node, e);
-      throw new Wrapped(e);
+      throw e;
     } finally {
       after(node);
     }
@@ -50,7 +50,7 @@ abstract class ActionWalker implements Action.Visitor {
 
   @SuppressWarnings({ "unchecked", "WeakerAccess" })
   <A extends Action> void before(Node<A> node) {
-    if (current.isEmpty()) {
+    if (getCurrentPath().isEmpty()) {
       pushNode(node);
       root = (Node<Action>) node;
     } else {
@@ -60,19 +60,23 @@ abstract class ActionWalker implements Action.Visitor {
 
   @SuppressWarnings("unchecked")
   <A extends Action> void pushNode(Node<A> node) {
-    this.current.push((Node<Action>) node);
+    this.getCurrentPath().push((Node<Action>) node);
   }
 
   @SuppressWarnings("WeakerAccess")
   <A extends Action> void after(Node<A> node) {
     Checks.checkState(
-        this.current.peek() == node,
-        "Cannot remove %s from queue=%s", node, this.current
+        this.getCurrentPath().peek() == node,
+        "Cannot remove %s from queue=%s", node, this.getCurrentPath()
     );
-    this.current.pop();
+    this.getCurrentPath().pop();
   }
 
   <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
     return new Node<>(action, action instanceof Leaf);
+  }
+
+  synchronized Deque<Node<Action>> getCurrentPath() {
+    return _current.get();
   }
 }

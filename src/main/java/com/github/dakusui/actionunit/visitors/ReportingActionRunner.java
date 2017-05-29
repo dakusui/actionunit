@@ -10,10 +10,7 @@ import com.github.dakusui.actionunit.helpers.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -23,7 +20,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.github.dakusui.actionunit.helpers.Checks.propagate;
 import static com.github.dakusui.actionunit.helpers.Utils.runWithTimeout;
 import static com.github.dakusui.actionunit.helpers.Utils.sleep;
 import static java.lang.Integer.max;
@@ -83,6 +79,8 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
     Objects.requireNonNull(formatter);
     try {
       this.report.root.getContent().accept(this);
+    } catch (Wrapped e) {
+      throw Checks.propagate(e.getCause());
     } finally {
       Node.walk(
           this.report.root,
@@ -135,6 +133,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
     handle(
         action,
         (Concurrent concurrent) -> {
+          Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
           final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, Utils.toList(concurrent).size())));
           try {
             Iterator<Callable<Boolean>> i = toCallables(concurrent).iterator();
@@ -142,10 +141,14 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
             try (AutoCloseable resource = Autocloseables.toAutocloseable(i)) {
               List<Future<Boolean>> futures = new ArrayList<>(this.threadPoolSize);
               while (i.hasNext()) {
-                futures.add(pool.submit(i.next()));
+                Callable<Boolean> eachCallable = () -> {
+                  branchPath(pathSnapshot);
+                  return i.next().call();
+                };
+                futures.add(pool.submit(eachCallable));
                 if (futures.size() == this.threadPoolSize || !i.hasNext()) {
                   for (Future<Boolean> each : futures) {
-                    ////
+                    ////get
                     // Unless accessing the returned value of Future#get(), compiler may
                     // optimize execution and the action may not be executed even if this loop
                     // has ended.
@@ -171,6 +174,14 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
           }
         }
     );
+  }
+
+  private void branchPath(Deque<Node<Action>> pathSnapshot) {
+    ReportingActionRunner.this._current.set(new LinkedList<>(pathSnapshot));
+  }
+
+  private LinkedList<Node<Action>> snapshotCurrentPath() {
+    return new LinkedList<>(this.getCurrentPath());
   }
 
   /**
@@ -235,7 +246,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
             attempt.attempt().accept(this);
           } catch (Throwable e) {
             if (!attempt.exceptionClass().isAssignableFrom(e.getClass())) {
-              throw propagate(e);
+              throw new Wrapped(e);
             }
             //noinspection unchecked
             attempt.recover(() -> (T) e).accept(this);
@@ -297,7 +308,9 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
    */
   @Override
   public void visit(final TimeOut action) {
+    Deque<Node<Action>> snapshotPath = snapshotCurrentPath();
     runWithTimeout((Callable<Object>) () -> {
+          branchPath(snapshotPath);
           action.action.accept(ReportingActionRunner.this);
           return true;
         },
@@ -392,7 +405,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
   private Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
     return Autocloseables.transform(
         runnables,
-        input -> (Callable<Boolean>) () -> {
+        (Runnable input) -> (Callable<Boolean>) () -> {
           input.run();
           return true;
         }
@@ -471,6 +484,12 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
         }
       };
       private static final Logger LOGGER = LoggerFactory.getLogger(Writer.Slf4J.class);
+    }
+  }
+
+  static class Wrapped extends RuntimeException {
+    private Wrapped(Throwable t) {
+      super(t);
     }
   }
 }

@@ -18,7 +18,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class RetryTest implements Actions2, Builders2 {
+public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2 {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
     new Retry(ActionException.class, nop(), -1 /* this is not valid */, 1);
@@ -57,20 +57,20 @@ public class RetryTest implements Actions2, Builders2 {
   @Test
   public void givenRetryOnNpe$whenNpeThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
+    TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      new ReportingActionRunner.Builder(action).to(outForRun);
+      new ReportingActionRunner.Builder(action).to(outForTree).build().perform();
     } finally {
       assertThat(
-          outForRun,
+          outForTree,
           allOf(
-              hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
-              hasItemAt(2, equalTo("    (+)RetryTest$2; 3 times"))
+              hasItemAt(0, equalTo("[o]Retry(1[milliseconds]x2times)")),
+              hasItemAt(1, equalTo("  [xxo]Passes on third try"))
           ));
       assertThat(
-          outForRun,
-          hasSize(3));
+          outForTree,
+          hasSize(2));
       assertThat(
           outForRun,
           allOf(
@@ -90,20 +90,20 @@ public class RetryTest implements Actions2, Builders2 {
   @Test
   public void givenRetryOnActionException$whenActionExceptionThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
+    TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
     try {
-      new ReportingActionRunner.Builder(action).to(outForRun);
+      new ReportingActionRunner.Builder(action).to(outForTree).build().perform();
     } finally {
       assertThat(
-          outForRun,
+          outForTree,
           allOf(
-              hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
-              hasItemAt(2, equalTo("    (+)RetryTest$2; 3 times"))
+              hasItemAt(0, equalTo("[o]Retry(1[milliseconds]x2times)")),
+              hasItemAt(1, equalTo("  [xxo]Passes on third try"))
           ));
       assertThat(
-          outForRun,
-          hasSize(3));
+          outForTree,
+          hasSize(2));
       assertThat(
           outForRun,
           allOf(
@@ -124,7 +124,7 @@ public class RetryTest implements Actions2, Builders2 {
   private <T extends Throwable, U extends RuntimeException> Action composeRetryAction(final TestUtils.Out out, Class<T> exceptionToBeCaught, final U exceptionToBeThrown) {
     return retry(
         simple(
-            "Passes on second try",
+            "Passes on third try",
             new Runnable() {
               int tried = 0;
 
@@ -143,7 +143,12 @@ public class RetryTest implements Actions2, Builders2 {
                 }
               }
             })
-    ).on(exceptionToBeCaught).times(2).withIntervalOf(1, MILLISECONDS
+    ).on(
+        exceptionToBeCaught
+    ).times(
+        2
+    ).withIntervalOf(
+        1, MILLISECONDS
     );
   }
 }

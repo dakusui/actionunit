@@ -358,4 +358,33 @@ public enum Utils {
   public static <T> Supplier<T> toSupplier(T value) {
     return () -> value;
   }
+
+  public static <T> Supplier<T> describe(String description, T value) {
+    return new Supplier<T>() {
+      @Override
+      public T get() {
+        return value;
+      }
+
+      @Override
+      public String toString() {
+        return description;
+      }
+    };
+  }
+
+  public static Runnable describe(String description, Runnable runnable) {
+    return new Runnable() {
+      @Override
+      public void run() {
+        runnable.run();
+      }
+
+      @Override
+      public String toString() {
+        return description;
+      }
+    };
+  }
+
 }

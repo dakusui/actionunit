@@ -6,6 +6,9 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static com.github.dakusui.actionunit.helpers.Actions.named;
+import static com.github.dakusui.actionunit.helpers.Actions.nop;
+
 public interface When<T> extends Action {
   Supplier<T> value();
 
@@ -19,7 +22,7 @@ public interface When<T> extends Action {
     private final Supplier<T>       value;
     private final Predicate<T>      condition;
     private       HandlerFactory<T> handlerFactoryForPerform;
-    private       HandlerFactory<T> handlerFactoryForOtherwise;
+    private HandlerFactory<T> handlerFactoryForOtherwise = v -> nop();
 
     public Builder(Supplier<T> value, Predicate<T> condition) {
       this.value = Objects.requireNonNull(value);
@@ -81,12 +84,12 @@ public interface When<T> extends Action {
 
     @Override
     public Action perform(Supplier<T> value) {
-      return handlerFactoryForPerform.apply(Objects.requireNonNull(value));
+      return named("perform", handlerFactoryForPerform.apply(Objects.requireNonNull(value)));
     }
 
     @Override
     public Action otherwise(Supplier<T> value) {
-      return handlerFactoryForOtherwise.apply(Objects.requireNonNull(value));
+      return named("otherwise", handlerFactoryForOtherwise.apply(Objects.requireNonNull(value)));
     }
   }
 }

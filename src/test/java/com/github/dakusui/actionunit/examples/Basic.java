@@ -84,16 +84,16 @@ public class Basic implements Actions2, Builders2 {
   public Action[] testAction() {
     return new Action[] {
         this.<Integer, String>given("100", () -> 100)
-            .when("+1 and toString()", input -> Integer.toString(input + 1))
+            .when("incrementAndToString", input -> Integer.toString(input + 1))
             .then("equalToIgnoringCase", output -> output.equalsIgnoreCase("102")),
         this.<Integer, String>given("100", () -> 100)
-            .when("+1 and toString()", new Function<Integer, String>() {
+            .when("increment", new Function<Integer, String>() {
               @Override
               public String apply(Integer input) {
                 return Integer.toString(input + 1);
               }
             })
-            .then("equalToIgnoringCase", output -> output.equalsIgnoreCase("102"))
+            .then("equalToIgnoringCase", output -> output.equalsIgnoreCase("101"))
     };
   }
 

@@ -31,7 +31,8 @@ public class WhileTest implements Actions2, Builders2 {
             }
         )
     ).$();
-    new ReportingActionRunner.Builder(action).to(out).build().perform();
+    final TestUtils.Out result = new TestUtils.Out();
+    new ReportingActionRunner.Builder(action).to(result).build().perform();
     assertThat(out,
         allOf(
             hasItemAt(0, equalTo("Hello")),
@@ -41,5 +42,12 @@ public class WhileTest implements Actions2, Builders2 {
         )
     );
     assertEquals(4, out.size());
+
+    assertThat(result,
+        allOf(
+            hasItemAt(0, equalTo("[o]While")),
+            hasItemAt(1, equalTo("  [o...]Say 'Hello'"))
+        ));
+    assertEquals(2, result.size());
   }
 }

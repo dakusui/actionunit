@@ -88,7 +88,7 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
     handle(
         action,
         (When<T> when) -> {
-          Supplier<T> value = () ->  {
+          Supplier<T> value = () -> {
             throw new UnsupportedOperationException();
           };
           //noinspection unchecked
@@ -116,12 +116,21 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
 
   @Override
   public void visit(TestAction action) {
-    handle(action, this::handleAction);
+    handle(
+        action,
+        (TestAction test) -> {
+          test.given().accept(this);
+          test.when().accept(this);
+          test.then().accept(this);
+        }
+    );
   }
 
   @Override
   public void visit(Retry action) {
-    handle(action, this::handleAction);
+    handle(action, (Retry retry) -> {
+      retry.action.accept(this);
+    });
   }
 
   @Override
@@ -131,9 +140,9 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
 
   @SuppressWarnings("unchecked")
   <A extends Action> void pushNode(Node<A> node) {
-    if (!current.isEmpty())
-      this.current.peek().add((Node<Action>) node);
-    this.current.push((Node<Action>) node);
+    if (!getCurrentPath().isEmpty())
+      getCurrentPath().peek().add((Node<Action>) node);
+    getCurrentPath().push((Node<Action>) node);
   }
 
   private void handleAction(Action a) {

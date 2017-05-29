@@ -61,6 +61,7 @@ public class ActionRunnerTest {
       } finally {
         ////
         // then
+        getWriter().forEach(s -> System.out.println(s));
         //noinspection unchecked
         assertThat(
             getWriter(),
@@ -86,7 +87,7 @@ public class ActionRunnerTest {
           i -> sequential(
               simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get())),
               forEachOf("a", "b").perform(
-                  j -> simple("Prefix with '\\_inner-'", j::get)
+                  j -> simple("Prefix with '\\_inner-'", () -> getWriter().writeLine("\\_inner-" + j.get()))
               ),
               simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get()))
           )

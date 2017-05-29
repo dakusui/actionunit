@@ -29,7 +29,7 @@ public interface Attempt<E extends Throwable> extends Action {
     };
 
     public Builder(Action attempt) {
-      this.attempt = Actions.named("Attempt:", Objects.requireNonNull(attempt));
+      this.attempt = Objects.requireNonNull(attempt);
     }
 
     public Builder<E> recover(Class<? extends E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory) {
@@ -39,7 +39,7 @@ public interface Attempt<E extends Throwable> extends Action {
     }
 
     public Attempt<E> ensure(Action action) {
-      this.ensure = Actions.named("Ensure:", Objects.requireNonNull(action));
+      this.ensure = Actions.named("Ensure", Objects.requireNonNull(action));
       return this.build();
     }
 
@@ -75,7 +75,7 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action recover(Supplier<E> exception) {
-      return Actions.named(String.format("Recover(%s):", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
+      return Actions.named(String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
     }
 
     @Override

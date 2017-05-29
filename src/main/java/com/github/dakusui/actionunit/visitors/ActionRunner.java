@@ -148,6 +148,17 @@ public abstract class ActionRunner implements Action.Visitor {
         .forEach((Action eachChild) -> eachChild.accept(this));
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public <T> void visit(While<T> while$) {
+    Supplier<T> value = while$.value();
+    //noinspection unchecked
+    while (while$.check().test(value.get())) {
+      while$.createHandler(value).accept(ActionRunner.this);
+    }
+  }
+
   @Override
   public <E extends Throwable> void visit(Attempt<E> action) {
     try {
@@ -231,7 +242,7 @@ public abstract class ActionRunner implements Action.Visitor {
     return () -> action.accept(ActionRunner.this);
   }
 
-  protected Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
+  private Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
     return Autocloseables.transform(
         runnables,
         input -> (Callable<Boolean>) () -> {

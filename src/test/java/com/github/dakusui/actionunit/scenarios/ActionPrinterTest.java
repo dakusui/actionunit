@@ -86,14 +86,14 @@ public class ActionPrinterTest {
       ReportingActionRunner.Writer.Impl writer = (ReportingActionRunner.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
-      assertThat(i.next(), containsString("Concurrent"));
+      assertThat(i.next(), containsString("Concurrent (1 actions)"));
       assertThat(i.next(), containsString("Sequential (1st child)"));
-      assertThat(i.next(), containsString("Sequential"));
+      assertThat(i.next(), containsString("Sequential (4 actions)"));
       assertThat(i.next(), containsString("simple1"));
       assertThat(i.next(), containsString("simple2"));
       assertThat(i.next(), containsString("simple3"));
-      assertThat(i.next(), containsString("CompatForEach"));
-      assertEquals(10, size(writer));
+      assertThat(i.next(), containsString("(nop)"));
+      assertEquals(8, size(writer));
     }
   }
 
@@ -121,29 +121,31 @@ public class ActionPrinterTest {
               simple("simple3", () -> {
               }))
           ),
-          forEachOf(
-              asList("hello1", "hello2", "hello3")
-          ).perform(
-              data -> Builders.given(
-                  "ExampleTest", () -> "ExampleTest")
-                  .when("Say 'hello'", input -> {
-                    out.add(format("hello:%s", input));
-                    return format("hello:%s", input);
-                  })
-                  .then("anything", v -> true)
-          ),
-          forEachOf(
-              asList("world1", "world2", "world3")
-          ).perform(
-              i -> sequential(
-                  simple("nothing", () -> {
-                  }),
-                  simple("sink1", () -> {
-                  }),
-                  simple("sink2", () -> {
-                  })
-              )
-          )
+          named("ForEach1",
+              forEachOf(
+                  asList("hello1", "hello2", "hello3")
+              ).perform(
+                  data -> Builders.given(
+                      "ExampleTest", () -> "ExampleTest")
+                      .when("Say 'hello'", input -> {
+                        out.add(format("hello:%s", data.get()));
+                        return format("hello:%s", data.get());
+                      })
+                      .then("anything", v -> true)
+              )),
+          named("ForEach2",
+              forEachOf(
+                  asList("world1", "world2", "world3")
+              ).perform(
+                  i -> sequential(
+                      simple("nothing", () -> {
+                      }),
+                      simple("sink1", () -> {
+                      }),
+                      simple("sink2", () -> {
+                      })
+                  )
+              ))
       ));
     }
 
@@ -174,16 +176,20 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("simple1"));
       assertThat(i.next(), containsString("simple2"));
       assertThat(i.next(), containsString("simple3"));
-      assertThat(i.next(), containsString("CompatForEach"));
-      assertThat(i.next(), containsString("ExampleTest"));
+      assertThat(i.next(), containsString("ForEach"));
+      assertThat(i.next(), containsString("TestAction"));
       assertThat(i.next(), containsString("Given"));
-      assertThat(i.next(), containsString("When"));
-      assertThat(i.next(), containsString("Then"));
-      assertThat(i.next(), containsString("CompatForEach"));
-      assertThat(i.next(), containsString("Sequential"));
       i.next();
-      assertThat(i.next(), containsString("Tag(0)"));
-      assertEquals(16, size(writer));
+      assertThat(i.next(), containsString("When"));
+      i.next();
+      assertThat(i.next(), containsString("Then"));
+      i.next();
+      assertThat(i.next(), containsString("ForEach"));
+      assertThat(i.next(), containsString("Sequential"));
+      assertThat(i.next(), containsString("nothing"));
+      assertThat(i.next(), containsString("sink1"));
+      assertThat(i.next(), containsString("sink2"));
+      assertEquals(20, size(writer));
     }
   }
 
@@ -207,10 +213,10 @@ public class ActionPrinterTest {
       final TestUtils.Out out2 = new TestUtils.Out();
       runAndReport(action, out2);
       assertThat(out2, allOf(
-          hasItemAt(0, containsString("(+)CompatForEach")),
-          hasItemAt(1, containsString("(+)Sequential")),
-          hasItemAt(2, containsString("(+)Tag(0)")),
-          hasItemAt(3, containsString("(+)Tag(1)"))
+          hasItemAt(0, containsString("[o]ForEach")),
+          hasItemAt(1, containsString("[oo]Sequential")),
+          hasItemAt(2, containsString("[oo]+0")),
+          hasItemAt(3, containsString("[oo]+1"))
       ));
       Assert.assertThat(
           out2.size(),
@@ -223,7 +229,7 @@ public class ActionPrinterTest {
       Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES);
       TestUtils.Out out = new TestUtils.Out();
       runAndReport(action, out);
-      assertEquals("(+)Retry(60[seconds]x1times)", out.get(0));
+      assertEquals("[o]Retry(60[seconds]x1times)", out.get(0));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -238,14 +244,14 @@ public class ActionPrinterTest {
       try {
         runAndReport(action, out);
       } finally {
-        assertEquals("(E)Retry(60[seconds]x1times)", out.get(0));
-        assertEquals("  (E)AlwaysFail", out.get(1));
+        assertEquals("[x]Retry(60[seconds]x1times)", out.get(0));
+        assertEquals("  [x]AlwaysFail", out.get(1));
       }
     }
 
     @Test
     public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
-      final TestUtils.Out out = new TestUtils.Out();
+      final TestUtils.Out outForRun = new TestUtils.Out();
       Action action = retry(
           simple("PassAfterFail", new Runnable() {
             boolean tried = false;
@@ -254,7 +260,7 @@ public class ActionPrinterTest {
             public void run() {
               try {
                 if (!tried) {
-                  out.writeLine(this.toString());
+                  outForRun.writeLine("PassAfterFail");
                   throw new ActionException(this.toString());
                 }
               } finally {
@@ -264,11 +270,11 @@ public class ActionPrinterTest {
           })).times(1).withIntervalOf(
           1, MILLISECONDS);
       try {
-        runAndReport(action, out);
+        runAndReport(action, outForRun);
       } finally {
-        assertEquals("PassAfterFail", out.get(0));
-        assertEquals("(+)Retry(1[milliseconds]x1times)", out.get(1));
-        assertEquals("  (+)PassAfterFail; 2 times", out.get(2));
+        assertEquals("PassAfterFail", outForRun.get(0));
+        assertEquals("[o]Retry(1[milliseconds]x1times)", outForRun.get(1));
+        assertEquals("  [xo]PassAfterFail", outForRun.get(2));
       }
     }
 
@@ -277,7 +283,7 @@ public class ActionPrinterTest {
       Action action = timeout(nop()).in(1, TimeUnit.MINUTES);
       final TestUtils.Out out = new TestUtils.Out();
       runAndReport(action, out);
-      assertEquals("(+)TimeOut(60[seconds])", out.get(0));
+      assertEquals("[o]TimeOut(60[seconds])", out.get(0));
     }
 
     @Test(expected = UnsupportedOperationException.class)
