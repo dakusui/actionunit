@@ -19,7 +19,7 @@ public interface Action {
   /**
    * A visitor of actions, in the style of the visitor design pattern. Classes implementing
    * this interface are used to operate on an action when the kind of element is unknown at compile
-   * time. CompatWhen a visitor is passed to an element's accept method, the visitXYZ method most applicable
+   * time. When a visitor is passed to an element's accept method, the visit(XYZ) method most applicable
    * to that element is invoked.
    * <p/>
    * WARNING: It is possible that methods will be added to this interface to accommodate new, currently
@@ -100,7 +100,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    default <T> void visit(While2<T> action) {
+    default <T> void visit(While<T> action) {
       this.visit((Action) action);
     }
 
@@ -109,7 +109,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    default <T>void visit(When2<T> action) {
+    default <T>void visit(When<T> action) {
       this.visit((Action) action);
     }
 

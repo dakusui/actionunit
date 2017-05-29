@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface When2<T> extends Action {
+public interface When<T> extends Action {
   Supplier<T> value();
 
   Predicate<T> check();
@@ -31,13 +31,13 @@ public interface When2<T> extends Action {
       return this;
     }
 
-    public When2<T> otherwise(HandlerFactory<T> factory) {
+    public When<T> otherwise(HandlerFactory<T> factory) {
       this.handlerFactoryForOtherwise = Objects.requireNonNull(factory);
       return build();
     }
 
-    public When2<T> build() {
-      return new When2.Impl<T>(
+    public When<T> build() {
+      return new When.Impl<T>(
           value,
           condition,
           handlerFactoryForPerform,
@@ -46,7 +46,7 @@ public interface When2<T> extends Action {
     }
   }
 
-  class Impl<T> extends ActionBase implements When2<T> {
+  class Impl<T> extends ActionBase implements When<T> {
     final private Supplier<T>       value;
     final private Predicate<T>      condition;
     final private HandlerFactory<T> handlerFactoryForPerform;
@@ -87,11 +87,6 @@ public interface When2<T> extends Action {
     @Override
     public Action otherwise(Supplier<T> value) {
       return handlerFactoryForOtherwise.apply(Objects.requireNonNull(value));
-    }
-
-    @Override
-    public String toString() {
-      return "When:";
     }
   }
 }

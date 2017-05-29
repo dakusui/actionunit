@@ -150,9 +150,7 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
     StreamSupport.stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
         .map((T item) -> (Supplier<T>) () -> item)
         .map(forEach::createHandler)
-        .forEach((Action eachChild) -> {
-          eachChild.accept(this);
-        });
+        .forEach((Action eachChild) -> eachChild.accept(this));
   }
 
   @Override

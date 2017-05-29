@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
@@ -30,8 +31,6 @@ public class ForEachExample extends TestUtils.TestBase implements Actions2, Buil
         value -> sequential(
             simple("print the given value(1st time)", () -> System.out.println(value.get())),
             simple("print the given value(2nd time)", () -> {
-              if (c.getAndIncrement() > 1)
-                throw new RuntimeException();
               System.out.println(value.get());
             }),
             simple("print the given value(3rd time)", () -> System.out.println(value.get()))
@@ -75,7 +74,8 @@ public class ForEachExample extends TestUtils.TestBase implements Actions2, Buil
         ).perform(
             value -> sequential(
                 simple("print the given value(1st time)", () -> System.out.println(value.get())),
-                simple("print the given value(2nd time)", () -> System.out.println(value.get()))
+                simple("print the given value(2nd time)", () -> System.out.println(value.get())),
+                sleep(2, MICROSECONDS)
             )
         ),
         simple("print bye", () -> System.out.println("bye"))

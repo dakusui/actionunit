@@ -1,6 +1,7 @@
-package com.github.dakusui.actionunit.core;
+package com.github.dakusui.actionunit.compat.connectors;
 
 import com.github.dakusui.actionunit.compat.Context;
+import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Autocloseables;
 
 import java.util.function.Function;

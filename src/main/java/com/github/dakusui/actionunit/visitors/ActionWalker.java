@@ -19,7 +19,7 @@ abstract class ActionWalker implements Action.Visitor {
 
   <A extends Action> void handle(A action, Consumer<A> handler) {
     class Wrapped extends RuntimeException {
-      Wrapped(Throwable t) {
+      private Wrapped(Throwable t) {
         super(t);
       }
     }

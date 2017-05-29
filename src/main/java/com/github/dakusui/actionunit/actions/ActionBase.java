@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.helpers.Utils;
  */
 public abstract class ActionBase implements Action {
   protected String formatClassName() {
-    return Utils.shortClassNameOf(this.getClass()).replaceAll("^Action\\$", "").replaceAll("\\$Base$", "");
+    return Utils.shortClassNameOf(this.getClass()).replaceAll("^Action\\$", "").replaceAll("\\$Base$", "").replaceAll("\\$Impl$", "");
   }
 
   @Override

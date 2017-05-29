@@ -24,13 +24,12 @@ public class WhileExample extends TestUtils.TestBase implements Actions2, Builde
      *     while (i++ < 10)
      *       System.err.println(i);
      */
-    return loopWhile(toSupplier(new AtomicInteger(0)), i -> i.getAndIncrement() < 10)
-        .perform(
-            i -> sequential(
-                simple("print i", () -> System.out.println("i:" + i.get()))
-            )
-        )
-        .$();
+    return whilst(
+        toSupplier(new AtomicInteger(0)),
+        i -> i.getAndIncrement() < 10
+    ).perform(
+        i -> simple("print i", () -> System.out.println("i:" + i.get()))
+    ).$();
   }
 
   @Test
@@ -38,6 +37,7 @@ public class WhileExample extends TestUtils.TestBase implements Actions2, Builde
     new ReportingActionRunner.Builder(action)
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
         .to(ReportingActionRunner.Writer.Std.OUT)
+        .setThreadPoolSize(2)
         .build()
         .perform();
   }

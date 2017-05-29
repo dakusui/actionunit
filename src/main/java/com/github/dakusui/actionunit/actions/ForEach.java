@@ -48,20 +48,8 @@ public interface ForEach<T> extends Action {
   }
 
   enum Mode {
-    SEQUENTIALLY {
-      @Override
-      public Composite.Factory getFactory() {
-        return Sequential.Factory.INSTANCE;
-      }
-    },
-    CONCURRENTLY {
-      @Override
-      public Composite.Factory getFactory() {
-        return Concurrent.Factory.INSTANCE;
-      }
-    };
-
-    public abstract Composite.Factory getFactory();
+    SEQUENTIALLY,
+    CONCURRENTLY
   }
 
   class Impl<T> extends ActionBase implements ForEach<T> {
@@ -93,10 +81,6 @@ public interface ForEach<T> extends Action {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
-    }
-
-    public String toString() {
-      return String.format("ForEach:%s", this.data);
     }
   }
 }

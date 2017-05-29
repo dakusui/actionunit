@@ -7,7 +7,7 @@ import com.github.dakusui.actionunit.compat.connectors.Pipe;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.DataSource;
+import com.github.dakusui.actionunit.compat.connectors.DataSource;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Actions;
 import com.github.dakusui.actionunit.helpers.Builders;
@@ -31,8 +31,11 @@ public enum CompatActions {
 
   @SafeVarargs
   public static <T> Action foreach(DataSource.Factory<T> dataSourceFactory, ForEach.Mode mode, Action action, Sink<T>... sinks) {
+    Composite.Factory factory = mode == ForEach.Mode.CONCURRENTLY
+        ? Concurrent.Factory.INSTANCE
+        : Sequential.Factory.INSTANCE;
     return new CompatForEach<>(
-        mode.getFactory(),
+        factory,
         new DataSource.Factory.Adapter<>(dataSourceFactory, ToSource.instance()),
         action,
         sinks

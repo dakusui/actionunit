@@ -69,10 +69,10 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
   /**
    * {@inheritDoc}
    */
-  public <T> void visit(While2<T> action) {
+  public <T> void visit(While<T> action) {
     handle(
         action,
-        (While2<T> while$) -> {
+        (While<T> while$) -> {
           Supplier<T> value = () -> {
             throw new UnsupportedOperationException();
           };
@@ -84,10 +84,10 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
   /**
    * {@inheritDoc}
    */
-  public <T> void visit(When2<T> action) {
+  public <T> void visit(When<T> action) {
     handle(
         action,
-        (When2<T> when) -> {
+        (When<T> when) -> {
           Supplier<T> value = () ->  {
             throw new UnsupportedOperationException();
           };

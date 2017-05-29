@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.actions.Nested;
 import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.compat.visitors.CompatActionRunner;
 import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
-import com.github.dakusui.actionunit.core.DataSource;
+import com.github.dakusui.actionunit.compat.connectors.DataSource;
 import com.github.dakusui.actionunit.compat.connectors.Sink;
 import com.github.dakusui.actionunit.compat.connectors.Source;
 import com.github.dakusui.actionunit.core.Action;

@@ -192,10 +192,10 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
   /**
    * {@inheritDoc}
    */
-  public <T> void visit(While2<T> action) {
+  public <T> void visit(While<T> action) {
     handle(
         action,
-        (While2<T> while$) -> {
+        (While<T> while$) -> {
           Supplier<T> value = while$.value();
           //noinspection unchecked
           while (while$.check().test(value.get())) {
@@ -208,10 +208,10 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
   /**
    * {@inheritDoc}
    */
-  public <T> void visit(When2<T> action) {
+  public <T> void visit(When<T> action) {
     handle(
         action,
-        (When2<T> when) -> {
+        (When<T> when) -> {
           Supplier<T> value = when.value();
           //noinspection unchecked
           if (when.check().test(value.get())) {
@@ -321,7 +321,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
         Utils.singletonCollector(
             () -> new IllegalStateException(
                 format(
-                    "More than one node matching '%s' were found under '%s'(%s)",
+                    "More than one node matching '%s' were found under '%s'(%s). Consider using 'named' action for them.",
                     Utils.describe(action),
                     parent,
                     childrenToString(parent)
@@ -374,7 +374,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
    *
    * @param action An action executed by a runnable object returned by this method.
    */
-  protected Iterable<Callable<Boolean>> toCallables(Concurrent action) {
+  private Iterable<Callable<Boolean>> toCallables(Concurrent action) {
     return toCallables(toRunnables(action));
   }
 
@@ -389,7 +389,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
     return () -> action.accept(ReportingActionRunner.this);
   }
 
-  protected Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
+  private Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
     return Autocloseables.transform(
         runnables,
         input -> (Callable<Boolean>) () -> {
