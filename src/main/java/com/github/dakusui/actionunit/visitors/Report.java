@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.helpers.Utils;
 import java.util.*;
 
 public class Report implements Iterable<Node<Action>> {
-  private final Map<Node<Action>, Record> records = new HashMap<>();
+  private final Map<Node<Action>, Record> records = Collections.synchronizedMap(new HashMap<>());
   public final Node<Action> root;
 
   Report(Node<Action> root) {

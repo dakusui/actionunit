@@ -18,7 +18,7 @@ import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
 public class WhileExample extends TestUtils.TestBase implements Actions2, Builders2 {
   @ActionUnit.PerformWith(Test.class)
   public Action composeWhileLoop() {
-    /**
+    /*
      * This method is an ActionUnit style equivalence of following code fragment.
      *     int i = 0;
      *     while (i++ < 10)
@@ -37,7 +37,6 @@ public class WhileExample extends TestUtils.TestBase implements Actions2, Builde
     new ReportingActionRunner.Builder(action)
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
         .to(ReportingActionRunner.Writer.Std.OUT)
-        .setThreadPoolSize(2)
         .build()
         .perform();
   }

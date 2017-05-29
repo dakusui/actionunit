@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.Autocloseables;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.Utils;
 import org.slf4j.Logger;
@@ -12,33 +11,24 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.helpers.Utils.runWithTimeout;
 import static com.github.dakusui.actionunit.helpers.Utils.sleep;
-import static java.lang.Integer.max;
-import static java.lang.Integer.min;
 import static java.lang.String.format;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.stream.StreamSupport.stream;
 
 public class ReportingActionRunner extends ActionWalker implements Action.Visitor {
-  private final int                     threadPoolSize;
   private final Writer                  writer;
   private final Report.Record.Formatter formatter;
   private final Report                  report;
 
   public static class Builder {
-    private static final int DEFAULT_THREAD_POOL_SIZE = 5;
     private final Action action;
-    private int                     threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
     private Report.Record.Formatter formatter      = Report.Record.Formatter.DEFAULT_INSTANCE;
     private Writer                  writer         = Writer.Std.OUT;
 
@@ -57,19 +47,12 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
       return this;
     }
 
-    public Builder setThreadPoolSize(int threadPoolSize) {
-      Checks.checkArgument(threadPoolSize > 0);
-      this.threadPoolSize = threadPoolSize;
-      return this;
-    }
-
     public ReportingActionRunner build() {
-      return new ReportingActionRunner(threadPoolSize, TreeBuilder.traverse(action), writer, formatter);
+      return new ReportingActionRunner(TreeBuilder.traverse(action), writer, formatter);
     }
   }
 
-  private ReportingActionRunner(int threadPoolSize, Node<Action> tree, Writer writer, Report.Record.Formatter formatter) {
-    this.threadPoolSize = threadPoolSize;
+  private ReportingActionRunner(Node<Action> tree, Writer writer, Report.Record.Formatter formatter) {
     this.report = new Report(tree);
     this.writer = writer;
     this.formatter = formatter;
@@ -134,44 +117,15 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
         action,
         (Concurrent concurrent) -> {
           Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
-          final ExecutorService pool = newFixedThreadPool(min(this.threadPoolSize, max(1, Utils.toList(concurrent).size())));
-          try {
-            Iterator<Callable<Boolean>> i = toCallables(concurrent).iterator();
-            //noinspection unused
-            try (AutoCloseable resource = Autocloseables.toAutocloseable(i)) {
-              List<Future<Boolean>> futures = new ArrayList<>(this.threadPoolSize);
-              while (i.hasNext()) {
-                Callable<Boolean> eachCallable = () -> {
-                  branchPath(pathSnapshot);
-                  return i.next().call();
-                };
-                futures.add(pool.submit(eachCallable));
-                if (futures.size() == this.threadPoolSize || !i.hasNext()) {
-                  for (Future<Boolean> each : futures) {
-                    ////get
-                    // Unless accessing the returned value of Future#get(), compiler may
-                    // optimize execution and the action may not be executed even if this loop
-                    // has ended.
-                    //noinspection unused
-                    each.get();
-                  }
-                }
-              }
-            } catch (ExecutionException e) {
-              if (e.getCause() instanceof Error) {
-                throw (Error) e.getCause();
-              }
-              ////
-              // It's safe to cast to RuntimeException, because checked exception cannot
-              // be thrown from inside Runnable#run()
-              throw (RuntimeException) e.getCause();
-            } catch (Exception e) {
-              // InterruptedException should be handled by this clause, too.
-              throw ActionException.wrap(e);
-            }
-          } finally {
-            pool.shutdownNow();
-          }
+          StreamSupport.stream(concurrent.spliterator(), false)
+              .map(this::toRunnable)
+              .map((Runnable runnable) -> (Runnable) () -> {
+                branchPath(pathSnapshot);
+                runnable.run();
+              })
+              .collect(Collectors.toList())
+              .parallelStream()
+              .forEach(Runnable::run);
         }
     );
   }
@@ -381,37 +335,9 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
     this.report.failed((Node<Action>) node, e);
   }
 
-  /**
-   * An extension point to allow users to customize how a concurrent action will be
-   * executed by this {@code Visitor}.
-   *
-   * @param action An action executed by a runnable object returned by this method.
-   */
-  private Iterable<Callable<Boolean>> toCallables(Concurrent action) {
-    return toCallables(toRunnables(action));
-  }
-
-  private Iterable<Runnable> toRunnables(final Iterable<? extends Action> actions) {
-    return Autocloseables.transform(
-        actions,
-        (Function<Action, Runnable>) this::toRunnable
-    );
-  }
-
   private Runnable toRunnable(final Action action) {
     return () -> action.accept(ReportingActionRunner.this);
   }
-
-  private Iterable<Callable<Boolean>> toCallables(final Iterable<Runnable> runnables) {
-    return Autocloseables.transform(
-        runnables,
-        (Runnable input) -> (Callable<Boolean>) () -> {
-          input.run();
-          return true;
-        }
-    );
-  }
-
 
   /**
    * An interface that abstracts various destinations to which {@link ActionPrinter.Impl}'s

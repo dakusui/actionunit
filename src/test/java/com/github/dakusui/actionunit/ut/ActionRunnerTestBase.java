@@ -36,7 +36,7 @@ public abstract class ActionRunnerTestBase {
   public Action createPassingAction(int index, final int durationInMilliseconds) {
     return named(
         String.format("A passing action-%d", index),
-        simple("This passes always", () -> {
+        simple(String.format("This passes always-%d", index), () -> {
           try {
             TimeUnit.MICROSECONDS.sleep(durationInMilliseconds);
           } catch (InterruptedException e) {

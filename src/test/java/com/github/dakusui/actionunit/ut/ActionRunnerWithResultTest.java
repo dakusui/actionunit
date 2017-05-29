@@ -123,11 +123,11 @@ public class ActionRunnerWithResultTest {
       assertThat(getWriter(), allOf(
           hasItemAt(0, equalTo("[o]Concurrent (3 actions)")),
           hasItemAt(1, equalTo("  [o]A passing action-1")),
-          hasItemAt(2, equalTo("    [o]This passes always")),
+          hasItemAt(2, equalTo("    [o]This passes always-1")),
           hasItemAt(3, equalTo("  [o]A passing action-2")),
-          hasItemAt(4, equalTo("    [o]This passes always")),
+          hasItemAt(4, equalTo("    [o]This passes always-2")),
           hasItemAt(5, equalTo("  [o]A passing action-3")),
-          hasItemAt(6, equalTo("    [o]This passes always"))
+          hasItemAt(6, equalTo("    [o]This passes always-3"))
       ));
       assertThat(getWriter(), hasSize(7));
     }
@@ -295,10 +295,14 @@ public class ActionRunnerWithResultTest {
         //  not match, the AssertionError will be thrown, which confuses JUnit and users.
         //  Thus, here we are going to throw IllegalStateException.
         //noinspection unchecked
-        if (!getWriter().get(0).equals("(F)HelloTestCase") ||
-            !getWriter().get(1).equals("  Given:World") ||
-            !getWriter().get(2).equals("  CompatWhen:Function(length)") ||
-            !getWriter().get(3).startsWith("  Then:[Matcher(<5>)]")) {
+        if (!getWriter().get(0).equals("[x]TestAction") ||
+            !getWriter().get(1).equals("  [o]Given") ||
+            !getWriter().get(2).equals("    [o]HelloTestCase") ||
+            !getWriter().get(3).equals("  [o]When") ||
+            !getWriter().get(4).equals("    [o]length") ||
+            !getWriter().get(5).equals("  [x]Then") ||
+            !getWriter().get(6).equals("    [x]equals to 5")) {
+          getWriter().forEach(System.err::println);
           //noinspection ThrowFromFinallyBlock
           throw new IllegalStateException();
         }
