@@ -1,14 +1,15 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Builders.attempt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -18,17 +19,17 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class RecoveryOperation {
   @ActionUnit.PerformWith({ Test.class })
   public Action deployment() {
-    return CompatActions.attempt(deployComponent())
-        .recover(
-            CompatActions.retry(
-                sequential(
-                    cleanUp(),
-                    deployComponent()),
-                2,
-                10, MILLISECONDS))
-        .ensure(
-            cleanUp())
-        .build();
+    return attempt(
+        deployComponent()
+    ).recover(
+        Exception.class,
+        e -> Builders.retry(sequential(
+            cleanUp(),
+            deployComponent()
+        )).times(2).withIntervalOf(10, MILLISECONDS)
+    ).ensure(
+        cleanUp()
+    );
   }
 
 
@@ -59,8 +60,6 @@ public class RecoveryOperation {
 
   @Test
   public void runAction(Action action) {
-    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-    action.accept(runner);
-    action.accept(runner.createPrinter());
+    new ReportingActionRunner.Builder(action).build().perform();
   }
 }

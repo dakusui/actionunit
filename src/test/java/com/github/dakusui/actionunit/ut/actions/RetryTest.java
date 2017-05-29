@@ -1,15 +1,16 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.actions.Retry;
-import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,7 +18,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class RetryTest {
+public class RetryTest implements Actions2, Builders2 {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
     new Retry(ActionException.class, nop(), -1 /* this is not valid */, 1);
@@ -37,8 +38,9 @@ public class RetryTest {
   @Test(expected = RuntimeException.class, timeout = 3000000)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(ActionException.class, CompatActions.simple(new Runnable() {
+    new Retry(ActionException.class, Actions.simple("Fail on first time only", new Runnable() {
       boolean firstTime = true;
+
       @Override
       public void run() {
         try {
@@ -56,21 +58,18 @@ public class RetryTest {
   public void givenRetryOnNpe$whenNpeThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
-    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
-      action.accept(runner);
+      new ReportingActionRunner.Builder(action).to(outForRun);
     } finally {
-      TestUtils.Out outForTree = new TestUtils.Out();
-      action.accept(runner.createPrinter(outForTree));
       assertThat(
-          outForTree,
+          outForRun,
           allOf(
               hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
               hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
               hasItemAt(2, equalTo("    (+)RetryTest$2; 3 times"))
           ));
       assertThat(
-          outForTree,
+          outForRun,
           hasSize(3));
       assertThat(
           outForRun,
@@ -92,21 +91,18 @@ public class RetryTest {
   public void givenRetryOnActionException$whenActionExceptionThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
-    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
     try {
-      action.accept(runner);
+      new ReportingActionRunner.Builder(action).to(outForRun);
     } finally {
-      TestUtils.Out outForTree = new TestUtils.Out();
-      action.accept(runner.createPrinter(outForTree));
       assertThat(
-          outForTree,
+          outForRun,
           allOf(
               hasItemAt(0, equalTo("(+)Retry(1[milliseconds]x2times)")),
               hasItemAt(1, equalTo("  (+)PassOn2ndRetry; 3 times")),
               hasItemAt(2, equalTo("    (+)RetryTest$2; 3 times"))
           ));
       assertThat(
-          outForTree,
+          outForRun,
           hasSize(3));
       assertThat(
           outForRun,
@@ -126,10 +122,10 @@ public class RetryTest {
 
 
   private <T extends Throwable, U extends RuntimeException> Action composeRetryAction(final TestUtils.Out out, Class<T> exceptionToBeCaught, final U exceptionToBeThrown) {
-    return CompatActions.retry(
-        exceptionToBeCaught,
-        named("PassOn2ndRetry",
-            CompatActions.simple(new Runnable() {
+    return retry(
+        simple(
+            "Passes on second try",
+            new Runnable() {
               int tried = 0;
 
               @Override
@@ -147,9 +143,7 @@ public class RetryTest {
                 }
               }
             })
-        ),
-        2,
-        1, MILLISECONDS
+    ).on(exceptionToBeCaught).times(2).withIntervalOf(1, MILLISECONDS
     );
   }
 }

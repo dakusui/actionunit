@@ -1,40 +1,37 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 
-import java.util.function.Predicate;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.compat.CompatActions.repeatwhile;
-import static com.github.dakusui.actionunit.compat.CompatActions.simple;
+import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class WhileTest {
+public class WhileTest implements Actions2, Builders2 {
   @Test
   public void test() {
     final TestUtils.Out out = new TestUtils.Out();
-    Action action = repeatwhile(new Predicate() {
-                                  int i = 0;
-
-                                  @Override
-                                  public boolean test(Object input) {
-                                    return i++ < 4;
-                                  }
-                                },
-        simple(() -> out.writeLine("Hello"))
-    );
-    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-    try {
-      action.accept(runner);
-    } finally {
-      action.accept(runner.createPrinter(new TestUtils.Out()));
-    }
+    Action action = whilst(
+        toSupplier(new AtomicInteger(0)),
+        i -> i.get() < 4
+    ).perform(
+        i -> simple("Say 'Hello'",
+            () -> {
+              out.writeLine("Hello");
+              i.get().getAndIncrement();
+            }
+        )
+    ).$();
+    new ReportingActionRunner.Builder(action).to(out).build().perform();
     assertThat(out,
         allOf(
             hasItemAt(0, equalTo("Hello")),

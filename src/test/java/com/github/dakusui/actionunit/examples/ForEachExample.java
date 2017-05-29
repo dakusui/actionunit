@@ -2,13 +2,14 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.*;
-import org.junit.Ignore;
+import com.github.dakusui.actionunit.visitors.Node;
+import com.github.dakusui.actionunit.visitors.Report;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.TreeBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,16 +24,13 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class ForEachExample extends TestUtils.TestBase implements Actions2, Builders2 {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
-    AtomicInteger c = new AtomicInteger(0);
     return forEachOf(
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
         value -> sequential(
             simple("print the given value(1st time)", () -> System.out.println(value.get())),
-            simple("print the given value(2nd time)", () -> {
-              System.out.println(value.get());
-            }),
+            simple("print the given value(2nd time)", () -> System.out.println(value.get())),
             simple("print the given value(3rd time)", () -> System.out.println(value.get()))
         )
     );
@@ -103,17 +101,6 @@ public class ForEachExample extends TestUtils.TestBase implements Actions2, Buil
     );
   }
 
-  @Ignore
-  @Test
-  public void runAction(Action action) {
-    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-    try {
-      action.accept(runner);
-    } finally {
-      action.accept(ActionPrinter.Factory.DEFAULT_INSTANCE.stdout());
-    }
-  }
-
   @Test
   public void runAction2(Action action) {
     new ReportingActionRunner.Builder(action)
@@ -123,19 +110,6 @@ public class ForEachExample extends TestUtils.TestBase implements Actions2, Buil
         .perform();
   }
 
-
-  @Ignore
-  @Test
-  public void compatRunAction(Action action) {
-    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-    try {
-      action.accept(runner);
-    } finally {
-      action.accept(runner.createPrinter());
-    }
-  }
-
-  @Ignore
   @Test
   public void buildTree(Action action) {
     System.out.println("-->" + TreeBuilder.traverse(action).format());

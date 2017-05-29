@@ -1,10 +1,11 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.actions.Named;
-import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.helpers.Builders2;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +13,6 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import static com.github.dakusui.actionunit.compat.CompatActions.foreach;
-import static com.github.dakusui.actionunit.compat.CompatActions.simple;
 import static java.util.Arrays.asList;
 
 /**
@@ -22,44 +21,23 @@ import static java.util.Arrays.asList;
  */
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class NameOfAction {
+public class NameOfAction implements Actions2, Builders2 {
   @PerformWith(Test.class)
   public Action aMethodToTestSomething() {
-    return foreach(
-        asList(1, 2, 3),
-        new Sink.Base<Integer>() {
-          @Override
-          protected void apply(Integer input, Object... outer) {
-            System.out.println(input + 1);
-          }
-        }
+    return forEachOf(
+        asList(1, 2, 3)).perform(
+        i -> simple("print out incremented value", () -> System.out.println(i.get() + 1))
     );
   }
 
   @PerformWith(Test.class)
   public List<Action> aMethodToTestSomethingElse() {
     return asList(
-        simple(new Runnable() {
-          @Override
-          public void run() {
-            System.out.println("hello");
-          }
-        }),
-        foreach(
-            asList(1, 2, 3),
-            new Sink.Base<Integer>() {
-              @Override
-              protected void apply(Integer input, Object... outer) {
-                System.out.println(input + 1);
-              }
-            }
+        simple("print hello", () -> System.out.println("hello")),
+        forEachOf(asList(1, 2, 3)).perform(
+            i -> simple("print out incremented value", () -> System.out.println(i.get() + 1))
         ),
-        simple(new Runnable() {
-          @Override
-          public void run() {
-            System.out.println("bye");
-          }
-        })
+        simple("print bye", () -> System.out.println("bye"))
     );
   }
 
@@ -76,13 +54,7 @@ public class NameOfAction {
    */
   @Test
   public void runAction(Action action) {
-    CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-    ////
-    // Here, this line will print lines like
-    //   action name:aMethodToTestSomething
-    //   action name:aMethodToTestSomethingElse[0]
     System.err.printf("action name:%s%n", ((Named) action).getName());
-    action.accept(runner);
-    action.accept(runner.createPrinter());
+    new ReportingActionRunner.Builder(action).build().perform();
   }
 }

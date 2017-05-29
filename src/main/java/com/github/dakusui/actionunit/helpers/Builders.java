@@ -33,7 +33,7 @@ public enum Builders {
     return Retry.builder(action);
   }
 
-  public static <T> While.Builder<T> repeatWhile(Supplier<T> value, Predicate<T> condition) {
+  public static <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
     return new While.Builder<>(value, condition);
   }
 

@@ -33,10 +33,10 @@ public interface When<T> extends Action {
 
     public When<T> otherwise(HandlerFactory<T> factory) {
       this.handlerFactoryForOtherwise = Objects.requireNonNull(factory);
-      return build();
+      return $();
     }
 
-    public When<T> build() {
+    public When<T> $() {
       return new When.Impl<T>(
           value,
           condition,

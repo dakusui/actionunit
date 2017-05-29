@@ -1,28 +1,20 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunner;
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Concurrent;
-import com.github.dakusui.actionunit.actions.Sequential;
-import com.github.dakusui.actionunit.compat.connectors.Connectors;
-import com.github.dakusui.actionunit.compat.connectors.Sink;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 
 import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
@@ -55,38 +47,6 @@ public class ActionRunnerTest {
       }
     }
   }
-
-
-  public static class Value extends Base {
-    @Test
-    public void givenNormalActionRunner$whenValue$thenUnsupportedException() {
-      assertEquals(Connectors.INVALID, getRunner().value());
-    }
-  }
-
-  public static class IgnoredInPathCalculationTest extends Base {
-    @Test(expected = ActionException.class)
-    public void givenUnsupportedComposite$whenCreated$thenActionException() {
-      Composite action = new Composite.Base("Unsupported", Collections.<Action>emptyList()) {
-        @Override
-        public void accept(Visitor visitor) {
-          visitor.visit(this);
-        }
-      };
-      CompatActionRunner.IgnoredInPathCalculation.Composite.create(action);
-    }
-
-    @Test
-    public void givenHiddenSequential$whenSize$thenBackingSizeWillBeReturned() {
-      assertEquals(2,
-          new CompatActionRunnerWithResult.IgnoredInPathCalculation.Sequential((Sequential) sequential(
-              nop(),
-              nop()
-          )).size()
-      );
-    }
-  }
-
 
   public static class DoubleCompatForEach extends Base {
     @Test
@@ -122,23 +82,15 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return CompatActions.foreach(asList("A", "B"),
-          sequential(
-              CompatActions.tag(0),
-              CompatActions.foreach(asList("a", "b"), new Sink.Base() {
-                @Override
-                protected void apply(Object input, Object... outer) {
-                  getWriter().writeLine("\\_inner-" + input);
-                }
-              }),
-              CompatActions.tag(0)
-          ),
-          new Sink.Base() {
-            @Override
-            protected void apply(Object input, Object... outer) {
-              getWriter().writeLine("outer-" + input);
-            }
-          });
+      return forEachOf(asList("A", "B")).perform(
+          i -> sequential(
+              simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get())),
+              forEachOf("a", "b").perform(
+                  j -> simple("Prefix with '\\_inner-'", j::get)
+              ),
+              simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get()))
+          )
+      );
     }
   }
 
@@ -157,12 +109,7 @@ public class ActionRunnerTest {
       return new ActionRunner.Impl() {
         @Override
         protected Iterable<Callable<Boolean>> toCallables(Concurrent action) {
-          return new Iterable<Callable<Boolean>>() {
-            @Override
-            public Iterator<Callable<Boolean>> iterator() {
-              return iterator;
-            }
-          };
+          return () -> iterator;
         }
       };
     }

@@ -1,11 +1,6 @@
 package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.compat.actions.CompatWhen;
-import com.github.dakusui.actionunit.compat.actions.CompatWhile;
-import com.github.dakusui.actionunit.compat.connectors.Connectors;
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunner;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -43,7 +38,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * @see ActionRunner.Impl
  */
-public abstract class ActionRunner extends CompatActionRunner implements Action.Visitor {
+public abstract class ActionRunner implements Action.Visitor {
   private static final int DEFAULT_THREAD_POOL_SIZE = 5;
   private final int threadPoolSize;
 
@@ -179,31 +174,6 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
    * {@inheritDoc}
    */
   @Override
-  public <T> void visit(CompatWhile<T> while$) {
-    //noinspection unchecked
-    while (while$.test((T) this.value())) {
-      while$.getAction().accept(this);
-    }
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(CompatWhen when) {
-    //noinspection unchecked
-    if (when.test(this.value())) {
-      when.getAction().accept(this);
-    } else {
-      when.otherwise().accept(this);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void visit(Retry retry) {
     try {
       toRunnable(retry.action).run();
@@ -284,29 +254,6 @@ public abstract class ActionRunner extends CompatActionRunner implements Action.
 
     public Impl(int threadPoolSize) {
       super(threadPoolSize);
-    }
-
-    /**
-     * Â
-     * Returns {@code null} since this action runner is a top level one and
-     * doesn't have any parent.
-     * Subclasses of this class may override this method to return a meaningful
-     * object.
-     */
-    @Override
-    public Context getParent() {
-      return null;
-    }
-
-    /**
-     * Throws an {@link UnsupportedOperationException} since this action runner
-     * doesn't have a context value.
-     * Subclasses of this class may override this method to return a meaningful
-     * object.
-     */
-    @Override
-    public Object value() {
-      return Connectors.INVALID;
     }
   }
 

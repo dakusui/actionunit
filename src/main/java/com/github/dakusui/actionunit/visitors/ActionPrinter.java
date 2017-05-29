@@ -1,9 +1,6 @@
 package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.actions.CompatWhen;
-import com.github.dakusui.actionunit.compat.actions.CompatWhile;
-import com.github.dakusui.actionunit.compat.visitors.CompatActionPrinter;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Utils;
 
@@ -106,7 +103,7 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
    * action.accept(new Impl());
    * </code>
    */
-  public static class Impl extends CompatActionPrinter {
+  public static class Impl extends ActionPrinter {
 
     /**
      * Creates an object of this class.
@@ -157,22 +154,6 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
       }
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(CompatWhen action) {
-      writeLine(describeAction(action));
-      enter(action);
-      try {
-        action.getAction().accept(this);
-      } finally {
-        leave(action);
-      }
-    }
-
-
     @Override
     public <T> void visit(ForEach<T> action) {
       action.createHandler(() -> {
@@ -210,21 +191,6 @@ public abstract class ActionPrinter extends Action.Visitor.Base {
         leave(action);
       }
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(CompatWhile action) {
-      writeLine(describeAction(action));
-      enter(action);
-      try {
-        action.getAction().accept(this);
-      } finally {
-        leave(action);
-      }
-    }
-
 
     /**
      * {@inheritDoc}

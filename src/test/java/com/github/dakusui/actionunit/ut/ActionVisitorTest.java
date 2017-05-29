@@ -2,8 +2,9 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions;
-import com.github.dakusui.actionunit.compat.CompatActions;
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Tests for ActionVisitor.
  */
-public class ActionVisitorTest {
+public class ActionVisitorTest implements Actions2, Builders2 {
   final TestUtils.Out out = new TestUtils.Out();
   Action.Visitor visitor = new Action.Visitor.Base() {
     @Override
@@ -46,14 +47,7 @@ public class ActionVisitorTest {
   }
 
   private Action createSimpleAction() {
-    return CompatActions.simple(new Runnable() {
-      @Override
-      public void run() {
-      }
-
-      public String toString() {
-        return "simpleAction";
-      }
+    return simple("simpleAction", () -> {
     });
   }
 
@@ -104,7 +98,7 @@ public class ActionVisitorTest {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = CompatActions.foreach(singletonList("hello"));
+    Action action = forEachOf(singletonList("hello")).perform(s -> nop());
     // when accept
     action.accept(visitor);
     // then visited
@@ -119,26 +113,9 @@ public class ActionVisitorTest {
   }
 
   @Test
-  public void givenWithAction$whenAccept$thenVisited() {
-    // given simple action
-    Action action = CompatActions.with("Hello");
-    // when accept
-    action.accept(visitor);
-    // then visited
-    assertThat(
-        out,
-        hasItemAt(0, startsWith("CompatWith"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
-  }
-
-  @Test
   public void givenRetryAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = CompatActions.retry(createSimpleAction(), 1, 1, TimeUnit.NANOSECONDS);
+    Action action = retry(createSimpleAction()).times(1).withIntervalOf(1, TimeUnit.NANOSECONDS);
     // when accept
     action.accept(visitor);
     // then visited
@@ -155,7 +132,7 @@ public class ActionVisitorTest {
   @Test
   public void givenTimeOutAction$whenAccept$thenVisited() {
     // given timeout action
-    Action action = CompatActions.timeout(createSimpleAction(), 1, TimeUnit.NANOSECONDS);
+    Action action = timeout(createSimpleAction()).in(1, TimeUnit.NANOSECONDS);
     // when accept
     action.accept(visitor);
     // then visited
@@ -172,7 +149,7 @@ public class ActionVisitorTest {
   @Test
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
-    Action action = CompatActions.attempt(createSimpleAction()).build();
+    Action action = attempt(createSimpleAction()).build();
     // when accept
     action.accept(visitor);
     // then visited
@@ -189,10 +166,15 @@ public class ActionVisitorTest {
   @Test
   public void givenWhileAction$whenAccept$thenVisited() {
     // given while action
-    Action action = CompatActions.repeatwhile(
-        v -> true,
-        createSimpleAction(),
-        createSimpleAction());
+    Action action = whilst(
+        () -> "Hello",
+        v -> true
+    ).perform(
+        s -> sequential(
+            createSimpleAction(),
+            createSimpleAction()
+        )
+    ).$();
     // when accept
     action.accept(visitor);
     // then visited
@@ -209,10 +191,14 @@ public class ActionVisitorTest {
   @Test
   public void givenWhenAction$whenAccept$thenVisited() {
     // given while action
-    Action action = CompatActions.when(
-        v -> true,
-        createSimpleAction(),
-        createSimpleAction());
+    Action action = when(
+        () -> "Hello",
+        v -> "Hello".equals(v)
+    ).perform(
+        v -> createSimpleAction()
+    ).otherwise(
+        v -> createSimpleAction()
+    );
     // when accept
     action.accept(visitor);
     // then visited

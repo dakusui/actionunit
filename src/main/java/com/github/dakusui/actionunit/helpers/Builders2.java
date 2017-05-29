@@ -17,7 +17,7 @@ public interface Builders2 {
   }
 
   default <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
-    return Builders.repeatWhile(value, condition);
+    return Builders.whilst(value, condition);
   }
 
   default <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {

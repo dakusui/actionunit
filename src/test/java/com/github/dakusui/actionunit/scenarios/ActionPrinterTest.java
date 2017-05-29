@@ -1,16 +1,13 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.compat.actions.CompatTestAction;
-import com.github.dakusui.actionunit.compat.connectors.Sink;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Builders.*;
 import static com.github.dakusui.actionunit.helpers.Utils.size;
-import static com.github.dakusui.actionunit.compat.connectors.Connectors.toSink;
 import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.lang.String.format;
@@ -37,36 +34,24 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class ActionPrinterTest {
-
   public static class ImplTest extends TestUtils.TestBase {
     static Action composeAction() {
-      return CompatActions.concurrent("Concurrent (top level)",
-          CompatActions.sequential("Sequential (1st child)",
-              simple("simple1", new Runnable() {
-                @Override
-                public void run() {
-                }
-              }),
-              simple("simple2", new Runnable() {
-                @Override
-                public void run() {
-                }
-              })
-          ),
-          simple("simple3", new Runnable() {
-            @Override
-            public void run() {
-            }
-          }),
-          CompatActions.foreach(
-              asList("hello1", "hello2", "hello3"),
-              new Sink.Base<String>("block1") {
-                @Override
-                public void apply(String input, Object... outer) {
-                }
-              }
-          )
-      );
+      return named("Concurrent (top level)",
+          concurrent(
+              named("Sequential (1st child)",
+                  sequential(
+                      simple("simple1", () -> {
+                      }),
+                      simple("simple2", () -> {
+                      }),
+                      simple("simple3", () -> {
+                      }),
+                      forEachOf(
+                          asList("hello1", "hello2", "hello3")
+                      ).perform(
+                          i -> nop()
+                      )
+                  ))));
     }
 
     @Test
@@ -127,78 +112,50 @@ public class ActionPrinterTest {
   public static class WithResultTest extends TestUtils.TestBase {
     private static Action composeAction(final List<String> out) {
       //noinspection unchecked
-      return CompatActions.concurrent("Concurrent (top level)",
-          CompatActions.sequential("Sequential (1st child)",
-              simple("simple1", new Runnable() {
-                @Override
-                public void run() {
-                }
+      return named("Concurrent (top level)", concurrent(
+          named("Sequential (1st child)", sequential(
+              simple("simple1", () -> {
               }),
-              simple("simple2", new Runnable() {
-                @Override
-                public void run() {
-                }
-              })
+              simple("simple2", () -> {
+              }),
+              simple("simple3", () -> {
+              }))
           ),
-          simple("simple3", new Runnable() {
-            @Override
-            public void run() {
-            }
-          }),
-          CompatActions.foreach(
-              asList("hello1", "hello2", "hello3"),
-              new CompatTestAction.Builder<String, Object>("ExampleTest")
-                  .when(input -> {
+          forEachOf(
+              asList("hello1", "hello2", "hello3")
+          ).perform(
+              data -> Builders.given(
+                  "ExampleTest", () -> "ExampleTest")
+                  .when("Say 'hello'", input -> {
                     out.add(format("hello:%s", input));
                     return format("hello:%s", input);
                   })
-                  .then(anything()).build()
+                  .then("anything", v -> true)
           ),
-          CompatActions.foreach(
-              asList("world1", "world2", "world3"),
-              sequential(
-                  CompatActions.simple(new Runnable() {
-                    @Override
-                    public void run() {
-
-                    }
+          forEachOf(
+              asList("world1", "world2", "world3")
+          ).perform(
+              i -> sequential(
+                  simple("nothing", () -> {
                   }),
-                  CompatActions.tag(0)
-              ),
-              new Sink<String>() {
-                @Override
-                public void apply(String input, Context context) {
-                }
-
-                @Override
-                public String toString() {
-                  return "sink1";
-                }
-              },
-              new Sink<String>() {
-                @Override
-                public void apply(String input, Context context) {
-                }
-
-                @Override
-                public String toString() {
-                  return "sink2";
-                }
-              }
+                  simple("sink1", () -> {
+                  }),
+                  simple("sink2", () -> {
+                  })
+              )
           )
-      );
+      ));
     }
 
     @Test
     public void givenComplicatedTestAction$whenPerformed$thenWorksFine() {
       List<String> out = new LinkedList<>();
       Action action = composeAction(out);
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
-        action.accept(runner);
+        action.accept(new ActionRunner.Impl());
         assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
       } finally {
-        action.accept(runner.createPrinter());
+        runAndReport(action, new TestUtils.Out());
       }
     }
 
@@ -234,63 +191,53 @@ public class ActionPrinterTest {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
-      Action action = CompatActions.foreach(asList("A", "B"), sequential(CompatActions.tag(0), CompatActions.tag(1)), new Sink<String>() {
-            @Override
-            public void apply(String input, Context context) {
-              out1.writeLine(input + "0");
-            }
-          }, new Sink<String>() {
-            @Override
-            public void apply(String input, Context context) {
-              out1.writeLine(input + "1");
-            }
-          }
+      Action action = forEachOf(asList("A", "B")).perform(
+          i -> sequential(
+              simple("+0", () -> {
+                out1.writeLine(i.get() + "0");
+              }),
+              simple("+1", () -> {
+                out1.writeLine(i.get() + "1");
+              })
+          )
       );
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-      action.accept(runner);
+      action.accept(new ActionRunner.Impl(2));
       assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 
       final TestUtils.Out out2 = new TestUtils.Out();
-      action.accept(runner.createPrinter(out2));
-
+      runAndReport(action, out2);
       assertThat(out2, allOf(
           hasItemAt(0, containsString("(+)CompatForEach")),
           hasItemAt(1, containsString("(+)Sequential")),
           hasItemAt(2, containsString("(+)Tag(0)")),
           hasItemAt(3, containsString("(+)Tag(1)"))
       ));
-      Assert.assertThat(out2.size(), equalTo(4));
+      Assert.assertThat(
+          out2.size(),
+          equalTo(4)
+      );
     }
 
     @Test
     public void givenRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = CompatActions.retry(nop(), 1, 1, TimeUnit.MINUTES);
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-      action.accept(runner);
-      final TestUtils.Out out = new TestUtils.Out();
-      action.accept(runner.createPrinter(out));
+      Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES);
+      TestUtils.Out out = new TestUtils.Out();
+      runAndReport(action, out);
       assertEquals("(+)Retry(60[seconds]x1times)", out.get(0));
     }
 
     @Test(expected = IllegalStateException.class)
     public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = CompatActions.retry(CompatActions.simple(new Runnable() {
+      final TestUtils.Out out = new TestUtils.Out();
+      Action action = retry(simple("AlwaysFail", new Runnable() {
         @Override
         public void run() {
           throw new IllegalStateException(this.toString());
         }
-
-        public String toString() {
-          return "AlwaysFail";
-        }
-      }), 1, 1, TimeUnit.MINUTES);
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
+      })).times(1).withIntervalOf(1, TimeUnit.MINUTES);
       try {
-        action.accept(runner);
+        runAndReport(action, out);
       } finally {
-
-        final TestUtils.Out out = new TestUtils.Out();
-        action.accept(runner.createPrinter(out));
         assertEquals("(E)Retry(60[seconds]x1times)", out.get(0));
         assertEquals("  (E)AlwaysFail", out.get(1));
       }
@@ -299,8 +246,8 @@ public class ActionPrinterTest {
     @Test
     public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out = new TestUtils.Out();
-      Action action = CompatActions.retry(
-          CompatActions.simple(new Runnable() {
+      Action action = retry(
+          simple("PassAfterFail", new Runnable() {
             boolean tried = false;
 
             @Override
@@ -314,18 +261,11 @@ public class ActionPrinterTest {
                 tried = true;
               }
             }
-
-            public String toString() {
-              return "PassAfterFail";
-            }
-          }),
-          1, // once
+          })).times(1).withIntervalOf(
           1, MILLISECONDS);
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
       try {
-        action.accept(runner);
+        runAndReport(action, out);
       } finally {
-        action.accept(runner.createPrinter(out));
         assertEquals("PassAfterFail", out.get(0));
         assertEquals("(+)Retry(1[milliseconds]x1times)", out.get(1));
         assertEquals("  (+)PassAfterFail; 2 times", out.get(2));
@@ -334,11 +274,9 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTimeoutAction$whenPerformed$thenResultPrinted() {
-      Action action = CompatActions.timeout(nop(), 1, TimeUnit.MINUTES);
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-      action.accept(runner);
+      Action action = timeout(nop()).in(1, TimeUnit.MINUTES);
       final TestUtils.Out out = new TestUtils.Out();
-      action.accept(runner.createPrinter(out));
+      runAndReport(action, out);
       assertEquals("(+)TimeOut(60[seconds])", out.get(0));
     }
 
@@ -350,8 +288,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-      action.accept(runner);
+      new ReportingActionRunner.Builder(action).to(ReportingActionRunner.Writer.Std.OUT).build().perform();
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -362,21 +299,11 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-      action.accept(runner);
+      new ReportingActionRunner.Builder(action).to(ReportingActionRunner.Writer.Std.OUT).build().perform();
     }
+  }
 
-    @Test
-    public void test() {
-      final TestUtils.Out out = new TestUtils.Out();
-      Action action = CompatActions.with("Hello", toSink(input -> {
-        out.writeLine(input + " applied");
-        return true;
-      }));
-      CompatActionRunnerWithResult runner = new CompatActionRunnerWithResult();
-      action.accept(runner);
-      action.accept(runner.createPrinter(out));
-      assertEquals("Hello applied", out.get(0));
-    }
+  private static void runAndReport(Action action, TestUtils.Out out) {
+    new ReportingActionRunner.Builder(action).to(out).build().perform();
   }
 }

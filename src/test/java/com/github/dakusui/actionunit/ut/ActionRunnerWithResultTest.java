@@ -1,14 +1,9 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.visitors.CompatActionRunnerWithResult;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.compat.actions.Piped;
-import com.github.dakusui.actionunit.compat.connectors.Pipe;
-import com.github.dakusui.actionunit.compat.connectors.Sink;
-import com.github.dakusui.actionunit.compat.connectors.Source;
+import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -17,6 +12,8 @@ import org.junit.runner.RunWith;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Builders.attempt;
+import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -24,19 +21,22 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class ActionRunnerWithResultTest {
   public abstract static class Base extends ActionRunnerTestBase {
     @Override
-    protected CompatActionRunnerWithResult createRunner() {
-      return new CompatActionRunnerWithResult();
+    protected ActionRunner createRunner() {
+      return new ActionRunner.Impl(5);
     }
 
     @Override
-    public ActionPrinter.Impl getPrinter(ReportingActionRunner.Writer writer) {
-      return ((CompatActionRunnerWithResult) getRunner()).createPrinter(writer);
+    public ActionPrinter getPrinter(ReportingActionRunner.Writer writer) {
+      return new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.ERR);
+    }
+
+    void performAndPrintAction(Action action) {
+      new ReportingActionRunner.Builder(action).to(getWriter()).build().perform();
     }
   }
 
@@ -48,7 +48,7 @@ public class ActionRunnerWithResultTest {
       Action action = createPassingAction();
       ////
       //When printed (without being run)
-      action.accept(getPrinter());
+      performAndPrintAction(action);
       ////
       //Then printed correctly
       //noinspection unchecked
@@ -67,8 +67,7 @@ public class ActionRunnerWithResultTest {
       Action action = createPassingAction();
       ////
       //When performed and printed.
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
+      performAndPrintAction(action);
       ////
       //Then printed correctly
       //noinspection unchecked
@@ -88,20 +87,20 @@ public class ActionRunnerWithResultTest {
       ////
       //When performed and printed
       try {
-        action.accept(this.getRunner());
-        throw new IllegalStateException("This pass mustn't be executed since the action should fail.");
+        performAndPrintAction(action);
+        throw new IllegalStateException("This path mustn't be executed since the action should fail.");
       } catch (AssertionError e) {
         action.accept(this.getPrinter());
+        ////
+        //Then printed correctly
+        //noinspection unchecked
+        assertThat(getWriter(),
+            allOf(
+                hasItemAt(0, startsWith("(F)A failing action")),
+                hasItemAt(1, equalTo("  (F)This fails always"))
+            )
+        );
       }
-      ////
-      //Then printed correctly
-      //noinspection unchecked
-      assertThat(getWriter(),
-          allOf(
-              hasItemAt(0, startsWith("(F)A failing action")),
-              hasItemAt(1, equalTo("  (F)This fails always"))
-          )
-      );
     }
 
     @Test
@@ -112,20 +111,18 @@ public class ActionRunnerWithResultTest {
       ////
       //When performed and printed
       try {
-        action.accept(this.getRunner());
+        performAndPrintAction(action);
         throw new IllegalStateException("This pass mustn't be executed since the action should fail.");
       } catch (RuntimeException e) {
-        action.accept(this.getPrinter());
+        ////
+        //Then printed correctly
+        //noinspection unchecked
+        assertThat(getWriter(),
+            allOf(
+                hasItemAt(0, startsWith("(E)An error action")),
+                hasItemAt(1, equalTo("  (E)This gives a runtime exception always"))
+            ));
       }
-      action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
-      ////
-      //Then printed correctly
-      //noinspection unchecked
-      assertThat(getWriter(),
-          allOf(
-              hasItemAt(0, startsWith("(E)An error action")),
-              hasItemAt(1, equalTo("  (E)This gives a runtime exception always"))
-          ));
     }
   }
 
@@ -137,8 +134,7 @@ public class ActionRunnerWithResultTest {
       Action action = concurrent(createPassingAction(100), createPassingAction(200), createPassingAction(300));
       ////
       //When performed and printed
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
+      performAndPrintAction(action);
       ////
       //Then printed correctly
       //noinspection unchecked
@@ -155,38 +151,24 @@ public class ActionRunnerWithResultTest {
     }
   }
 
-  public static class CompatForEachAction extends Base {
+  public static class ForEachAction extends Base {
     @Test
     public void givenPassingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = CompatActions.foreach(
-          asList("ItemA", "ItemB", "ItemC"),
-          new Sink.Base<String>() {
-            @Override
-            protected void apply(String input, Object... outer) {
-            }
-
-            @Override
-            public String toString() {
-              return "Sink-1";
-            }
-          },
-          new Sink.Base<String>() {
-            @Override
-            protected void apply(String input, Object... outer) {
-            }
-
-            @Override
-            public String toString() {
-              return "Sink-2";
-            }
-          }
+      Action action = forEachOf(
+          asList("ItemA", "ItemB", "ItemC")
+      ).perform(
+          i -> sequential(
+              simple("Sink-1", () -> {
+              }),
+              simple("Sink-2", () -> {
+              })
+          )
       );
       ////
       //When performed and printed
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
+      performAndPrintAction(action);
       ////
       //Then printed correctly
       //noinspection unchecked
@@ -203,36 +185,20 @@ public class ActionRunnerWithResultTest {
     public void givenFailingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = CompatActions.foreach(
-          asList("ItemA", "ItemB", "ItemC"),
-          new Sink.Base<String>() {
-            @Override
-            protected void apply(String input, Object... outer) {
-              throw new RuntimeException("Failing");
-            }
-
-            @Override
-            public String toString() {
-              return "Sink-1";
-            }
-          },
-          new Sink.Base<String>() {
-            @Override
-            protected void apply(String input, Object... outer) {
-            }
-
-            @Override
-            public String toString() {
-              return "Sink-2";
-            }
-          }
-      );
+      Action action = forEachOf(
+          asList("ItemA", "ItemB", "ItemC")
+      ).perform(
+          i -> sequential(
+              simple("Sink-1", () -> {
+                throw new RuntimeException("Failing");
+              }),
+              simple("Sink-2", () -> {
+              })));
       ////
       //When performed and printed
       try {
-        action.accept(this.getRunner());
+        performAndPrintAction(action);
       } finally {
-        action.accept(this.getPrinter());
         ////
         //Then printed correctly
         //noinspection unchecked
@@ -247,18 +213,18 @@ public class ActionRunnerWithResultTest {
     }
   }
 
-  public static class CompatAttemptAction extends Base {
+  public static class AttemptAction extends Base {
     @Test
     public void givenPassingAttemptAction$whenPerformed$thenWorksFine() {
-      Action action = CompatActions.attempt(
+      Action action = attempt(
           nop()
       ).recover(
-          nop()
+          Exception.class,
+          e -> nop()
       ).ensure(
           nop()
-      ).build();
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
+      );
+      performAndPrintAction(action);
       assertThat(getWriter(), allOf(
           hasItemAt(0, equalTo("(+)CompatAttempt")),
           hasItemAt(1, equalTo("  (+)(nop)")),
@@ -272,26 +238,20 @@ public class ActionRunnerWithResultTest {
 
     @Test
     public void givenFailingAttemptAction$whenPerformed$thenWorksFine() {
-      Action action = CompatActions.attempt(
-          CompatActions.simple(new Runnable() {
+      Action action = attempt(
+          simple("Howdy, NPE", new Runnable() {
             @Override
             public void run() {
               throw new NullPointerException(this.toString());
             }
-
-            @Override
-            public String toString() {
-              return "Howdy, NPE";
-            }
           })
       ).recover(
           NullPointerException.class,
-          nop()
+          e -> nop()
       ).ensure(
           nop()
-      ).build();
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
+      );
+      performAndPrintAction(action);
       assertThat(getWriter(), allOf(
           hasItemAt(0, equalTo("(+)CompatAttempt")),
           hasItemAt(1, equalTo("  (E)Howdy, NPE")),
@@ -304,49 +264,11 @@ public class ActionRunnerWithResultTest {
     }
   }
 
-  public static class TagTest extends Base {
-    @Test(expected = UnsupportedOperationException.class)
-    public void givenTagAction$whenPerformed$thenWorksFine() {
-      Action action = CompatActions.tag(0);
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
-    }
-  }
-
-  public static class PipedTest extends Base {
-    @Test
-    public void givenPiped$whenPerformed$thenWorksFine() {
-      Action action = CompatActions.pipe(
-          new Source<String>() {
-            @Override
-            public String apply(Context context) {
-              return "Hello";
-            }
-          },
-          new Pipe<String, Integer>() {
-            @Override
-            public Integer apply(String input, Context context) {
-              return input.length();
-            }
-          },
-          new Sink<Integer>() {
-            @Override
-            public void apply(Integer input, Context context) {
-              getWriter().writeLine("<<" + input.toString() + ">>");
-            }
-          }
-      );
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
-    }
-  }
-
   public static class TestTest extends Base {
     @Test
     public void givenTestAction$whenPerformed$thenWorksFine() {
-      Action action = CompatActions.<String, Integer>test("HelloTestCase")
-          .given("World")
-          .when(
+      Action action = Builders.<String, Integer>given("HelloTestCase", () -> "World")
+          .when("",
               new Function<String, Integer>() {
                 @Override
                 public Integer apply(String input) {
@@ -358,9 +280,8 @@ public class ActionRunnerWithResultTest {
                   return "length";
                 }
               })
-          .then(equalTo(5)).build();
-      action.accept(this.getRunner());
-      action.accept(this.getPrinter());
+          .then("", v -> v == 5);
+      performAndPrintAction(action);
       assertThat(
           this.getWriter().get(0),
           equalTo("(+)HelloTestCase"));
@@ -373,35 +294,19 @@ public class ActionRunnerWithResultTest {
       assertThat(
           this.getWriter().get(3),
           equalTo("  Then:[Matcher(<5>)]"));
-
-      //noinspection unchecked
-      Piped<String, Integer> piped = (Piped<String, Integer>) action;
-      assertEquals(1, piped.getDestinationSinks().length);
-      assertEquals("Function(length)", piped.getPipe().toString());
     }
 
 
     @Test(expected = AssertionError.class)
     public void givenFailingAction$whenPerformed$thenWorksFine() {
-      Action action = CompatActions.<String, Integer>test("HelloTestCase")
-          .given("World")
+      Action action = Builders.<String, Integer>given("HelloTestCase", () -> "World")
           .when(
-              new Function<String, Integer>() {
-                @Override
-                public Integer apply(String input) {
-                  return input.length() + 1;
-                }
-
-                public String toString() {
-                  return "length";
-                }
-              })
-          .then(equalTo(5)).build();
+              "length",
+              input -> input.length() + 1)
+          .then("equals to 5", integer -> integer.equals(5));
       try {
-        action.accept(this.getRunner());
+        performAndPrintAction(action);
       } finally {
-        action.accept(this.getPrinter());
-
         ////
         //Then:
         //  Expectation is to get 0 and therefore AssertionError will be thrown.

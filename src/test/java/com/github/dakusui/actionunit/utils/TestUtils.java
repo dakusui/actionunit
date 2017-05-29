@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.utils;
 
-import com.github.dakusui.actionunit.compat.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -16,18 +15,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class TestUtils {
-  public static final Context DUMMY_CONTEXT = new Context() {
-    @Override
-    public Context getParent() {
-      return null;
-    }
-
-    @Override
-    public Object value() {
-      return null;
-    }
-  };
-
   public static boolean isRunUnderSurefire() {
     return System.getProperty("surefire.real.class.path") != null;
   }
