@@ -3,9 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.*;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -23,15 +21,15 @@ import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(Enclosed.class)
 public class ActionRunnerWithResultTest {
-  public abstract static class Base extends ActionRunnerTestBase {
+  public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, PrintingActionScanner> {
     @Override
-    protected Action.Visitor createRunner() {
+    protected ActionPerformer createRunner() {
       return new ActionPerformer.Impl();
     }
 
     @Override
-    public ActionPrinter getPrinter(Writer writer) {
-      return new ActionPrinter.Impl(Writer.Std.ERR);
+    public PrintingActionScanner getPrinter(Writer writer) {
+      return PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.ERR);
     }
 
     void performAndPrintAction(Action action) {

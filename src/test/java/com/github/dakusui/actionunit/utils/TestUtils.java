@@ -1,6 +1,8 @@
 package com.github.dakusui.actionunit.utils;
 
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -23,6 +25,14 @@ public class TestUtils {
     return new HasItemAt<>(position, itemMatcher);
   }
 
+  public static <P extends Action.Visitor> P createPrintingActionScanner() {
+    return createPrintingActionScanner(Writer.Std.OUT);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <P extends Action.Visitor> P createPrintingActionScanner(Writer writer) {
+    return (P) PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(writer);
+  }
 
   public static class Out extends AbstractList<String> implements Writer {
     private List<String> out = new LinkedList<>();

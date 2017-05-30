@@ -11,21 +11,21 @@ import static com.github.dakusui.actionunit.helpers.Actions.named;
 import static com.github.dakusui.actionunit.helpers.Actions.simple;
 import static org.junit.Assert.assertTrue;
 
-public abstract class ActionRunnerTestBase {
+public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends Action.Visitor> {
   private final TestUtils.Out out    = new TestUtils.Out();
-  private final Action.Visitor  runner = createRunner();
+  private final R  runner = createRunner();
 
-  protected abstract Action.Visitor createRunner();
+  protected abstract R createRunner();
 
-  public abstract Action.Visitor getPrinter(Writer writer);
+  public abstract P getPrinter(Writer writer);
 
-  public Action.Visitor getPrinter() {
+  public P getPrinter() {
     return getPrinter(getWriter());
   }
 
   @SuppressWarnings("unchecked")
-  public <A extends Action.Visitor> A getRunner() {
-    return (A) this.runner;
+  public R getRunner() {
+    return this.runner;
   }
 
   public TestUtils.Out getWriter() {
