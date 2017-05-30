@@ -9,7 +9,7 @@ import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.Node;
 import com.github.dakusui.actionunit.visitors.Report;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
-import com.github.dakusui.actionunit.visitors.TreeBuilder;
+import com.github.dakusui.actionunit.visitors.ActionTreeBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -112,9 +112,9 @@ public class ForEachExample extends TestUtils.TestBase implements Actions2, Buil
 
   @Test
   public void buildTree(Action action) {
-    System.out.println("-->" + TreeBuilder.traverse(action).format());
+    System.out.println("-->" + ActionTreeBuilder.traverse(action).format());
     System.out.println("----");
-    Node.print(TreeBuilder.traverse(action), System.out);
+    Node.print(ActionTreeBuilder.traverse(action), System.out);
     System.out.println("----");
   }
 }

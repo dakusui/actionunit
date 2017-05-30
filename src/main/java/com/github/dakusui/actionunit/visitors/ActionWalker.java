@@ -74,6 +74,70 @@ abstract class ActionWalker implements Action.Visitor {
     );
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public <T> void visit(While<T> action) {
+    handle(
+        action,
+        whileActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public <T> void visit(When<T> action) {
+    handle(
+        action,
+        whenActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T extends Throwable> void visit(Attempt<T> action) {
+    handle(
+        action,
+        attemptActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(TestAction action) {
+    handle(
+        action,
+        testActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(Retry action) {
+    handle(
+        action,
+        retryActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(TimeOut action) {
+    handle(
+        action,
+        timeOutActionConsumer()
+    );
+  }
+
   abstract Consumer<Leaf> leafActionConsumer();
 
   Consumer<Named> namedActionConsumer() {
@@ -93,6 +157,24 @@ abstract class ActionWalker implements Action.Visitor {
   abstract Consumer<Concurrent> concurrentActionConsumer();
 
   abstract <T> Consumer<ForEach<T>> forEachActionConsumer();
+
+  abstract <T> Consumer<While<T>> whileActionConsumer();
+
+  abstract <T> Consumer<When<T>> whenActionConsumer();
+
+  abstract <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer();
+
+  Consumer<TestAction> testActionConsumer() {
+    return (TestAction test) -> {
+      test.given().accept(this);
+      test.when().accept(this);
+      test.then().accept(this);
+    };
+  }
+
+  abstract Consumer<Retry> retryActionConsumer();
+
+  abstract Consumer<TimeOut> timeOutActionConsumer();
 
   <A extends Action> void handle(A action, Consumer<A> handler) {
     @SuppressWarnings("unchecked") Node<A> node =

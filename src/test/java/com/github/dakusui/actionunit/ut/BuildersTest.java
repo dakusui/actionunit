@@ -2,9 +2,9 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class BuildersTest {
           .sequentially()
           .perform(handlerFactory("print item to stdout", System.out::println));
       try {
-        action.accept(new ActionRunner.Impl());
+        action.accept(new ActionPerformer.Impl());
       } finally {
         action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
       }
@@ -37,7 +37,7 @@ public class BuildersTest {
           .sequentially()
           .perform(handlerFactory("print item to stdout", System.out::println));
       try {
-        action.accept(new ActionRunner.Impl());
+        action.accept(new ActionPerformer.Impl());
       } finally {
         action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
       }
@@ -49,7 +49,7 @@ public class BuildersTest {
           .concurrently()
           .perform(handlerFactory("print item to stdout", System.out::println));
       try {
-        action.accept(new ActionRunner.Impl());
+        action.accept(new ActionPerformer.Impl());
       } finally {
         action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
       }
@@ -62,7 +62,7 @@ public class BuildersTest {
           .concurrently()
           .perform(handlerFactory("print item to stdout", System.out::println));
       try {
-        action.accept(new ActionRunner.Impl());
+        action.accept(new ActionPerformer.Impl());
       } finally {
         action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
       }
@@ -93,7 +93,7 @@ public class BuildersTest {
           simple("Say 'bye'", () -> System.out.println("Bye"))
       );
       try {
-        action.accept(new ActionRunner.Impl());
+        action.accept(new ActionPerformer.Impl());
       } finally {
         action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
       }

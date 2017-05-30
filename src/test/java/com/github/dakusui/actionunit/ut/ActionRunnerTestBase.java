@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,9 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 public abstract class ActionRunnerTestBase {
   private final TestUtils.Out out    = new TestUtils.Out();
-  private final ActionRunner  runner = createRunner();
+  private final Action.Visitor  runner = createRunner();
 
-  protected abstract ActionRunner createRunner();
+  protected abstract Action.Visitor createRunner();
 
   public abstract ActionPrinter getPrinter(ReportingActionRunner.Writer writer);
 
@@ -25,7 +24,8 @@ public abstract class ActionRunnerTestBase {
     return getPrinter(getWriter());
   }
 
-  public <A extends ActionRunner> A getRunner() {
+  @SuppressWarnings("unchecked")
+  public <A extends Action.Visitor> A getRunner() {
     return (A) this.runner;
   }
 

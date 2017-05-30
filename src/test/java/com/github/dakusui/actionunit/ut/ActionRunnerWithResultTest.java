@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -24,8 +24,8 @@ import static org.hamcrest.Matchers.startsWith;
 public class ActionRunnerWithResultTest {
   public abstract static class Base extends ActionRunnerTestBase {
     @Override
-    protected ActionRunner createRunner() {
-      return new ActionRunner.Impl(5);
+    protected Action.Visitor createRunner() {
+      return new ActionPerformer.Impl();
     }
 
     @Override

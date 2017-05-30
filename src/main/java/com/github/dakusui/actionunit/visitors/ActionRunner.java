@@ -36,7 +36,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * action.accept(new ActionRunner.Impl());
  * </code>
  *
- * @see ActionRunner.Impl
+ * @see ActionPerformer.Impl
  */
 public abstract class ActionRunner implements Action.Visitor {
   private static final int DEFAULT_THREAD_POOL_SIZE = 5;
@@ -250,22 +250,6 @@ public abstract class ActionRunner implements Action.Visitor {
           return true;
         }
     );
-  }
-
-  /**
-   * A simple implementation of an {@link ActionRunner}.
-   */
-  public static class Impl extends ActionRunner {
-    /**
-     * Creates an object of this class.
-     */
-    public Impl() {
-      this(DEFAULT_THREAD_POOL_SIZE);
-    }
-
-    public Impl(int threadPoolSize) {
-      super(threadPoolSize);
-    }
   }
 
 }

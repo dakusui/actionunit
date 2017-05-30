@@ -6,8 +6,8 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Assert;
 import org.junit.Test;
@@ -154,7 +154,7 @@ public class ActionPrinterTest {
       List<String> out = new LinkedList<>();
       Action action = composeAction(out);
       try {
-        action.accept(new ActionRunner.Impl());
+        action.accept(new ActionPerformer.Impl());
         assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
       } finally {
         runAndReport(action, new TestUtils.Out());
@@ -207,7 +207,7 @@ public class ActionPrinterTest {
               })
           )
       );
-      action.accept(new ActionRunner.Impl(2));
+      action.accept(new ActionPerformer.Impl());
       assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 
       final TestUtils.Out out2 = new TestUtils.Out();

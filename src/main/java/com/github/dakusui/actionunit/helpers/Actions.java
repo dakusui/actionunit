@@ -16,7 +16,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * This class contains static utility methods that return objects of type {@code Action}.
  * How objects returned by methods in this class are performed is subject to actual implementations
  * of {@link Action.Visitor} interfaces, such as
- * {@link com.github.dakusui.actionunit.visitors.ActionRunner}.
+ * {@link com.github.dakusui.actionunit.visitors.ActionPerformer}.
  *
  * @see Action
  * @see Action.Visitor

@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.helpers.Actions.sequential;
@@ -13,7 +13,7 @@ import static com.github.dakusui.actionunit.helpers.Builders.attempt;
 public class AttemptExample {
   @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenPerform$thenWorksFine() {
-    buildAttemptAction().accept(new ActionRunner.Impl());
+    buildAttemptAction().accept(new ActionPerformer.Impl());
   }
 
   @Test

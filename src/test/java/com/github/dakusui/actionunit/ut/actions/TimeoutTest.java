@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.helpers.Utils;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -38,7 +38,7 @@ public class TimeoutTest implements Actions2, Builders2 {
     );
     interrupter.start();
     try {
-      action.accept(new ActionRunner.Impl());
+      action.accept(new ActionPerformer.Impl());
     } catch (ActionException e) {
       throw e.getCause();
     }

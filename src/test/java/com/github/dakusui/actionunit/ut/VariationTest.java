@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -23,7 +23,7 @@ public class VariationTest implements Actions2, Builders2 {
                 () -> list.add(String.format("%s-%s", i.get(), j.get()))
             )
         )
-    ).accept(new ActionRunner.Impl());
+    ).accept(new ActionPerformer.Impl());
     assertEquals(
         asList(
             "a-1",
@@ -41,7 +41,7 @@ public class VariationTest implements Actions2, Builders2 {
         asList("a", "b")
     ).perform(
         i -> nop()
-    ).accept(new ActionRunner.Impl());
+    ).accept(new ActionPerformer.Impl());
   }
 
   @Test
@@ -52,7 +52,7 @@ public class VariationTest implements Actions2, Builders2 {
         i -> this.<String, Integer>given("given data", i)
             .when("when parse int", value -> Integer.parseInt(value.substring(value.length() - 1)))
             .then("then non-null returned", Objects::nonNull)
-    ).accept(new ActionRunner.Impl());
+    ).accept(new ActionPerformer.Impl());
   }
 
   @Test
@@ -61,7 +61,7 @@ public class VariationTest implements Actions2, Builders2 {
         i -> this.<String, Integer>given("'9' is given", () -> "9")
             .when("when parseInt", value -> Integer.parseInt(value.substring(value.length() - 1)))
             .then("then passes (always)", out -> true)
-    ).accept(new ActionRunner.Impl());
+    ).accept(new ActionPerformer.Impl());
   }
 
   @Test
@@ -71,6 +71,6 @@ public class VariationTest implements Actions2, Builders2 {
             this.given("Host name is given", hostName)
                 .when("", input -> Integer.parseInt(input.substring(input.length() - 1)))
                 .then("then passes (always)", out -> true)
-    ).accept(new ActionRunner.Impl());
+    ).accept(new ActionPerformer.Impl());
   }
 }

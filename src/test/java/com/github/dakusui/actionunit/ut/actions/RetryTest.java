@@ -7,7 +7,7 @@ import com.github.dakusui.actionunit.helpers.Actions;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 
@@ -51,7 +51,7 @@ public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2
           firstTime = false;
         }
       }
-    }), 0, Retry.INFINITE).accept(new ActionRunner.Impl());
+    }), 0, Retry.INFINITE).accept(new ActionPerformer.Impl());
   }
 
   @Test

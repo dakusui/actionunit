@@ -70,7 +70,7 @@ Following is an example of actionunit.
     
       @Test
       public void run(Action action) {
-        action.accept(new ActionRunner());
+        action.accept(new ActionPerformer.Impl() {});
       }
     }
 
