@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Deque;
@@ -17,6 +18,81 @@ abstract class ActionWalker implements Action.Visitor {
     this._current.set(new LinkedList<>());
     this.root = null;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(Leaf action) {
+    handle(
+        action,
+        leafActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(Named action) {
+    handle(
+        action,
+        namedActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(Sequential action) {
+    handle(
+        action,
+        sequentialActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void visit(Concurrent action) {
+    handle(
+        action,
+        concurrentActionConsumer()
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T> void visit(ForEach<T> action) {
+    handle(
+        action,
+        forEachActionConsumer()
+    );
+  }
+
+  abstract Consumer<Leaf> leafActionConsumer();
+
+  Consumer<Named> namedActionConsumer() {
+    return (Named named) -> named.getAction().accept(this);
+  }
+
+  Consumer<Sequential> sequentialActionConsumer() {
+    return (Sequential sequential) -> {
+      try (AutocloseableIterator<Action> i = sequential.iterator()) {
+        while (i.hasNext()) {
+          i.next().accept(this);
+        }
+      }
+    };
+  }
+
+  abstract Consumer<Concurrent> concurrentActionConsumer();
+
+  abstract <T> Consumer<ForEach<T>> forEachActionConsumer();
 
   <A extends Action> void handle(A action, Consumer<A> handler) {
     @SuppressWarnings("unchecked") Node<A> node =

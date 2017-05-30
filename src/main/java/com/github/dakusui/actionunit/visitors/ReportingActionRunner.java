@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.Utils;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -29,8 +29,8 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
 
   public static class Builder {
     private final Action action;
-    private Report.Record.Formatter formatter      = Report.Record.Formatter.DEFAULT_INSTANCE;
-    private Writer                  writer         = Writer.Std.OUT;
+    private Report.Record.Formatter formatter = Report.Record.Formatter.DEFAULT_INSTANCE;
+    private Writer                  writer    = Writer.Std.OUT;
 
 
     public Builder(Action action) {
@@ -73,100 +73,13 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
     }
   }
 
-  @Override
-  public void visit(Action action) {
-    throw new UnsupportedOperationException(Utils.describe(action));
-  }
-
-  @Override
-  public void visit(Leaf action) {
-    handle(
-        action,
-        Leaf::perform
-    );
-  }
-
-  @Override
-  public void visit(Named action) {
-    handle(
-        action,
-        (Named named) -> named.getAction().accept(this)
-    );
-  }
-
-  @Override
-  public void visit(Sequential action) {
-    handle(
-        action,
-        (Sequential sequential) -> {
-          try (AutocloseableIterator<Action> i = sequential.iterator()) {
-            while (i.hasNext()) {
-              i.next().accept(this);
-            }
-          }
-        }
-    );
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void visit(Concurrent action) {
-    handle(
-        action,
-        (Concurrent concurrent) -> {
-          Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
-          StreamSupport.stream(concurrent.spliterator(), false)
-              .map(this::toRunnable)
-              .map((Runnable runnable) -> (Runnable) () -> {
-                branchPath(pathSnapshot);
-                runnable.run();
-              })
-              .collect(Collectors.toList())
-              .parallelStream()
-              .forEach(Runnable::run);
-        }
-    );
-  }
-
-  private void branchPath(Deque<Node<Action>> pathSnapshot) {
-    ReportingActionRunner.this._current.set(new LinkedList<>(pathSnapshot));
-  }
-
-  private LinkedList<Node<Action>> snapshotCurrentPath() {
-    return new LinkedList<>(this.getCurrentPath());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public <T> void visit(ForEach<T> action) {
-    handle(
-        action,
-        (ForEach<T> forEach) -> stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
-            .map((T item) -> (Supplier<T>) () -> item)
-            .map(forEach::createHandler)
-            .forEach((Action eachChild) -> {
-              eachChild.accept(ReportingActionRunner.this);
-            })
-    );
-  }
-
   /**
    * {@inheritDoc}
    */
   public <T> void visit(While<T> action) {
     handle(
         action,
-        (While<T> while$) -> {
-          Supplier<T> value = while$.value();
-          //noinspection unchecked
-          while (while$.check().test(value.get())) {
-            while$.createHandler(value).accept(ReportingActionRunner.this);
-          }
-        }
+        whileActionConsumer()
     );
   }
 
@@ -176,17 +89,10 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
   public <T> void visit(When<T> action) {
     handle(
         action,
-        (When<T> when) -> {
-          Supplier<T> value = when.value();
-          //noinspection unchecked
-          if (when.check().test(value.get())) {
-            when.perform(value).accept(ReportingActionRunner.this);
-          } else {
-            when.otherwise(value).accept(ReportingActionRunner.this);
-          }
-        }
+        whenActionConsumer()
     );
   }
+
 
   /**
    * {@inheritDoc}
@@ -195,19 +101,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
   public <T extends Throwable> void visit(Attempt<T> action) {
     handle(
         action,
-        (Attempt<T> attempt) -> {
-          try {
-            attempt.attempt().accept(this);
-          } catch (Throwable e) {
-            if (!attempt.exceptionClass().isAssignableFrom(e.getClass())) {
-              throw new Wrapped(e);
-            }
-            //noinspection unchecked
-            attempt.recover(() -> (T) e).accept(this);
-          } finally {
-            attempt.ensure().accept(this);
-          }
-        }
+        attemptActionConsumer()
     );
   }
 
@@ -218,11 +112,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
   public void visit(TestAction action) {
     handle(
         action,
-        (TestAction test) -> {
-          test.given().accept(this);
-          test.when().accept(this);
-          test.then().accept(this);
-        }
+        testActionConsumer()
     );
   }
 
@@ -233,27 +123,7 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
   public void visit(Retry action) {
     handle(
         action,
-        (Retry retry) -> {
-          try {
-            toRunnable(retry.action).run();
-          } catch (Throwable e) {
-            Throwable lastException = e;
-            for (int i = 0; i < retry.times || retry.times == Retry.INFINITE; i++) {
-              if (retry.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
-                sleep(retry.intervalInNanos, NANOSECONDS);
-                try {
-                  toRunnable(retry.action).run();
-                  return;
-                } catch (Throwable t) {
-                  lastException = t;
-                }
-              } else {
-                throw ActionException.wrap(lastException);
-              }
-            }
-            throw ActionException.wrap(lastException);
-          }
-        }
+        retryActionConsumer()
     );
   }
 
@@ -262,17 +132,133 @@ public class ReportingActionRunner extends ActionWalker implements Action.Visito
    */
   @Override
   public void visit(final TimeOut action) {
-    Deque<Node<Action>> snapshotPath = snapshotCurrentPath();
-    runWithTimeout((Callable<Object>) () -> {
-          branchPath(snapshotPath);
-          action.action.accept(ReportingActionRunner.this);
-          return true;
-        },
-        action.durationInNanos,
-        NANOSECONDS
-    );
+    handle(
+        action,
+        timeOutActionConsumer(action));
   }
 
+  @Override
+  Consumer<Concurrent> concurrentActionConsumer() {
+    return (Concurrent concurrent) -> {
+      Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
+      StreamSupport.stream(concurrent.spliterator(), false)
+          .map(this::toRunnable)
+          .map((Runnable runnable) -> (Runnable) () -> {
+            branchPath(pathSnapshot);
+            runnable.run();
+          })
+          .collect(Collectors.toList())
+          .parallelStream()
+          .forEach(Runnable::run);
+    };
+  }
+
+  @Override
+  Consumer<Leaf> leafActionConsumer() {
+    return Leaf::perform;
+  }
+
+  @Override
+  <T> Consumer<ForEach<T>> forEachActionConsumer() {
+    return (ForEach<T> forEach) -> stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
+        .map((T item) -> (Supplier<T>) () -> item)
+        .map(forEach::createHandler)
+        .forEach((Action eachChild) -> {
+          eachChild.accept(ReportingActionRunner.this);
+        });
+  }
+
+  private <T> Consumer<While<T>> whileActionConsumer() {
+    return (While<T> while$) -> {
+      Supplier<T> value = while$.value();
+      //noinspection unchecked
+      while (while$.check().test(value.get())) {
+        while$.createHandler(value).accept(ReportingActionRunner.this);
+      }
+    };
+  }
+
+  private <T> Consumer<When<T>> whenActionConsumer() {
+    return (When<T> when) -> {
+      Supplier<T> value = when.value();
+      //noinspection unchecked
+      if (when.check().test(value.get())) {
+        when.perform(value).accept(ReportingActionRunner.this);
+      } else {
+        when.otherwise(value).accept(ReportingActionRunner.this);
+      }
+    };
+  }
+
+  private <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
+    return (Attempt<T> attempt) -> {
+      try {
+        attempt.attempt().accept(this);
+      } catch (Throwable e) {
+        if (!attempt.exceptionClass().isAssignableFrom(e.getClass())) {
+          throw new Wrapped(e);
+        }
+        //noinspection unchecked
+        attempt.recover(() -> (T) e).accept(this);
+      } finally {
+        attempt.ensure().accept(this);
+      }
+    };
+  }
+
+  private Consumer<TestAction> testActionConsumer() {
+    return (TestAction test) -> {
+      test.given().accept(this);
+      test.when().accept(this);
+      test.then().accept(this);
+    };
+  }
+
+  private Consumer<Retry> retryActionConsumer() {
+    return (Retry retry) -> {
+      try {
+        toRunnable(retry.action).run();
+      } catch (Throwable e) {
+        Throwable lastException = e;
+        for (int i = 0; i < retry.times || retry.times == Retry.INFINITE; i++) {
+          if (retry.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
+            sleep(retry.intervalInNanos, NANOSECONDS);
+            try {
+              toRunnable(retry.action).run();
+              return;
+            } catch (Throwable t) {
+              lastException = t;
+            }
+          } else {
+            throw ActionException.wrap(lastException);
+          }
+        }
+        throw ActionException.wrap(lastException);
+      }
+    };
+  }
+
+  private Consumer<TimeOut> timeOutActionConsumer(TimeOut action) {
+    return timeOut -> {
+      Deque<Node<Action>> snapshotPath = snapshotCurrentPath();
+      runWithTimeout((Callable<Object>) () -> {
+            branchPath(snapshotPath);
+            action.action.accept(ReportingActionRunner.this);
+            return true;
+          },
+          action.durationInNanos,
+          NANOSECONDS
+      );
+    };
+  }
+
+  private void branchPath(Deque<Node<Action>> pathSnapshot) {
+    ReportingActionRunner.this._current.set(new LinkedList<>(pathSnapshot));
+  }
+
+  private LinkedList<Node<Action>> snapshotCurrentPath() {
+    return new LinkedList<>(this.getCurrentPath());
+  }
 
   @Override
   <A extends Action> Node<A> toNode(Node<Action> parent, A action) {

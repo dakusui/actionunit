@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.
@@ -38,7 +39,9 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action action);
+    default void visit(Action action) {
+      throw new UnsupportedOperationException(Utils.describe(action));
+    }
 
     /**
      * Visits an {@code action}.

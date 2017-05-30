@@ -3,9 +3,9 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.AutocloseableIterator;
-import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class TreeBuilder extends ActionWalker implements Action.Visitor {
@@ -18,52 +18,8 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
   private TreeBuilder() {
   }
 
-  @Override
-  public void visit(Action action) {
-    throw new UnsupportedOperationException(Utils.describe(action));
-  }
-
-  @Override
-  public void visit(Leaf action) {
-    handle(
-        action,
-        this::handleAction
-    );
-  }
-
-  @Override
-  public void visit(Named action) {
-    handle(
-        action,
-        (Named a) -> {
-          handleAction(a);
-          a.getAction().accept(this);
-        }
-    );
-  }
-
-  @Override
-  public void visit(Composite action) {
-    handle(
-        action,
-        (Composite a) -> {
-          handleAction(a);
-          try (AutocloseableIterator<Action> i = a.iterator()) {
-            while (i.hasNext()) {
-              i.next().accept(this);
-            }
-          }
-        }
-    );
-  }
-
-  @Override
-  public <T> void visit(ForEach<T> action) {
-    handle(
-        action,
-        (ForEach<T> a) -> a.createHandler(() -> {
-          throw new UnsupportedOperationException();
-        }).accept(this));
+  Consumer<Leaf> leafActionConsumer() {
+    return this::handleAction;
   }
 
   /**
@@ -135,7 +91,30 @@ public class TreeBuilder extends ActionWalker implements Action.Visitor {
 
   @Override
   public void visit(TimeOut action) {
-    handle(action, this::handleAction);
+    handle(
+        action,
+        (TimeOut timeOut) -> {
+          timeOut.action.accept(this);
+        }
+    );
+  }
+
+  @Override
+  Consumer<Concurrent> concurrentActionConsumer() {
+    return (Concurrent a) -> {
+      try (AutocloseableIterator<Action> i = a.iterator()) {
+        while (i.hasNext()) {
+          i.next().accept(this);
+        }
+      }
+    };
+  }
+
+  @Override
+  <T> Consumer<ForEach<T>> forEachActionConsumer() {
+    return (ForEach<T> a) -> a.createHandler(() -> {
+      throw new UnsupportedOperationException();
+    }).accept(this);
   }
 
   @SuppressWarnings("unchecked")
