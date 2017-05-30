@@ -149,7 +149,7 @@ public abstract class ActionPerformer extends ActionWalker {
 
 
   /**
-   * A simple implementation of an {@link ActionRunner}.
+   * A simple implementation of an {@link ActionPerformer}.
    */
   public static class Impl extends ActionPerformer {
   }
