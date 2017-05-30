@@ -6,9 +6,9 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -154,7 +154,7 @@ public class Basic implements Actions2, Builders2 {
 
   @DryRun
   public void print(Action action) {
-    action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+    action.accept(new PrintingActionScanner(Writer.Std.OUT));
   }
 
   @AfterClass

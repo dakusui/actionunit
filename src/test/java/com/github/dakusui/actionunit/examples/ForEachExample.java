@@ -5,11 +5,9 @@ import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.Node;
-import com.github.dakusui.actionunit.visitors.Report;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
-import com.github.dakusui.actionunit.visitors.ActionTreeBuilder;
+import com.github.dakusui.actionunit.visitors.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -105,7 +103,7 @@ public class ForEachExample extends TestUtils.TestBase implements Actions2, Buil
   public void runAction2(Action action) {
     new ReportingActionRunner.Builder(action)
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
-        .to(ReportingActionRunner.Writer.Std.OUT)
+        .to(Writer.Std.OUT)
         .build()
         .perform();
   }

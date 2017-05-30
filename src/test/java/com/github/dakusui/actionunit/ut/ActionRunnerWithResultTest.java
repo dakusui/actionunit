@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
@@ -29,8 +30,8 @@ public class ActionRunnerWithResultTest {
     }
 
     @Override
-    public ActionPrinter getPrinter(ReportingActionRunner.Writer writer) {
-      return new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.ERR);
+    public ActionPrinter getPrinter(Writer writer) {
+      return new ActionPrinter.Impl(Writer.Std.ERR);
     }
 
     void performAndPrintAction(Action action) {

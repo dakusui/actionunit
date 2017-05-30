@@ -3,24 +3,23 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.dakusui.actionunit.io.Writer;
 
-import java.util.*;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class ReportingActionRunner extends ActionPerformer implements Action.Visitor {
-  private final Writer                  writer;
+  private final Writer    writer;
   private final Report.Record.Formatter formatter;
   private final Report                  report;
 
   public static class Builder {
     private final Action action;
     private Report.Record.Formatter formatter = Report.Record.Formatter.DEFAULT_INSTANCE;
-    private Writer                  writer    = Writer.Std.OUT;
+    private Writer    writer    = Writer.Std.OUT;
 
 
     public Builder(Action action) {
@@ -124,77 +123,4 @@ public class ReportingActionRunner extends ActionPerformer implements Action.Vis
     this.report.failed((Node<Action>) node, e);
   }
 
-  /**
-   * An interface that abstracts various destinations to which {@link ActionPrinter.Impl}'s
-   * output goes.
-   */
-  public interface Writer {
-    void writeLine(String s);
-
-    class Impl implements Writer, Iterable<String> {
-      List<String> arr = new ArrayList<>();
-
-      @Override
-      public void writeLine(String s) {
-        arr.add(s);
-      }
-
-      @Override
-      public Iterator<String> iterator() {
-        return this.arr.iterator();
-      }
-    }
-
-    enum Std implements Writer {
-      OUT {
-        @Override
-        public void writeLine(String s) {
-          System.out.println(s);
-        }
-      },
-      ERR {
-        @Override
-        public void writeLine(String s) {
-          System.err.println(s);
-        }
-      };
-
-      @Override
-      public abstract void writeLine(String s);
-    }
-
-    enum Slf4J implements Writer {
-      TRACE {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.trace(s);
-        }
-      },
-      DEBUG {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.debug(s);
-        }
-      },
-      INFO {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.info(s);
-        }
-      },
-      WARN {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.warn(s);
-        }
-      },
-      ERROR {
-        @Override
-        public void writeLine(String s) {
-          LOGGER.error(s);
-        }
-      };
-      private static final Logger LOGGER = LoggerFactory.getLogger(Writer.Slf4J.class);
-    }
-  }
 }

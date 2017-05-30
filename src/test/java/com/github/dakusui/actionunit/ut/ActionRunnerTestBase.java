@@ -2,9 +2,8 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 
 import java.util.concurrent.TimeUnit;
 
@@ -18,9 +17,9 @@ public abstract class ActionRunnerTestBase {
 
   protected abstract Action.Visitor createRunner();
 
-  public abstract ActionPrinter getPrinter(ReportingActionRunner.Writer writer);
+  public abstract Action.Visitor getPrinter(Writer writer);
 
-  public ActionPrinter getPrinter() {
+  public Action.Visitor getPrinter() {
     return getPrinter(getWriter());
   }
 

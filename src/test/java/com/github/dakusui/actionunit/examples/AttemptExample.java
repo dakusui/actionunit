@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.helpers.Actions.sequential;
@@ -18,7 +18,7 @@ public class AttemptExample {
 
   @Test
   public void givenAttemptAction$whenPrint$thenWorksFine() {
-    buildAttemptAction().accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+    buildAttemptAction().accept(new PrintingActionScanner(Writer.Std.OUT));
   }
 
   private Attempt<? super NullPointerException> buildAttemptAction() {

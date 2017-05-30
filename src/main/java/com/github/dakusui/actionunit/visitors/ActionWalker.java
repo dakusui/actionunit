@@ -177,11 +177,10 @@ abstract class ActionWalker implements Action.Visitor {
   abstract Consumer<TimeOut> timeOutActionConsumer();
 
   <A extends Action> void handle(A action, Consumer<A> handler) {
-    @SuppressWarnings("unchecked") Node<A> node =
-        toNode(
-            this.getCurrentPath().peek(),
-            action
-        );
+    @SuppressWarnings("unchecked") Node<A> node = toNode(
+        this.getCurrentPath().peek(),
+        action
+    );
     before(node);
     try {
       handler.accept(action);

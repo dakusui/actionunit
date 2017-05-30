@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -30,8 +30,8 @@ public class ActionRunnerTest {
     }
 
     @Override
-    public ActionPrinter getPrinter(ReportingActionRunner.Writer writer) {
-      return ActionPrinter.Factory.DEFAULT_INSTANCE.create(writer);
+    public Action.Visitor getPrinter(Writer writer) {
+      return PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(writer);
     }
   }
 

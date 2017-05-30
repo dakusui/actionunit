@@ -3,9 +3,9 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 
 public class TestActionExample {
@@ -27,7 +27,7 @@ public class TestActionExample {
     try {
       testAction.accept(new ActionPerformer.Impl());
     } finally {
-      testAction.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+      testAction.accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.OUT));
     }
   }
 

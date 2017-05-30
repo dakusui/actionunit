@@ -2,9 +2,9 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -27,7 +27,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionPerformer.Impl());
       } finally {
-        action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(Writer.Std.OUT));
       }
     }
 
@@ -39,7 +39,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionPerformer.Impl());
       } finally {
-        action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(Writer.Std.OUT));
       }
     }
 
@@ -51,7 +51,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionPerformer.Impl());
       } finally {
-        action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(Writer.Std.OUT));
       }
     }
 
@@ -64,7 +64,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionPerformer.Impl());
       } finally {
-        action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(Writer.Std.OUT));
       }
     }
   }
@@ -95,7 +95,7 @@ public class BuildersTest {
       try {
         action.accept(new ActionPerformer.Impl());
       } finally {
-        action.accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
+        action.accept(new ActionPrinter.Impl(Writer.Std.OUT));
       }
     }
   }

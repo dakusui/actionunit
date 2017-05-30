@@ -5,9 +5,10 @@ import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.helpers.Builders.*;
@@ -56,34 +58,40 @@ public class ActionPrinterTest {
 
     @Test
     public void givenTrace() {
-      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.trace());
+      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.trace());
     }
 
     @Test
     public void givenDebug$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.debug());
+      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.debug());
     }
 
     @Test
     public void givenInfo$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.info());
+      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.info());
     }
 
     @Test
     public void givenWarn() {
-      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.warn());
+      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.warn());
     }
 
     @Test
     public void givenError() {
-      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.error());
+      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.error());
     }
 
     @Test
     public void givenNew() {
-      ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
+      ////
+      // Prepare and run a printing scanner
+      PrintingActionScanner printer = new PrintingActionScanner(new Writer.Impl());
+      Writer.Impl writer = (Writer.Impl) printer.getWriter();
+      // run printing scanner
       composeAction().accept(printer);
-      ReportingActionRunner.Writer.Impl writer = (ReportingActionRunner.Writer.Impl) ((ActionPrinter.Impl) printer).getWriter();
+      // print data written to a writer
+      StreamSupport.stream(writer.spliterator(), false).forEach(System.err::println);
+
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent (1 actions)"));
@@ -92,20 +100,21 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("simple1"));
       assertThat(i.next(), containsString("simple2"));
       assertThat(i.next(), containsString("simple3"));
+      assertThat(i.next(), containsString("ForEach"));
       assertThat(i.next(), containsString("(nop)"));
-      assertEquals(8, size(writer));
+      assertEquals(9, size(writer));
     }
   }
 
   public static class StdOutErrTest extends TestUtils.TestBase {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.stdout());
+      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stdout());
     }
 
     @Test
     public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(ActionPrinter.Factory.DEFAULT_INSTANCE.stderr());
+      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stderr());
     }
   }
 
@@ -164,10 +173,10 @@ public class ActionPrinterTest {
     @Test
     public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
       List<String> out = new LinkedList<>();
-      ActionPrinter printer = ActionPrinter.Factory.DEFAULT_INSTANCE.create();
+      PrintingActionScanner printer = new PrintingActionScanner(new Writer.Impl());
+      Writer.Impl writer = (Writer.Impl) printer.getWriter();
       composeAction(out).accept(printer);
-      composeAction(out).accept(new ActionPrinter.Impl(ReportingActionRunner.Writer.Std.OUT));
-      ReportingActionRunner.Writer.Impl writer = (ReportingActionRunner.Writer.Impl) ((ActionPrinter.Impl) printer).<ReportingActionRunner.Writer.Impl>getWriter();
+      StreamSupport.stream(writer.spliterator(), false).forEach(System.err::println);
       Iterator<String> i = writer.iterator();
       assertThat(i.next(), containsString("Concurrent (top level)"));
       assertThat(i.next(), containsString("Concurrent"));
@@ -176,6 +185,7 @@ public class ActionPrinterTest {
       assertThat(i.next(), containsString("simple1"));
       assertThat(i.next(), containsString("simple2"));
       assertThat(i.next(), containsString("simple3"));
+      assertThat(i.next(), containsString("ForEach1"));
       assertThat(i.next(), containsString("ForEach"));
       assertThat(i.next(), containsString("TestAction"));
       assertThat(i.next(), containsString("Given"));
@@ -184,12 +194,13 @@ public class ActionPrinterTest {
       i.next();
       assertThat(i.next(), containsString("Then"));
       i.next();
+      assertThat(i.next(), containsString("ForEach2"));
       assertThat(i.next(), containsString("ForEach"));
       assertThat(i.next(), containsString("Sequential"));
       assertThat(i.next(), containsString("nothing"));
       assertThat(i.next(), containsString("sink1"));
       assertThat(i.next(), containsString("sink2"));
-      assertEquals(20, size(writer));
+      assertEquals(22, size(writer));
     }
   }
 
@@ -294,7 +305,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      new ReportingActionRunner.Builder(action).to(ReportingActionRunner.Writer.Std.OUT).build().perform();
+      new ReportingActionRunner.Builder(action).to(Writer.Std.OUT).build().perform();
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -305,7 +316,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      new ReportingActionRunner.Builder(action).to(ReportingActionRunner.Writer.Std.OUT).build().perform();
+      new ReportingActionRunner.Builder(action).to(Writer.Std.OUT).build().perform();
     }
   }
 
