@@ -62,9 +62,7 @@ public class Report implements Iterable<Node<Action>> {
 
         private String formatRecord(Report.Record runs) {
           StringBuilder b = new StringBuilder();
-          runs.forEach(run -> {
-            b.append(run.toString());
-          });
+          runs.forEach(run -> b.append(run.toString()));
           return b.toString();
         }
       };
@@ -72,7 +70,7 @@ public class Report implements Iterable<Node<Action>> {
       String format(Node<Action> actionNode, Record record, int indentLevel);
     }
 
-    final List<Record.Run> runs = new LinkedList<>();
+    final List<Record.Run> runs = Collections.synchronizedList(new LinkedList<>());
 
     void succeeded() {
       runs.add(Record.Run.SUCCEEDED);
@@ -93,16 +91,9 @@ public class Report implements Iterable<Node<Action>> {
     }
 
     public interface Run {
-      boolean wasSuccessful();
-
       Throwable exception();
 
       Record.Run SUCCEEDED = new Record.Run() {
-        @Override
-        public boolean wasSuccessful() {
-          return true;
-        }
-
         @Override
         public Throwable exception() {
           throw new IllegalStateException();
@@ -116,11 +107,6 @@ public class Report implements Iterable<Node<Action>> {
       static Record.Run failed(Throwable t) {
         Objects.requireNonNull(t);
         return new Record.Run() {
-          @Override
-          public boolean wasSuccessful() {
-            return false;
-          }
-
           @Override
           public Throwable exception() {
             return t;

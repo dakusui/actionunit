@@ -41,9 +41,5 @@ public interface Sequential extends Composite {
     public Sequential create(Iterable<? extends Action> actions) {
       return new Impl(actions);
     }
-
-    public String toString() {
-      return "Sequential";
-    }
   }
 }

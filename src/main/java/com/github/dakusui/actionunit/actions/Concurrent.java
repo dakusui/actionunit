@@ -27,12 +27,5 @@ public interface Concurrent extends Composite {
     public Concurrent create(Iterable<? extends Action> actions) {
       return new Base(actions);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String toString() {
-      return "Concurrent";
-    }
   }
 }

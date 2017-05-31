@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.utils.TestUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -52,8 +53,8 @@ public class ForEachTest implements ActionFactory {
 
 
   @Test
-  public void givenConcurrentForEachAction$whenPerformWithReporting$worksCorrectly() {
-    List<String> out = new LinkedList<>();
+  public void givenConcurrentForEachAction$whenPerformWithReporting$worksCorrectly() throws InterruptedException {
+    List<String> out = Collections.synchronizedList(new LinkedList<>());
     // Given
     Action givenAction = forEachOf(
         "Hello", "world", "!"
@@ -91,7 +92,6 @@ public class ForEachTest implements ActionFactory {
 
   @Test(expected = IllegalStateException.class)
   public void givenConfusingForEachAction$whenPerformWithReporting$worksCorrectly() {
-    List<String> out = new LinkedList<>();
     // Given
     Action givenAction = forEachOf(
         "Hello", "world", "!"
