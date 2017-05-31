@@ -52,8 +52,7 @@ Following is an example of actionunit.
                 )
             )
         );
-        // When
-        new ReportingActionPerformer.Builder(action).build().perform();
+        new ReportingActionPerformer.Builder(givenAction).to(Writer.Std.ERR).build().perform();
     }
   }
 ```
