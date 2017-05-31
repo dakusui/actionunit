@@ -4,22 +4,17 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
-import java.util.Iterator;
-import java.util.concurrent.Callable;
-
-import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.Actions.sequential;
+import static com.github.dakusui.actionunit.helpers.Actions.simple;
 import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class ActionRunnerTest {
@@ -79,32 +74,6 @@ public class ActionRunnerTest {
               simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get()))
           )
       );
-    }
-  }
-
-  public static class ConcurrentActionHandling extends Base {
-    /**
-     * Once migration to new Action Running mechanism, which relies on streaming,
-     * not on iterating, this test will become completely unnecessary.
-     */
-    @Ignore
-    @Test(expected = RuntimeException.class)
-    public void whenIteratorThrowsException$thenExceptionThrown() {
-      Action action = concurrent(nop(), nop());
-      action.accept(this.getRunner());
-    }
-
-    @Override
-    protected Action.Visitor createRunner() {
-      //noinspection unchecked
-      final Iterator<Callable<Boolean>> iterator = mock(Iterator.class);
-      Mockito.doThrow(new RuntimeException()).when(iterator).hasNext();
-      return new ActionPerformer(); /*{ //TODO
-        @Override
-        protected Iterable<Callable<Boolean>> toCallables(Concurrent action) {
-          return () -> iterator;
-        }
-      };*/
     }
   }
 }
