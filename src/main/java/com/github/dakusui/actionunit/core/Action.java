@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.compat.visitors.CompatVisitor;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 /**
  * Defines interface of an action performed by ActionUnit runner.
@@ -19,7 +19,7 @@ public interface Action {
   /**
    * A visitor of actions, in the style of the visitor design pattern. Classes implementing
    * this interface are used to operate on an action when the kind of element is unknown at compile
-   * time. When a visitor is passed to an element's accept method, the visitXYZ method most applicable
+   * time. When a visitor is passed to an element's accept method, the visit(XYZ) method most applicable
    * to that element is invoked.
    * <p/>
    * WARNING: It is possible that methods will be added to this interface to accommodate new, currently
@@ -31,15 +31,16 @@ public interface Action {
    * an API should generally use this visitor interface as the type for parameters, return type, etc.
    * rather than one of the abstract classes.
    *
-   * @see Base
    */
-  interface Visitor extends CompatVisitor {
+  interface Visitor {
     /**
      * Visits an {@code action}.
      *
      * @param action action to be visited by this object.
      */
-    void visit(Action action);
+    default void visit(Action action) {
+      throw new UnsupportedOperationException(InternalUtils.describe(action));
+    }
 
     /**
      * Visits an {@code action}.
@@ -109,7 +110,7 @@ public interface Action {
      *
      * @param action action to be visited by this object.
      */
-    default <T> void visit(When<T> action) {
+    default <T>void visit(When<T> action) {
       this.visit((Action) action);
     }
 

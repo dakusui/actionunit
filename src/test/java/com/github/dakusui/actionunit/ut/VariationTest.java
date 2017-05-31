@@ -1,35 +1,28 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.CompatActions;
-import com.github.dakusui.actionunit.compat.Context;
-import com.github.dakusui.actionunit.compat.connectors.Connectors;
-import com.github.dakusui.actionunit.compat.connectors.Pipe;
-import com.github.dakusui.actionunit.compat.connectors.Sink;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
-import static com.github.dakusui.actionunit.compat.CompatActions.foreach;
+import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 
-public class VariationTest {
+public class VariationTest implements ActionFactory {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();
-    CompatActions.foreach(asList("a", "b"),
-        foreach(asList("1", "2"),
-            new Sink.Base<String>() {
-              @Override
-              public void apply(String input, Object... outer) {
-                list.add(String.format("%s-%s", outer[0], input));
-              }
-            }
+    forEachOf(asList("a", "b")).perform(
+        i -> forEachOf(asList("1", "2")).perform(
+            j -> simple(
+                "add string",
+                () -> list.add(String.format("%s-%s", i.get(), j.get()))
+            )
         )
-    ).accept(new ActionRunner.Impl());
+    ).accept(createActionPerformer());
     assertEquals(
         asList(
             "a-1",
@@ -43,59 +36,40 @@ public class VariationTest {
 
   @Test
   public void forEachAndPipedAction() {
-    foreach(
-        asList("a", "b"),
-        new Sink.Base<String>() {
-          @Override
-          public void apply(String input, Object... outer) {
-          }
-        }
-    ).accept(new ActionRunner.Impl());
+    forEachOf(
+        asList("a", "b")
+    ).perform(
+        i -> nop()
+    ).accept(createActionPerformer());
   }
-
 
   @Test
   public void testAction1() {
-    CompatActions.foreach(
-        asList("host1", "host2"),
-        CompatActions.<String, Object>test()
-            .when(input -> Integer.parseInt(input.substring(input.length() - 1)))
-            .then(notNullValue())
-            .build()
-    ).accept(new ActionRunner.Impl());
+    forEachOf(
+        asList("host1", "host2")
+    ).perform(
+        i -> this.<String, Integer>given("given data", i)
+            .when("when parse int", value -> Integer.parseInt(value.substring(value.length() - 1)))
+            .then("then non-null returned", Objects::nonNull)
+    ).accept(createActionPerformer());
   }
 
   @Test
   public void testAction2() {
-    CompatActions.foreach(
-        asList("host1", "host2"),
-        CompatActions.<String, Integer>test()
-            .given("9")
-            .when(new Pipe<String, Integer>() {
-              @Override
-              public Integer apply(String input, Context context) {
-                return Integer.parseInt(input.substring(input.length() - 1));
-              }
-            })
-            .then(Connectors.<Integer>dumb())
-            .build()
-    ).accept(new ActionRunner.Impl());
+    forEachOf(asList("host1", "host2")).perform(
+        i -> this.<String, Integer>given("'9' is given", () -> "9")
+            .when("when parseInt", value -> Integer.parseInt(value.substring(value.length() - 1)))
+            .then("then passes (always)", out -> true)
+    ).accept(createActionPerformer());
   }
 
   @Test
   public void testAction3() {
-    CompatActions.foreach(
-        asList("host1", "host2"),
-        CompatActions.<String, Integer>test()
-            .given(Connectors.<String>context())
-            .when(new Pipe<String, Integer>() {
-              @Override
-              public Integer apply(String input, Context context) {
-                return Integer.parseInt(input.substring(input.length() - 1));
-              }
-            })
-            .then(Connectors.<Integer>dumb())
-            .build()
-    ).accept(new ActionRunner.Impl());
+    forEachOf(asList("host1", "host2")).perform(
+        hostName ->
+            this.given("Host name is given", hostName)
+                .when("", input -> Integer.parseInt(input.substring(input.length() - 1)))
+                .then("then passes (always)", out -> true)
+    ).accept(createActionPerformer());
   }
 }

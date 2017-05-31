@@ -5,7 +5,7 @@ Action based JUnit[[0]] test runner library
 [![codecov.io](https://codecov.io/github/dakusui/actionunit/coverage.svg?branch=master)](https://codecov.io/github/dakusui/actionunit?branch=master)
 
 # Installation
-Actionunit requires Java SE7 or later.
+The latest version of ActionUnit requires Java SE8 or later.
 Following is a maven coordinate for ActionUnit.
 
 ```xml
@@ -13,7 +13,7 @@ Following is a maven coordinate for ActionUnit.
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>actionunit</artifactId>
-      <version>[2.1.0,)</version>
+      <version>[3.0.0,)</version>
       <scope>test</scope>
     </dependency>
 ```
@@ -45,8 +45,8 @@ Following is an example of actionunit.
     import java.lang.annotation.Retention;
     import java.lang.annotation.RetentionPolicy;
     
-    import static com.github.dakusui.actionunit.helpers.Actions.sequential;
-    import static com.github.dakusui.actionunit.helpers.Actions.simple;
+    import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+    import static com.github.dakusui.actionunit.core.ActionSupport.simple;
     
     
     @RunWith(ActionUnit.class)
@@ -58,8 +58,8 @@ Following is an example of actionunit.
       @ActionUnit.PerformWith({ Print.class, Test.class })
       public Action testMethod() {
         return sequential(
-            simple(() -> System.out.println("Hello")),
-            simple(() -> System.out.println("World"))
+            simple("print hello", () -> System.out.println("Hello")),
+            simple("print world", () -> System.out.println("World"))
         );
       }
     
@@ -70,7 +70,7 @@ Following is an example of actionunit.
     
       @Test
       public void run(Action action) {
-        action.accept(new ActionRunner());
+        action.accept(new ActionPerformer.Impl() {});
       }
     }
 

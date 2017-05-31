@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.examples.CompatForEachExample;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -33,10 +32,20 @@ public class ExamplesTest {
   }
 
 
-  public static class CompatForEachExampleTest extends TestUtils.TestBase {
+  public static class ForEachExampleTest extends TestUtils.TestBase {
     @Test
     public void testExample() {
-      Result result = JUnitCore.runClasses(CompatForEachExample.class);
+      Result result = JUnitCore.runClasses(ForEachExample.class);
+      assertEquals(12, result.getRunCount());
+      assertEquals(2, result.getFailureCount());
+      assertEquals(false, result.wasSuccessful());
+    }
+  }
+
+  public static class WhileExampleTest extends TestUtils.TestBase {
+    @Test
+    public void testExample() {
+      Result result = JUnitCore.runClasses(WhileExample.class);
       assertEquals(1, result.getRunCount());
       assertEquals(0, result.getFailureCount());
       assertEquals(true, result.wasSuccessful());

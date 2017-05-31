@@ -1,13 +1,12 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
-import org.hamcrest.Matchers;
+import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -16,12 +15,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class Basic {
+public class Basic implements ActionFactory {
   @Retention(RetentionPolicy.RUNTIME)
   public @interface DryRun {
   }
@@ -83,25 +82,17 @@ public class Basic {
   @PerformWith(Test.class)
   public Action[] testAction() {
     return new Action[] {
-        CompatActions.<Integer, String>test()
-            .given(100)
-            .when(input -> Integer.toString(input + 1))
-            .then(
-                Matchers.equalToIgnoringCase("102")
-            )
-            .build(),
-        CompatActions.<Integer, String>test()
-            .given(100)
-            .when(new Function<Integer, String>() {
+        this.<Integer, String>given("100", () -> 100)
+            .when("incrementAndToString", input -> Integer.toString(input + 1))
+            .then("equalToIgnoringCase", output -> output.equalsIgnoreCase("102")),
+        this.<Integer, String>given("100", () -> 100)
+            .when("increment", new Function<Integer, String>() {
               @Override
               public String apply(Integer input) {
                 return Integer.toString(input + 1);
               }
             })
-            .then(
-                Matchers.equalToIgnoringCase("101")
-            )
-            .build()
+            .then("equalToIgnoringCase", output -> output.equalsIgnoreCase("101"))
     };
   }
 
@@ -118,14 +109,19 @@ public class Basic {
   @PerformWith({ DryRun.class, Test.class })
   public Action timeoutAttemptAndRetryInCombination() {
     final Runnable runnable = createRunnable();
-    return CompatActions.timeout(
-        CompatActions.attempt(runnable)
-            .recover(CompatActions.retry(CompatActions.simple(runnable), 2, 20, TimeUnit.MILLISECONDS))
-            .ensure(nop())
-            .build(),
-        10,
-        TimeUnit.SECONDS
-    );
+    return timeout(
+        attempt(
+            simple("A runnable (1)", runnable)
+        ).recover(
+            ActionException.class,
+            e -> retry(
+                simple(
+                    "A runnable (2)", runnable)
+            ).times(2).withIntervalOf(20, TimeUnit.MILLISECONDS)
+        ).ensure(
+            nop()
+        )
+    ).in(10, TimeUnit.SECONDS);
   }
 
   private Runnable createRunnable() {
@@ -152,12 +148,12 @@ public class Basic {
 
   @Test
   public void runTestAction(Action action) {
-    action.accept(new ActionRunner.Impl());
+    action.accept(createActionPerformer());
   }
 
   @DryRun
   public void print(Action action) {
-    action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
+    action.accept(TestUtils.createPrintingActionScanner(Writer.Std.OUT));
   }
 
   @AfterClass

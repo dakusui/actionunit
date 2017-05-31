@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
@@ -21,7 +21,7 @@ public class ActionMethodNegativeTest {
   public static class NonPublic extends Base {
     @ActionUnit.PerformWith
     protected Action nonPublic() {
-      return Actions.nop();
+      return ActionSupport.nop();
     }
   }
 
@@ -40,7 +40,7 @@ public class ActionMethodNegativeTest {
   public static class NonActionReturning extends Base {
     @ActionUnit.PerformWith
     public Object nonActionReturning() {
-      return Actions.nop();
+      return ActionSupport.nop();
     }
   }
 
@@ -59,7 +59,7 @@ public class ActionMethodNegativeTest {
   public static class WithParameter extends Base {
     @ActionUnit.PerformWith
     public Action withParameter(Object arg) {
-      return Actions.nop();
+      return ActionSupport.nop();
     }
   }
 

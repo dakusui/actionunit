@@ -1,35 +1,46 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.helpers.Actions.named;
-import static com.github.dakusui.actionunit.helpers.Actions.simple;
 import static org.junit.Assert.assertTrue;
 
-public abstract class ActionRunnerTestBase {
+public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends Action.Visitor> implements ActionFactory {
   private final TestUtils.Out out    = new TestUtils.Out();
-  private final ActionRunner  runner = createRunner();
+  private final R  runner = createRunner();
 
-  protected abstract ActionRunner createRunner();
+  protected abstract R createRunner();
 
-  public abstract ActionPrinter getPrinter(ActionPrinter.Impl.Writer writer);
+  public abstract P getPrinter(Writer writer);
 
-  public ActionPrinter getPrinter() {
+  public P getPrinter() {
     return getPrinter(getWriter());
   }
 
-  public <A extends ActionRunner> A getRunner() {
-    return (A) this.runner;
+  @SuppressWarnings("unchecked")
+  public R getRunner() {
+    return this.runner;
   }
 
   public TestUtils.Out getWriter() {
     return this.out;
+  }
+
+  public Action createPassingAction(int index, final int durationInMilliseconds) {
+    return named(
+        String.format("A passing action-%d", index),
+        simple(String.format("This passes always-%d", index), () -> {
+          try {
+            TimeUnit.MICROSECONDS.sleep(durationInMilliseconds);
+          } catch (InterruptedException e) {
+            throw ActionException.wrap(e);
+          }
+        }));
   }
 
   public Action createPassingAction(final int durationInMilliseconds) {

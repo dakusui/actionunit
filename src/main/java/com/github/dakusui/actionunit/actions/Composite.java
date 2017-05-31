@@ -1,14 +1,13 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.AutocloseableIterator;
-import com.github.dakusui.actionunit.helpers.Autocloseables;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.Collection;
+import java.util.Iterator;
 
-import static com.github.dakusui.actionunit.helpers.Utils.unknownIfNegative;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.unknownIfNegative;
 import static java.lang.String.format;
 
 /**
@@ -19,7 +18,7 @@ import static java.lang.String.format;
  * @see Sequential
  * @see Concurrent
  */
-public interface Composite extends Action, AutocloseableIterator.Factory<Action> {
+public interface Composite extends Action, Iterable<Action> {
   /**
    * Returns number of actions that this object has if they are given as a {@link Collection}.
    * Otherwise, for instance actions are given as {@link Iterable}, {@code -1}
@@ -66,13 +65,13 @@ public interface Composite extends Action, AutocloseableIterator.Factory<Action>
         return false;
       }
       Composite another = (Composite) object;
-      return getClass().equals(another.getClass()) && Utils.elementsEqual(actions, another);
+      return getClass().equals(another.getClass()) && InternalUtils.elementsEqual(actions, another);
     }
 
     @Override
-    public AutocloseableIterator<Action> iterator() {
+    public Iterator<Action> iterator() {
       //noinspection unchecked
-      return (AutocloseableIterator<Action>) Autocloseables.autocloseable(this.actions.iterator());
+      return (Iterator<Action>) this.actions.iterator();
     }
   }
 

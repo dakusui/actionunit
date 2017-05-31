@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.utils;
 
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -28,11 +28,11 @@ public class HasItemAt<T> extends TypeSafeDiagnosingMatcher<Iterable<? super T>>
       mismatchDescription.appendText("was null");
       return false;
     }
-    if (this.position >= Utils.size(collection)) {
+    if (this.position >= TestUtils.size(collection)) {
       mismatchDescription.appendText("was not greater than " + this.position);
       return false;
     }
-    Object item = Utils.toList(collection).get(this.position);
+    Object item = InternalUtils.toList(collection).get(this.position);
     if (this.elementMatcher.matches(item)) {
       return true;
     } else {

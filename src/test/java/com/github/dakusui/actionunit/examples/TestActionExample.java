@@ -2,15 +2,16 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
-import com.github.dakusui.actionunit.helpers.Builders;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 
 public class TestActionExample {
   @Test(expected = ActionAssertionError.class)
   public void givenIncorrectTest$whenRunTest$thenExceptionThrown() {
-    Action testAction = Builders
+    Action testAction = ActionSupport
         .<String, Integer>given("'Hello world'", () -> {
           System.err.println(":Hello world");
           return "Hello world";
@@ -24,19 +25,19 @@ public class TestActionExample {
           return i > 20;
         });
     try {
-      testAction.accept(new ActionRunner.Impl());
+      testAction.accept(TestUtils.createActionPerformer());
     } finally {
-      testAction.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
+      testAction.accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.OUT));
     }
   }
 
 
   @Test
   public void givenCorrectTest$whenRunTest$thenPass() {
-    Builders
+    ActionSupport
         .<String, Integer>given("Hello world", () -> "Hello world")
         .when("length", String::length)
         .then(">5", i -> i > 5)
-        .accept(new ActionRunner.Impl());
+        .accept(TestUtils.createActionPerformer());
   }
 }

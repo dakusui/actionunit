@@ -1,15 +1,16 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.helpers.Actions.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
@@ -25,7 +26,7 @@ public class ActionUnitTest {
 
     @Test
     public void run(Action action) {
-      action.accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
+      action.accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.OUT));
     }
   }
 

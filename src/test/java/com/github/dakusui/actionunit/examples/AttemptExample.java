@@ -1,23 +1,23 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.visitors.ActionRunner;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.helpers.Actions.sequential;
-import static com.github.dakusui.actionunit.helpers.Actions.simple;
-import static com.github.dakusui.actionunit.helpers.Builders.attempt;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.attempt;
 
 public class AttemptExample {
   @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenPerform$thenWorksFine() {
-    buildAttemptAction().accept(new ActionRunner.Impl());
+    buildAttemptAction().accept(TestUtils.createActionPerformer());
   }
 
   @Test
   public void givenAttemptAction$whenPrint$thenWorksFine() {
-    buildAttemptAction().accept(new ActionPrinter.Impl(ActionPrinter.Writer.Std.OUT));
+    buildAttemptAction().accept(TestUtils.createPrintingActionScanner(Writer.Std.OUT));
   }
 
   private Attempt<? super NullPointerException> buildAttemptAction() {
@@ -32,9 +32,7 @@ public class AttemptExample {
         NullPointerException.class,
         e -> simple(
             "print stacktrace",
-            () -> {
-              e.get().printStackTrace(System.out);
-            })
+            () -> e.get().printStackTrace(System.out))
     ).ensure(simple(
         "print bye",
         () -> {

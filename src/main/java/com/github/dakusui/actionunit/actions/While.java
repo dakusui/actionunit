@@ -1,39 +1,64 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.helpers.Utils.describe;
+public interface While<T> extends Action {
+  Supplier<T> value();
 
-public interface While<T> extends Conditioned<T> {
+  Predicate<T> check();
+
+  Action createHandler(Supplier<T> data);
+
   class Builder<T> {
-    Predicate<T> condition;
-    Action       action;
+    private final Predicate<T> check;
+    private final Supplier<T>  value;
+    private HandlerFactory<T> handlerFactory = tSupplier -> ActionSupport.nop();
 
-    public Builder(Predicate<T> condition) {
-      this.condition = Objects.requireNonNull(condition);
+    public Builder(Supplier<T> value, Predicate<T> check) {
+      this.value = Objects.requireNonNull(value);
+      this.check = Objects.requireNonNull(check);
     }
 
-    public While<T> perform(Action action) {
-      return new Impl<>(this.condition, Objects.requireNonNull(action));
+    public While<T> perform(HandlerFactory<T> handlerFactory) {
+      this.handlerFactory = Objects.requireNonNull(handlerFactory);
+      return new Impl<T>(value, check, handlerFactory);
     }
   }
 
-  class Impl<T> extends Conditioned.Base<T> implements While<T> {
-    public Impl(Predicate<T> condition, Action action) {
-      super(condition, action);
+  class Impl<T> extends ActionBase implements While<T> {
+    private final Supplier<T>       value;
+    private final Predicate<T>      check;
+    private final HandlerFactory<T> handlerFactory;
+
+    Impl(Supplier<T> value, Predicate<T> check, HandlerFactory<T> handlerFactory) {
+      this.value = value;
+      this.check = check;
+      this.handlerFactory = handlerFactory;
+    }
+
+    @Override
+    public Supplier<T> value() {
+      return value;
+    }
+
+    @Override
+    public Predicate<T> check() {
+      return check;
+    }
+
+    @Override
+    public Action createHandler(Supplier<T> data) {
+      return handlerFactory.apply(data);
     }
 
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
-    }
-
-    @Override
-    public String toString() {
-      return "While (" + describe(this.getCondition()) + ")";
     }
   }
 }

@@ -1,8 +1,9 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.compat.CompatActions;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
@@ -12,17 +13,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMethodNegativeTest {
+public class TestMethodNegativeTest implements ActionFactory {
   @RunWith(ActionUnit.class)
   public static class NoParameter {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return CompatActions.simple(new Runnable() {
-        @Override
-        public void run() {
-          System.out.println("This method will not be executed.");
-        }
-      });
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -43,12 +39,7 @@ public class TestMethodNegativeTest {
   public static class TooManyParameters {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return CompatActions.simple(new Runnable() {
-        @Override
-        public void run() {
-          System.out.println("This method will not be executed.");
-        }
-      });
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -68,12 +59,7 @@ public class TestMethodNegativeTest {
   public static class MismatchParameter {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return CompatActions.simple(new Runnable() {
-        @Override
-        public void run() {
-          System.out.println("This method will not be executed.");
-        }
-      });
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -94,12 +80,7 @@ public class TestMethodNegativeTest {
   public static class NoRunnerMethod {
     @ActionUnit.PerformWith(RunWith.class)
     public Action testMethod() {
-      return CompatActions.simple(new Runnable() {
-        @Override
-        public void run() {
-          System.out.println("This method will not be executed.");
-        }
-      });
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test

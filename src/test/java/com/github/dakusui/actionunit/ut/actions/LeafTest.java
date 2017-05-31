@@ -4,20 +4,13 @@ import com.github.dakusui.actionunit.actions.Leaf;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.compat.CompatActions.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static org.junit.Assert.assertThat;
 
 public class LeafTest {
   @Test
   public void givenAnonymousLeaf$whenToString$thenNoname() {
-    String s = simple(new Runnable() {
-      @Override
-      public void run() {
-      }
-      @Override
-      public String toString() {
-        return "NameOfRunnable";
-      }
+    String s = simple("NameOfRunnable", () -> {
     }).toString();
     assertThat(s, Matchers.equalTo("NameOfRunnable"));
   }

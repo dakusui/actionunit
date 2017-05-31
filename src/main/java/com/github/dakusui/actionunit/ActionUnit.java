@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
@@ -21,10 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.helpers.Actions.named;
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.helpers.Checks.propagate;
-import static com.github.dakusui.actionunit.helpers.Utils.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -57,7 +56,7 @@ public class ActionUnit extends Parameterized {
   public ActionUnit(Class<?> klass) throws Throwable {
     super(klass);
     try {
-      runners = toList(createRunners());
+      runners = InternalUtils.toList(createRunners());
     } catch (RuntimeException e) {
       if (e.getCause() instanceof InitializationError) {
         throw e.getCause();
@@ -74,7 +73,7 @@ public class ActionUnit extends Parameterized {
 
   @Override
   protected TestClass createTestClass(Class<?> testClass) {
-    return createTestClassMock(super.createTestClass(testClass));
+    return InternalUtils.createTestClassMock(super.createTestClass(testClass));
   }
 
   @Override
@@ -107,7 +106,7 @@ public class ActionUnit extends Parameterized {
   }
 
   private void validateActionReturned(FrameworkMethod method, List<Throwable> errors) {
-    if (!isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, method.getReturnType())) {
+    if (!InternalUtils.isGivenTypeExpected_ArrayOfExpected_OrIterable(Action.class, method.getReturnType())) {
       errors.add(new Exception("Method " + method.getName() + "() must return Action, its array, or its iterable"));
     }
   }
@@ -166,7 +165,7 @@ public class ActionUnit extends Parameterized {
         actions = asList((Action[]) result);
       } else {
         //noinspection unchecked
-        actions = Utils.toList((Iterable<Action>) result);
+        actions = InternalUtils.toList((Iterable<Action>) result);
       }
       return actions.stream().map(
           input -> {

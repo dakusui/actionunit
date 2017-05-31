@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
@@ -17,19 +17,19 @@ public interface Attempt<E extends Throwable> extends Action {
   Action ensure();
 
   static <E extends Throwable> Attempt.Builder<E> builder(Action attempt) {
-    return new Builder<E>(attempt);
+    return new Builder<>(attempt);
   }
 
   class Builder<E extends Throwable> {
     private final Action attempt;
-    private Action            ensure                  = Actions.nop();
-    private Class<? extends E>          exceptionClass          = null;
-    private HandlerFactory<E> exceptionHandlerFactory = e -> {
+    private Action             ensure                  = ActionSupport.nop();
+    private Class<? extends E> exceptionClass          = null;
+    private HandlerFactory<E>  exceptionHandlerFactory = e -> {
       throw Checks.propagate(e.get());
     };
 
     public Builder(Action attempt) {
-      this.attempt = Actions.named("Attempt:", Objects.requireNonNull(attempt));
+      this.attempt = Objects.requireNonNull(attempt);
     }
 
     public Builder<E> recover(Class<? extends E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory) {
@@ -39,13 +39,14 @@ public interface Attempt<E extends Throwable> extends Action {
     }
 
     public Attempt<E> ensure(Action action) {
-      this.ensure = Actions.named("Ensure:", Objects.requireNonNull(action));
+      this.ensure = ActionSupport.named("Ensure", Objects.requireNonNull(action));
       return this.build();
     }
 
+    @SuppressWarnings("unchecked")
     public Attempt<E> build() {
       Checks.checkState(exceptionClass != null, "Exception class isn't set yet.");
-      return new Impl<E>(attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensure);
+      return new Impl<>(attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensure);
     }
   }
 
@@ -74,7 +75,7 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action recover(Supplier<E> exception) {
-      return Actions.named(String.format("Recover(%s):", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
+      return ActionSupport.named(String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
     }
 
     @Override
