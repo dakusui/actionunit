@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.examples;
+package com.github.dakusui.actionunit.sandbox;
 
 
 import com.github.dakusui.actionunit.helpers.Checks;

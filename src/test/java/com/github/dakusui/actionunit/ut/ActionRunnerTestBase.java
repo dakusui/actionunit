@@ -1,17 +1,16 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static org.junit.Assert.assertTrue;
 
-public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends Action.Visitor> {
+public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends Action.Visitor> implements ActionFactory {
   private final TestUtils.Out out    = new TestUtils.Out();
   private final R  runner = createRunner();
 

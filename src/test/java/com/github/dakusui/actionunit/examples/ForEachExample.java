@@ -7,6 +7,7 @@ import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ActionTreeBuilder;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -63,11 +64,10 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
   public Action composeSingleLoop2() {
     return sequential(
         simple("print hello", () -> System.out.println("hello")),
-        forEachOf(
-            asList("A", "B", "C")
-        ).sequentially(
+        forEachOf("A", "B", "C"
+        ).concurrently(
         ).perform(
-            value -> sequential(
+            (Supplier<String> value) -> sequential(
                 simple("print the given value(1st time)", () -> System.out.println(value.get())),
                 simple("print the given value(2nd time)", () -> System.out.println(value.get())),
                 sleep(2, MICROSECONDS)
@@ -99,15 +99,17 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
   }
 
   @Test
-  public void runAction2(Action action) {
-    TestUtils.createReportingActionPerformer(action).perform();
+  public void runAction(Action action) {
+    new ReportingActionPerformer.Builder(action).build().perform();
+  }
+
+  @Test
+  public void simpleRunAction(Action action) {
+    action.accept(TestUtils.createActionPerformer());
   }
 
   @Test
   public void buildTree(Action action) {
-    System.out.println("-->" + ActionTreeBuilder.traverse(action).format());
-    System.out.println("----");
     Node.print(ActionTreeBuilder.traverse(action), System.out);
-    System.out.println("----");
   }
 }

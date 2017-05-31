@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.helpers.Utils.describe;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;

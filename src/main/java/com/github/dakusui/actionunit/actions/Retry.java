@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.Utils.formatDuration;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.formatDuration;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 

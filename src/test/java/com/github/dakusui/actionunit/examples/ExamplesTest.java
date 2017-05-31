@@ -36,8 +36,8 @@ public class ExamplesTest {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(ForEachExample.class);
-      assertEquals(8, result.getRunCount());
-      assertEquals(1, result.getFailureCount());
+      assertEquals(12, result.getRunCount());
+      assertEquals(2, result.getFailureCount());
       assertEquals(false, result.wasSuccessful());
     }
   }

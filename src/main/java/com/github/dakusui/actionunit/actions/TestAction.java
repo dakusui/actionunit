@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -115,7 +115,7 @@ public interface TestAction extends Action {
       return named("Given",
           simple(
               builder.input.toString(),
-              () -> Base.this.input.set(Utils.describe(builder.input.toString(), builder.input.get())))
+              () -> Base.this.input.set(InternalUtils.describable(builder.input.toString(), builder.input.get())))
       );
     }
 

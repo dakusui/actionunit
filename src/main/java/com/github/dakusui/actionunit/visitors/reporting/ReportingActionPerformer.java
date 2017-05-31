@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 
@@ -84,11 +84,11 @@ public class ReportingActionPerformer extends ActionPerformer {
     ).filter(
         (Node<Action> n) -> checker().test(n, super.toNode(parent, action))
     ).collect(
-        Utils.singletonCollector(
+        InternalUtils.singletonCollector(
             () -> new IllegalStateException(
                 format(
                     "More than one node matching '%s' were found under '%s'(%s). Consider using 'named' action for them.",
-                    Utils.describe(action),
+                    InternalUtils.describe(action),
                     parent,
                     childrenToString(parent)
                 )))
@@ -96,7 +96,7 @@ public class ReportingActionPerformer extends ActionPerformer {
         () -> new IllegalStateException(
             format(
                 "Node matching '%s' was not found under '%s'(%s)",
-                Utils.describe(action),
+                InternalUtils.describe(action),
                 parent,
                 childrenToString(parent)
             ))
@@ -116,6 +116,6 @@ public class ReportingActionPerformer extends ActionPerformer {
     return (a, b) ->
         Objects.equals(a, b)
             || Objects.equals(a.getContent(), b.getContent())
-            || Objects.equals(Utils.describe(a.getContent()), Utils.describe(b.getContent()));
+            || Objects.equals(InternalUtils.describe(a.getContent()), InternalUtils.describe(b.getContent()));
   }
 }

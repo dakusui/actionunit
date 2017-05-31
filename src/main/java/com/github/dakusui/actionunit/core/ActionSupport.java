@@ -1,17 +1,15 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.Utils.nonameIfNull;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.nonameIfNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -31,7 +29,7 @@ public enum ActionSupport {
   /**
    * Creates a simple action object.
    *
-   * @param description A string used by {@code describe()} method of a returned {@code Action} object.
+   * @param description A string used by {@code describable()} method of a returned {@code Action} object.
    * @param runnable    An object whose {@code run()} method run by a returned {@code Action} object.
    * @see Leaf
    */
@@ -126,12 +124,12 @@ public enum ActionSupport {
     return new Leaf() {
       @Override
       public void perform() {
-        Utils.sleep(duration, timeUnit);
+        InternalUtils.sleep(duration, timeUnit);
       }
 
       @Override
       public String toString() {
-        return format("sleep for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
+        return format("sleep for %s", InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
       }
     };
   }
@@ -169,7 +167,4 @@ public enum ActionSupport {
     return new When.Builder<>(value, condition);
   }
 
-  public static <T> HandlerFactory<T> handlerFactory(String description, Consumer<T> handlerBody) {
-    return HandlerFactory.create(description, handlerBody);
-  }
 }

@@ -1,14 +1,14 @@
 package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
 
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.helpers.Utils.describe;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
 
 public class PrintingActionScanner extends ActionScanner {
   private final Writer writer;
@@ -31,7 +31,7 @@ public class PrintingActionScanner extends ActionScanner {
   protected void writeLine(String s) {
     boolean first = true;
     for (String each : s.split("\\n")) {
-      this.writer.writeLine(Utils.spaces((this.getCurrentPath().size() + (first ? 0 : 1)) * 2) + each);
+      this.writer.writeLine(InternalUtils.spaces((this.getCurrentPath().size() + (first ? 0 : 1)) * 2) + each);
       first = false;
     }
   }

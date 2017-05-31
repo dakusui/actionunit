@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.helpers.Checks;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -17,7 +17,7 @@ public class Node<A> {
 
   public Node(A content, boolean leaf) {
     this.content = Objects.requireNonNull(content);
-    this.description = Utils.describe(content);
+    this.description = InternalUtils.describe(content);
     children = leaf
         ? null
         : new LinkedList<>();
@@ -43,7 +43,7 @@ public class Node<A> {
   }
 
   public static <A> void print(Node<A> node, PrintStream ps) {
-    walk(node, (aNode, nodes) -> ps.println(Utils.spaces(nodes.size() * 2) + aNode));
+    walk(node, (aNode, nodes) -> ps.println(InternalUtils.spaces(nodes.size() * 2) + aNode));
   }
 
   void add(Node<A> node) {

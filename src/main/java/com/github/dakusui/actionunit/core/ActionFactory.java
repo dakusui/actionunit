@@ -10,7 +10,7 @@ public interface ActionFactory {
   /**
    * Creates a simple action object.
    *
-   * @param description A string used by {@code describe()} method of a returned {@code Action} object.
+   * @param description A string used by {@code describable()} method of a returned {@code Action} object.
    * @param runnable    An object whose {@code run()} method run by a returned {@code Action} object.
    * @see Leaf
    */

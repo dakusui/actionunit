@@ -26,7 +26,7 @@ public class TimeoutTest implements ActionFactory {
     Thread interrupter = new Thread(new Runnable() {
       @Override
       public void run() {
-        Utils.sleep(500, MILLISECONDS);
+        InternalUtils.sleep(500, MILLISECONDS);
         main.interrupt();
       }
     });

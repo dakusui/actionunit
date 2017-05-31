@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
@@ -23,7 +24,7 @@ public class BuildersTest {
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
       Action action = ActionSupport.forEachOf("A", "B", "C")
           .sequentially()
-          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
+          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -35,7 +36,7 @@ public class BuildersTest {
     public void givenA_B_and_C$whenPrintForEachSequentially$thenWorksFine() {
       Action action = ActionSupport.forEachOf("A", "B", "C")
           .sequentially()
-          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
+          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -47,7 +48,7 @@ public class BuildersTest {
     public void givenA_B_and_C$whenRunForEachConcurrently$thenWorksFine() {
       Action action = ActionSupport.forEachOf("A", "B", "C")
           .concurrently()
-          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
+          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -60,7 +61,7 @@ public class BuildersTest {
       List<Object> data = asList("A", "B", "C");
       Action action = ActionSupport.forEachOf(data)
           .concurrently()
-          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
+          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {

@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
 
 import java.util.Deque;
@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.github.dakusui.actionunit.helpers.Utils.runWithTimeout;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.runWithTimeout;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.stream.StreamSupport.stream;
 
@@ -106,7 +106,7 @@ public class ActionPerformer extends ActionWalker {
         Throwable lastException = e;
         for (int i = 0; i < retry.times || retry.times == Retry.INFINITE; i++) {
           if (retry.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
-            Utils.sleep(retry.intervalInNanos, NANOSECONDS);
+            InternalUtils.sleep(retry.intervalInNanos, NANOSECONDS);
             try {
               toRunnable(retry.action).run();
               return;

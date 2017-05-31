@@ -4,15 +4,13 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.*;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.core.ActionSupport.attempt;
-import static com.github.dakusui.actionunit.core.ActionSupport.forEachOf;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -235,7 +233,7 @@ public class ReportingActionPerformerTest {
           nop()
       );
       performAndPrintAction(action);
-      assertThat(getWriter(), allOf(
+      assertThat(getWriter(), TestUtils.allOf(
           hasItemAt(0, equalTo("[o]Attempt")),
           hasItemAt(1, equalTo("  [x]Howdy, NPE")),
           hasItemAt(2, equalTo("  [o]Recover(NullPointerException)")),

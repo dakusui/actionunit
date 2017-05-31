@@ -1,13 +1,13 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.Collection;
 import java.util.Iterator;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.Utils.unknownIfNegative;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.unknownIfNegative;
 import static java.lang.String.format;
 
 /**
@@ -65,7 +65,7 @@ public interface Composite extends Action, Iterable<Action> {
         return false;
       }
       Composite another = (Composite) object;
-      return getClass().equals(another.getClass()) && Utils.elementsEqual(actions, another);
+      return getClass().equals(another.getClass()) && InternalUtils.elementsEqual(actions, another);
     }
 
     @Override
