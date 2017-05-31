@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
-import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
@@ -16,7 +15,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class WhileTest implements Actions2, Builders2 {
+public class WhileTest implements Actions2 {
   @Test
   public void test() {
     final TestUtils.Out out = new TestUtils.Out();

@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Actions2;
-import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
@@ -17,7 +16,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2 {
+public class RetryTest extends TestUtils.TestBase implements Actions2 {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
     new Retry(ActionException.class, nop(), -1 /* this is not valid */, 1);

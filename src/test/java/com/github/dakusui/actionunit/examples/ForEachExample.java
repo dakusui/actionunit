@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
-import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ActionTreeBuilder;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
@@ -19,7 +18,7 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEachExample extends TestUtils.TestBase implements Actions2, Builders2 {
+public class ForEachExample extends TestUtils.TestBase implements Actions2 {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     return forEachOf(

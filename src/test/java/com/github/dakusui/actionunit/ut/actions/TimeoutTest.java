@@ -12,7 +12,7 @@ import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class TimeoutTest implements Actions2, Builders2 {
+public class TimeoutTest implements Actions2 {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeDuration$whenCreated$thenExceptionThrown() {
     ActionSupport.timeout(nop()).in(-2, SECONDS);

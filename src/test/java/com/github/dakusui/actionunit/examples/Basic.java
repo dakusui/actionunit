@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Actions2;
-import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.*;
@@ -21,7 +20,7 @@ import static java.util.Arrays.asList;
 
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class Basic implements Actions2, Builders2 {
+public class Basic implements Actions2 {
   @Retention(RetentionPolicy.RUNTIME)
   public @interface DryRun {
   }

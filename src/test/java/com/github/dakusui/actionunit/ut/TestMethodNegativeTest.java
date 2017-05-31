@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Actions2;
-import com.github.dakusui.actionunit.helpers.Builders2;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
@@ -14,7 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMethodNegativeTest implements Actions2, Builders2 {
+public class TestMethodNegativeTest implements Actions2 {
   @RunWith(ActionUnit.class)
   public static class NoParameter {
     @ActionUnit.PerformWith(Test.class)
