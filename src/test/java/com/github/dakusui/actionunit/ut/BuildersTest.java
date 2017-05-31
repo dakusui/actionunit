@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -11,9 +12,8 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.github.dakusui.actionunit.helpers.Actions.concurrent;
-import static com.github.dakusui.actionunit.helpers.Actions.simple;
-import static com.github.dakusui.actionunit.helpers.Builders.*;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.concurrent;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.simple;
 import static java.util.Arrays.asList;
 
 @RunWith(Enclosed.class)
@@ -21,9 +21,9 @@ public class BuildersTest {
   public static class ForEachTest {
     @Test
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
-      Action action = forEachOf("A", "B", "C")
+      Action action = ActionSupport.forEachOf("A", "B", "C")
           .sequentially()
-          .perform(handlerFactory("print item to stdout", System.out::println));
+          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -33,9 +33,9 @@ public class BuildersTest {
 
     @Test
     public void givenA_B_and_C$whenPrintForEachSequentially$thenWorksFine() {
-      Action action = forEachOf("A", "B", "C")
+      Action action = ActionSupport.forEachOf("A", "B", "C")
           .sequentially()
-          .perform(handlerFactory("print item to stdout", System.out::println));
+          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -45,9 +45,9 @@ public class BuildersTest {
 
     @Test
     public void givenA_B_and_C$whenRunForEachConcurrently$thenWorksFine() {
-      Action action = forEachOf("A", "B", "C")
+      Action action = ActionSupport.forEachOf("A", "B", "C")
           .concurrently()
-          .perform(handlerFactory("print item to stdout", System.out::println));
+          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -58,9 +58,9 @@ public class BuildersTest {
     @Test
     public void givenA_B_and_CAsList$whenRunForEachConcurrently$thenWorksFine() {
       List<Object> data = asList("A", "B", "C");
-      Action action = forEachOf(data)
+      Action action = ActionSupport.forEachOf(data)
           .concurrently()
-          .perform(handlerFactory("print item to stdout", System.out::println));
+          .perform(ActionSupport.handlerFactory("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -72,7 +72,7 @@ public class BuildersTest {
   public static class AttemptTest {
     @Test(expected = IllegalStateException.class)
     public void given$when$then() {
-      Action action = attempt(
+      Action action = ActionSupport.attempt(
           simple("throw IllegalStateException", () -> {
             throw new IllegalStateException();
           })

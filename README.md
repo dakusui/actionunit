@@ -45,8 +45,8 @@ Following is an example of actionunit.
     import java.lang.annotation.Retention;
     import java.lang.annotation.RetentionPolicy;
     
-    import static com.github.dakusui.actionunit.helpers.Actions.sequential;
-    import static com.github.dakusui.actionunit.helpers.Actions.simple;
+    import static com.github.dakusui.actionunit.helpers.ActionSupport.sequential;
+    import static com.github.dakusui.actionunit.helpers.ActionSupport.simple;
     
     
     @RunWith(ActionUnit.class)

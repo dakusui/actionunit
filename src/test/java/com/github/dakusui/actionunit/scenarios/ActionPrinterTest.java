@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
@@ -21,8 +20,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
-import static com.github.dakusui.actionunit.helpers.Builders.*;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.*;
 import static com.github.dakusui.actionunit.helpers.Utils.size;
 import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
@@ -133,7 +131,7 @@ public class ActionPrinterTest {
               forEachOf(
                   asList("hello1", "hello2", "hello3")
               ).perform(
-                  data -> Builders.given(
+                  data -> given(
                       "ExampleTest", () -> "ExampleTest")
                       .when("Say 'hello'", input -> {
                         out.add(format("hello:%s", data.get()));
@@ -304,7 +302,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      new ReportingActionPerformer.Builder(action).to(Writer.Std.OUT).build().perform();
+      TestUtils.createReportingActionPerformer(action).perform();
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -315,7 +313,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      new ReportingActionPerformer.Builder(action).to(Writer.Std.OUT).build().perform();
+      TestUtils.createReportingActionPerformer(action).perform();
     }
   }
 

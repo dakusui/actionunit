@@ -3,13 +3,12 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
-import static com.github.dakusui.actionunit.helpers.Builders.attempt;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.*;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.attempt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -23,7 +22,7 @@ public class RecoveryOperation {
         deployComponent()
     ).recover(
         Exception.class,
-        e -> Builders.retry(sequential(
+        e -> retry(sequential(
             cleanUp(),
             deployComponent()
         )).times(2).withIntervalOf(10, MILLISECONDS)

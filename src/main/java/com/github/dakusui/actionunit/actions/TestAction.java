@@ -10,8 +10,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.helpers.Actions.named;
-import static com.github.dakusui.actionunit.helpers.Actions.simple;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.named;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.simple;
 
 public interface TestAction extends Action {
   Action given();

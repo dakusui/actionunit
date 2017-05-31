@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Iterator;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.*;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

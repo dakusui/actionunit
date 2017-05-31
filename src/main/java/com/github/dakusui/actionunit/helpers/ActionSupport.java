@@ -4,6 +4,9 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
@@ -21,7 +24,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * @see Action
  * @see Action.Visitor
  */
-public enum Actions {
+public enum ActionSupport {
   ;
 
   /**
@@ -130,5 +133,42 @@ public enum Actions {
         return format("sleep for %s", Utils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
       }
     };
+  }
+
+  public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
+    return ForEach.builder(elements);
+  }
+
+  @SafeVarargs
+  public static <E> ForEach.Builder<E> forEachOf(E... elements) {
+    return ForEach.builder(asList(elements));
+  }
+
+  public static TimeOut.Builder timeout(Action action) {
+    return new TimeOut.Builder(action);
+  }
+
+  public static <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
+    return Attempt.builder(action);
+  }
+
+  public static Retry.Builder retry(Action action) {
+    return Retry.builder(action);
+  }
+
+  public static <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
+    return new While.Builder<>(value, condition);
+  }
+
+  public static <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
+    return new TestAction.Builder<I, O>().given(description, given);
+  }
+
+  public static <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
+    return new When.Builder<>(value, condition);
+  }
+
+  public static <T> HandlerFactory<T> handlerFactory(String description, Consumer<T> handlerBody) {
+    return HandlerFactory.create(description, handlerBody);
   }
 }

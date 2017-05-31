@@ -2,15 +2,15 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.helpers.Actions.sequential;
-import static com.github.dakusui.actionunit.helpers.Actions.simple;
-import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.simple;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.forEachOf;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
@@ -21,7 +21,7 @@ public class ActionRunnerTest {
   public abstract static class Base extends ActionRunnerTestBase {
     @Override
     protected Action.Visitor createRunner() {
-      return new ActionPerformer();
+      return TestUtils.createActionPerformer();
     }
 
     @Override

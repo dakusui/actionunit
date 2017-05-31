@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.ActionSupport;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -17,7 +17,7 @@ public interface While<T> extends Action {
   class Builder<T> {
     private final Predicate<T> check;
     private final Supplier<T>  value;
-    private HandlerFactory<T> handlerFactory = tSupplier -> Actions.nop();
+    private HandlerFactory<T> handlerFactory = tSupplier -> ActionSupport.nop();
 
     public Builder(Supplier<T> value, Predicate<T> check) {
       this.value = Objects.requireNonNull(value);

@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.helpers.Actions.named;
-import static com.github.dakusui.actionunit.helpers.Actions.nop;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.named;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.nop;
 
 public interface When<T> extends Action {
   Supplier<T> value();

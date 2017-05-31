@@ -1,17 +1,18 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Builders;
+import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.*;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.helpers.Actions.*;
-import static com.github.dakusui.actionunit.helpers.Builders.attempt;
-import static com.github.dakusui.actionunit.helpers.Builders.forEachOf;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.*;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.attempt;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.forEachOf;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -21,16 +22,16 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(Enclosed.class)
-public class ActionRunnerWithResultTest {
+public class ReportingActionPerformerTest {
   public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, PrintingActionScanner> {
     @Override
     protected ActionPerformer createRunner() {
-      return new ActionPerformer();
+      return TestUtils.createActionPerformer();
     }
 
     @Override
     public PrintingActionScanner getPrinter(Writer writer) {
-      return PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.ERR);
+      return TestUtils.createPrintingActionScanner(Writer.Std.ERR);
     }
 
     void performAndPrintAction(Action action) {
@@ -249,10 +250,10 @@ public class ActionRunnerWithResultTest {
   public static class TestTest extends Base {
     @Test
     public void givenTestAction$whenPerformed$thenWorksFine() {
-      Action action = Builders
-          .<String, Integer>given("string 'World'", () -> "World")
-          .when("length", String::length)
-          .then("==5", v -> v == 5);
+      Action action =
+          ActionSupport.<String, Integer>given("string 'World'", () -> "World")
+              .when("length", String::length)
+              .then("==5", v -> v == 5);
       performAndPrintAction(action);
       assertThat(
           this.getWriter().get(0),
@@ -280,7 +281,7 @@ public class ActionRunnerWithResultTest {
 
     @Test(expected = AssertionError.class)
     public void givenFailingAction$whenPerformed$thenWorksFine() {
-      Action action = Builders.<String, Integer>given("HelloTestCase", () -> "World")
+      Action action = ActionSupport.<String, Integer>given("HelloTestCase", () -> "World")
           .when(
               "length",
               input -> input.length() + 1)

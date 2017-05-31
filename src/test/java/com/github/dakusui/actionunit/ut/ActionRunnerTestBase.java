@@ -7,8 +7,8 @@ import com.github.dakusui.actionunit.utils.TestUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.helpers.Actions.named;
-import static com.github.dakusui.actionunit.helpers.Actions.simple;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.named;
+import static com.github.dakusui.actionunit.helpers.ActionSupport.simple;
 import static org.junit.Assert.assertTrue;
 
 public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends Action.Visitor> {

@@ -3,11 +3,10 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
@@ -38,7 +37,7 @@ public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2
   @Test(expected = RuntimeException.class, timeout = 3000000)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(ActionException.class, Actions.simple("Fail on first time only", new Runnable() {
+    new Retry(ActionException.class, ActionSupport.simple("Fail on first time only", new Runnable() {
       boolean firstTime = true;
 
       @Override
@@ -51,7 +50,7 @@ public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2
           firstTime = false;
         }
       }
-    }), 0, Retry.INFINITE).accept(new ActionPerformer());
+    }), 0, Retry.INFINITE).accept(TestUtils.createActionPerformer());
   }
 
   @Test

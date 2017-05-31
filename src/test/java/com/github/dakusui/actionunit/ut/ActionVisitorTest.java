@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
@@ -54,7 +54,7 @@ public class ActionVisitorTest implements Actions2, Builders2 {
   @Test
   public void givenNamesAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = Actions.named("named", createSimpleAction());
+    Action action = ActionSupport.named("named", createSimpleAction());
     // when accept
     action.accept(visitor);
     // then visited

@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class TestMethodNegativeTest implements Actions2, Builders2 {
   public static class NoParameter {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return Actions.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class TestMethodNegativeTest implements Actions2, Builders2 {
   public static class TooManyParameters {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return Actions.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TestMethodNegativeTest implements Actions2, Builders2 {
   public static class MismatchParameter {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return Actions.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class TestMethodNegativeTest implements Actions2, Builders2 {
   public static class NoRunnerMethod {
     @ActionUnit.PerformWith(RunWith.class)
     public Action testMethod() {
-      return Actions.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test

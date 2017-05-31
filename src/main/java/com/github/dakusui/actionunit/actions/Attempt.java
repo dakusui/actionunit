@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions;
+import com.github.dakusui.actionunit.helpers.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
@@ -22,7 +22,7 @@ public interface Attempt<E extends Throwable> extends Action {
 
   class Builder<E extends Throwable> {
     private final Action attempt;
-    private Action             ensure                  = Actions.nop();
+    private Action             ensure                  = ActionSupport.nop();
     private Class<? extends E> exceptionClass          = null;
     private HandlerFactory<E>  exceptionHandlerFactory = e -> {
       throw Checks.propagate(e.get());
@@ -39,7 +39,7 @@ public interface Attempt<E extends Throwable> extends Action {
     }
 
     public Attempt<E> ensure(Action action) {
-      this.ensure = Actions.named("Ensure", Objects.requireNonNull(action));
+      this.ensure = ActionSupport.named("Ensure", Objects.requireNonNull(action));
       return this.build();
     }
 
@@ -75,7 +75,7 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action recover(Supplier<E> exception) {
-      return Actions.named(String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
+      return ActionSupport.named(String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -37,6 +38,10 @@ public class TestUtils {
 
   public static ActionPerformer createActionPerformer() {
     return new ActionPerformer();
+  }
+
+  public static ReportingActionPerformer createReportingActionPerformer(Action action) {
+    return new ReportingActionPerformer.Builder(action).to(Writer.Std.OUT).build();
   }
 
   public static class Out extends AbstractList<String> implements Writer {

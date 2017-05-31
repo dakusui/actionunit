@@ -44,6 +44,7 @@ public class ReportingActionPerformer extends ActionPerformer {
   }
 
   private ReportingActionPerformer(Node<Action> tree, Writer writer, Report.Record.Formatter formatter) {
+    super();
     this.report = new Report(tree);
     this.writer = writer;
     this.formatter = formatter;

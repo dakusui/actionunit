@@ -1,10 +1,11 @@
 package com.github.dakusui.actionunit.helpers;
 
-import com.github.dakusui.actionunit.actions.Leaf;
-import com.github.dakusui.actionunit.actions.Sequential;
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public interface Actions2 {
   /**
@@ -15,7 +16,7 @@ public interface Actions2 {
    * @see Leaf
    */
   default Action simple(final String description, final Runnable runnable) {
-    return Actions.simple(description, runnable);
+    return ActionSupport.simple(description, runnable);
   }
 
   /**
@@ -25,7 +26,7 @@ public interface Actions2 {
    * @param action action to be named.
    */
   default Action named(String name, Action action) {
-    return Actions.named(name, action);
+    return ActionSupport.named(name, action);
   }
 
   /**
@@ -35,7 +36,7 @@ public interface Actions2 {
    * @see Sequential.Impl
    */
   default Action concurrent(Action... actions) {
-    return Actions.concurrent(actions);
+    return ActionSupport.concurrent(actions);
   }
 
   /**
@@ -45,7 +46,7 @@ public interface Actions2 {
    * @see Sequential.Impl
    */
   default Action concurrent(Iterable<? extends Action> actions) {
-    return Actions.concurrent(actions);
+    return ActionSupport.concurrent(actions);
   }
 
   /**
@@ -55,7 +56,7 @@ public interface Actions2 {
    * @see Sequential.Impl
    */
   default Action sequential(Action... actions) {
-    return Actions.sequential(actions);
+    return ActionSupport.sequential(actions);
   }
 
   /**
@@ -65,14 +66,14 @@ public interface Actions2 {
    * @see Sequential.Impl
    */
   default Action sequential(Iterable<? extends Action> actions) {
-    return Actions.sequential(actions);
+    return ActionSupport.sequential(actions);
   }
 
   /**
    * Returns an action that does nothing.
    */
   default Action nop() {
-    return Actions.nop();
+    return ActionSupport.nop();
   }
 
   /**
@@ -81,7 +82,7 @@ public interface Actions2 {
    * @param description A string that describes returned action.
    */
   default Action nop(final String description) {
-    return Actions.nop(description);
+    return ActionSupport.nop(description);
   }
 
   /**
@@ -91,6 +92,39 @@ public interface Actions2 {
    * @param timeUnit Time unit of the {@code duration}.
    */
   default Action sleep(final long duration, final TimeUnit timeUnit) {
-    return Actions.sleep(duration, timeUnit);
+    return ActionSupport.sleep(duration, timeUnit);
+  }
+
+  default <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
+    return ActionSupport.forEachOf(elements);
+  }
+
+  @SuppressWarnings("unchecked")
+  default <E> ForEach.Builder<E> forEachOf(E... elements) {
+    return ActionSupport.forEachOf(elements);
+  }
+
+  default <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
+    return ActionSupport.whilst(value, condition);
+  }
+
+  default <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
+    return ActionSupport.when(value, condition);
+  }
+
+  default TimeOut.Builder timeout(Action action) {
+    return ActionSupport.timeout(action);
+  }
+
+  default <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
+    return ActionSupport.attempt(action);
+  }
+
+  default Retry.Builder retry(Action action) {
+    return ActionSupport.retry(action);
+  }
+
+  default <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
+    return ActionSupport.given(description, given);
   }
 }
