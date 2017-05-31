@@ -31,7 +31,6 @@ public interface Action {
    * an API should generally use this visitor interface as the type for parameters, return type, etc.
    * rather than one of the abstract classes.
    *
-   * @see Base
    */
   interface Visitor {
     /**

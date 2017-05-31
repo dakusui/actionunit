@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;

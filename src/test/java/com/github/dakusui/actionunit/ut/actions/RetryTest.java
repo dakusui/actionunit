@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;

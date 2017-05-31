@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.reporting.Node;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -15,15 +16,19 @@ public class PrintingActionScanner extends ActionScanner {
   public PrintingActionScanner(Writer writer) {
     this.writer = Objects.requireNonNull(writer);
   }
+
   @Override
-  void handleAction(Action a) {
+  protected void handleAction(Action a) {
     describe(a);
   }
 
-  <A extends Action> void before(Node<A> node) {
+  @Override
+  protected  <A extends Action> void before(Node<A> node) {
     writeLine(describeAction(node.getContent()));
     super.before(node);
-  };
+  }
+
+  ;
 
   /**
    * An extension point to customize format a line to be printed by this object.

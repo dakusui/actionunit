@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.visitors.reporting.Node;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -18,12 +19,12 @@ import static java.util.stream.StreamSupport.stream;
 
 public abstract class ActionPerformer extends ActionWalker {
   @Override
-  Consumer<Leaf> leafActionConsumer() {
+  protected Consumer<Leaf> leafActionConsumer() {
     return Leaf::perform;
   }
 
   @Override
-  Consumer<Concurrent> concurrentActionConsumer() {
+  protected Consumer<Concurrent> concurrentActionConsumer() {
     return (Concurrent concurrent) -> {
       Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
       stream(concurrent.spliterator(), false)
@@ -39,7 +40,7 @@ public abstract class ActionPerformer extends ActionWalker {
   }
 
   @Override
-  <T> Consumer<ForEach<T>> forEachActionConsumer() {
+  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
     return (ForEach<T> forEach) -> {
       Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
       stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
@@ -53,7 +54,7 @@ public abstract class ActionPerformer extends ActionWalker {
   }
 
   @Override
-  <T> Consumer<While<T>> whileActionConsumer() {
+  protected <T> Consumer<While<T>> whileActionConsumer() {
     return (While<T> while$) -> {
       Supplier<T> value = while$.value();
       //noinspection unchecked
@@ -64,7 +65,7 @@ public abstract class ActionPerformer extends ActionWalker {
   }
 
   @Override
-  <T> Consumer<When<T>> whenActionConsumer() {
+  protected <T> Consumer<When<T>> whenActionConsumer() {
     return (When<T> when) -> {
       Supplier<T> value = when.value();
       //noinspection unchecked
@@ -77,13 +78,13 @@ public abstract class ActionPerformer extends ActionWalker {
   }
 
   @Override
-  <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
+  protected <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
     return (Attempt<T> attempt) -> {
       try {
         attempt.attempt().accept(this);
       } catch (Throwable e) {
         if (!attempt.exceptionClass().isAssignableFrom(e.getClass())) {
-          throw new Wrapped(e);
+          throw new WrappedException(e);
         }
         //noinspection unchecked
         attempt.recover(() -> (T) e).accept(this);
@@ -94,7 +95,7 @@ public abstract class ActionPerformer extends ActionWalker {
   }
 
   @Override
-  Consumer<Retry> retryActionConsumer() {
+  protected Consumer<Retry> retryActionConsumer() {
     return (Retry retry) -> {
       try {
         toRunnable(retry.action).run();
@@ -119,7 +120,7 @@ public abstract class ActionPerformer extends ActionWalker {
   }
 
   @Override
-  Consumer<TimeOut> timeOutActionConsumer() {
+  protected Consumer<TimeOut> timeOutActionConsumer() {
     return (TimeOut timeOut) -> {
       Deque<Node<Action>> snapshotPath = snapshotCurrentPath();
       runWithTimeout((Callable<Object>) () -> {
@@ -135,12 +136,6 @@ public abstract class ActionPerformer extends ActionWalker {
 
   private Runnable toRunnable(final Action action) {
     return () -> action.accept(ActionPerformer.this);
-  }
-
-  static class Wrapped extends RuntimeException {
-    private Wrapped(Throwable t) {
-      super(t);
-    }
   }
 
   private void branchPath(Deque<Node<Action>> pathSnapshot) {

@@ -9,7 +9,7 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

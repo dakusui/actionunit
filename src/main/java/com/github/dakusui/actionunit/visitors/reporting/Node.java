@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.visitors;
+package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.Utils;
@@ -15,7 +15,7 @@ public class Node<A> {
   private final A             content;
   private final String        description;
 
-  Node(A content, boolean leaf) {
+  public Node(A content, boolean leaf) {
     this.content = Objects.requireNonNull(content);
     this.description = Utils.describe(content);
     children = leaf

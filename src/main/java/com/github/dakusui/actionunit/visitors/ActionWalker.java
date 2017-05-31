@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.visitors.reporting.Node;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -138,13 +139,13 @@ abstract class ActionWalker implements Action.Visitor {
     );
   }
 
-  abstract Consumer<Leaf> leafActionConsumer();
+  protected abstract Consumer<Leaf> leafActionConsumer();
 
-  Consumer<Named> namedActionConsumer() {
+  protected Consumer<Named> namedActionConsumer() {
     return (Named named) -> named.getAction().accept(this);
   }
 
-  Consumer<Sequential> sequentialActionConsumer() {
+  protected Consumer<Sequential> sequentialActionConsumer() {
     return (Sequential sequential) -> {
       try (AutocloseableIterator<Action> i = sequential.iterator()) {
         while (i.hasNext()) {
@@ -154,17 +155,17 @@ abstract class ActionWalker implements Action.Visitor {
     };
   }
 
-  abstract Consumer<Concurrent> concurrentActionConsumer();
+  protected abstract Consumer<Concurrent> concurrentActionConsumer();
 
-  abstract <T> Consumer<ForEach<T>> forEachActionConsumer();
+  protected abstract <T> Consumer<ForEach<T>> forEachActionConsumer();
 
-  abstract <T> Consumer<While<T>> whileActionConsumer();
+  protected abstract <T> Consumer<While<T>> whileActionConsumer();
 
-  abstract <T> Consumer<When<T>> whenActionConsumer();
+  protected abstract <T> Consumer<When<T>> whenActionConsumer();
 
-  abstract <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer();
+  protected abstract <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer();
 
-  Consumer<TestAction> testActionConsumer() {
+  protected Consumer<TestAction> testActionConsumer() {
     return (TestAction test) -> {
       test.given().accept(this);
       test.when().accept(this);
@@ -172,22 +173,19 @@ abstract class ActionWalker implements Action.Visitor {
     };
   }
 
-  abstract Consumer<Retry> retryActionConsumer();
+  protected abstract Consumer<Retry> retryActionConsumer();
 
-  abstract Consumer<TimeOut> timeOutActionConsumer();
+  protected abstract Consumer<TimeOut> timeOutActionConsumer();
 
-  <A extends Action> void handle(A action, Consumer<A> handler) {
+  protected final <A extends Action> void handle(A action, Consumer<A> handler) {
     @SuppressWarnings("unchecked") Node<A> node = toNode(
-        this.getCurrentPath().peek(),
+        this.getCurrentNode(),
         action
     );
     before(node);
     try {
       handler.accept(action);
       succeeded(node);
-    } catch (ReportingActionRunner.Wrapped e) {
-      notFinished(node);
-      throw e;
     } catch (Error | RuntimeException e) {
       failed(node, e);
       throw e;
@@ -196,17 +194,14 @@ abstract class ActionWalker implements Action.Visitor {
     }
   }
 
-  <A extends Action> void notFinished(Node<A> node) {
+  protected <A extends Action> void succeeded(Node<A> node) {
   }
 
-  <A extends Action> void succeeded(Node<A> node) {
-  }
-
-  <A extends Action> void failed(Node<A> node, Throwable e) {
+  protected <A extends Action> void failed(Node<A> node, Throwable e) {
   }
 
   @SuppressWarnings({ "unchecked", "WeakerAccess" })
-  <A extends Action> void before(Node<A> node) {
+  protected <A extends Action> void before(Node<A> node) {
     if (getCurrentPath().isEmpty()) {
       pushNode(node);
       root = (Node<Action>) node;
@@ -215,25 +210,38 @@ abstract class ActionWalker implements Action.Visitor {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  <A extends Action> void pushNode(Node<A> node) {
-    this.getCurrentPath().push((Node<Action>) node);
-  }
-
   @SuppressWarnings("WeakerAccess")
-  <A extends Action> void after(Node<A> node) {
+  protected <A extends Action> void after(Node<A> node) {
     Checks.checkState(
         this.getCurrentPath().peek() == node,
         "Cannot remove %s from queue=%s", node, this.getCurrentPath()
     );
-    this.getCurrentPath().pop();
+    popNode();
   }
 
-  <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
+  @SuppressWarnings("unchecked")
+  protected <A extends Action> void pushNode(Node<A> node) {
+    this.getCurrentPath().push((Node<Action>) node);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <A extends Action> Node<A> popNode() {
+    return (Node<A>) this.getCurrentPath().pop();
+  }
+
+  protected <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
     return new Node<>(action, action instanceof Leaf);
   }
 
-  synchronized Deque<Node<Action>> getCurrentPath() {
+  protected Node<Action> getRootNode() {
+    return root;
+  }
+
+  protected <A extends Action> Node<A> getCurrentNode() {
+    return (Node<A>) this.getCurrentPath().peek();
+  }
+
+  protected synchronized Deque<Node<Action>> getCurrentPath() {
     return _current.get();
   }
 }

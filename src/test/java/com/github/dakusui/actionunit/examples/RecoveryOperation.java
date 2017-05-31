@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Builders;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

@@ -9,12 +9,12 @@ import java.util.function.Supplier;
 
 public abstract class ActionScanner extends ActionWalker {
   @Override
-  Consumer<Leaf> leafActionConsumer() {
+  protected Consumer<Leaf> leafActionConsumer() {
     return this::handleAction;
   }
 
   @Override
-  Consumer<Concurrent> concurrentActionConsumer() {
+  protected Consumer<Concurrent> concurrentActionConsumer() {
     return (Concurrent a) -> {
       try (AutocloseableIterator<Action> i = a.iterator()) {
         while (i.hasNext()) {
@@ -25,14 +25,14 @@ public abstract class ActionScanner extends ActionWalker {
   }
 
   @Override
-  <T> Consumer<ForEach<T>> forEachActionConsumer() {
+  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
     return (ForEach<T> a) -> a.createHandler(() -> {
       throw new UnsupportedOperationException();
     }).accept(this);
   }
 
   @Override
-  <T> Consumer<While<T>> whileActionConsumer() {
+  protected <T> Consumer<While<T>> whileActionConsumer() {
     return (While<T> while$) -> {
       Supplier<T> value = () -> {
         throw new UnsupportedOperationException();
@@ -42,7 +42,7 @@ public abstract class ActionScanner extends ActionWalker {
   }
 
   @Override
-  <T> Consumer<When<T>> whenActionConsumer() {
+  protected <T> Consumer<When<T>> whenActionConsumer() {
     return (When<T> when) -> {
       Supplier<T> value = () -> {
         throw new UnsupportedOperationException();
@@ -54,12 +54,12 @@ public abstract class ActionScanner extends ActionWalker {
   }
 
   @Override
-  Consumer<Retry> retryActionConsumer() {
+  protected Consumer<Retry> retryActionConsumer() {
     return (Retry retry) -> retry.action.accept(this);
   }
 
   @Override
-  <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
+  protected <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
     return (Attempt<T> attempt) -> {
       handleAction(attempt);
       attempt.attempt().accept(this);
@@ -71,10 +71,10 @@ public abstract class ActionScanner extends ActionWalker {
   }
 
   @Override
-  Consumer<TimeOut> timeOutActionConsumer() {
+  protected Consumer<TimeOut> timeOutActionConsumer() {
     return (TimeOut timeOut) -> timeOut.action.accept(this);
   }
 
-  void handleAction(Action a) {
+  protected void handleAction(Action a) {
   }
 }

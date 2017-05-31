@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.visitors;
+package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Utils;

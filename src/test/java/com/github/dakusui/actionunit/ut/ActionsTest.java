@@ -425,7 +425,7 @@ public class ActionsTest {
             // GC, class loading, etc.,  "sleep" action may take a longer time
             // than 1 msec to perform. In this case I'm giving 3 msec including
             // grace period.
-            lessThan(3L)
+            lessThan(5L)
         )
     );
   }

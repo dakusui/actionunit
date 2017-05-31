@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
-import com.github.dakusui.actionunit.visitors.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;

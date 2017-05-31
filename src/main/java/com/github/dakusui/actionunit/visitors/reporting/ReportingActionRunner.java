@@ -1,9 +1,11 @@
-package com.github.dakusui.actionunit.visitors;
+package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.visitors.WrappedException;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -11,8 +13,8 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class ReportingActionRunner extends ActionPerformer implements Action.Visitor {
-  private final Writer    writer;
+public class ReportingActionRunner extends ActionPerformer {
+  private final Writer                  writer;
   private final Report.Record.Formatter formatter;
   private final Report                  report;
 
@@ -51,7 +53,7 @@ public class ReportingActionRunner extends ActionPerformer implements Action.Vis
     Objects.requireNonNull(formatter);
     try {
       this.report.root.getContent().accept(this);
-    } catch (Wrapped e) {
+    } catch (WrappedException e) {
       throw Checks.propagate(e.getCause());
     } finally {
       Node.walk(
@@ -63,7 +65,7 @@ public class ReportingActionRunner extends ActionPerformer implements Action.Vis
   }
 
   @Override
-  <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
+  public <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
     if (parent == null) {
       //noinspection unchecked
       return (Node<A>) this.report.root;
@@ -109,17 +111,14 @@ public class ReportingActionRunner extends ActionPerformer implements Action.Vis
   }
 
   @SuppressWarnings("unchecked")
-  <A extends Action> void notFinished(Node<A> node) {
-    this.report.notFinished((Node<Action>) node);
-  }
-
-  @SuppressWarnings("unchecked")
-  <A extends Action> void succeeded(Node<A> node) {
+  @Override
+  public <A extends Action> void succeeded(Node<A> node) {
     this.report.succeeded((Node<Action>) node);
   }
 
   @SuppressWarnings("unchecked")
-  <A extends Action> void failed(Node<A> node, Throwable e) {
+  @Override
+  public <A extends Action> void failed(Node<A> node, Throwable e) {
     this.report.failed((Node<Action>) node, e);
   }
 
