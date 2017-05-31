@@ -21,7 +21,7 @@ public interface Action {
    * this interface are used to operate on an action when the kind of element is unknown at compile
    * time. When a visitor is passed to an element's accept method, the visit(XYZ) method most applicable
    * to that element is invoked.
-   * <p/>
+   *
    * WARNING: It is possible that methods will be added to this interface to accommodate new, currently
    * unknown, language structures added to future versions of the ActionUnit library. Therefore,
    * visitor classes directly implementing this interface may be source incompatible with future

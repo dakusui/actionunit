@@ -87,7 +87,6 @@ public class InternalUtils {
   /**
    * Creates a {@code TestClass} object to mock {@code Parameterized} class's logic
    * which cannot be overridden.
-   * <p/>
    * Some IDE(s) (IntelliJ, for instance) treat classes that extend {@code Parameterized}
    * runner in a special way. And therefore we have to extend it to allow users to
    * use IDE features for parameterized runners.
