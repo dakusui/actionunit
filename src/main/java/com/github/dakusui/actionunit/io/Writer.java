@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.io;
 
-import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * An interface that abstracts various destinations to which {@link ActionPrinter.Impl}'s
+ * An interface that abstracts various destinations to which {@link com.github.dakusui.actionunit.visitors.PrintingActionScanner}'s
  * output goes.
  */
 public interface Writer {
