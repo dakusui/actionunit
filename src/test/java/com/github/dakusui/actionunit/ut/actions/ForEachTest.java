@@ -2,7 +2,9 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
@@ -71,8 +73,8 @@ public class ForEachTest implements ActionFactory {
             )
         )
     );
-    // When
-    TestUtils.createReportingActionPerformer(givenAction).perform();
+    // When3
+    new ReportingActionPerformer.Builder(givenAction).to(Writer.Std.ERR).build().perform();
     // Then
     assertThat(
         out,
