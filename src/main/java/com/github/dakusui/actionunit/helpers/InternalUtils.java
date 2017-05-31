@@ -45,7 +45,7 @@ public class InternalUtils {
     }
   }
 
-  public static TimeUnit chooseTimeUnit(long intervalInNanos) {
+  private static TimeUnit chooseTimeUnit(long intervalInNanos) {
     // TimeUnit.values() returns elements of TimeUnit in declared order
     // And they are declared in ascending order.
     for (TimeUnit timeUnit : TimeUnit.values()) {
@@ -155,7 +155,7 @@ public class InternalUtils {
     return obj.toString();
   }
 
-  public static String describeClassOf(Object obj) {
+  private static String describeClassOf(Object obj) {
     return shortClassNameOf(checkNotNull(obj).getClass());
   }
 

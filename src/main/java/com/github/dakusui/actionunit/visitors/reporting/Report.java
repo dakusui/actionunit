@@ -21,21 +21,14 @@ public class Report implements Iterable<Node<Action>> {
   void succeeded(Node<Action> node) {
     Objects.requireNonNull(
         this.records.get(node),
-        ""
+        String.format("Unknown node '%s' was requested:", node)
     ).succeeded();
-  }
-
-  public <A extends Action> void error(Node<A> node, Error e) {
-    Objects.requireNonNull(
-        this.records.get(node),
-        ""
-    ).failed(e);
   }
 
   void failed(Node<Action> node, Throwable t) {
     Objects.requireNonNull(
         this.records.get(node),
-        ""
+        String.format("Unknown node '%s' was requested:", node)
     ).failed(t);
   }
 
@@ -62,10 +55,11 @@ public class Report implements Iterable<Node<Action>> {
           return String.format(
               "%s[%s]%s",
               InternalUtils.spaces(indentLevel * 2),
-              formatRecord(record).replaceAll("o{4,}","o..."),
+              formatRecord(record).replaceAll("o{4,}", "o..."),
               actionNode.getContent()
           );
         }
+
         private String formatRecord(Report.Record runs) {
           StringBuilder b = new StringBuilder();
           runs.forEach(run -> {
@@ -74,8 +68,10 @@ public class Report implements Iterable<Node<Action>> {
           return b.toString();
         }
       };
+
       String format(Node<Action> actionNode, Record record, int indentLevel);
     }
+
     final List<Record.Run> runs = new LinkedList<>();
 
     void succeeded() {
@@ -136,22 +132,6 @@ public class Report implements Iterable<Node<Action>> {
           }
         };
       }
-
-      Record.Run NOT_FINISHED = new Record.Run() {
-        @Override
-        public boolean wasSuccessful() {
-          return false;
-        }
-
-        @Override
-        public Throwable exception() {
-          throw new IllegalStateException();
-        }
-
-        public String toString() {
-          return "-";
-        }
-      };
     }
   }
 }
