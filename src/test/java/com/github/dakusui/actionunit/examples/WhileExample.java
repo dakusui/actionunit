@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.Report;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
 
 @RunWith(ActionUnit.class)
-public class WhileExample extends TestUtils.TestBase implements Actions2 {
+public class WhileExample extends TestUtils.TestBase implements ActionFactory {
   @ActionUnit.PerformWith(Test.class)
   public Action composeWhileLoop() {
     /*

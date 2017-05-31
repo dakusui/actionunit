@@ -1,13 +1,13 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
 
-public class WhenTest implements Actions2 {
+public class WhenTest implements ActionFactory {
   @Test
   public void test() {
     Action action = forEachOf(

@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Actions2;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -20,7 +20,7 @@ import static java.util.Arrays.asList;
  */
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class NameOfAction implements Actions2 {
+public class NameOfAction implements ActionFactory {
   @PerformWith(Test.class)
   public Action aMethodToTestSomething() {
     return forEachOf(
