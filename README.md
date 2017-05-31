@@ -2,7 +2,6 @@
 Action based JUnit[[0]] test runner library
 
 [![Build Status](https://travis-ci.org/dakusui/actionunit.svg?branch=master)](https://travis-ci.org/dakusui/actionunit)
-[![codecov.io](https://codecov.io/github/dakusui/actionunit/coverage.svg?branch=master)](https://codecov.io/github/dakusui/actionunit?branch=master)
 
 # Installation
 The latest version of ActionUnit requires Java SE8 or later.
@@ -36,54 +35,44 @@ Following is an example of actionunit.
 
 ```java
 
-    import com.github.dakusui.actionunit.core.Action;
-    import com.github.dakusui.actionunit.ActionUnit;
-    import com.github.dakusui.actionunit.visitors.ActionRunner;
-    import org.junit.Test;
-    import org.junit.runner.RunWith;
-    
-    import java.lang.annotation.Retention;
-    import java.lang.annotation.RetentionPolicy;
-    
-    import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
-    import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-    
-    
-    @RunWith(ActionUnit.class)
-    public class Example {
-      @Retention(RetentionPolicy.RUNTIME)
-      public @interface Print {
-      }
-    
-      @ActionUnit.PerformWith({ Print.class, Test.class })
-      public Action testMethod() {
-        return sequential(
-            simple("print hello", () -> System.out.println("Hello")),
-            simple("print world", () -> System.out.println("World"))
+  class Example implements ActionFactory {
+    void runAction() {
+        Action action = forEachOf(
+            "Hello", "world", "!"
+        ).concurrently(
+        ).perform(
+            s -> sequential(
+                simple(
+                    "print {s}",
+                    () -> System.out.println("<" + s.get() + ">")
+                ),
+                simple(
+                    "do something"
+                    // ...
+                )
+            )
         );
-      }
-    
-      @Print
-      public void print(Action action) {
-        System.out.println(action);
-      }
-    
-      @Test
-      public void run(Action action) {
-        action.accept(new ActionPerformer.Impl() {});
-      }
+        // When
+        new ReportingActionPerformer.Builder(action).build().perform();
     }
+  }
+```
+
+This will print out something like
 
 ```
 
-This will print out
+  <world>
+  <Hello>
+  <!>
+```
+to stdout, while following is written to stderr
 
 ```
-
-    2 actions
-    Hello
-    World
-
+  [o]ForEach
+    [ooo]Sequential (2 actions)
+      [ooo]print {s}
+      [ooo]add {s} to 'out'
 ```
 
 More examples are found here[[1]].
