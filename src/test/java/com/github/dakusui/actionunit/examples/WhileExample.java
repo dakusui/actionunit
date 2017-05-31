@@ -29,7 +29,7 @@ public class WhileExample extends TestUtils.TestBase implements Actions2 {
         i -> i.getAndIncrement() < 10
     ).perform(
         i -> simple("print i", () -> System.out.println("i:" + i.get()))
-    ).$();
+    );
   }
 
   @Test

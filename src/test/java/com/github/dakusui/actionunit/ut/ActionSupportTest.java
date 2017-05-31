@@ -352,7 +352,7 @@ public class ActionSupportTest {
         () -> "Hello", t -> false
     ).perform(
         i -> nop()
-    ).$();
+    );
     action.accept(createActionPerformer());
   }
 

@@ -175,7 +175,7 @@ public class ActionVisitorTest implements Actions2 {
             createSimpleAction(),
             createSimpleAction()
         )
-    ).$();
+    );
     // when accept
     action.accept(visitor);
     // then visited

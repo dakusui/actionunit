@@ -29,7 +29,7 @@ public class WhileTest implements Actions2 {
               i.get().getAndIncrement();
             }
         )
-    ).$();
+    );
     final TestUtils.Out result = new TestUtils.Out();
     new ReportingActionPerformer.Builder(action).to(result).build().perform();
     assertThat(out,

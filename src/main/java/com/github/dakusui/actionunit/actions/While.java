@@ -24,12 +24,8 @@ public interface While<T> extends Action {
       this.check = Objects.requireNonNull(check);
     }
 
-    public Builder<T> perform(HandlerFactory<T> handlerFactory) {
+    public While<T> perform(HandlerFactory<T> handlerFactory) {
       this.handlerFactory = Objects.requireNonNull(handlerFactory);
-      return this;
-    }
-
-    public While<T> $() {
       return new Impl<T>(value, check, handlerFactory);
     }
   }
