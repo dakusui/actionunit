@@ -87,7 +87,7 @@ public class ActionPerformer extends ActionWalker {
         attempt.attempt().accept(this);
       } catch (Throwable e) {
         if (!attempt.exceptionClass().isAssignableFrom(e.getClass())) {
-          throw new WrappedException(e);
+          throw ActionException.wrap(e);
         }
         //noinspection unchecked
         attempt.recover(() -> (T) e).accept(this);

@@ -1,7 +1,8 @@
-package com.github.dakusui.actionunit.helpers;
+package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.helpers.Utils;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;

@@ -1,11 +1,9 @@
 package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.WrappedException;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -21,7 +19,7 @@ public class ReportingActionPerformer extends ActionPerformer {
   public static class Builder {
     private final Action action;
     private Report.Record.Formatter formatter = Report.Record.Formatter.DEFAULT_INSTANCE;
-    private Writer    writer    = Writer.Std.OUT;
+    private Writer                  writer    = Writer.Std.OUT;
 
 
     public Builder(Action action) {
@@ -54,8 +52,6 @@ public class ReportingActionPerformer extends ActionPerformer {
     Objects.requireNonNull(formatter);
     try {
       this.report.root.getContent().accept(this);
-    } catch (WrappedException e) {
-      throw Checks.propagate(e.getCause());
     } finally {
       Node.walk(
           this.report.root,
@@ -78,7 +74,7 @@ public class ReportingActionPerformer extends ActionPerformer {
   }
 
   @Override
-  protected  <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
+  protected <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
     if (parent == null) {
       //noinspection unchecked
       return (Node<A>) this.report.root;

@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Report implements Iterable<Node<Action>> {
   private final Map<Node<Action>, Record> records = Collections.synchronizedMap(new HashMap<>());
-  public final Node<Action> root;
+  final Node<Action> root;
 
   Report(Node<Action> root) {
     Node.walk(root, this::prepare);
@@ -39,11 +39,8 @@ public class Report implements Iterable<Node<Action>> {
     ).failed(t);
   }
 
-  public void notFinished(Node<Action> node) {
-    Objects.requireNonNull(
-        this.records.get(node),
-        ""
-    ).notFinished();
+  public Record get(Node<Action> actionNode) {
+    return this.records.get(actionNode);
   }
 
   @Override
@@ -54,10 +51,6 @@ public class Report implements Iterable<Node<Action>> {
   @Override
   public Iterator<Node<Action>> iterator() {
     return this.records.keySet().iterator();
-  }
-
-  public Record get(Node<Action> actionNode) {
-    return this.records.get(actionNode);
   }
 
   public static class Record implements Iterable<Record.Run> {
@@ -91,10 +84,6 @@ public class Report implements Iterable<Node<Action>> {
 
     void failed(Throwable t) {
       runs.add(Record.Run.failed(t));
-    }
-
-    public void notFinished() {
-      runs.add(Record.Run.NOT_FINISHED);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.ActionSupport;
+import com.github.dakusui.actionunit.core.ActionSupport;
 
 import java.util.Objects;
 import java.util.function.Predicate;

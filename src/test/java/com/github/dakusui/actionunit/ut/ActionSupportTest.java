@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.ActionSupport;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
-import static com.github.dakusui.actionunit.helpers.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.helpers.Utils.describe;
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.lang.System.currentTimeMillis;

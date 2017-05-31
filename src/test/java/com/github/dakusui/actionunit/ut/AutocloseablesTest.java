@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.AutocloseableIterator;
-import com.github.dakusui.actionunit.helpers.Autocloseables;
+import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
@@ -11,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.helpers.Autocloseables.autocloseable;
+import static com.github.dakusui.actionunit.sandbox.Autocloseables.autocloseable;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.AllOf.allOf;
@@ -59,7 +58,7 @@ public class AutocloseablesTest {
   @Test
   public void givenTransformedCollection$whenCleared$thenRemovedFromBackingList() {
     List<String> original = new LinkedList<>(asList("Hello", "World"));
-    Collection transformed = Autocloseables.transformCollection(original, new Function<String, String>() {
+    Collection transformed = TestUtils.transformCollection(original, new Function<String, String>() {
       @Override
       public String apply(String input) {
         return input + "!";
@@ -98,7 +97,7 @@ public class AutocloseablesTest {
         writer.writeLine("remove called");
       }
     };
-    try (AutocloseableIterator<String> out = Autocloseables.transform(in, new Function<String, String>() {
+    try (AutocloseableIterator<String> out = TestUtils.transform(in, new Function<String, String>() {
       @Override
       public String apply(String input) {
         return input;

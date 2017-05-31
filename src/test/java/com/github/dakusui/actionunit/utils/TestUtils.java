@@ -1,6 +1,9 @@
 package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
+import com.github.dakusui.actionunit.sandbox.Autocloseables;
+import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
@@ -17,6 +20,8 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
 public class TestUtils {
   static boolean isRunUnderSurefire() {
@@ -42,6 +47,78 @@ public class TestUtils {
 
   public static ReportingActionPerformer createReportingActionPerformer(Action action) {
     return new ReportingActionPerformer.Builder(action).to(Writer.Std.OUT).build();
+  }
+
+  public static <I, O> AutocloseableIterator<O> transform(final AutocloseableIterator<I> in, final Function<? super I, ? extends O> function) {
+    return new AutocloseableIterator<O>() {
+      @Override
+      public void close() {
+        in.close();
+      }
+
+      @Override
+      public boolean hasNext() {
+        return in.hasNext();
+      }
+
+      @Override
+      public O next() {
+        return function.apply(in.next());
+      }
+
+      @Override
+      public void remove() {
+        in.remove();
+      }
+    };
+  }
+
+  public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> func) {
+    if (in instanceof Collection) {
+      //noinspection unchecked,RedundantCast
+      return (Collection<O>) transformCollection((Collection<I>) in, (Function<? super I, O>) func);
+    }
+    return transformIterable(in, func);
+  }
+
+  public static <I, O> Iterable<O> transformIterable(final Iterable<I> in, final Function<? super I, ? extends O> func) {
+    checkNotNull(func);
+    return (AutocloseableIterator.Factory<O>) () -> {
+      Iterator<I> i = in.iterator();
+      Iterator<O> o = Utils.transform(i, func);
+      return Autocloseables.autocloseable(
+          o,
+          Autocloseables.toAutocloseable(i)
+      );
+    };
+  }
+
+  public static <I, O> Collection<O> transformCollection(final Collection<I> in, final Function<? super I, O> func) {
+    checkNotNull(func);
+    return new AbstractCollection<O>() {
+      @Override
+      public void clear() {
+        in.clear();
+      }
+
+      @Override
+      public boolean isEmpty() {
+        return in.isEmpty();
+      }
+
+      @Override
+      public Iterator<O> iterator() {
+        Iterator<I> i = in.iterator();
+        return Autocloseables.autocloseable(
+            Utils.transform(i, func),
+            Autocloseables.toAutocloseable(i));
+      }
+
+      @Override
+      public int size() {
+        return in.size();
+      }
+    };
   }
 
   public static class Out extends AbstractList<String> implements Writer {

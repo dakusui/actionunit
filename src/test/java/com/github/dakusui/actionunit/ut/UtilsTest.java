@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.AutocloseableIterator;
-import com.github.dakusui.actionunit.helpers.Autocloseables;
+import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -146,7 +145,7 @@ public class UtilsTest {
   @Test
   public void givenCollection$whenTransform$thenWorksCorrectly() {
     TestUtils.Out out = new TestUtils.Out();
-    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), String::length);
+    Collection<Integer> collection = (Collection<Integer>) TestUtils.transform(createAutoclosingCollection(out), String::length);
     try (AutocloseableIterator<Integer> i = (AutocloseableIterator<Integer>) collection.iterator()) {
       while (i.hasNext()) {
         out.writeLine(i.next().toString() + " characters");
@@ -176,7 +175,7 @@ public class UtilsTest {
   @Test(expected = UnsupportedOperationException.class)
   public void givenTransformedCollection$whenCleared$thenUnsupportedException() {
     TestUtils.Out out = new TestUtils.Out();
-    Collection<Integer> collection = (Collection<Integer>) Autocloseables.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
+    Collection<Integer> collection = (Collection<Integer>) TestUtils.transform(createAutoclosingCollection(out), new Function<String, Integer>() {
       @Override
       public Integer apply(String input) {
         return input.length();
@@ -234,12 +233,7 @@ public class UtilsTest {
   public void givenNonCollectionAutoclosingIterable$whenTransform$thenWorksCorrectly
       () {
     final TestUtils.Out out = new TestUtils.Out();
-    Iterable<Integer> iterable = Autocloseables.transform(createAutoclosingIterable(out), new Function<String, Integer>() {
-      @Override
-      public Integer apply(String input) {
-        return input.length();
-      }
-    });
+    Iterable<Integer> iterable = TestUtils.transform(createAutoclosingIterable(out), input -> input.length());
     try (AutocloseableIterator<Integer> i = (AutocloseableIterator<Integer>) iterable.iterator()) {
       while (i.hasNext()) {
         out.writeLine(i.next().toString() + " characters");

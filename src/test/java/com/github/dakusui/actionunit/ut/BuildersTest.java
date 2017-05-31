@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.ActionSupport;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -12,8 +12,8 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.github.dakusui.actionunit.helpers.ActionSupport.concurrent;
-import static com.github.dakusui.actionunit.helpers.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.concurrent;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static java.util.Arrays.asList;
 
 @RunWith(Enclosed.class)

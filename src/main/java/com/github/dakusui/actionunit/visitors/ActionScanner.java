@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.AutocloseableIterator;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,11 +14,9 @@ public abstract class ActionScanner extends ActionWalker {
 
   @Override
   protected Consumer<Concurrent> concurrentActionConsumer() {
-    return (Concurrent a) -> {
-      try (AutocloseableIterator<Action> i = a.iterator()) {
-        while (i.hasNext()) {
-          i.next().accept(this);
-        }
+    return (Concurrent concurrent) -> {
+      for (Action each : concurrent) {
+        each.accept(this);
       }
     };
   }

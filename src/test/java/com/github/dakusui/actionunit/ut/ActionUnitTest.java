@@ -10,7 +10,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.helpers.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;

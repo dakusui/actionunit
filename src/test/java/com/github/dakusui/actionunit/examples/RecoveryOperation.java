@@ -7,8 +7,8 @@ import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.helpers.ActionSupport.*;
-import static com.github.dakusui.actionunit.helpers.ActionSupport.attempt;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.attempt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**

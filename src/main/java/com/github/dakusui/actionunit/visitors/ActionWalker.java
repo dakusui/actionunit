@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.AutocloseableIterator;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
 
@@ -147,10 +146,8 @@ abstract class ActionWalker implements Action.Visitor {
 
   protected Consumer<Sequential> sequentialActionConsumer() {
     return (Sequential sequential) -> {
-      try (AutocloseableIterator<Action> i = sequential.iterator()) {
-        while (i.hasNext()) {
-          i.next().accept(this);
-        }
+      for (Action each : sequential) {
+        each.accept(this);
       }
     };
   }
