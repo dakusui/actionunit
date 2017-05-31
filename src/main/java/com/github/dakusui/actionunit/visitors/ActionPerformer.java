@@ -17,7 +17,10 @@ import static com.github.dakusui.actionunit.helpers.Utils.runWithTimeout;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.stream.StreamSupport.stream;
 
-public abstract class ActionPerformer extends ActionWalker {
+public class ActionPerformer extends ActionWalker {
+  public ActionPerformer() {
+  }
+
   @Override
   protected Consumer<Leaf> leafActionConsumer() {
     return Leaf::perform;
@@ -138,19 +141,8 @@ public abstract class ActionPerformer extends ActionWalker {
     return () -> action.accept(ActionPerformer.this);
   }
 
-  private void branchPath(Deque<Node<Action>> pathSnapshot) {
-    ActionPerformer.this._current.set(new LinkedList<>(pathSnapshot));
-  }
-
   private Deque<Node<Action>> snapshotCurrentPath() {
     return new LinkedList<>(this.getCurrentPath());
-  }
-
-
-  /**
-   * A simple implementation of an {@link ActionPerformer}.
-   */
-  public static class Impl extends ActionPerformer {
   }
 }
 

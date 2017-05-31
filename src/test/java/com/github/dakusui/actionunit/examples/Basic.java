@@ -7,8 +7,7 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -17,6 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder
@@ -149,12 +149,12 @@ public class Basic implements Actions2, Builders2 {
 
   @Test
   public void runTestAction(Action action) {
-    action.accept(new ActionPerformer.Impl());
+    action.accept(createActionPerformer());
   }
 
   @DryRun
   public void print(Action action) {
-    action.accept(new PrintingActionScanner(Writer.Std.OUT));
+    action.accept(TestUtils.createPrintingActionScanner(Writer.Std.OUT));
   }
 
   @AfterClass

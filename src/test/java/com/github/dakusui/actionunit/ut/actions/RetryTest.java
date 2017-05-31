@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
@@ -51,7 +51,7 @@ public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2
           firstTime = false;
         }
       }
-    }), 0, Retry.INFINITE).accept(new ActionPerformer.Impl());
+    }), 0, Retry.INFINITE).accept(new ActionPerformer());
   }
 
   @Test
@@ -60,7 +60,7 @@ public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      new ReportingActionRunner.Builder(action).to(outForTree).build().perform();
+      new ReportingActionPerformer.Builder(action).to(outForTree).build().perform();
     } finally {
       assertThat(
           outForTree,
@@ -93,7 +93,7 @@ public class RetryTest extends TestUtils.TestBase implements Actions2, Builders2
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
     try {
-      new ReportingActionRunner.Builder(action).to(outForTree).build().perform();
+      new ReportingActionPerformer.Builder(action).to(outForTree).build().perform();
     } finally {
       assertThat(
           outForTree,

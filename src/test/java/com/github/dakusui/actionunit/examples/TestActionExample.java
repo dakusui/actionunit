@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class TestActionExample {
           return i > 20;
         });
     try {
-      testAction.accept(new ActionPerformer.Impl());
+      testAction.accept(TestUtils.createActionPerformer());
     } finally {
       testAction.accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.OUT));
     }
@@ -38,6 +38,6 @@ public class TestActionExample {
         .<String, Integer>given("Hello world", () -> "Hello world")
         .when("length", String::length)
         .then(">5", i -> i > 5)
-        .accept(new ActionPerformer.Impl());
+        .accept(TestUtils.createActionPerformer());
   }
 }

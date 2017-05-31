@@ -6,11 +6,11 @@ import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.helpers.Utils;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -38,7 +38,7 @@ public class TimeoutTest implements Actions2, Builders2 {
     );
     interrupter.start();
     try {
-      action.accept(new ActionPerformer.Impl());
+      action.accept(createActionPerformer());
     } catch (ActionException e) {
       throw e.getCause();
     }

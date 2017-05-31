@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.*;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class ActionRunnerWithResultTest {
   public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, PrintingActionScanner> {
     @Override
     protected ActionPerformer createRunner() {
-      return new ActionPerformer.Impl();
+      return new ActionPerformer();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ActionRunnerWithResultTest {
     }
 
     void performAndPrintAction(Action action) {
-      new ReportingActionRunner.Builder(action).to(getWriter()).build().perform();
+      new ReportingActionPerformer.Builder(action).to(getWriter()).build().perform();
     }
   }
 

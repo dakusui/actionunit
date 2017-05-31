@@ -18,17 +18,10 @@ public class PrintingActionScanner extends ActionScanner {
   }
 
   @Override
-  protected void handleAction(Action a) {
-    describe(a);
-  }
-
-  @Override
   protected  <A extends Action> void before(Node<A> node) {
     writeLine(describeAction(node.getContent()));
     super.before(node);
   }
-
-  ;
 
   /**
    * An extension point to customize format a line to be printed by this object.
@@ -57,7 +50,7 @@ public class PrintingActionScanner extends ActionScanner {
   }
 
   public interface Factory extends Function<Writer, PrintingActionScanner> {
-    public static final Factory DEFAULT_INSTANCE = PrintingActionScanner::new;
+    Factory DEFAULT_INSTANCE = PrintingActionScanner::new;
 
     default PrintingActionScanner create(Writer writer) {
       return this.apply(writer);

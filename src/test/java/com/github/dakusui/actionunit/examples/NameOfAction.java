@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +55,6 @@ public class NameOfAction implements Actions2, Builders2 {
   @Test
   public void runAction(Action action) {
     System.err.printf("action name:%s%n", ((Named) action).getName());
-    new ReportingActionRunner.Builder(action).build().perform();
+    new ReportingActionPerformer.Builder(action).build().perform();
   }
 }

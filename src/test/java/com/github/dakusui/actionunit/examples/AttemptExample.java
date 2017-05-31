@@ -13,7 +13,7 @@ import static com.github.dakusui.actionunit.helpers.Builders.attempt;
 public class AttemptExample {
   @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenPerform$thenWorksFine() {
-    buildAttemptAction().accept(new ActionPerformer.Impl());
+    buildAttemptAction().accept(new ActionPerformer());
   }
 
   @Test

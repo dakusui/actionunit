@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -25,6 +25,6 @@ public class WhenTest implements Actions2, Builders2 {
                 )
             ).$()
     );
-    new ReportingActionRunner.Builder(action).build().perform();
+    new ReportingActionPerformer.Builder(action).build().perform();
   }
 }

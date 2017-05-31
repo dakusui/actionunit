@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class ReportingActionRunner extends ActionPerformer {
+public class ReportingActionPerformer extends ActionPerformer {
   private final Writer                  writer;
   private final Report.Record.Formatter formatter;
   private final Report                  report;
@@ -38,12 +38,12 @@ public class ReportingActionRunner extends ActionPerformer {
       return this;
     }
 
-    public ReportingActionRunner build() {
-      return new ReportingActionRunner(ActionTreeBuilder.traverse(action), writer, formatter);
+    public ReportingActionPerformer build() {
+      return new ReportingActionPerformer(ActionTreeBuilder.traverse(action), writer, formatter);
     }
   }
 
-  private ReportingActionRunner(Node<Action> tree, Writer writer, Report.Record.Formatter formatter) {
+  private ReportingActionPerformer(Node<Action> tree, Writer writer, Report.Record.Formatter formatter) {
     this.report = new Report(tree);
     this.writer = writer;
     this.formatter = formatter;
@@ -64,8 +64,20 @@ public class ReportingActionRunner extends ActionPerformer {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
+  protected <A extends Action> void succeeded(Node<A> node) {
+    this.report.succeeded((Node<Action>) node);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <A extends Action> void failed(Node<A> node, Throwable e) {
+    this.report.failed((Node<Action>) node, e);
+  }
+
+  @Override
+  protected  <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
     if (parent == null) {
       //noinspection unchecked
       return (Node<A>) this.report.root;
@@ -109,17 +121,4 @@ public class ReportingActionRunner extends ActionPerformer {
             || Objects.equals(a.getContent(), b.getContent())
             || Objects.equals(Utils.describe(a.getContent()), Utils.describe(b.getContent()));
   }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <A extends Action> void succeeded(Node<A> node) {
-    this.report.succeeded((Node<Action>) node);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <A extends Action> void failed(Node<A> node, Throwable e) {
-    this.report.failed((Node<Action>) node, e);
-  }
-
 }

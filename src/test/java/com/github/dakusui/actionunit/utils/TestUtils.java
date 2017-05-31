@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class TestUtils {
-  public static boolean isRunUnderSurefire() {
+  static boolean isRunUnderSurefire() {
     return System.getProperty("surefire.real.class.path") != null;
   }
 
@@ -36,7 +36,7 @@ public class TestUtils {
   }
 
   public static ActionPerformer createActionPerformer() {
-    return new ActionPerformer.Impl();
+    return new ActionPerformer();
   }
 
   public static class Out extends AbstractList<String> implements Writer {
@@ -146,7 +146,7 @@ public class TestUtils {
           .f("passthrough", t -> t);
     }
 
-    public static <T, U> MatcherBuilder<T, U> matcherBuilder() {
+    public static <T, U> MatcherBuilder<T, U> create() {
       return new MatcherBuilder<>();
     }
   }

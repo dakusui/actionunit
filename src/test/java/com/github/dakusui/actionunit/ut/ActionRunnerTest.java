@@ -26,7 +26,7 @@ public class ActionRunnerTest {
   public abstract static class Base extends ActionRunnerTestBase {
     @Override
     protected Action.Visitor createRunner() {
-      return new ActionPerformer.Impl();
+      return new ActionPerformer();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class ActionRunnerTest {
       //noinspection unchecked
       final Iterator<Callable<Boolean>> iterator = mock(Iterator.class);
       Mockito.doThrow(new RuntimeException()).when(iterator).hasNext();
-      return new ActionPerformer.Impl(); /*{ //TODO
+      return new ActionPerformer(); /*{ //TODO
         @Override
         protected Iterable<Callable<Boolean>> toCallables(Concurrent action) {
           return () -> iterator;

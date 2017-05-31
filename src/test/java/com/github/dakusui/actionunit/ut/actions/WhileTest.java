@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Actions2;
 import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +32,7 @@ public class WhileTest implements Actions2, Builders2 {
         )
     ).$();
     final TestUtils.Out result = new TestUtils.Out();
-    new ReportingActionRunner.Builder(action).to(result).build().perform();
+    new ReportingActionPerformer.Builder(action).to(result).build().perform();
     assertThat(out,
         allOf(
             hasItemAt(0, equalTo("Hello")),

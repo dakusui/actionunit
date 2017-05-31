@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 
 abstract class ActionWalker implements Action.Visitor {
-  protected final ThreadLocal<Deque<Node<Action>>> _current;
-  Node<Action> root;
+  private final ThreadLocal<Deque<Node<Action>>> _current;
+  private       Node<Action>                     root;
 
   ActionWalker() {
     this._current = new ThreadLocal<>();
@@ -194,10 +194,8 @@ abstract class ActionWalker implements Action.Visitor {
     }
   }
 
-  protected <A extends Action> void succeeded(Node<A> node) {
-  }
-
-  protected <A extends Action> void failed(Node<A> node, Throwable e) {
+  protected <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
+    return new Node<>(action, action instanceof Leaf);
   }
 
   @SuppressWarnings({ "unchecked", "WeakerAccess" })
@@ -208,6 +206,12 @@ abstract class ActionWalker implements Action.Visitor {
     } else {
       pushNode(node);
     }
+  }
+
+  protected <A extends Action> void succeeded(Node<A> node) {
+  }
+
+  protected <A extends Action> void failed(Node<A> node, Throwable e) {
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -229,19 +233,19 @@ abstract class ActionWalker implements Action.Visitor {
     return (Node<A>) this.getCurrentPath().pop();
   }
 
-  protected <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
-    return new Node<>(action, action instanceof Leaf);
+  protected <A extends Action> Node<A> getCurrentNode() {
+    return (Node<A>) this.getCurrentPath().peek();
   }
 
   protected Node<Action> getRootNode() {
     return root;
   }
 
-  protected <A extends Action> Node<A> getCurrentNode() {
-    return (Node<A>) this.getCurrentPath().peek();
-  }
-
   protected synchronized Deque<Node<Action>> getCurrentPath() {
     return _current.get();
+  }
+
+  protected void branchPath(Deque<Node<Action>> pathSnapshot) {
+    this._current.set(new LinkedList<>(pathSnapshot));
   }
 }

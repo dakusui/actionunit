@@ -7,9 +7,8 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Builders;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -163,7 +162,7 @@ public class ActionPrinterTest {
       List<String> out = new LinkedList<>();
       Action action = composeAction(out);
       try {
-        action.accept(new ActionPerformer.Impl());
+        action.accept(TestUtils.createActionPerformer());
         assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
       } finally {
         runAndReport(action, new TestUtils.Out());
@@ -218,7 +217,7 @@ public class ActionPrinterTest {
               })
           )
       );
-      action.accept(new ActionPerformer.Impl());
+      action.accept(TestUtils.createActionPerformer());
       assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 
       final TestUtils.Out out2 = new TestUtils.Out();
@@ -305,7 +304,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      new ReportingActionRunner.Builder(action).to(Writer.Std.OUT).build().perform();
+      new ReportingActionPerformer.Builder(action).to(Writer.Std.OUT).build().perform();
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -316,11 +315,11 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      new ReportingActionRunner.Builder(action).to(Writer.Std.OUT).build().perform();
+      new ReportingActionPerformer.Builder(action).to(Writer.Std.OUT).build().perform();
     }
   }
 
   private static void runAndReport(Action action, TestUtils.Out out) {
-    new ReportingActionRunner.Builder(action).to(out).build().perform();
+    new ReportingActionPerformer.Builder(action).to(out).build().perform();
   }
 }

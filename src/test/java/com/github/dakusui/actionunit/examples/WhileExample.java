@@ -7,7 +7,7 @@ import com.github.dakusui.actionunit.helpers.Builders2;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.Report;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionRunner;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,7 +35,7 @@ public class WhileExample extends TestUtils.TestBase implements Actions2, Builde
 
   @Test
   public void runAction2(Action action) {
-    new ReportingActionRunner.Builder(action)
+    new ReportingActionPerformer.Builder(action)
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
         .to(Writer.Std.OUT)
         .build()

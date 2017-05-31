@@ -6,7 +6,6 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.Actions;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,6 +17,7 @@ import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.helpers.Actions.*;
 import static com.github.dakusui.actionunit.helpers.Builders.*;
 import static com.github.dakusui.actionunit.helpers.Utils.describe;
+import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -30,7 +30,7 @@ public class ActionsTest {
   @Test
   public void simpleTest() {
     final List<String> arr = new ArrayList<>();
-    Actions.simple("Add 'Hello'", () -> arr.add("Hello")).accept(new ActionPerformer.Impl());
+    Actions.simple("Add 'Hello'", () -> arr.add("Hello")).accept(createActionPerformer());
     assertArrayEquals(arr.toArray(), new Object[] { "Hello" });
   }
 
@@ -50,7 +50,7 @@ public class ActionsTest {
             arr.add("Hello B");
           }
         })
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
 
@@ -81,7 +81,7 @@ public class ActionsTest {
             arr.add("Hello B");
           }
         })
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     Collections.sort(arr);
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
@@ -96,7 +96,7 @@ public class ActionsTest {
         Actions.simple(
             "create entry (2)",
             () -> arr.add(createEntry()))
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     for (Map.Entry<Long, Long> i : arr) {
       for (Map.Entry<Long, Long> j : arr) {
         assertThat(i.getValue(), greaterThan(j.getKey()));
@@ -129,7 +129,7 @@ public class ActionsTest {
               throw new NullPointerException();
             }),
         simple("Add 'hello B'", () -> arr.add("Hello B"))
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
   }
 
   @Test(timeout = 3000000, expected = Error.class)
@@ -143,7 +143,7 @@ public class ActionsTest {
           throw new Error();
         }),
         simple("Add 'Hello B'", () -> arr.add("Hello B"))
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
   }
 
   @Test
@@ -158,7 +158,7 @@ public class ActionsTest {
         ////
         // 10 msec should be sufficient to finish the action above.
         10, MILLISECONDS
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
 
@@ -187,7 +187,7 @@ public class ActionsTest {
           })
       ).in(
           1, MILLISECONDS
-      ).accept(new ActionPerformer.Impl());
+      ).accept(createActionPerformer());
     } catch (ActionException e) {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
       throw e.getCause();
@@ -210,7 +210,7 @@ public class ActionsTest {
               })
       ).in(
           100, MILLISECONDS
-      ).accept(new ActionPerformer.Impl());
+      ).accept(createActionPerformer());
     } catch (ActionException e) {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
       throw e.getCause();
@@ -231,7 +231,7 @@ public class ActionsTest {
           })
       ).in(
           100, MILLISECONDS
-      ).accept(new ActionPerformer.Impl());
+      ).accept(createActionPerformer());
     } catch (ActionException e) {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
       throw e.getCause();
@@ -252,7 +252,7 @@ public class ActionsTest {
         0
     ).withIntervalOf(
         1, MILLISECONDS
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
 
@@ -278,7 +278,7 @@ public class ActionsTest {
         1
     ).withIntervalOf(
         1, MILLISECONDS
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
   }
 
@@ -294,7 +294,7 @@ public class ActionsTest {
         2
     ).withIntervalOf(
         1, MILLISECONDS
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     assertThat(out, hasSize(1));
   }
 
@@ -316,7 +316,7 @@ public class ActionsTest {
           2
       ).withIntervalOf(
           1, MILLISECONDS
-      ).accept(new ActionPerformer.Impl());
+      ).accept(createActionPerformer());
     } catch (Abort e) {
       assertThat(out, hasSize(1));
       throw e.getCause();
@@ -338,7 +338,7 @@ public class ActionsTest {
         1
     ).withIntervalOf(
         1, MILLISECONDS
-    ).accept(new ActionPerformer.Impl());
+    ).accept(createActionPerformer());
     assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
   }
 
@@ -354,7 +354,7 @@ public class ActionsTest {
     ).perform(
         i -> nop()
     ).$();
-    action.accept(new ActionPerformer.Impl());
+    action.accept(createActionPerformer());
   }
 
   @SafeVarargs
@@ -402,7 +402,7 @@ public class ActionsTest {
   @Test
   public void nopTest() {
     // Just make sure no error happens
-    Actions.nop().accept(new ActionPerformer.Impl());
+    Actions.nop().accept(createActionPerformer());
   }
 
 
@@ -410,11 +410,11 @@ public class ActionsTest {
   public void givenSleepAction$whenPerform$thenExpectedAmountOfTimeSpent() {
     ////
     // To force JVM load classes used by this test, run the action once for warm-up.
-    sleep(1, TimeUnit.MILLISECONDS).accept(new ActionPerformer.Impl());
+    sleep(1, TimeUnit.MILLISECONDS).accept(createActionPerformer());
     ////
     // Let's do the test.
     long before = currentTimeMillis();
-    sleep(1, TimeUnit.MILLISECONDS).accept(new ActionPerformer.Impl());
+    sleep(1, TimeUnit.MILLISECONDS).accept(createActionPerformer());
     //noinspection unchecked
     assertThat(
         currentTimeMillis() - before,
@@ -452,7 +452,7 @@ public class ActionsTest {
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
-    }.accept(new ActionPerformer.Impl());
+    }.accept(createActionPerformer());
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -462,6 +462,6 @@ public class ActionsTest {
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
-    }.accept(new ActionPerformer.Impl());
+    }.accept(createActionPerformer());
   }
 }
