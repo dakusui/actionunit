@@ -18,7 +18,7 @@ public class PrintingActionScanner extends ActionScanner {
   }
 
   @Override
-  protected  <A extends Action> void before(Node<A> node) {
+  protected <A extends Action> void before(Node<A> node) {
     writeLine(describeAction(node.getContent()));
     super.before(node);
   }
@@ -40,7 +40,9 @@ public class PrintingActionScanner extends ActionScanner {
    * An extension point to customize format to print out each {@link Action} object.
    *
    * @param action an {@code Action} to be printed.
+   * @return description of the given action.
    */
+  @SuppressWarnings("WeakerAccess")
   protected String describeAction(Action action) {
     return describe(action);
   }

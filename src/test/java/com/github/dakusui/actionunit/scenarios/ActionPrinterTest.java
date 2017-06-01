@@ -302,7 +302,7 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      TestUtils.createReportingActionPerformer(action).perform();
+      TestUtils.createReportingActionPerformer(action).performAndReport();
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -313,11 +313,11 @@ public class ActionPrinterTest {
           visitor.visit(this);
         }
       };
-      TestUtils.createReportingActionPerformer(action).perform();
+      TestUtils.createReportingActionPerformer(action).performAndReport();
     }
   }
 
   private static void runAndReport(Action action, TestUtils.Out out) {
-    new ReportingActionPerformer.Builder(action).to(out).build().perform();
+    new ReportingActionPerformer.Builder(action).to(out).build().performAndReport();
   }
 }

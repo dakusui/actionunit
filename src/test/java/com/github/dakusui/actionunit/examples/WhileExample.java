@@ -38,6 +38,6 @@ public class WhileExample extends TestUtils.TestBase implements ActionFactory {
         .with(Report.Record.Formatter.DEFAULT_INSTANCE)
         .to(Writer.Std.OUT)
         .build()
-        .perform();
+        .performAndReport();
   }
 }

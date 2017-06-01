@@ -21,7 +21,7 @@ public class ForEachTest implements ActionFactory {
   public void givenForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = new LinkedList<>();
     // Given
-    Action givenAction = forEachOf(
+    Action action = forEachOf(
         "Hello", "world", "!"
     ).perform(
         s -> sequential(asList(
@@ -36,20 +36,20 @@ public class ForEachTest implements ActionFactory {
         ))
     );
     // When
-    TestUtils.createReportingActionPerformer(givenAction).perform();
+    TestUtils.createReportingActionPerformer(action).performAndReport();
     // Then
     assertThat(
         out,
         TestUtils.allOf(
             TestUtils.<List<String>, String>matcherBuilder()
-                .f("0thElement", list -> list.get(0))
-                .p("=='Hello'", s -> Objects.equals(s, "'Hello'")),
+                .transform("0thElement", list -> list.get(0))
+                .check("=='Hello'", s -> Objects.equals(s, "'Hello'")),
             TestUtils.<List<String>, String>matcherBuilder()
-                .f("1stElement", list -> list.get(1))
-                .p("=='world'", s -> Objects.equals(s, "'world'")),
+                .transform("1stElement", list -> list.get(1))
+                .check("=='world'", s -> Objects.equals(s, "'world'")),
             TestUtils.<List<String>, String>matcherBuilder()
-                .f("2ndElement", list -> list.get(2))
-                .p("=='!'", s -> Objects.equals(s, "'!'"))
+                .transform("2ndElement", list -> list.get(2))
+                .check("=='!'", s -> Objects.equals(s, "'!'"))
         ));
   }
 
@@ -58,7 +58,7 @@ public class ForEachTest implements ActionFactory {
   public void givenConcurrentForEachAction$whenPerformWithReporting$worksCorrectly() throws InterruptedException {
     List<String> out = Collections.synchronizedList(new LinkedList<>());
     // Given
-    Action givenAction = forEachOf(
+    Action action = forEachOf(
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
@@ -74,41 +74,39 @@ public class ForEachTest implements ActionFactory {
         )
     );
     // When3
-    new ReportingActionPerformer.Builder(givenAction).to(Writer.Std.ERR).build().perform();
+    new ReportingActionPerformer.Builder(action).to(Writer.Std.ERR).build().performAndReport();
     // Then
     assertThat(
         out,
         TestUtils.allOf(
             TestUtils.<List<String>, List<String>>matcherBuilder()
-                .f("passthrough", list -> list)
-                .p("contains:'Hello'", s -> s.contains("'Hello'")),
+                .transform("passthrough", list -> list)
+                .check("contains:'Hello'", s -> s.contains("'Hello'")),
             TestUtils.<List<String>, List<String>>matcherBuilder()
-                .f("passthrough", list -> list)
-                .p("contains:'world'", s -> s.contains("'world'")),
+                .transform("passthrough", list -> list)
+                .check("contains:'world'", s -> s.contains("'world'")),
             TestUtils.<List<String>, List<String>>matcherBuilder()
-                .f("passthrough", list -> list)
-                .p("contains:'!'", s -> s.contains("'!'"))
+                .transform("passthrough", list -> list)
+                .check("contains:'!'", s -> s.contains("'!'"))
         ));
   }
 
 
   @Test(expected = IllegalStateException.class)
-  public void givenConfusingForEachAction$whenPerformWithReporting$worksCorrectly() {
+  public void givenConfusingForEachAction$whenPerformWithReporting$worksIllegalStateThrown() {
     // Given
-    Action givenAction = forEachOf(
+    Action action = forEachOf(
         "Hello", "world", "!"
     ).sequentially(
     ).perform(
         s -> concurrent(asList(
             nop("YOU CANNOT CREATE ACTIONS OF THE SAME NAME UNDER ONE forEachOf ACTION"),
-            nop("YOU CANNOT CREATE ACTIONS OF THE SAME NAME UNDER ONE forEachOf ACTION"),
-            nop(),
-            nop()
+            nop("YOU CANNOT CREATE ACTIONS OF THE SAME NAME UNDER ONE forEachOf ACTION")
         ))
     );
     // When
     try {
-      TestUtils.createReportingActionPerformer(givenAction).perform();
+      TestUtils.createReportingActionPerformer(action).performAndReport();
     } catch (IllegalStateException e) {
       // Then
       assertThat(
@@ -116,6 +114,39 @@ public class ForEachTest implements ActionFactory {
           TestUtils.allOf(
               CoreMatchers.containsString("More than one node matching"),
               CoreMatchers.containsString("Consider using 'named' action for them")
+          )
+      );
+      throw e;
+    }
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void givenMismatchingForEachAction$whenPerformWithReporting$thenIllegalStateThrown() {
+    // Given
+    Action action = forEachOf(
+        "Hello", "world", "!"
+    ).sequentially(
+    ).perform(
+        s -> concurrent(asList(
+            nop("Action 1"),
+            nop("Action 2")
+        ))
+    );
+    // When
+    try {
+      sequential(
+          nop("confusing"),
+          nop("action")
+      ).accept(
+          new ReportingActionPerformer.Builder(action).build()
+      );
+    } catch (IllegalStateException e) {
+      // Then
+      assertThat(
+          e.getMessage(),
+          TestUtils.allOf(
+              CoreMatchers.containsString("Node matching 'confusing' was not found under"),
+              CoreMatchers.containsString("Node(ForEach (SEQUENTIALLY)")
           )
       );
       throw e;
