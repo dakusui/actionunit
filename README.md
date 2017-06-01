@@ -35,26 +35,32 @@ Following is an example of actionunit.
 
 ```java
 
-  class Example implements ActionFactory {
-    void runAction() {
-        Action action = forEachOf(
-            "Hello", "world", "!"
-        ).concurrently(
-        ).perform(
-            s -> sequential(
-                simple(
-                    "print {s}",
-                    () -> System.out.println("<" + s.get() + ">")
-                ),
-                simple(
-                    "do something"
-                    // ...
-                )
+@RunWith(ActionUnit.class)
+@FixMethodOrder
+public class HelloActionUnit implements ActionFactory {
+  @ActionUnit.PerformWith(Test.class)
+  public Action helloActionUnit() {
+    return forEachOf(
+        "Hello", "world", "!"
+    ).concurrently(
+    ).perform(
+        (Supplier<String> i) -> sequential(
+            simple(
+                "print {i}",
+                () -> System.out.println("<" + i.get() + ">")
             )
-        );
-        new ReportingActionPerformer.Builder(givenAction).to(Writer.Std.ERR).build().perform();
-    }
+        )
+    );
   }
+
+  @Test
+  public void runAndReport(Action action) {
+    new ReportingActionPerformer.Builder(action)
+        .to(Writer.Std.ERR)
+        .build()
+        .performAndReport();
+  }
+}
 ```
 
 This will print out something like
@@ -68,11 +74,19 @@ This will print out something like
 to stdout, while following is written to stderr
 
 ```
-  [o]ForEach
-    [ooo]Sequential (2 actions)
-      [ooo]print {s}
-      [ooo]add {s} to 'out'
+
+[o]helloActionUnit
+  [o]ForEach (CONCURRENTLY) [Hello, world, !]
+    [ooo]Sequential (1 actions)
+      [ooo]print {i}
 ```
+
+This shows how actions are structured and whether each of them finished normally 
+or not. ```o``` inside brackets represent how many times they are executed and 
+finished normally. As you see, an action ```print {i}``` was executed three times 
+successfully (```[ooo]```). If one a run of an action fails it will be shown as
+```x```.
+
 
 More examples are found here[[1]].
 And API reference is found here [[2]].

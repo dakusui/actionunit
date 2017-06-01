@@ -92,6 +92,7 @@ public class InternalUtils {
    * use IDE features for parameterized runners.
    *
    * @param testClass original test class object.
+   * @return Created {@code TestClass} object.
    */
   public static TestClass createTestClassMock(final TestClass testClass) {
     return new TestClass(testClass.getJavaClass()) {
@@ -143,6 +144,7 @@ public class InternalUtils {
    * Tries to describe given {@code obj} in a best possible way.
    *
    * @param obj An object to be described.
+   * @return A description of {@code obj}.
    */
   public static String describe(Object obj) {
     if (obj == null) {
@@ -152,6 +154,20 @@ public class InternalUtils {
       return describeClassOf(obj);
     }
     return obj.toString();
+  }
+
+  public static String spaces(int numSpaces) {
+    StringBuilder ret = new StringBuilder();
+    for (int i = 0; i < numSpaces; i++) {
+      ret.append(" ");
+    }
+    return ret.toString();
+  }
+
+  public static String summary(String s) {
+    return Objects.requireNonNull(s).length() > 40
+        ? s.substring(0, 40) + "..."
+        : s;
   }
 
   private static String describeClassOf(Object obj) {
@@ -172,6 +188,7 @@ public class InternalUtils {
    *
    * @param klass      A class from which method is searched.
    * @param methodName A name of method to be returned.
+   * @return A method object of the specified name in the {@code klass}.
    */
   public static Method getMethod(Class<?> klass, String methodName) {
     try {
@@ -209,11 +226,11 @@ public class InternalUtils {
     }
   }
 
-  /**
-   * Borrowed from the following place.
-   * https://stackoverflow.com/questions/22694884/filter-java-stream-to-1-and-only-1-element
-   */
   public static <T, E extends RuntimeException> Collector<T, List<T>, Optional<T>> singletonCollector(Supplier<E> exceptionSupplier) throws E {
+    /*
+     * Borrowed from the following place.
+     * https://stackoverflow.com/questions/22694884/filter-java-stream-to-1-and-only-1-element
+     */
     return Collector.of(
         ArrayList::new,
         List::add,
@@ -229,14 +246,6 @@ public class InternalUtils {
               : Optional.of(list.get(0));
         }
     );
-  }
-
-  public static String spaces(int numSpaces) {
-    StringBuilder ret = new StringBuilder();
-    for (int i = 0; i < numSpaces; i++) {
-      ret.append(" ");
-    }
-    return ret.toString();
   }
 
   public static <T> Supplier<T> describable(String description, T value) {

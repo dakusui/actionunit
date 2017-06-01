@@ -37,11 +37,6 @@ public class Report implements Iterable<Node<Action>> {
   }
 
   @Override
-  public String toString() {
-    return this.records.toString();
-  }
-
-  @Override
   public Iterator<Node<Action>> iterator() {
     return this.records.keySet().iterator();
   }
@@ -91,14 +86,7 @@ public class Report implements Iterable<Node<Action>> {
     }
 
     public interface Run {
-      Throwable exception();
-
       Record.Run SUCCEEDED = new Record.Run() {
-        @Override
-        public Throwable exception() {
-          throw new IllegalStateException();
-        }
-
         public String toString() {
           return "o";
         }
@@ -107,11 +95,6 @@ public class Report implements Iterable<Node<Action>> {
       static Record.Run failed(Throwable t) {
         Objects.requireNonNull(t);
         return new Record.Run() {
-          @Override
-          public Throwable exception() {
-            return t;
-          }
-
           @Override
           public String toString() {
             return "x";

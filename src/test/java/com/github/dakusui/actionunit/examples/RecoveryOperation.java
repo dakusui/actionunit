@@ -59,6 +59,6 @@ public class RecoveryOperation {
 
   @Test
   public void runAction(Action action) {
-    new ReportingActionPerformer.Builder(action).build().perform();
+    new ReportingActionPerformer.Builder(action).build().performAndReport();
   }
 }

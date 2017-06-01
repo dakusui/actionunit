@@ -33,7 +33,7 @@ public class ReportingActionPerformerTest {
     }
 
     void performAndPrintAction(Action action) {
-      new ReportingActionPerformer.Builder(action).to(getWriter()).build().perform();
+      new ReportingActionPerformer.Builder(action).to(getWriter()).build().performAndReport();
     }
   }
 
@@ -153,12 +153,14 @@ public class ReportingActionPerformerTest {
       ////
       //Then printed correctly
       //noinspection unchecked
-      assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("[o]ForEach")),
-          hasItemAt(1, equalTo("  [ooo]Sequential (2 actions)")),
-          hasItemAt(2, equalTo("    [ooo]Sink-1")),
-          hasItemAt(3, equalTo("    [ooo]Sink-2"))
-      ));
+      assertThat(
+          getWriter(),
+          TestUtils.allOf(
+              hasItemAt(0, startsWith("[o]ForEach (SEQUENTIALLY)")),
+              hasItemAt(1, equalTo("  [ooo]Sequential (2 actions)")),
+              hasItemAt(2, equalTo("    [ooo]Sink-1")),
+              hasItemAt(3, equalTo("    [ooo]Sink-2"))
+          ));
       assertThat(getWriter(), hasSize(4));
     }
 

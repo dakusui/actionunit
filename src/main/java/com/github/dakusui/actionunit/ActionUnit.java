@@ -52,6 +52,7 @@ public class ActionUnit extends Parameterized {
    * Only called reflectively. Do not use programmatically.
    *
    * @param klass test target class
+   * @throws Throwable Instantiation was failed.
    */
   public ActionUnit(Class<?> klass) throws Throwable {
     super(klass);

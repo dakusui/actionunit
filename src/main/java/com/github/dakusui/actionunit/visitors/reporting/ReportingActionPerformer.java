@@ -45,20 +45,27 @@ public class ReportingActionPerformer extends ActionPerformer {
     super();
     this.report = new Report(tree);
     this.writer = writer;
-    this.formatter = formatter;
+    this.formatter = Objects.requireNonNull(formatter);
+  }
+
+  public void performAndReport() {
+    try {
+      perform();
+    } finally {
+      report();
+    }
   }
 
   public void perform() {
-    Objects.requireNonNull(formatter);
-    try {
-      this.report.root.getContent().accept(this);
-    } finally {
-      Node.walk(
-          this.report.root,
-          (actionNode, nodes) -> writer.writeLine(
-              formatter.format(actionNode, this.report.get(actionNode), nodes.size())
-          ));
-    }
+    this.report.root.getContent().accept(this);
+  }
+
+  public void report() {
+    Node.walk(
+        this.report.root,
+        (actionNode, nodes) -> writer.writeLine(
+            formatter.format(actionNode, this.report.get(actionNode), nodes.size())
+        ));
   }
 
   @SuppressWarnings("unchecked")

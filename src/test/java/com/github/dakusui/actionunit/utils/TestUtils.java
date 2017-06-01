@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -278,13 +279,13 @@ public class TestUtils {
     String         functionName  = "f";
     Function<V, U> f             = null;
 
-    public MatcherBuilder<V, U> f(String name, Function<V, U> f) {
+    public MatcherBuilder<V, U> transform(String name, Function<V, U> f) {
       this.functionName = Objects.requireNonNull(name);
       this.f = Objects.requireNonNull(f);
       return this;
     }
 
-    public Matcher<V> p(String name, Predicate<U> p) {
+    public Matcher<V> check(String name, Predicate<U> p) {
       this.predicateName = Objects.requireNonNull(name);
       this.p = Objects.requireNonNull(p);
       return this.build();
@@ -320,7 +321,7 @@ public class TestUtils {
 
     public static <T> MatcherBuilder<T, T> simple() {
       return new MatcherBuilder<T, T>()
-          .f("passthrough", t -> t);
+          .transform("passthrough", t -> t);
     }
 
   }
@@ -365,6 +366,17 @@ public class TestUtils {
       @Override
       public void describeTo(Description description) {
         description.appendList("(\n  ", " " + "and" + "\n  ", "\n)", Arrays.stream(matchers).collect(toList()));
+      }
+    };
+  }
+
+  public static <I, O> Function<I, O> memoize(Function<I, O> function) {
+    return new Function<I, O>() {
+      Map<I, O> cache = new ConcurrentHashMap<>();
+
+      @Override
+      public O apply(I i) {
+        return cache.computeIfAbsent(i, function);
       }
     };
   }
