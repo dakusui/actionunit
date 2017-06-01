@@ -3,7 +3,7 @@
     <groupId>com.github.dakusui</groupId>
     <artifactId>actionunit</artifactId>
     <packaging>jar</packaging>
-    <version>3.0.1</version>
+    <version>3.0.1-SNAPSHOT</version>
     <description>Action based junit test runner library</description>
 
     <name>actionunit</name>
@@ -22,7 +22,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/actionunit.git
         </developerConnection>
         <url>http://dakusui.github.io/actionuint</url>
-        <tag>actionunit-3.0.1</tag>
+        <tag>actionunit-3.0.x</tag>
     </scm>
 
     <developers>
