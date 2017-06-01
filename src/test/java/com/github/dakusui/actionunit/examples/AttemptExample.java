@@ -35,9 +35,7 @@ public class AttemptExample {
             () -> e.get().printStackTrace(System.out))
     ).ensure(simple(
         "print bye",
-        () -> {
-          System.out.println("Bye 'attempt'");
-        })
+        () -> System.out.println("Bye 'attempt'"))
     );
   }
 }

@@ -58,7 +58,7 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      new ReportingActionPerformer.Builder(action).to(outForTree).build().perform();
+      new ReportingActionPerformer.Builder(action).to(outForTree).build().performAndReport();
     } finally {
       assertThat(
           outForTree,
@@ -91,7 +91,7 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
     try {
-      new ReportingActionPerformer.Builder(action).to(outForTree).build().perform();
+      new ReportingActionPerformer.Builder(action).to(outForTree).build().performAndReport();
     } finally {
       assertThat(
           outForTree,

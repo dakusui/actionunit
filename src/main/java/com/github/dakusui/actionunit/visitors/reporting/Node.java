@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
+import com.github.dakusui.actionunit.io.Writer;
 
-import java.io.PrintStream;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -42,8 +42,8 @@ public class Node<A> {
     }
   }
 
-  public static <A> void print(Node<A> node, PrintStream ps) {
-    walk(node, (aNode, nodes) -> ps.println(InternalUtils.spaces(nodes.size() * 2) + aNode));
+  public static <A> void print(Node<A> node, Writer writer) {
+    walk(node, (aNode, nodes) -> writer.writeLine(InternalUtils.spaces(nodes.size() * 2) + aNode));
   }
 
   void add(Node<A> node) {

@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ActionTreeBuilder;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
@@ -99,8 +100,8 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
   }
 
   @Test
-  public void runAction(Action action) {
-    new ReportingActionPerformer.Builder(action).build().perform();
+  public void runActionAndReportResult(Action action) {
+    new ReportingActionPerformer.Builder(action).build().performAndReport();
   }
 
   @Test
@@ -109,7 +110,7 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
   }
 
   @Test
-  public void buildTree(Action action) {
-    Node.print(ActionTreeBuilder.traverse(action), System.out);
+  public void printOnly(Action action) {
+    Node.print(ActionTreeBuilder.traverse(action), Writer.Std.OUT);
   }
 }

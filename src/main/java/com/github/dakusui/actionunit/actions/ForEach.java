@@ -6,6 +6,9 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.summary;
+
 public interface ForEach<T> extends Action {
   Iterable<T> data();
 
@@ -81,6 +84,11 @@ public interface ForEach<T> extends Action {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s (%s) %s", super.toString(), mode, summary(describe(this.data)));
     }
   }
 }

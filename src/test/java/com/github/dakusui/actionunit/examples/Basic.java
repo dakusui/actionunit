@@ -3,8 +3,8 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.*;
@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
@@ -35,47 +34,22 @@ public class Basic implements ActionFactory {
 
   @PerformWith(DryRun.class)
   public Action test0() {
-    return simple("action:test0", new Runnable() {
-      @Override
-      public void run() {
-        System.out.println("test0");
-      }
-    });
+    return simple("action:test0", () -> System.out.println("test0"));
   }
 
   @PerformWith
   public Iterable<Action> testM() {
     return asList(
-        simple("action:testM[0]", new Runnable() {
-          @Override
-          public void run() {
-            System.out.println("test1");
-          }
-        }),
-        simple("action:testM[1]", new Runnable() {
-          @Override
-          public void run() {
-            System.out.println("test2");
-          }
-        }));
+        simple("action:testM[0]", () -> System.out.println("test1")),
+        simple("action:testM[1]", () -> System.out.println("test2")));
   }
 
 
   @PerformWith(Test.class)
   public Action[] testN() {
     return new Action[] {
-        simple("action:testN[0]", new Runnable() {
-          @Override
-          public void run() {
-            System.out.println("test1");
-          }
-        }),
-        simple("action:testN[1]", new Runnable() {
-          @Override
-          public void run() {
-            System.out.println("test2");
-          }
-        })
+        simple("action:testN[0]", () -> System.out.println("test1")),
+        simple("action:testN[1]", () -> System.out.println("test2"))
     };
   }
 
@@ -86,24 +60,14 @@ public class Basic implements ActionFactory {
             .when("incrementAndToString", input -> Integer.toString(input + 1))
             .then("equalToIgnoringCase", output -> output.equalsIgnoreCase("102")),
         this.<Integer, String>given("100", () -> 100)
-            .when("increment", new Function<Integer, String>() {
-              @Override
-              public String apply(Integer input) {
-                return Integer.toString(input + 1);
-              }
-            })
+            .when("increment", input -> Integer.toString(input + 1))
             .then("equalToIgnoringCase", output -> output.equalsIgnoreCase("101"))
     };
   }
 
   @PerformWith({ DryRun.class, Test.class })
   public Action test99() {
-    return simple("action:test99", new Runnable() {
-      @Override
-      public void run() {
-        System.out.println("test99");
-      }
-    });
+    return simple("action:test99", () -> System.out.println("test99"));
   }
 
   @PerformWith({ DryRun.class, Test.class })

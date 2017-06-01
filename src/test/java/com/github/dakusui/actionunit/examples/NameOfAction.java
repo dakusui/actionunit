@@ -44,7 +44,7 @@ public class NameOfAction implements ActionFactory {
    * An action to passed to a test method is an instance of {@link Named}.
    * And you can access the name of the test method from which the action is created
    * through {@code getName()} method.
-   * <p>
+   *
    * If an action is an element of a list/an array returned by a providing method,
    * an index in the container will be returned in brackets.
    * E.g., {@code aMethodToTestSomethingElse[0]}
@@ -54,6 +54,6 @@ public class NameOfAction implements ActionFactory {
   @Test
   public void runAction(Action action) {
     System.err.printf("action name:%s%n", ((Named) action).getName());
-    new ReportingActionPerformer.Builder(action).build().perform();
+    new ReportingActionPerformer.Builder(action).build().performAndReport();
   }
 }

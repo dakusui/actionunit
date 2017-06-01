@@ -20,7 +20,9 @@ import static java.lang.String.format;
  */
 public interface Composite extends Action, Iterable<Action> {
   /**
-   * Returns number of actions that this object has if they are given as a {@link Collection}.
+   * Returns a number of elements to be handled by this object.
+   *
+   * @return number of actions that this object has if they are given as a {@link Collection}.
    * Otherwise, for instance actions are given as {@link Iterable}, {@code -1}
    * will be returned.
    */

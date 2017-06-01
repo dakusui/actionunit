@@ -31,7 +31,7 @@ public class WhileTest implements ActionFactory {
         )
     );
     final TestUtils.Out result = new TestUtils.Out();
-    new ReportingActionPerformer.Builder(action).to(result).build().perform();
+    new ReportingActionPerformer.Builder(action).to(result).build().performAndReport();
     assertThat(out,
         allOf(
             hasItemAt(0, equalTo("Hello")),

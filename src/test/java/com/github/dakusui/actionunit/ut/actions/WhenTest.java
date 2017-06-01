@@ -24,6 +24,6 @@ public class WhenTest implements ActionFactory {
                 )
             ).$()
     );
-    new ReportingActionPerformer.Builder(action).build().perform();
+    new ReportingActionPerformer.Builder(action).build().performAndReport();
   }
 }

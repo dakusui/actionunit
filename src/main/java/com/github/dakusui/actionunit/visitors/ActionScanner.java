@@ -9,7 +9,8 @@ import java.util.function.Supplier;
 public abstract class ActionScanner extends ActionWalker {
   @Override
   protected Consumer<Leaf> leafActionConsumer() {
-    return this::handleAction;
+    return leaf -> {
+    };
   }
 
   @Override
@@ -58,7 +59,6 @@ public abstract class ActionScanner extends ActionWalker {
   @Override
   protected <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
     return (Attempt<T> attempt) -> {
-      handleAction(attempt);
       attempt.attempt().accept(this);
       attempt.recover(() -> {
         throw new UnsupportedOperationException();
@@ -70,8 +70,5 @@ public abstract class ActionScanner extends ActionWalker {
   @Override
   protected Consumer<TimeOut> timeOutActionConsumer() {
     return (TimeOut timeOut) -> timeOut.action.accept(this);
-  }
-
-  protected void handleAction(Action a) {
   }
 }
