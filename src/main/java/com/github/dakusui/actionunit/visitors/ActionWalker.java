@@ -191,7 +191,7 @@ abstract class ActionWalker implements Action.Visitor {
     }
   }
 
-  protected <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
+  protected <A extends Action> Node<A> toNode(Node<A> parent, A action) {
     return new Node<>(action, action instanceof Leaf);
   }
 

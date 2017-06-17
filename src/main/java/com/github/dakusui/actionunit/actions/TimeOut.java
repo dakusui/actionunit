@@ -16,10 +16,12 @@ public class TimeOut extends ActionBase {
 
 
   public static class Builder {
+    private final int id;
     Action action;
     long duration = -1;
 
-    public Builder(Action action) {
+    public Builder(int id, Action action) {
+      this.id = id;
       this.action = Objects.requireNonNull(action);
     }
 
@@ -30,6 +32,7 @@ public class TimeOut extends ActionBase {
       );
       this.duration = duration;
       return new TimeOut(
+          this.id,
           this.action,
           Objects.requireNonNull(timeUnit).toNanos(this.duration)
       );
@@ -42,7 +45,8 @@ public class TimeOut extends ActionBase {
    * @param action         Action to be monitored and interrupted by this object.
    * @param timeoutInNanos Duration to time out in nano seconds.
    */
-  private TimeOut(Action action, long timeoutInNanos) {
+  private TimeOut(int id, Action action, long timeoutInNanos) {
+    super(id);
     // This check is still necessary because the value can overflow.
     checkArgument(timeoutInNanos > 0,
         "Timeout duration must be positive  but %d was given",

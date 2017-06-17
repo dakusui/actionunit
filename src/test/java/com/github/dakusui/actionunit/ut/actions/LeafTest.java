@@ -17,7 +17,7 @@ public class LeafTest {
 
   @Test
   public void givenInheritedLeafWithoutName$whenToString$then() {
-    String s = new Leaf() {
+    String s = new Leaf(0) {
       @Override
       public void perform() {
       }

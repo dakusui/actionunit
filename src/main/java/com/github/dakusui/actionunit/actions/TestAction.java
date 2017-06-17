@@ -21,9 +21,14 @@ public interface TestAction extends Action {
   Action then();
 
   class Builder<I, O> {
-    private Supplier<I>    input;
-    private Function<I, O> operation;
-    private Predicate<O>   check;
+    private final int            id;
+    private       Supplier<I>    input;
+    private       Function<I, O> operation;
+    private       Predicate<O>   check;
+
+    public Builder(int id) {
+      this.id = id;
+    }
 
     public Builder<I, O> given(String description, Supplier<I> input) {
       Objects.requireNonNull(input);
@@ -74,7 +79,7 @@ public interface TestAction extends Action {
       Objects.requireNonNull(this.input);
       Objects.requireNonNull(this.operation);
       Objects.requireNonNull(this.check);
-      return new Base<>(this);
+      return new Base<>(id, this);
     }
 
   }
@@ -90,7 +95,8 @@ public interface TestAction extends Action {
         });
     private final Builder<I, O> builder;
 
-    public Base(Builder<I, O> builder) {
+    public Base(int id, Builder<I, O> builder) {
+      super(id);
       this.builder = builder;
     }
 

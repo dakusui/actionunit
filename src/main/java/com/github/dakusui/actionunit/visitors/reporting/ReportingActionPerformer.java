@@ -81,15 +81,15 @@ public class ReportingActionPerformer extends ActionPerformer {
   }
 
   @Override
-  protected <A extends Action> Node<A> toNode(Node<Action> parent, A action) {
+  protected <A extends Action> Node<A> toNode(Node<A> parent, A action) {
     if (parent == null) {
       //noinspection unchecked
       return (Node<A>) this.report.root;
     }
     //noinspection unchecked
-    return (Node<A>) parent.children().stream(
+    return parent.children().stream(
     ).filter(
-        (Node<Action> n) -> checker().test(n, super.toNode(parent, action))
+        (Node<A> n) -> this.<A>checker().test(n, super.toNode(parent, action))
     ).collect(
         InternalUtils.singletonCollector(
             () -> new IllegalStateException(
@@ -102,7 +102,8 @@ public class ReportingActionPerformer extends ActionPerformer {
     ).orElseThrow(
         () -> new IllegalStateException(
             format(
-                "Node matching '%s' was not found under '%s'(%s)",
+                "Node matching '%d-%s' was not found under '%s'(%s)",
+                action.id(),
                 InternalUtils.describe(action),
                 parent,
                 childrenToString(parent)
@@ -110,19 +111,30 @@ public class ReportingActionPerformer extends ActionPerformer {
     );
   }
 
-  private String childrenToString(Node<?> parent) {
+  private String childrenToString(Node<? extends Action> parent) {
     return String.join(
         ",",
         parent.children().stream()
-            .map(n -> n.getContent().toString())
-            .collect(Collectors.toList())
+            .map(
+                n -> String.format(
+                    "%d-%s",
+                    n.getContent().id(),
+                    n.getContent().toString()
+                )
+            ).collect(Collectors.toList())
     );
   }
 
-  private <A extends Node<?>> BiPredicate<A, A> checker() {
+  private <A extends Node<?>> BiPredicate<A, A> checker2() {
     return (a, b) ->
         Objects.equals(a, b)
             || Objects.equals(a.getContent(), b.getContent())
             || Objects.equals(InternalUtils.describe(a.getContent()), InternalUtils.describe(b.getContent()));
+  }
+
+  private <A extends Action> BiPredicate<Node<A>, Node<A>> checker() {
+    return (a, b) ->
+        Objects.equals(a, b)
+            || Objects.equals(a.getContent().id(), b.getContent().id());
   }
 }

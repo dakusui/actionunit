@@ -70,7 +70,7 @@ public class ActionVisitorTest implements ActionFactory {
   @Test
   public void givenCompositeAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = new Composite.Base("", singletonList(createSimpleAction())) {
+    Action action = new Composite.Base(0, "noname", singletonList(createSimpleAction())) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);

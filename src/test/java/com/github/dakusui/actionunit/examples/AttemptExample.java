@@ -1,9 +1,13 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
+import com.github.dakusui.actionunit.actions.HandlerFactory;
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
+
+import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
@@ -30,9 +34,15 @@ public class AttemptExample {
             ))
     ).recover(
         NullPointerException.class,
-        e -> simple(
-            "print stacktrace",
-            () -> e.get().printStackTrace(System.out))
+        new HandlerFactory.Base<Throwable>() {
+          @Override
+          protected Action create(Supplier<Throwable> e) {
+            return simple(
+                "print stacktrace",
+                () -> {
+                });
+          }
+        }
     ).ensure(simple(
         "print bye",
         () -> System.out.println("Bye 'attempt'"))

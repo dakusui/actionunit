@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
+import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
@@ -78,10 +80,15 @@ public class Basic implements ActionFactory {
             simple("A runnable (1)", runnable)
         ).recover(
             ActionException.class,
-            e -> retry(
-                simple(
-                    "A runnable (2)", runnable)
-            ).times(2).withIntervalOf(20, TimeUnit.MILLISECONDS)
+            new HandlerFactory.Base<Throwable>() {
+              @Override
+              protected Action create(Supplier<Throwable> data) {
+                return retry(
+                    simple(
+                        "A runnable (2)", runnable)
+                ).times(2).withIntervalOf(20, TimeUnit.MILLISECONDS);
+              }
+            }
         ).ensure(
             nop()
         )

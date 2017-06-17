@@ -296,7 +296,7 @@ public class ActionPrinterTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void givenUnsupportedCompositeAction$whenPerformed$thenExceptionThrown() {
-      Action action = new Composite.Base("", Collections.<Action>emptyList()) {
+      Action action = new Composite.Base(0, "noname", Collections.<Action>emptyList()) {
         @Override
         public void accept(Visitor visitor) {
           visitor.visit(this);
@@ -307,7 +307,7 @@ public class ActionPrinterTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void givenUnsupportedSimpleAction$whenPerformed$thenExceptionThrown() {
-      Action action = new ActionBase() {
+      Action action = new ActionBase(0) {
         @Override
         public void accept(Visitor visitor) {
           visitor.visit(this);

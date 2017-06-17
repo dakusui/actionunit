@@ -451,12 +451,17 @@ public class ActionSupportTest {
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
+
+      @Override
+      public int id() {
+        return 0;
+      }
     }.accept(createActionPerformer());
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$composite() {
-    new Composite.Base("unsupported", singletonList(nop())) {
+    new Composite.Base(0, "unsupported", singletonList(nop())) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);

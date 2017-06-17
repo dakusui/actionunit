@@ -48,9 +48,10 @@ public class Report implements Iterable<Node<Action>> {
         @Override
         public String format(Node<Action> actionNode, Record record, int indentLevel) {
           return String.format(
-              "%s[%s]%s",
+              "%s[%s]%d-%s",
               InternalUtils.spaces(indentLevel * 2),
               formatRecord(record).replaceAll("o{4,}", "o..."),
+              actionNode.getContent().id(),
               actionNode.getContent()
           );
         }

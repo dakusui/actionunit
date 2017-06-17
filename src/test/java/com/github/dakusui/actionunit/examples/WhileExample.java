@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.io.Writer;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
 
@@ -28,7 +30,12 @@ public class WhileExample extends TestUtils.TestBase implements ActionFactory {
         toSupplier(new AtomicInteger(0)),
         i -> i.getAndIncrement() < 10
     ).perform(
-        i -> simple("print i", () -> System.out.println("i:" + i.get()))
+        new HandlerFactory.Base<AtomicInteger>() {
+          @Override
+          protected Action create(Supplier<AtomicInteger> i) {
+            return simple("print i", () -> System.out.println("i:" + i.get()));
+          }
+        }
     );
   }
 

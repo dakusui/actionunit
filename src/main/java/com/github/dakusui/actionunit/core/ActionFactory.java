@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.*;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -11,6 +12,11 @@ import java.util.function.Supplier;
  * actions.
  */
 public interface ActionFactory {
+  default int generateId() {
+    new AtomicInteger();
+    return 0;
+  }
+
   /**
    * Creates a simple action object.
    *
@@ -20,7 +26,7 @@ public interface ActionFactory {
    * @see Leaf
    */
   default Action simple(final String description, final Runnable runnable) {
-    return ActionSupport.simple(description, runnable);
+    return ActionSupport.Internal.simple(generateId(), description, runnable);
   }
 
   /**
@@ -31,7 +37,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action named(String name, Action action) {
-    return ActionSupport.named(name, action);
+    return ActionSupport.Internal.named(generateId(), name, action);
   }
 
   /**
@@ -42,7 +48,7 @@ public interface ActionFactory {
    * @see Concurrent
    */
   default Action concurrent(Action... actions) {
-    return ActionSupport.concurrent(actions);
+    return ActionSupport.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -53,7 +59,7 @@ public interface ActionFactory {
    * @see Concurrent
    */
   default Action concurrent(Iterable<? extends Action> actions) {
-    return ActionSupport.concurrent(actions);
+    return ActionSupport.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -64,7 +70,7 @@ public interface ActionFactory {
    * @see Sequential
    */
   default Action sequential(Action... actions) {
-    return ActionSupport.sequential(actions);
+    return ActionSupport.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -75,7 +81,7 @@ public interface ActionFactory {
    * @see Sequential
    */
   default Action sequential(Iterable<? extends Action> actions) {
-    return ActionSupport.sequential(actions);
+    return ActionSupport.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -84,7 +90,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action nop() {
-    return ActionSupport.nop();
+    return ActionSupport.Internal.nop(generateId());
   }
 
   /**
@@ -94,7 +100,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action nop(final String description) {
-    return ActionSupport.nop(description);
+    return ActionSupport.Internal.nop(generateId(), description);
   }
 
   /**
@@ -105,7 +111,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action sleep(final long duration, final TimeUnit timeUnit) {
-    return ActionSupport.sleep(duration, timeUnit);
+    return ActionSupport.Internal.sleep(generateId(), duration, timeUnit);
   }
 
   /**
@@ -119,7 +125,7 @@ public interface ActionFactory {
    * @see ForEach.Builder
    */
   default <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
-    return ActionSupport.forEachOf(elements);
+    return ActionSupport.Internal.forEachOf(generateId(), elements);
   }
 
 
@@ -135,7 +141,7 @@ public interface ActionFactory {
    */
   @SuppressWarnings("unchecked")
   default <E> ForEach.Builder<E> forEachOf(E... elements) {
-    return ActionSupport.forEachOf(elements);
+    return ActionSupport.Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -152,7 +158,7 @@ public interface ActionFactory {
    * @see While.Builder
    */
   default <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
-    return ActionSupport.whilst(value, condition);
+    return ActionSupport.Internal.whilst(generateId(), value, condition);
   }
 
   /**
@@ -167,7 +173,7 @@ public interface ActionFactory {
    * @see When.Builder
    */
   default <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
-    return ActionSupport.when(value, condition);
+    return ActionSupport.Internal.when(generateId(), value, condition);
   }
 
   /**
@@ -180,7 +186,7 @@ public interface ActionFactory {
    * @see TimeOut.Builder
    */
   default TimeOut.Builder timeout(Action action) {
-    return ActionSupport.timeout(action);
+    return ActionSupport.Internal.timeout(generateId(), action);
   }
 
   /**
@@ -194,7 +200,7 @@ public interface ActionFactory {
    * @see Attempt.Builder
    */
   default <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
-    return ActionSupport.attempt(action);
+    return ActionSupport.Internal.attempt(generateId(), action);
   }
 
   /**
@@ -207,7 +213,7 @@ public interface ActionFactory {
    * @see Retry.Builder
    */
   default Retry.Builder retry(Action action) {
-    return ActionSupport.retry(action);
+    return ActionSupport.Internal.retry(generateId(), action);
   }
 
   /**
@@ -223,6 +229,6 @@ public interface ActionFactory {
    * @see TestAction.Builder
    */
   default <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
-    return ActionSupport.given(description, given);
+    return ActionSupport.Internal.given(generateId(), description, given);
   }
 }

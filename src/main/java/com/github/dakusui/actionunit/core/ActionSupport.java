@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -25,6 +26,103 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  */
 public enum ActionSupport {
   ;
+  private static final AtomicInteger idGenerator = new AtomicInteger(0);
+
+  static class Internal {
+    public static Action simple(int id, final String description, final Runnable runnable) {
+      return Leaf.create(id, description, runnable);
+    }
+
+    public static Action named(int id, String name, Action action) {
+      return Named.create(id, name, action);
+    }
+
+    public static Action concurrent(int id, Action... actions) {
+      return concurrent(id, asList(actions));
+    }
+
+    public static Action concurrent(int id, Iterable<? extends Action> actions) {
+      return Concurrent.Factory.INSTANCE.create(id, actions);
+    }
+
+    public static Action sequential(int id, Action... actions) {
+      return sequential(id, asList(actions));
+    }
+
+    public static Action sequential(int id, Iterable<? extends Action> actions) {
+      return Sequential.Factory.INSTANCE.create(id, actions);
+    }
+
+    public static Action nop(int id) {
+      return nop(id, "(nop)");
+    }
+
+    public static Action nop(int id, final String description) {
+      return new Leaf(id) {
+        @Override
+        public void perform() {
+        }
+
+        @Override
+        public String toString() {
+          return nonameIfNull(description);
+        }
+      };
+    }
+
+    public static Action sleep(int id, final long duration, final TimeUnit timeUnit) {
+      checkArgument(duration >= 0, "duration must be non-negative but %s was given", duration);
+      checkNotNull(timeUnit);
+      return new Leaf(id) {
+        @Override
+        public void perform() {
+          InternalUtils.sleep(duration, timeUnit);
+        }
+
+        @Override
+        public String toString() {
+          return format("sleep for %s", InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
+        }
+      };
+    }
+
+    public static <E> ForEach.Builder<E> forEachOf(int id, Iterable<? extends E> elements) {
+      return ForEach.builder(id, elements);
+    }
+
+    @SafeVarargs
+    public static <E> ForEach.Builder<E> forEachOf(int id, E... elements) {
+      return ForEach.builder(id, asList(elements));
+    }
+
+    public static <T> While.Builder<T> whilst(int id, Supplier<T> value, Predicate<T> condition) {
+      return new While.Builder<>(id, value, condition);
+    }
+
+    public static <T> When.Builder<T> when(int id, Supplier<T> value, Predicate<T> condition) {
+      return new When.Builder<>(id, value, condition);
+    }
+
+    public static TimeOut.Builder timeout(int id, Action action) {
+      return new TimeOut.Builder(id, action);
+    }
+
+    public static <T extends Throwable> Attempt.Builder<T> attempt(int id, Action action) {
+      return Attempt.builder(id, action);
+    }
+
+    public static Retry.Builder retry(int id, Action action) {
+      return Retry.builder(id, action);
+    }
+
+    public static <I, O> TestAction.Builder<I, O> given(int id, String description, Supplier<I> given) {
+      return new TestAction.Builder<I, O>(id).given(description, given);
+    }
+  }
+
+  private static int generateId() {
+    return idGenerator.getAndIncrement();
+  }
 
   /**
    * Creates a simple action object.
@@ -35,7 +133,7 @@ public enum ActionSupport {
    * @see Leaf
    */
   public static Action simple(final String description, final Runnable runnable) {
-    return Leaf.create(description, runnable);
+    return Internal.simple(generateId(), description, runnable);
   }
 
   /**
@@ -46,7 +144,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action named(String name, Action action) {
-    return Named.create(name, action);
+    return Internal.named(generateId(), name, action);
   }
 
   /**
@@ -57,7 +155,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Action... actions) {
-    return concurrent(asList(actions));
+    return Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -68,7 +166,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Iterable<? extends Action> actions) {
-    return Concurrent.Factory.INSTANCE.create(actions);
+    return Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -79,7 +177,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Action... actions) {
-    return sequential(asList(actions));
+    return Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -90,7 +188,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Iterable<? extends Action> actions) {
-    return Sequential.Factory.INSTANCE.create(actions);
+    return Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -99,7 +197,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop() {
-    return nop("(nop)");
+    return Internal.nop(generateId());
   }
 
   /**
@@ -109,16 +207,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop(final String description) {
-    return new Leaf() {
-      @Override
-      public void perform() {
-      }
-
-      @Override
-      public String toString() {
-        return nonameIfNull(description);
-      }
-    };
+    return Internal.nop(generateId(), description);
   }
 
   /**
@@ -129,19 +218,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action sleep(final long duration, final TimeUnit timeUnit) {
-    checkArgument(duration >= 0, "duration must be non-negative but %s was given", duration);
-    checkNotNull(timeUnit);
-    return new Leaf() {
-      @Override
-      public void perform() {
-        InternalUtils.sleep(duration, timeUnit);
-      }
-
-      @Override
-      public String toString() {
-        return format("sleep for %s", InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
-      }
-    };
+    return Internal.sleep(generateId(), duration, timeUnit);
   }
 
   /**
@@ -155,7 +232,7 @@ public enum ActionSupport {
    * @see ForEach.Builder
    */
   public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
-    return ForEach.builder(elements);
+    return Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -170,7 +247,7 @@ public enum ActionSupport {
    */
   @SafeVarargs
   public static <E> ForEach.Builder<E> forEachOf(E... elements) {
-    return ForEach.builder(asList(elements));
+    return Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -187,7 +264,7 @@ public enum ActionSupport {
    * @see While.Builder
    */
   public static <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
-    return new While.Builder<>(value, condition);
+    return Internal.whilst(generateId(), value, condition);
   }
 
   /**
@@ -202,7 +279,7 @@ public enum ActionSupport {
    * @see When.Builder
    */
   public static <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
-    return new When.Builder<>(value, condition);
+    return Internal.when(generateId(), value, condition);
   }
 
   /**
@@ -215,7 +292,7 @@ public enum ActionSupport {
    * @see TimeOut.Builder
    */
   public static TimeOut.Builder timeout(Action action) {
-    return new TimeOut.Builder(action);
+    return Internal.timeout(generateId(), action);
   }
 
   /**
@@ -229,7 +306,7 @@ public enum ActionSupport {
    * @see Attempt.Builder
    */
   public static <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
-    return Attempt.builder(action);
+    return Internal.attempt(generateId(), action);
   }
 
   /**
@@ -242,7 +319,7 @@ public enum ActionSupport {
    * @see Retry.Builder
    */
   public static Retry.Builder retry(Action action) {
-    return Retry.builder(action);
+    return Internal.retry(generateId(), action);
   }
 
 
@@ -259,6 +336,6 @@ public enum ActionSupport {
    * @see TestAction.Builder
    */
   public static <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
-    return new TestAction.Builder<I, O>().given(description, given);
+    return Internal.given(generateId(), description, given);
   }
 }

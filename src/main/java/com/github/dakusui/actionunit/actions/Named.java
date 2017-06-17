@@ -11,16 +11,18 @@ public interface Named extends Nested {
   /**
    * Creates an action with the given {@code name} and {@code action}.
    *
+   * @param id     An id of this object.
    * @param name   A name of the returned action.
    * @param action An action body of the returned action.
    * @return Created action.
    */
-  static Named create(String name, Action action) {
-    return new Impl(name, action);
+  static Named create(int id, String name, Action action) {
+    return new Impl(id, name, action);
   }
 
   /**
    * Returns a name of this action.
+   *
    * @return name of this object.
    */
   String getName();
@@ -45,7 +47,8 @@ public interface Named extends Nested {
      * @param name   Name of this object.
      * @param action Action to be performed as a body of this object.
      */
-    public Impl(String name, Action action) {
+    public Impl(int id, String name, Action action) {
+      super(id);
       this.name = checkNotNull(name);
       this.action = checkNotNull(action);
     }

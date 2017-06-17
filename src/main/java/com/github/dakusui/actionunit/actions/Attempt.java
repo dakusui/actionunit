@@ -16,19 +16,25 @@ public interface Attempt<E extends Throwable> extends Action {
 
   Action ensure();
 
-  static <E extends Throwable> Attempt.Builder<E> builder(Action attempt) {
-    return new Builder<>(attempt);
+  static <E extends Throwable> Attempt.Builder<E> builder(int id, Action attempt) {
+    return new Builder<>(id, attempt);
   }
 
   class Builder<E extends Throwable> {
     private final Action attempt;
+    private final int    id;
     private Action             ensure                  = ActionSupport.nop();
-    private Class<? extends E> exceptionClass          = null;
-    private HandlerFactory<E>  exceptionHandlerFactory = e -> {
-      throw Checks.propagate(e.get());
+    @SuppressWarnings("unchecked")
+    private Class<? extends E> exceptionClass          = (Class<? extends E>) Exception.class;
+    private HandlerFactory<E>  exceptionHandlerFactory = new HandlerFactory.Base<E>() {
+      @Override
+      protected Action create(Supplier<E> data) {
+        throw Checks.propagate(data.get());
+      }
     };
 
-    public Builder(Action attempt) {
+    public Builder(int id, Action attempt) {
+      this.id = id;
       this.attempt = Objects.requireNonNull(attempt);
     }
 
@@ -46,7 +52,7 @@ public interface Attempt<E extends Throwable> extends Action {
     @SuppressWarnings("unchecked")
     public Attempt<E> build() {
       Checks.checkState(exceptionClass != null, "Exception class isn't set yet.");
-      return new Impl<>(attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensure);
+      return new Impl<>(id, attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensure);
     }
   }
 
@@ -56,7 +62,8 @@ public interface Attempt<E extends Throwable> extends Action {
     private final Class<E>          exceptionClass;
     private final HandlerFactory<E> exceptionHandlerFactory;
 
-    public Impl(Action attempt, Class<E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory, Action ensure) {
+    public Impl(int id, Action attempt, Class<E> exceptionClass, HandlerFactory<E> exceptionHandlerFactory, Action ensure) {
+      super(id);
       this.attempt = Objects.requireNonNull(attempt);
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
       this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);

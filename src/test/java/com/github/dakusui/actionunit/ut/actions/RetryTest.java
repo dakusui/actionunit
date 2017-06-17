@@ -19,24 +19,24 @@ import static org.hamcrest.core.IsEqual.equalTo;
 public class RetryTest extends TestUtils.TestBase implements ActionFactory {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
-    new Retry(ActionException.class, nop(), -1 /* this is not valid */, 1);
+    new Retry(0, ActionException.class, nop(), -1 /* this is not valid */, 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeTimes$whenCreated$thenExceptionThrown() {
-    new Retry(ActionException.class, nop(), 1, -100 /* this is not valid*/);
+    new Retry(0, ActionException.class, nop(), 1, -100 /* this is not valid*/);
   }
 
   @Test
   public void givenFOREVERAsTimes$whenCreated$thenExceptionNotThrown() {
     // Make sure only an exception is not thrown on instantiation.
-    new Retry(ActionException.class, nop(), 1, Retry.INFINITE);
+    new Retry(0, ActionException.class, nop(), 1, Retry.INFINITE);
   }
 
   @Test(expected = RuntimeException.class, timeout = 3000000)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(ActionException.class, ActionSupport.simple("Fail on first time only", new Runnable() {
+    new Retry(0, ActionException.class, ActionSupport.simple("Fail on first time only", new Runnable() {
       boolean firstTime = true;
 
       @Override

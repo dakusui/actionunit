@@ -7,7 +7,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 
 public interface When<T> extends Action {
   Supplier<T> value();
@@ -21,10 +20,17 @@ public interface When<T> extends Action {
   class Builder<T> {
     private final Supplier<T>       value;
     private final Predicate<T>      condition;
+    private final int               id;
     private       HandlerFactory<T> handlerFactoryForPerform;
-    private HandlerFactory<T> handlerFactoryForOtherwise = v -> nop();
+    private HandlerFactory<T> handlerFactoryForOtherwise = new HandlerFactory.Base<T>() {
+      @Override
+      protected Action create(Supplier<T> data) {
+        return nop();
+      }
+    };
 
-    public Builder(Supplier<T> value, Predicate<T> condition) {
+    public Builder(int id, Supplier<T> value, Predicate<T> condition) {
+      this.id = id;
       this.value = Objects.requireNonNull(value);
       this.condition = Objects.requireNonNull(condition);
     }
@@ -41,6 +47,7 @@ public interface When<T> extends Action {
 
     public When<T> $() {
       return new When.Impl<T>(
+          id,
           value,
           condition,
           handlerFactoryForPerform,
@@ -56,11 +63,13 @@ public interface When<T> extends Action {
     final private HandlerFactory<T> handlerFactoryForOtherwise;
 
     public Impl(
+        int id,
         Supplier<T> value,
         Predicate<T> condition,
         HandlerFactory<T> handlerFactoryForPerform,
         HandlerFactory<T> handlerFactoryForOtherwise
     ) {
+      super(id);
       this.value = Objects.requireNonNull(value);
       this.condition = Objects.requireNonNull(condition);
       this.handlerFactoryForPerform = Objects.requireNonNull(handlerFactoryForPerform);

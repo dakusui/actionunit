@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -8,9 +9,8 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.core.ActionSupport.forEachOf;
+import java.util.function.Supplier;
+
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
@@ -66,13 +66,24 @@ public class ActionRunnerTest {
 
     private Action composeAction() {
       return forEachOf(asList("A", "B")).perform(
-          i -> sequential(
-              simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get())),
-              forEachOf("a", "b").perform(
-                  j -> simple("Prefix with '\\_inner-'", () -> getWriter().writeLine("\\_inner-" + j.get()))
-              ),
-              simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get()))
-          )
+          new HandlerFactory.Base<String>() {
+            @Override
+            protected Action create(Supplier<String> i) {
+              return sequential(
+                  simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get())),
+                  forEachOf("a", "b").perform(
+                      new HandlerFactory.Base<String>() {
+                        @Override
+                        public Action create(Supplier<String> j) {
+                          return simple("Prefix with '\\_inner-'", () -> getWriter().writeLine("\\_inner-" + j.get()));
+                        }
+                      }
+                  ),
+                  simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get()))
+              );
+
+            }
+          }
       );
     }
   }
