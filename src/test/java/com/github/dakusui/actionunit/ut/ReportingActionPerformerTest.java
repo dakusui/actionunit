@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -51,8 +53,8 @@ public class ReportingActionPerformerTest {
       //noinspection unchecked
       assertThat(getWriter(),
           allOf(
-              hasItemAt(0, equalTo("[o]A passing action")),
-              hasItemAt(1, equalTo("  [o]This passes always"))
+              hasItemAt(0, equalTo("[o]1-A passing action")),
+              hasItemAt(1, equalTo("  [o]0-This passes always"))
           )
       );
     }
@@ -74,8 +76,8 @@ public class ReportingActionPerformerTest {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("[x]A failing action")),
-                hasItemAt(1, equalTo("  [x]This fails always"))
+                hasItemAt(0, startsWith("[x]1-A failing action")),
+                hasItemAt(1, equalTo("  [x]0-This fails always"))
             )
         );
       }
@@ -97,8 +99,8 @@ public class ReportingActionPerformerTest {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("[x]An error action")),
-                hasItemAt(1, equalTo("  [x]This gives a runtime exception always"))
+                hasItemAt(0, startsWith("[x]1-An error action")),
+                hasItemAt(1, equalTo("  [x]0-This gives a runtime exception always"))
             ));
       }
     }
@@ -120,13 +122,13 @@ public class ReportingActionPerformerTest {
       //Then printed correctly
       //noinspection unchecked
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("[o]Concurrent (3 actions)")),
-          hasItemAt(1, equalTo("  [o]A passing action-1")),
-          hasItemAt(2, equalTo("    [o]This passes always-1")),
-          hasItemAt(3, equalTo("  [o]A passing action-2")),
-          hasItemAt(4, equalTo("    [o]This passes always-2")),
-          hasItemAt(5, equalTo("  [o]A passing action-3")),
-          hasItemAt(6, equalTo("    [o]This passes always-3"))
+          hasItemAt(0, equalTo("[o]6-Concurrent (3 actions)")),
+          hasItemAt(1, equalTo("  [o]1-A passing action-1")),
+          hasItemAt(2, equalTo("    [o]0-This passes always-1")),
+          hasItemAt(3, equalTo("  [o]3-A passing action-2")),
+          hasItemAt(4, equalTo("    [o]2-This passes always-2")),
+          hasItemAt(5, equalTo("  [o]5-A passing action-3")),
+          hasItemAt(6, equalTo("    [o]4-This passes always-3"))
       ));
       assertThat(getWriter(), hasSize(7));
     }
@@ -140,10 +142,10 @@ public class ReportingActionPerformerTest {
       Action action = forEachOf(
           asList("ItemA", "ItemB", "ItemC")
       ).perform(
-          i -> sequential(
-              simple("Sink-1", () -> {
+          ($, i) -> $.sequential(
+              $.simple("Sink-1", () -> {
               }),
-              simple("Sink-2", () -> {
+              $.simple("Sink-2", () -> {
               })
           )
       );
@@ -156,10 +158,10 @@ public class ReportingActionPerformerTest {
       assertThat(
           getWriter(),
           TestUtils.allOf(
-              hasItemAt(0, startsWith("[o]ForEach (SEQUENTIALLY)")),
-              hasItemAt(1, equalTo("  [ooo]Sequential (2 actions)")),
-              hasItemAt(2, equalTo("    [ooo]Sink-1")),
-              hasItemAt(3, equalTo("    [ooo]Sink-2"))
+              hasItemAt(0, startsWith("[o]0-ForEach (SEQUENTIALLY)")),
+              hasItemAt(1, equalTo("  [ooo]2-Sequential (2 actions)")),
+              hasItemAt(2, equalTo("    [ooo]0-Sink-1")),
+              hasItemAt(3, equalTo("    [ooo]1-Sink-2"))
           ));
       assertThat(getWriter(), hasSize(4));
     }
@@ -171,11 +173,11 @@ public class ReportingActionPerformerTest {
       Action action = forEachOf(
           asList("ItemA", "ItemB", "ItemC")
       ).perform(
-          i -> sequential(
-              simple("Sink-1", () -> {
+          ($, i) -> $.sequential(
+              $.simple("Sink-1", () -> {
                 throw new RuntimeException("Failing");
               }),
-              simple("Sink-2", () -> {
+              $.simple("Sink-2", () -> {
               })));
       ////
       //When performed and printed
@@ -186,37 +188,38 @@ public class ReportingActionPerformerTest {
         //Then printed correctly
         //noinspection unchecked
         assertThat(getWriter(), allOf(
-            hasItemAt(0, startsWith("[x]ForEach")),
-            hasItemAt(1, startsWith("  [x]Sequential (2 actions)")),
-            hasItemAt(2, startsWith("    [x]Sink-1")),
-            hasItemAt(3, startsWith("    []Sink-2"))
+            hasItemAt(0, startsWith("[x]0-ForEach")),
+            hasItemAt(1, startsWith("  [x]2-Sequential (2 actions)")),
+            hasItemAt(2, startsWith("    [x]0-Sink-1")),
+            hasItemAt(3, startsWith("    []1-Sink-2"))
         ));
         assertThat(getWriter(), hasSize(4));
       }
     }
   }
 
-  public static class AttemptAction extends Base {
+  public static class AttemptAction extends Base implements ActionFactory {
     @Test
     public void givenPassingAttemptAction$whenPerformed$thenWorksFine() {
       Action action = attempt(
           nop()
       ).recover(
           Exception.class,
-          e -> nop()
+          ($, e) -> $.nop()
       ).ensure(
-          nop()
+          ($, e) -> $.nop()
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("[o]Attempt")),
-          hasItemAt(1, equalTo("  [o](nop)")),
-          hasItemAt(2, equalTo("  []Recover(Exception)")),
-          hasItemAt(3, equalTo("    [](nop)")),
-          hasItemAt(4, equalTo("  [o]Ensure")),
-          hasItemAt(5, equalTo("    [o](nop)"))
+          hasItemAt(0, equalTo("[o]1-Attempt")),
+          hasItemAt(1, equalTo("  [o]0-Target")),
+          hasItemAt(2, equalTo("    [o]0-(nop)")),
+          hasItemAt(3, equalTo("  []1-Recover(Exception)")),
+          hasItemAt(4, equalTo("    []0-(nop)")),
+          hasItemAt(5, equalTo("  [o]2-Ensure")),
+          hasItemAt(6, equalTo("    [o]0-(nop)"))
       ));
-      assertThat(getWriter(), hasSize(6));
+      assertThat(getWriter(), hasSize(7));
     }
 
     @Test
@@ -230,24 +233,25 @@ public class ReportingActionPerformerTest {
           })
       ).recover(
           NullPointerException.class,
-          e -> nop()
+          ($, e) -> $.nop()
       ).ensure(
-          nop()
+          ($, e) -> $.nop()
       );
       performAndPrintAction(action);
       assertThat(getWriter(), TestUtils.allOf(
-          hasItemAt(0, equalTo("[o]Attempt")),
-          hasItemAt(1, equalTo("  [x]Howdy, NPE")),
-          hasItemAt(2, equalTo("  [o]Recover(NullPointerException)")),
-          hasItemAt(3, equalTo("    [o](nop)")),
-          hasItemAt(4, equalTo("  [o]Ensure")),
-          hasItemAt(5, equalTo("    [o](nop)"))
+          hasItemAt(0, equalTo("[o]1-Attempt")),
+          hasItemAt(1, equalTo("  [x]0-Target")),
+          hasItemAt(2, equalTo("    [x]0-Howdy, NPE")),
+          hasItemAt(3, equalTo("  [o]1-Recover(NullPointerException)")),
+          hasItemAt(4, equalTo("    [o]0-(nop)")),
+          hasItemAt(5, equalTo("  [o]2-Ensure")),
+          hasItemAt(6, equalTo("    [o]0-(nop)"))
       ));
-      assertThat(getWriter(), hasSize(6));
+      assertThat(getWriter(), hasSize(7));
     }
   }
 
-  public static class TestTest extends Base {
+  public static class TestTest extends Base implements ActionFactory {
     @Test
     public void givenTestAction$whenPerformed$thenWorksFine() {
       Action action =
@@ -257,25 +261,29 @@ public class ReportingActionPerformerTest {
       performAndPrintAction(action);
       assertThat(
           this.getWriter().get(0),
-          equalTo("[o]TestAction"));
+          allOf(
+              containsString("[o]"),
+              containsString("TestAction")
+          )
+      );
       assertThat(
           this.getWriter().get(1),
-          equalTo("  [o]Given"));
+          equalTo("  [o]0-Given"));
       assertThat(
           this.getWriter().get(2),
-          equalTo("    [o]string 'World'"));
+          equalTo("    [o]0-string 'World'"));
       assertThat(
           this.getWriter().get(3),
-          equalTo("  [o]When"));
+          equalTo("  [o]1-When"));
       assertThat(
           this.getWriter().get(4),
-          equalTo("    [o]length"));
+          equalTo("    [o]0-length"));
       assertThat(
           this.getWriter().get(5),
-          equalTo("  [o]Then"));
+          equalTo("  [o]2-Then"));
       assertThat(
           this.getWriter().get(6),
-          equalTo("    [o]==5"));
+          equalTo("    [o]0-==5"));
     }
 
 
@@ -296,13 +304,13 @@ public class ReportingActionPerformerTest {
         //  not match, the AssertionError will be thrown, which confuses JUnit and users.
         //  Thus, here we are going to throw IllegalStateException.
         //noinspection unchecked
-        if (!getWriter().get(0).equals("[x]TestAction") ||
-            !getWriter().get(1).equals("  [o]Given") ||
-            !getWriter().get(2).equals("    [o]HelloTestCase") ||
-            !getWriter().get(3).equals("  [o]When") ||
-            !getWriter().get(4).equals("    [o]length") ||
-            !getWriter().get(5).equals("  [x]Then") ||
-            !getWriter().get(6).equals("    [x]equals to 5")) {
+        if (!getWriter().get(0).equals("[x]0-TestAction") ||
+            !getWriter().get(1).equals("  [o]0-Given") ||
+            !getWriter().get(2).equals("    [o]0-HelloTestCase") ||
+            !getWriter().get(3).equals("  [o]1-When") ||
+            !getWriter().get(4).equals("    [o]0-length") ||
+            !getWriter().get(5).equals("  [x]2-Then") ||
+            !getWriter().get(6).equals("    [x]0-equals to 5")) {
           getWriter().forEach(System.err::println);
           //noinspection ThrowFromFinallyBlock
           throw new IllegalStateException();

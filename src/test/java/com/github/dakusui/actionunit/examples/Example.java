@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -17,19 +16,14 @@ public class Example implements ActionFactory {
         asList("hello", "world")
     ).concurrently(
     ).perform(
-        new HandlerFactory.Base<String>() {
-          @Override
-          protected Action create(Supplier<String> data) {
-            return sequential(
-                simple("print", () -> System.out.println(data.get())),
-                simple("print", () -> System.out.println(data.get())),
-                sequential(
-                    simple("print", () -> System.out.println(data.get())),
-                    simple("print", () -> System.out.println(data.get()))
-                )
-            );
-          }
-        }
+        (ActionFactory f, Supplier<String> v) -> f.sequential(
+            f.simple("print", () -> System.out.println(v.get())),
+            f.simple("print", () -> System.out.println(v.get())),
+            f.sequential(
+                f.simple("print", () -> System.out.println(v.get())),
+                f.simple("print", () -> System.out.println(v.get()))
+            )
+        )
     );
 
     new ReportingActionPerformer.Builder(action).build().performAndReport();

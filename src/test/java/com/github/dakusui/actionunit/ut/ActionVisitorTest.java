@@ -97,7 +97,7 @@ public class ActionVisitorTest implements ActionFactory {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEachOf(singletonList("hello")).perform(s -> nop());
+    Action action = forEachOf(singletonList("hello")).perform(($, s) -> nop());
     // when accept
     action.accept(visitor);
     // then visited
@@ -149,7 +149,7 @@ public class ActionVisitorTest implements ActionFactory {
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
     Action action = attempt(createSimpleAction())
-        .recover(Exception.class, e -> nop())
+        .recover(Exception.class, ($, e) -> nop())
         .build();
     // when accept
     action.accept(visitor);
@@ -171,7 +171,7 @@ public class ActionVisitorTest implements ActionFactory {
         () -> "Hello",
         v -> true
     ).perform(
-        s -> sequential(
+        ($, s) -> sequential(
             createSimpleAction(),
             createSimpleAction()
         )
@@ -196,9 +196,9 @@ public class ActionVisitorTest implements ActionFactory {
         () -> "Hello",
         "Hello"::equals
     ).perform(
-        v -> createSimpleAction()
+        ($, v) -> createSimpleAction()
     ).otherwise(
-        v -> createSimpleAction()
+        ($, v) -> createSimpleAction()
     );
     // when accept
     action.accept(visitor);

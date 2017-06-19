@@ -79,7 +79,7 @@ public class BuildersTest {
           })
       ).recover(
           RuntimeException.class,
-          e -> concurrent(
+          ($, e) -> concurrent(
               simple("print capture", () -> {
               }),
               simple("print stacktrace", () -> {
@@ -91,7 +91,7 @@ public class BuildersTest {
               })
           )
       ).ensure(
-          simple("Say 'bye'", () -> System.out.println("Bye"))
+          ($, e) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
       );
       try {
         action.accept(TestUtils.createActionPerformer());

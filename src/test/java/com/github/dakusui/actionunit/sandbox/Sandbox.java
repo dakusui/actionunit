@@ -32,7 +32,7 @@ public class Sandbox {
     return self.forEachOf(asList("dev-ugspbk001", "dev-ugspadm001", "dev-ugspapi001"))
         .concurrently()
         .perform(
-            hostName -> self.sequential(
+            ($, hostName) -> self.sequential(
                 self.retry(
                     self.sequential(
                         self.simple("print hostname", () -> {

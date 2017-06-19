@@ -32,7 +32,7 @@ public class WhileExample extends TestUtils.TestBase implements ActionFactory {
     ).perform(
         new HandlerFactory.Base<AtomicInteger>() {
           @Override
-          protected Action create(Supplier<AtomicInteger> i) {
+          public Action create(ActionFactory $, Supplier<AtomicInteger> i) {
             return simple("print i", () -> System.out.println("i:" + i.get()));
           }
         }

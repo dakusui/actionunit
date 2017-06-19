@@ -82,7 +82,7 @@ public class Basic implements ActionFactory {
             ActionException.class,
             new HandlerFactory.Base<Throwable>() {
               @Override
-              protected Action create(Supplier<Throwable> data) {
+              public Action create(ActionFactory $, Supplier<Throwable> data) {
                 return retry(
                     simple(
                         "A runnable (2)", runnable)
@@ -90,7 +90,7 @@ public class Basic implements ActionFactory {
               }
             }
         ).ensure(
-            nop()
+            ($, e) -> $.nop()
         )
     ).in(10, TimeUnit.SECONDS);
   }

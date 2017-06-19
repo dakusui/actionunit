@@ -1,12 +1,13 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface While<T> extends Action {
+public interface While<T> extends Action, ActionFactory {
   Supplier<T> value();
 
   Predicate<T> check();
@@ -17,12 +18,6 @@ public interface While<T> extends Action {
     private final Predicate<T> check;
     private final Supplier<T>  value;
     private final int          id;
-    private HandlerFactory<T> handlerFactory = new HandlerFactory.Base<T>() {
-      @Override
-      protected Action create(Supplier<T> data) {
-        return nop();
-      }
-    };
 
     public Builder(int id, Supplier<T> value, Predicate<T> check) {
       this.id = id;
@@ -31,8 +26,7 @@ public interface While<T> extends Action {
     }
 
     public While<T> perform(HandlerFactory<T> handlerFactory) {
-      this.handlerFactory = Objects.requireNonNull(handlerFactory);
-      return new Impl<T>(id, value, check, handlerFactory);
+      return new Impl<T>(id, value, check, Objects.requireNonNull(handlerFactory));
     }
   }
 

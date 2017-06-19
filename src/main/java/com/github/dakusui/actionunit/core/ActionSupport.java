@@ -28,7 +28,7 @@ public enum ActionSupport {
   ;
   private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
-  static class Internal {
+  public static class Internal {
     public static Action simple(int id, final String description, final Runnable runnable) {
       return Leaf.create(id, description, runnable);
     }

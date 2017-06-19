@@ -23,7 +23,7 @@ public class WhileTest implements ActionFactory {
         toSupplier(new AtomicInteger(0)),
         i -> i.get() < 4
     ).perform(
-        i -> simple("Say 'Hello'",
+        ($, i) -> $.simple("Say 'Hello'",
             () -> {
               out.writeLine("Hello");
               i.get().getAndIncrement();
@@ -44,8 +44,8 @@ public class WhileTest implements ActionFactory {
 
     assertThat(result,
         allOf(
-            hasItemAt(0, equalTo("[o]While")),
-            hasItemAt(1, equalTo("  [o...]Say 'Hello'"))
+            hasItemAt(0, equalTo("[o]0-While")),
+            hasItemAt(1, equalTo("  [o...]0-Say 'Hello'"))
         ));
     assertEquals(2, result.size());
   }

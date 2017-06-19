@@ -24,12 +24,12 @@ public class ForEachTest implements ActionFactory {
     Action action = forEachOf(
         "Hello", "world", "!"
     ).perform(
-        s -> sequential(asList(
-            simple(
+        ($, s) -> $.sequential(asList(
+            $.simple(
                 "print {s}",
                 () -> System.out.println("<" + s.get() + ">")
             ),
-            simple(
+            $.simple(
                 "add {s} to 'out'",
                 () -> out.add("'" + s.get() + "'")
             )
@@ -62,12 +62,12 @@ public class ForEachTest implements ActionFactory {
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        s -> sequential(
-            simple(
+        ($, s) -> $.sequential(
+            $.simple(
                 "print {s}",
                 () -> System.out.println("<" + s.get() + ">")
             ),
-            simple(
+            $.simple(
                 "add {s} to 'out'",
                 () -> out.add("'" + s.get() + "'")
             )
@@ -99,7 +99,7 @@ public class ForEachTest implements ActionFactory {
         "Hello", "world", "!"
     ).sequentially(
     ).perform(
-        s -> concurrent(asList(
+        ($, s) -> concurrent(asList(
             nop("YOU CANNOT CREATE ACTIONS OF THE SAME NAME UNDER ONE forEachOf ACTION"),
             nop("YOU CANNOT CREATE ACTIONS OF THE SAME NAME UNDER ONE forEachOf ACTION")
         ))
@@ -127,9 +127,9 @@ public class ForEachTest implements ActionFactory {
         "Hello", "world", "!"
     ).sequentially(
     ).perform(
-        s -> concurrent(asList(
-            nop("Action 1"),
-            nop("Action 2")
+        ($, s) -> $.concurrent(asList(
+            $.nop("Action 1"),
+            $.nop("Action 2")
         ))
     );
     // When

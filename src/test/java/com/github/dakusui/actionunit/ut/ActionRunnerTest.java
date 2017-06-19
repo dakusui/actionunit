@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
@@ -68,13 +69,13 @@ public class ActionRunnerTest {
       return forEachOf(asList("A", "B")).perform(
           new HandlerFactory.Base<String>() {
             @Override
-            protected Action create(Supplier<String> i) {
+            public Action create(ActionFactory $, Supplier<String> i) {
               return sequential(
                   simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get())),
                   forEachOf("a", "b").perform(
                       new HandlerFactory.Base<String>() {
                         @Override
-                        public Action create(Supplier<String> j) {
+                        public Action create(ActionFactory $, Supplier<String> j) {
                           return simple("Prefix with '\\_inner-'", () -> getWriter().writeLine("\\_inner-" + j.get()));
                         }
                       }

@@ -48,7 +48,7 @@ public class ActionPrinterTest {
                       forEachOf(
                           asList("hello1", "hello2", "hello3")
                       ).perform(
-                          i -> nop()
+                          ($, i) -> nop()
                       )
                   ))));
     }
@@ -131,7 +131,7 @@ public class ActionPrinterTest {
               forEachOf(
                   asList("hello1", "hello2", "hello3")
               ).perform(
-                  data -> given(
+                  ($, data) -> given(
                       "ExampleTest", () -> "ExampleTest")
                       .when("Say 'hello'", input -> {
                         out.add(format("hello:%s", data.get()));
@@ -143,7 +143,7 @@ public class ActionPrinterTest {
               forEachOf(
                   asList("world1", "world2", "world3")
               ).perform(
-                  i -> sequential(
+                  ($, i) -> sequential(
                       simple("nothing", () -> {
                       }),
                       simple("sink1", () -> {
@@ -206,7 +206,7 @@ public class ActionPrinterTest {
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
       Action action = forEachOf(asList("A", "B")).perform(
-          i -> sequential(
+          ($, i) -> sequential(
               simple("+0", () -> {
                 out1.writeLine(i.get() + "0");
               }),
@@ -237,7 +237,12 @@ public class ActionPrinterTest {
       Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES);
       TestUtils.Out out = new TestUtils.Out();
       runAndReport(action, out);
-      assertEquals("[o]Retry(60[seconds]x1times)", out.get(0));
+      assertThat(
+          out.get(0),
+          allOf(
+              containsString("[o]"),
+              containsString("Retry(60[seconds]x1times)")
+          ));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -252,8 +257,18 @@ public class ActionPrinterTest {
       try {
         runAndReport(action, out);
       } finally {
-        assertEquals("[x]Retry(60[seconds]x1times)", out.get(0));
-        assertEquals("  [x]AlwaysFail", out.get(1));
+        assertThat(
+            out.get(0),
+            allOf(
+                containsString("[x]"),
+                containsString("Retry(60[seconds]x1times)")
+            ));
+        assertThat(
+            out.get(1),
+            allOf(
+                containsString("[x]"),
+                containsString("AlwaysFail")
+            ));
       }
     }
 
@@ -291,7 +306,12 @@ public class ActionPrinterTest {
       Action action = timeout(nop()).in(1, TimeUnit.MINUTES);
       final TestUtils.Out out = new TestUtils.Out();
       runAndReport(action, out);
-      assertEquals("[o]TimeOut(60[seconds])", out.get(0));
+      assertThat(
+          out.get(0),
+          allOf(
+              containsString("[o]"),
+              containsString("TimeOut(60[seconds])")
+          ));
     }
 
     @Test(expected = UnsupportedOperationException.class)

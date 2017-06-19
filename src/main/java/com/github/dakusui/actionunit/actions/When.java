@@ -1,14 +1,13 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.named;
-
-public interface When<T> extends Action {
+public interface When<T> extends Action, ActionFactory {
   Supplier<T> value();
 
   Predicate<T> check();
@@ -22,12 +21,7 @@ public interface When<T> extends Action {
     private final Predicate<T>      condition;
     private final int               id;
     private       HandlerFactory<T> handlerFactoryForPerform;
-    private HandlerFactory<T> handlerFactoryForOtherwise = new HandlerFactory.Base<T>() {
-      @Override
-      protected Action create(Supplier<T> data) {
-        return nop();
-      }
-    };
+    private       HandlerFactory<T> handlerFactoryForOtherwise;
 
     public Builder(int id, Supplier<T> value, Predicate<T> condition) {
       this.id = id;
@@ -46,12 +40,14 @@ public interface When<T> extends Action {
     }
 
     public When<T> $() {
-      return new When.Impl<T>(
+      return new When.Impl<>(
           id,
           value,
           condition,
           handlerFactoryForPerform,
-          handlerFactoryForOtherwise
+          handlerFactoryForOtherwise != null
+              ? handlerFactoryForOtherwise
+              : (HandlerFactory<T>) (factory, data) -> factory.nop()
       );
     }
   }

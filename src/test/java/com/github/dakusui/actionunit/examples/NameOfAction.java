@@ -25,7 +25,7 @@ public class NameOfAction implements ActionFactory {
   public Action aMethodToTestSomething() {
     return forEachOf(
         asList(1, 2, 3)).perform(
-        i -> simple("print out incremented value", () -> System.out.println(i.get() + 1))
+        ($, i) -> $.simple("print out incremented value", () -> System.out.println(i.get() + 1))
     );
   }
 
@@ -34,7 +34,7 @@ public class NameOfAction implements ActionFactory {
     return asList(
         simple("print hello", () -> System.out.println("hello")),
         forEachOf(asList(1, 2, 3)).perform(
-            i -> simple("print out incremented value", () -> System.out.println(i.get() + 1))
+            ($, i) -> $.simple("print out incremented value", () -> System.out.println(i.get() + 1))
         ),
         simple("print bye", () -> System.out.println("bye"))
     );

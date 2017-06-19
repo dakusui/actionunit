@@ -1,6 +1,8 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
@@ -10,10 +12,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-
-public interface TestAction extends Action {
+public interface TestAction extends Action, ActionFactory {
   Action given();
 
   Action when();
@@ -118,8 +117,9 @@ public interface TestAction extends Action {
 
     @Override
     public Action given() {
-      return named("Given",
-          simple(
+      return ActionSupport.Internal.named(0, "Given",
+          ActionSupport.Internal.simple(
+              0,
               builder.input.toString(),
               () -> Base.this.input.set(InternalUtils.describable(builder.input.toString(), builder.input.get())))
       );
@@ -127,31 +127,34 @@ public interface TestAction extends Action {
 
     @Override
     public Action when() {
-      return named("When", simple(
-          builder.operation.toString(),
-          () -> output.set(
-              () -> builder.operation.apply(Base.this.input())
-          )
-      ));
+      return ActionSupport.Internal.named(1, "When",
+          ActionSupport.Internal.simple(
+              0,
+              builder.operation.toString(),
+              () -> output.set(
+                  () -> builder.operation.apply(Base.this.input())
+              )
+          ));
     }
 
 
     @Override
     public Action then() {
-      return named("Then", simple(
-          check().toString(),
-          () -> {
-            if (!check().test(output()))
-              throw new ActionAssertionError(String.format(
-                  "%s(x) %s was not satisfied because %s(x)=<%s>; x=<%s>",
-                  operation(),
-                  check(),
-                  operation(),
-                  output(),
-                  input()
-              ));
-          }
-      ));
+      return ActionSupport.Internal.named(2, "Then",
+          ActionSupport.Internal.simple(0,
+              check().toString(),
+              () -> {
+                if (!check().test(output()))
+                  throw new ActionAssertionError(String.format(
+                      "%s(x) %s was not satisfied because %s(x)=<%s>; x=<%s>",
+                      operation(),
+                      check(),
+                      operation(),
+                      output(),
+                      input()
+                  ));
+              }
+          ));
     }
 
     @Override

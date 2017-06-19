@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
@@ -63,8 +64,8 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
       assertThat(
           outForTree,
           allOf(
-              hasItemAt(0, equalTo("[o]Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  [xxo]Passes on third try"))
+              hasItemAt(0, equalTo("[o]1-Retry(1[milliseconds]x2times)")),
+              hasItemAt(1, equalTo("  [xxo]0-Passes on third try"))
           ));
       assertThat(
           outForTree,
@@ -96,8 +97,16 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
       assertThat(
           outForTree,
           allOf(
-              hasItemAt(0, equalTo("[o]Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  [xxo]Passes on third try"))
+              hasItemAt(0,
+                  allOf(
+                      containsString("[o]"),
+                      containsString("Retry(1[milliseconds]x2times)")
+                  )),
+              hasItemAt(1,
+                  allOf(
+                      containsString("[xxo]"),
+                      containsString("Passes on third try")
+                  ))
           ));
       assertThat(
           outForTree,

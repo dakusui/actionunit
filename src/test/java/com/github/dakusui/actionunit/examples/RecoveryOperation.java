@@ -22,12 +22,12 @@ public class RecoveryOperation {
         deployComponent()
     ).recover(
         Exception.class,
-        e -> retry(sequential(
+        ($, e) -> retry(sequential(
             cleanUp(),
             deployComponent()
         )).times(2).withIntervalOf(10, MILLISECONDS)
     ).ensure(
-        cleanUp()
+        ($, e) -> cleanUp()
     );
   }
 

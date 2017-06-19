@@ -20,7 +20,7 @@ public class HelloActionUnit implements ActionFactory {
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        (Supplier<String> i) -> sequential(
+        (ActionFactory $, Supplier<String> i) -> sequential(
             simple(
                 "print {i}",
                 () -> System.out.println("<" + i.get() + ">")

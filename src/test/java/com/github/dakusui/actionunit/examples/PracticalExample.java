@@ -48,7 +48,7 @@ public class PracticalExample implements ActionFactory {
         "alexios", "nikephoros", "manuel", "constantine", "justinian"
     ).concurrently(
     ).perform(
-        hostName -> sequential(
+        ($, hostName) -> sequential(
             retry(
                 simple(
                     "Try to figure out physical ip address",

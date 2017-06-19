@@ -3,15 +3,14 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.actions.Attempt;
 import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.core.ActionSupport.attempt;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public class AttemptExample {
   @Test(expected = IllegalArgumentException.class)
@@ -36,14 +35,14 @@ public class AttemptExample {
         NullPointerException.class,
         new HandlerFactory.Base<Throwable>() {
           @Override
-          protected Action create(Supplier<Throwable> e) {
+          public Action create(ActionFactory $, Supplier<Throwable> e) {
             return simple(
                 "print stacktrace",
                 () -> {
                 });
           }
         }
-    ).ensure(simple(
+    ).ensure(($, $_) -> $.simple(
         "print bye",
         () -> System.out.println("Bye 'attempt'"))
     );

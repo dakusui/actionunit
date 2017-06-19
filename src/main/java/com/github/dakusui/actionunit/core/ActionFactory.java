@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.*;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -12,9 +11,10 @@ import java.util.function.Supplier;
  * actions.
  */
 public interface ActionFactory {
+  IdGeneratorManager ID_GENERATOR_MANAGER = new IdGeneratorManager();
+
   default int generateId() {
-    new AtomicInteger();
-    return 0;
+    return ID_GENERATOR_MANAGER.generateId(this);
   }
 
   /**

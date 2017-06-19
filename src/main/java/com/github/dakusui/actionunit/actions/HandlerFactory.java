@@ -14,11 +14,18 @@ public interface HandlerFactory<T> extends Function<Supplier<T>, Action>, Action
     Objects.requireNonNull(handlerBody);
     return new HandlerFactory<T>() {
       @Override
-      public Action apply(Supplier<T> data) {
+      public Action create(ActionFactory factory, Supplier<T> data) {
         return Leaf.create(this.generateId(), description, () -> handlerBody.accept(data.get()));
       }
     };
   }
+
+  default Action apply(Supplier<T> data) {
+    ID_GENERATOR_MANAGER.reset(this);
+    return create(this, data);
+  }
+
+  Action create(ActionFactory factory, Supplier<T> data);
 
   abstract class Base<T> implements HandlerFactory<T> {
     private final ThreadLocal<AtomicInteger> idGenerator = new ThreadLocal<>();
@@ -34,9 +41,7 @@ public interface HandlerFactory<T> extends Function<Supplier<T>, Action>, Action
     final public Action apply(Supplier<T> data) {
       if (idGenerator.get() != null)
         idGenerator.get().set(0);
-      return create(data);
+      return create(this, data);
     }
-
-    abstract protected Action create(Supplier<T> data);
   }
 }
