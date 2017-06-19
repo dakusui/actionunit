@@ -1,11 +1,12 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
+import com.github.dakusui.actionunit.visitors.reporting.Report;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -19,7 +20,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(Enclosed.class)
-public class ReportingActionPerformerTest implements ActionFactory {
+public class ReportingActionPerformerTest implements Context {
   public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, PrintingActionScanner> {
     @Override
     protected ActionPerformer createRunner() {
@@ -32,7 +33,7 @@ public class ReportingActionPerformerTest implements ActionFactory {
     }
 
     void performAndPrintAction(Action action) {
-      new ReportingActionPerformer.Builder(action).to(getWriter()).build().performAndReport();
+      new ReportingActionPerformer.Builder(action).to(getWriter()).with(Report.Record.Formatter.DEBUG_INSTANCE).build().performAndReport();
     }
   }
 
@@ -195,7 +196,7 @@ public class ReportingActionPerformerTest implements ActionFactory {
     }
   }
 
-  public static class AttemptAction extends Base implements ActionFactory {
+  public static class AttemptAction extends Base implements Context {
     @Test
     public void givenPassingAttemptAction$whenPerformed$thenWorksFine() {
       Action action = attempt(
@@ -204,7 +205,7 @@ public class ReportingActionPerformerTest implements ActionFactory {
           Exception.class,
           ($, e) -> $.nop()
       ).ensure(
-          ($, e) -> $.nop()
+          Context::nop
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
@@ -232,7 +233,7 @@ public class ReportingActionPerformerTest implements ActionFactory {
           NullPointerException.class,
           ($, e) -> $.nop()
       ).ensure(
-          ($, e) -> $.nop()
+          ($) -> $.nop()
       );
       performAndPrintAction(action);
       assertThat(getWriter(), TestUtils.allOf(
@@ -248,7 +249,7 @@ public class ReportingActionPerformerTest implements ActionFactory {
     }
   }
 
-  public static class TestTest extends Base implements ActionFactory {
+  public static class TestTest extends Base implements Context {
     @Test
     public void givenTestAction$whenPerformed$thenWorksFine() {
       Action action =

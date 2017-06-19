@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.FixMethodOrder;
@@ -13,14 +13,14 @@ import java.util.function.Supplier;
 
 @RunWith(ActionUnit.class)
 @FixMethodOrder
-public class HelloActionUnit implements ActionFactory {
+public class HelloActionUnit implements Context {
   @ActionUnit.PerformWith(Test.class)
   public Action helloActionUnit() {
     return forEachOf(
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        (ActionFactory $, Supplier<String> i) -> sequential(
+        (Context $, Supplier<String> i) -> sequential(
             simple(
                 "print {i}",
                 () -> System.out.println("<" + i.get() + ">")

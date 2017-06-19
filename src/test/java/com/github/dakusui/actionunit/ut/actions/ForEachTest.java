@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -16,7 +16,7 @@ import java.util.Objects;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertThat;
 
-public class ForEachTest implements ActionFactory {
+public class ForEachTest implements Context {
   @Test
   public void givenForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = new LinkedList<>();
@@ -100,8 +100,8 @@ public class ForEachTest implements ActionFactory {
     ).sequentially(
     ).perform(
         ($, s) -> $.concurrent(asList(
-            ActionFactory.Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION"),
-            ActionFactory.Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION")
+            Context.Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION"),
+            Context.Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION")
         ))
     );
     // When

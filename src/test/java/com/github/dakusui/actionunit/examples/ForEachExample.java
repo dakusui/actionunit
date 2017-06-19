@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ActionTreeBuilder;
@@ -20,7 +20,7 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEachExample extends TestUtils.TestBase implements ActionFactory {
+public class ForEachExample extends TestUtils.TestBase implements Context {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     return forEachOf(
@@ -42,13 +42,13 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
-        (ActionFactory $, Supplier<String> value) -> $.sequential(
+        (Context $, Supplier<String> value) -> $.sequential(
             $.when(value, "C"::equals)
                 .perform(
-                    ($$, v) -> $$.simple("print to stderr", () -> System.err.println(v.get()))
+                    ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get()))
                 )
                 .otherwise(
-                    ($$, v) -> $$.simple("print to stdout", () -> System.out.println(v.get()))
+                    ($$) -> $$.simple("print to stdout", () -> System.out.println(value.get()))
                 ),
             $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
             $.simple("print the given value(2nd time)", () -> {
@@ -68,7 +68,7 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
         forEachOf("A", "B", "C"
         ).concurrently(
         ).perform(
-            (ActionFactory $, Supplier<String> value) -> $.sequential(
+            (Context $, Supplier<String> value) -> $.sequential(
                 $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
                 $.simple("print the given value(2nd time)", () -> System.out.println(value.get())),
                 $.sleep(2, MICROSECONDS)

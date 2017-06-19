@@ -6,9 +6,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IdGeneratorManager {
-  private Map<ActionFactory, ThreadLocal<AtomicInteger>> idGenerators = new Hashtable<>();
+  private Map<Context, ThreadLocal<AtomicInteger>> idGenerators = new Hashtable<>();
 
-  private void init(ActionFactory key) {
+  private void init(Context key) {
     Objects.requireNonNull(key);
     if (!idGenerators.containsKey(key)) {
       idGenerators.put(key, new ThreadLocal<>());
@@ -18,12 +18,12 @@ public class IdGeneratorManager {
     }
   }
 
-  public int generateId(ActionFactory key) {
+  public int generateId(Context key) {
     init(key);
     return idGenerators.get(key).get().getAndIncrement();
   }
 
-  public void reset(ActionFactory key) {
+  public void reset(Context key) {
     init(key);
     if (idGenerators.get(key).get() != null) {
       idGenerators.get(key).get().set(0);

@@ -34,7 +34,7 @@ public enum ActionSupport {
    * @see Leaf
    */
   public static Action simple(final String description, final Runnable runnable) {
-    return ActionFactory.Internal.simple(generateId(), description, runnable);
+    return Context.Internal.simple(generateId(), description, runnable);
   }
 
   /**
@@ -45,7 +45,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action named(String name, Action action) {
-    return ActionFactory.Internal.named(generateId(), name, action);
+    return Context.Internal.named(generateId(), name, action);
   }
 
   /**
@@ -56,7 +56,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Action... actions) {
-    return ActionFactory.Internal.concurrent(generateId(), actions);
+    return Context.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -67,7 +67,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Iterable<? extends Action> actions) {
-    return ActionFactory.Internal.concurrent(generateId(), actions);
+    return Context.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -78,7 +78,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Action... actions) {
-    return ActionFactory.Internal.sequential(generateId(), actions);
+    return Context.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -89,7 +89,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Iterable<? extends Action> actions) {
-    return ActionFactory.Internal.sequential(generateId(), actions);
+    return Context.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -98,7 +98,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop() {
-    return ActionFactory.Internal.nop(generateId());
+    return Context.Internal.nop(generateId());
   }
 
   /**
@@ -108,7 +108,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop(final String description) {
-    return ActionFactory.Internal.nop(generateId(), description);
+    return Context.Internal.nop(generateId(), description);
   }
 
   /**
@@ -119,7 +119,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action sleep(final long duration, final TimeUnit timeUnit) {
-    return ActionFactory.Internal.sleep(generateId(), duration, timeUnit);
+    return Context.Internal.sleep(generateId(), duration, timeUnit);
   }
 
   /**
@@ -133,7 +133,7 @@ public enum ActionSupport {
    * @see ForEach.Builder
    */
   public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
-    return ActionFactory.Internal.forEachOf(generateId(), elements);
+    return Context.Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -148,7 +148,7 @@ public enum ActionSupport {
    */
   @SafeVarargs
   public static <E> ForEach.Builder<E> forEachOf(E... elements) {
-    return ActionFactory.Internal.forEachOf(generateId(), elements);
+    return Context.Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -165,7 +165,7 @@ public enum ActionSupport {
    * @see While.Builder
    */
   public static <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
-    return ActionFactory.Internal.whilst(generateId(), value, condition);
+    return Context.Internal.whilst(generateId(), value, condition);
   }
 
   /**
@@ -180,7 +180,7 @@ public enum ActionSupport {
    * @see When.Builder
    */
   public static <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
-    return ActionFactory.Internal.when(generateId(), value, condition);
+    return Context.Internal.when(generateId(), value, condition);
   }
 
   /**
@@ -193,7 +193,7 @@ public enum ActionSupport {
    * @see TimeOut.Builder
    */
   public static TimeOut.Builder timeout(Action action) {
-    return ActionFactory.Internal.timeout(generateId(), action);
+    return Context.Internal.timeout(generateId(), action);
   }
 
   /**
@@ -207,7 +207,7 @@ public enum ActionSupport {
    * @see Attempt.Builder
    */
   public static <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
-    return ActionFactory.Internal.attempt(generateId(), action);
+    return Context.Internal.attempt(generateId(), action);
   }
 
   /**
@@ -220,7 +220,7 @@ public enum ActionSupport {
    * @see Retry.Builder
    */
   public static Retry.Builder retry(Action action) {
-    return ActionFactory.Internal.retry(generateId(), action);
+    return Context.Internal.retry(generateId(), action);
   }
 
 
@@ -237,6 +237,6 @@ public enum ActionSupport {
    * @see TestAction.Builder
    */
   public static <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
-    return ActionFactory.Internal.given(generateId(), description, given);
+    return Context.Internal.given(generateId(), description, given);
   }
 }

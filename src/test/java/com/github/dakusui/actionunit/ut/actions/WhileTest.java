@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
@@ -15,18 +15,19 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class WhileTest implements ActionFactory {
+public class WhileTest implements Context {
   @Test
   public void test() {
     final TestUtils.Out out = new TestUtils.Out();
+    AtomicInteger v = new AtomicInteger(0);
     Action action = whilst(
-        toSupplier(new AtomicInteger(0)),
+        toSupplier(v),
         i -> i.get() < 4
     ).perform(
-        ($, i) -> $.simple("Say 'Hello'",
+        ($) -> $.simple("Say 'Hello'",
             () -> {
               out.writeLine("Hello");
-              i.get().getAndIncrement();
+              v.getAndIncrement();
             }
         )
     );
@@ -44,8 +45,8 @@ public class WhileTest implements ActionFactory {
 
     assertThat(result,
         allOf(
-            hasItemAt(0, equalTo("[o]0-While")),
-            hasItemAt(1, equalTo("  [o...]0-Say 'Hello'"))
+            hasItemAt(0, equalTo("[o]While")),
+            hasItemAt(1, equalTo("  [o...]Say 'Hello'"))
         ));
     assertEquals(2, result.size());
   }

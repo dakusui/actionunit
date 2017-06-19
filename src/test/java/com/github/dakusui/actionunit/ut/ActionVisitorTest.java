@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Tests for ActionVisitor.
  */
-public class ActionVisitorTest implements ActionFactory {
+public class ActionVisitorTest implements Context {
   final   TestUtils.Out  out     = new TestUtils.Out();
   private Action.Visitor visitor = new Action.Visitor.Base() {
     @Override
@@ -170,7 +170,7 @@ public class ActionVisitorTest implements ActionFactory {
         () -> "Hello",
         v -> true
     ).perform(
-        ($, s) -> sequential(
+        $ -> sequential(
             createSimpleAction(),
             createSimpleAction()
         )
@@ -195,9 +195,9 @@ public class ActionVisitorTest implements ActionFactory {
         () -> "Hello",
         "Hello"::equals
     ).perform(
-        ($, v) -> createSimpleAction()
+        $ -> createSimpleAction()
     ).otherwise(
-        ($, v) -> createSimpleAction()
+        $ -> createSimpleAction()
     );
     // when accept
     action.accept(visitor);

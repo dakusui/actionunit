@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerforme
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
-public class VariationTest implements ActionFactory {
+public class VariationTest implements Context {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();

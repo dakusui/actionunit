@@ -2,9 +2,10 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.visitors.reporting.Report;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class RetryTest extends TestUtils.TestBase implements ActionFactory {
+public class RetryTest extends TestUtils.TestBase implements Context {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
     new Retry(0, ActionException.class, nop(), -1 /* this is not valid */, 1);
@@ -58,7 +59,13 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      new ReportingActionPerformer.Builder(action).to(outForTree).build().performAndReport();
+      new ReportingActionPerformer.Builder(
+          action
+      ).to(
+          outForTree
+      ).with(
+          Report.Record.Formatter.DEBUG_INSTANCE
+      ).build().performAndReport();
     } finally {
       assertThat(
           outForTree,

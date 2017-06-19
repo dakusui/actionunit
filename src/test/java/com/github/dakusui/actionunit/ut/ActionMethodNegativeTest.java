@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.runner.JUnitCore.runClasses;
 
-public class ActionMethodNegativeTest implements ActionFactory {
+public class ActionMethodNegativeTest implements Context {
   public abstract static class Base {
     @Test
     public void runAction(@SuppressWarnings("UnusedParameters") Action action) {
@@ -18,7 +18,7 @@ public class ActionMethodNegativeTest implements ActionFactory {
   }
 
   @RunWith(ActionUnit.class)
-  public static class NonPublic extends Base implements ActionFactory {
+  public static class NonPublic extends Base implements Context {
     @ActionUnit.PerformWith
     protected Action nonPublic() {
       return nop();
@@ -37,7 +37,7 @@ public class ActionMethodNegativeTest implements ActionFactory {
 
 
   @RunWith(ActionUnit.class)
-  public static class NonActionReturning extends Base implements ActionFactory {
+  public static class NonActionReturning extends Base implements Context {
     @ActionUnit.PerformWith
     public Object nonActionReturning() {
       return nop();
@@ -56,7 +56,7 @@ public class ActionMethodNegativeTest implements ActionFactory {
 
 
   @RunWith(ActionUnit.class)
-  public static class WithParameter extends Base implements ActionFactory {
+  public static class WithParameter extends Base implements Context {
     @ActionUnit.PerformWith
     public Action withParameter(Object arg) {
       return nop();

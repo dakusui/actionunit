@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface TestAction extends Action, ActionFactory {
+public interface TestAction extends Action, Context {
   Action given();
 
   Action when();
@@ -116,8 +116,8 @@ public interface TestAction extends Action, ActionFactory {
 
     @Override
     public Action given() {
-      return ActionFactory.Internal.named(0, "Given",
-          ActionFactory.Internal.simple(
+      return Context.Internal.named(0, "Given",
+          Context.Internal.simple(
               0,
               builder.input.toString(),
               () -> Base.this.input.set(InternalUtils.describable(builder.input.toString(), builder.input.get())))
@@ -126,8 +126,8 @@ public interface TestAction extends Action, ActionFactory {
 
     @Override
     public Action when() {
-      return ActionFactory.Internal.named(1, "When",
-          ActionFactory.Internal.simple(
+      return Context.Internal.named(1, "When",
+          Context.Internal.simple(
               0,
               builder.operation.toString(),
               () -> output.set(
@@ -139,8 +139,8 @@ public interface TestAction extends Action, ActionFactory {
 
     @Override
     public Action then() {
-      return ActionFactory.Internal.named(2, "Then",
-          ActionFactory.Internal.simple(0,
+      return Context.Internal.named(2, "Then",
+          Context.Internal.simple(0,
               check().toString(),
               () -> {
                 if (!check().test(output()))

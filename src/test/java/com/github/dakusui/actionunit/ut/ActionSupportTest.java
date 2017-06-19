@@ -351,7 +351,7 @@ public class ActionSupportTest {
     Action action = whilst(
         () -> "Hello", t -> false
     ).perform(
-        ($, i) -> nop()
+        ($) -> nop()
     );
     action.accept(createActionPerformer());
   }

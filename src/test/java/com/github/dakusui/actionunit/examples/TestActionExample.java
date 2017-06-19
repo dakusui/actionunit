@@ -1,14 +1,14 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 
-public class TestActionExample implements ActionFactory {
+public class TestActionExample implements Context {
   @Test(expected = ActionAssertionError.class)
   public void givenIncorrectTest$whenRunTest$thenExceptionThrown() {
     Action testAction = this.<String, Integer>given("'Hello world'", () -> {

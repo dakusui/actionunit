@@ -1,13 +1,13 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
 
-public class WhenTest implements ActionFactory {
+public class WhenTest implements Context {
   @Test
   public void test() {
     Action action = forEachOf(
@@ -17,9 +17,9 @@ public class WhenTest implements ActionFactory {
             v,
             (Integer input) -> input > 2
         ).perform(
-            ($$, data) -> $$.simple(
+            ($$) -> $$.simple(
                 "hello",
-                () -> System.out.println("hello" + data.get())
+                () -> System.out.println("hello" + v.get())
             )
         ).$()
     );

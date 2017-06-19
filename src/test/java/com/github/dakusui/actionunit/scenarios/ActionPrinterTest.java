@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.scenarios;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -31,8 +31,8 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
-public class ActionPrinterTest implements ActionFactory {
-  private static class ActionComposer extends TestUtils.TestBase implements ActionFactory {
+public class ActionPrinterTest implements Context {
+  private static class ActionComposer extends TestUtils.TestBase implements Context {
     Action composeAction() {
       return named("Concurrent (top level)",
           concurrent(
@@ -105,7 +105,7 @@ public class ActionPrinterTest implements ActionFactory {
     }
   }
 
-  public static class StdOutErrTest extends ActionComposer implements ActionFactory {
+  public static class StdOutErrTest extends ActionComposer implements Context {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
       composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stdout());
@@ -117,7 +117,7 @@ public class ActionPrinterTest implements ActionFactory {
     }
   }
 
-  public static class WithResultTest extends TestUtils.TestBase implements ActionFactory {
+  public static class WithResultTest extends TestUtils.TestBase implements Context {
     private Action composeAction(final List<String> out) {
       //noinspection unchecked
       return named("Concurrent (top level)", concurrent(
@@ -203,7 +203,7 @@ public class ActionPrinterTest implements ActionFactory {
     }
   }
 
-  public static class WithResultVariationTest extends TestUtils.TestBase implements ActionFactory {
+  public static class WithResultVariationTest extends TestUtils.TestBase implements Context {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
@@ -220,12 +220,14 @@ public class ActionPrinterTest implements ActionFactory {
 
       final TestUtils.Out out2 = new TestUtils.Out();
       runAndReport(action, out2);
-      assertThat(out2, allOf(
-          hasItemAt(0, TestUtils.allOf(containsString("[o]"), containsString("ForEach"))),
-          hasItemAt(1, TestUtils.allOf(containsString("[oo]"), containsString("Sequential"))),
-          hasItemAt(2, TestUtils.allOf(containsString("[oo]"), containsString("+0"))),
-          hasItemAt(3, TestUtils.allOf(containsString("[oo]"), containsString("+1")))
-      ));
+      assertThat(
+          out2,
+          allOf(
+              hasItemAt(0, TestUtils.allOf(containsString("[o]"), containsString("ForEach"))),
+              hasItemAt(1, TestUtils.allOf(containsString("[oo]"), containsString("Sequential"))),
+              hasItemAt(2, TestUtils.allOf(containsString("[oo]"), containsString("+0"))),
+              hasItemAt(3, TestUtils.allOf(containsString("[oo]"), containsString("+1")))
+          ));
       Assert.assertThat(
           out2.size(),
           equalTo(4)

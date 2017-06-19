@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
@@ -16,8 +16,8 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 @RunWith(Enclosed.class)
-public class BuildersTest implements ActionFactory {
-  public static class ForEachTest implements ActionFactory {
+public class BuildersTest implements Context {
+  public static class ForEachTest implements Context {
     @Test
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
@@ -68,7 +68,7 @@ public class BuildersTest implements ActionFactory {
     }
   }
 
-  public static class AttemptTest implements ActionFactory {
+  public static class AttemptTest implements Context {
     @Test(expected = IllegalStateException.class)
     public void given$when$then() {
       Action action = this.attempt(
@@ -87,7 +87,7 @@ public class BuildersTest implements ActionFactory {
               $.simple("print recovery", () -> System.out.println("Recovered."))
           )
       ).ensure(
-          ($, e) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
+          ($) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
       );
       try {
         action.accept(TestUtils.createActionPerformer());

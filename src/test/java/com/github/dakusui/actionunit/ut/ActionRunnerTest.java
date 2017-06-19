@@ -1,8 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
@@ -10,10 +8,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.function.Supplier;
-
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -66,25 +61,28 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return forEachOf(asList("A", "B")).perform(
-          new HandlerFactory.Base<String>() {
-            @Override
-            public Action create(ActionFactory $, Supplier<String> i) {
-              return sequential(
-                  simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get())),
-                  forEachOf("a", "b").perform(
-                      new HandlerFactory.Base<String>() {
-                        @Override
-                        public Action create(ActionFactory $, Supplier<String> j) {
-                          return simple("Prefix with '\\_inner-'", () -> getWriter().writeLine("\\_inner-" + j.get()));
-                        }
-                      }
+      return forEachOf(
+          "A", "B"
+      ).perform(
+          ($, i) ->
+              $.sequential(
+                  $.simple(
+                      "Prefix with 'outer-'",
+                      () -> getWriter().writeLine("outer-" + i.get())
                   ),
-                  simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get()))
-              );
-
-            }
-          }
+                  $.forEachOf(
+                      "a", "b"
+                  ).perform(
+                      ($1, j) -> $1.simple(
+                          "Prefix with '\\_inner-'",
+                          () -> getWriter().writeLine("\\_inner-" + j.get())
+                      )
+                  ),
+                  $.simple(
+                      "Prefix with 'outer-'",
+                      () -> getWriter().writeLine("outer-" + i.get())
+                  )
+              )
       );
     }
   }

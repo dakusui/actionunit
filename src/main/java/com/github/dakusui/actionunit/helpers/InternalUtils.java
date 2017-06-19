@@ -156,14 +156,6 @@ public class InternalUtils {
     return obj.toString();
   }
 
-  public static String spaces(int numSpaces) {
-    StringBuilder ret = new StringBuilder();
-    for (int i = 0; i < numSpaces; i++) {
-      ret.append(" ");
-    }
-    return ret.toString();
-  }
-
   public static String summary(String s) {
     return Objects.requireNonNull(s).length() > 40
         ? s.substring(0, 40) + "..."

@@ -2,26 +2,27 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface When<T> extends Action, ActionFactory {
+public interface When<T> extends Action, Context {
   Supplier<T> value();
 
   Predicate<T> check();
 
-  Action perform(Supplier<T> value);
+  Action perform();
 
-  Action otherwise(Supplier<T> value);
+  Action otherwise();
 
   class Builder<T> {
-    private final Supplier<T>       value;
-    private final Predicate<T>      condition;
-    private final int               id;
-    private       HandlerFactory<T> handlerFactoryForPerform;
-    private       HandlerFactory<T> handlerFactoryForOtherwise;
+    private final Supplier<T>   value;
+    private final Predicate<T>  condition;
+    private final int           id;
+    private       ActionFactory actionFactoryForPerform;
+    private       ActionFactory actionFactoryForOtherwise;
 
     public Builder(int id, Supplier<T> value, Predicate<T> condition) {
       this.id = id;
@@ -29,13 +30,13 @@ public interface When<T> extends Action, ActionFactory {
       this.condition = Objects.requireNonNull(condition);
     }
 
-    public Builder<T> perform(HandlerFactory<T> factory) {
-      this.handlerFactoryForPerform = Objects.requireNonNull(factory);
+    public Builder<T> perform(ActionFactory factory) {
+      this.actionFactoryForPerform = Objects.requireNonNull(factory);
       return this;
     }
 
-    public When<T> otherwise(HandlerFactory<T> factory) {
-      this.handlerFactoryForOtherwise = Objects.requireNonNull(factory);
+    public When<T> otherwise(ActionFactory factory) {
+      this.actionFactoryForOtherwise = Objects.requireNonNull(factory);
       return $();
     }
 
@@ -44,32 +45,32 @@ public interface When<T> extends Action, ActionFactory {
           id,
           value,
           condition,
-          handlerFactoryForPerform,
-          handlerFactoryForOtherwise != null
-              ? handlerFactoryForOtherwise
-              : (HandlerFactory<T>) (factory, data) -> factory.nop()
+          actionFactoryForPerform,
+          actionFactoryForOtherwise != null
+              ? actionFactoryForOtherwise
+              : (ActionFactory) Context::nop
       );
     }
   }
 
   class Impl<T> extends ActionBase implements When<T> {
-    final private Supplier<T>       value;
-    final private Predicate<T>      condition;
-    final private HandlerFactory<T> handlerFactoryForPerform;
-    final private HandlerFactory<T> handlerFactoryForOtherwise;
+    final private Supplier<T>   value;
+    final private Predicate<T>  condition;
+    final private ActionFactory actionFactoryForPerform;
+    final private ActionFactory actionFactoryForOtherwise;
 
     public Impl(
         int id,
         Supplier<T> value,
         Predicate<T> condition,
-        HandlerFactory<T> handlerFactoryForPerform,
-        HandlerFactory<T> handlerFactoryForOtherwise
+        ActionFactory actionFactoryForPerform,
+        ActionFactory actionFactoryForOtherwise
     ) {
       super(id);
       this.value = Objects.requireNonNull(value);
       this.condition = Objects.requireNonNull(condition);
-      this.handlerFactoryForPerform = Objects.requireNonNull(handlerFactoryForPerform);
-      this.handlerFactoryForOtherwise = Objects.requireNonNull(handlerFactoryForOtherwise);
+      this.actionFactoryForPerform = Objects.requireNonNull(actionFactoryForPerform);
+      this.actionFactoryForOtherwise = Objects.requireNonNull(actionFactoryForOtherwise);
     }
 
     @Override
@@ -88,13 +89,13 @@ public interface When<T> extends Action, ActionFactory {
     }
 
     @Override
-    public Action perform(Supplier<T> value) {
-      return ActionFactory.Internal.named(0, "perform", handlerFactoryForPerform.apply(Objects.requireNonNull(value)));
+    public Action perform() {
+      return Context.Internal.named(0, "perform", actionFactoryForPerform.get());
     }
 
     @Override
-    public Action otherwise(Supplier<T> value) {
-      return ActionFactory.Internal.named(1, "otherwise", handlerFactoryForOtherwise.apply(Objects.requireNonNull(value)));
+    public Action otherwise() {
+      return Context.Internal.named(1, "otherwise", actionFactoryForOtherwise.get());
     }
   }
 }

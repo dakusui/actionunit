@@ -2,17 +2,18 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface While<T> extends Action, ActionFactory {
+public interface While<T> extends Action, Context {
   Supplier<T> value();
 
   Predicate<T> check();
 
-  Action createHandler(Supplier<T> data);
+  Action createAction();
 
   class Builder<T> {
     private final Predicate<T> check;
@@ -25,21 +26,21 @@ public interface While<T> extends Action, ActionFactory {
       this.check = Objects.requireNonNull(check);
     }
 
-    public While<T> perform(HandlerFactory<T> handlerFactory) {
-      return new Impl<T>(id, value, check, Objects.requireNonNull(handlerFactory));
+    public While<T> perform(ActionFactory actionFactory) {
+      return new Impl<>(id, value, check, Objects.requireNonNull(actionFactory));
     }
   }
 
   class Impl<T> extends ActionBase implements While<T> {
-    private final Supplier<T>       value;
-    private final Predicate<T>      check;
-    private final HandlerFactory<T> handlerFactory;
+    private final Supplier<T>   value;
+    private final Predicate<T>  check;
+    private final ActionFactory actionFactory;
 
-    Impl(int id, Supplier<T> value, Predicate<T> check, HandlerFactory<T> handlerFactory) {
+    Impl(int id, Supplier<T> value, Predicate<T> check, ActionFactory actionFactory) {
       super(id);
       this.value = value;
       this.check = check;
-      this.handlerFactory = handlerFactory;
+      this.actionFactory = actionFactory;
     }
 
     @Override
@@ -53,8 +54,8 @@ public interface While<T> extends Action, ActionFactory {
     }
 
     @Override
-    public Action createHandler(Supplier<T> data) {
-      return handlerFactory.apply(data);
+    public Action createAction() {
+      return actionFactory.get();
     }
 
     @Override

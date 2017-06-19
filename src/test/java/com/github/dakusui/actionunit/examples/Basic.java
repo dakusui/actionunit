@@ -2,9 +2,8 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.actions.HandlerFactory;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -14,14 +13,13 @@ import org.junit.runner.RunWith;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class Basic implements ActionFactory {
+public class Basic implements Context {
   @Retention(RetentionPolicy.RUNTIME)
   public @interface DryRun {
   }
@@ -80,17 +78,17 @@ public class Basic implements ActionFactory {
             simple("A runnable (1)", runnable)
         ).recover(
             ActionException.class,
-            new HandlerFactory.Base<Throwable>() {
-              @Override
-              public Action create(ActionFactory $, Supplier<Throwable> data) {
-                return retry(
-                    simple(
+            ($, data) ->
+                $.retry(
+                    $.simple(
                         "A runnable (2)", runnable)
-                ).times(2).withIntervalOf(20, TimeUnit.MILLISECONDS);
-              }
-            }
+                ).times(
+                    2
+                ).withIntervalOf(
+                    20, TimeUnit.MILLISECONDS
+                )
         ).ensure(
-            ($, e) -> $.nop()
+            Context::nop
         )
     ).in(10, TimeUnit.SECONDS);
   }
