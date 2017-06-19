@@ -99,9 +99,9 @@ public class ForEachTest implements ActionFactory {
         "Hello", "world", "!"
     ).sequentially(
     ).perform(
-        ($, s) -> concurrent(asList(
-            nop("YOU CANNOT CREATE ACTIONS OF THE SAME NAME UNDER ONE forEachOf ACTION"),
-            nop("YOU CANNOT CREATE ACTIONS OF THE SAME NAME UNDER ONE forEachOf ACTION")
+        ($, s) -> $.concurrent(asList(
+            ActionFactory.Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION"),
+            ActionFactory.Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION")
         ))
     );
     // When
@@ -145,7 +145,7 @@ public class ForEachTest implements ActionFactory {
       assertThat(
           e.getMessage(),
           TestUtils.allOf(
-              CoreMatchers.containsString("Node matching 'confusing' was not found under"),
+              CoreMatchers.containsString("Node matching '1-confusing' was not found under"),
               CoreMatchers.containsString("Node(ForEach (SEQUENTIALLY)")
           )
       );

@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
@@ -117,8 +116,8 @@ public interface TestAction extends Action, ActionFactory {
 
     @Override
     public Action given() {
-      return ActionSupport.Internal.named(0, "Given",
-          ActionSupport.Internal.simple(
+      return ActionFactory.Internal.named(0, "Given",
+          ActionFactory.Internal.simple(
               0,
               builder.input.toString(),
               () -> Base.this.input.set(InternalUtils.describable(builder.input.toString(), builder.input.get())))
@@ -127,8 +126,8 @@ public interface TestAction extends Action, ActionFactory {
 
     @Override
     public Action when() {
-      return ActionSupport.Internal.named(1, "When",
-          ActionSupport.Internal.simple(
+      return ActionFactory.Internal.named(1, "When",
+          ActionFactory.Internal.simple(
               0,
               builder.operation.toString(),
               () -> output.set(
@@ -140,8 +139,8 @@ public interface TestAction extends Action, ActionFactory {
 
     @Override
     public Action then() {
-      return ActionSupport.Internal.named(2, "Then",
-          ActionSupport.Internal.simple(0,
+      return ActionFactory.Internal.named(2, "Then",
+          ActionFactory.Internal.simple(0,
               check().toString(),
               () -> {
                 if (!check().test(output()))

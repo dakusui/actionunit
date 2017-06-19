@@ -1,10 +1,18 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.helpers.InternalUtils.nonameIfNull;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * An interface that defines methods to create various actions and builders of
@@ -26,7 +34,7 @@ public interface ActionFactory {
    * @see Leaf
    */
   default Action simple(final String description, final Runnable runnable) {
-    return ActionSupport.Internal.simple(generateId(), description, runnable);
+    return Internal.simple(generateId(), description, runnable);
   }
 
   /**
@@ -37,7 +45,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action named(String name, Action action) {
-    return ActionSupport.Internal.named(generateId(), name, action);
+    return Internal.named(generateId(), name, action);
   }
 
   /**
@@ -48,7 +56,7 @@ public interface ActionFactory {
    * @see Concurrent
    */
   default Action concurrent(Action... actions) {
-    return ActionSupport.Internal.concurrent(generateId(), actions);
+    return Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -59,7 +67,7 @@ public interface ActionFactory {
    * @see Concurrent
    */
   default Action concurrent(Iterable<? extends Action> actions) {
-    return ActionSupport.Internal.concurrent(generateId(), actions);
+    return Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -70,7 +78,7 @@ public interface ActionFactory {
    * @see Sequential
    */
   default Action sequential(Action... actions) {
-    return ActionSupport.Internal.sequential(generateId(), actions);
+    return Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -81,7 +89,7 @@ public interface ActionFactory {
    * @see Sequential
    */
   default Action sequential(Iterable<? extends Action> actions) {
-    return ActionSupport.Internal.sequential(generateId(), actions);
+    return Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -90,7 +98,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action nop() {
-    return ActionSupport.Internal.nop(generateId());
+    return Internal.nop(generateId());
   }
 
   /**
@@ -100,7 +108,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action nop(final String description) {
-    return ActionSupport.Internal.nop(generateId(), description);
+    return Internal.nop(generateId(), description);
   }
 
   /**
@@ -111,7 +119,7 @@ public interface ActionFactory {
    * @return Created action
    */
   default Action sleep(final long duration, final TimeUnit timeUnit) {
-    return ActionSupport.Internal.sleep(generateId(), duration, timeUnit);
+    return Internal.sleep(generateId(), duration, timeUnit);
   }
 
   /**
@@ -125,7 +133,7 @@ public interface ActionFactory {
    * @see ForEach.Builder
    */
   default <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
-    return ActionSupport.Internal.forEachOf(generateId(), elements);
+    return Internal.forEachOf(generateId(), elements);
   }
 
 
@@ -141,7 +149,7 @@ public interface ActionFactory {
    */
   @SuppressWarnings("unchecked")
   default <E> ForEach.Builder<E> forEachOf(E... elements) {
-    return ActionSupport.Internal.forEachOf(generateId(), elements);
+    return Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -158,7 +166,7 @@ public interface ActionFactory {
    * @see While.Builder
    */
   default <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
-    return ActionSupport.Internal.whilst(generateId(), value, condition);
+    return Internal.whilst(generateId(), value, condition);
   }
 
   /**
@@ -173,7 +181,7 @@ public interface ActionFactory {
    * @see When.Builder
    */
   default <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
-    return ActionSupport.Internal.when(generateId(), value, condition);
+    return Internal.when(generateId(), value, condition);
   }
 
   /**
@@ -186,7 +194,7 @@ public interface ActionFactory {
    * @see TimeOut.Builder
    */
   default TimeOut.Builder timeout(Action action) {
-    return ActionSupport.Internal.timeout(generateId(), action);
+    return Internal.timeout(generateId(), action);
   }
 
   /**
@@ -200,7 +208,7 @@ public interface ActionFactory {
    * @see Attempt.Builder
    */
   default <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
-    return ActionSupport.Internal.attempt(generateId(), action);
+    return Internal.attempt(generateId(), action);
   }
 
   /**
@@ -213,7 +221,7 @@ public interface ActionFactory {
    * @see Retry.Builder
    */
   default Retry.Builder retry(Action action) {
-    return ActionSupport.Internal.retry(generateId(), action);
+    return Internal.retry(generateId(), action);
   }
 
   /**
@@ -229,6 +237,98 @@ public interface ActionFactory {
    * @see TestAction.Builder
    */
   default <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
-    return ActionSupport.Internal.given(generateId(), description, given);
+    return Internal.given(generateId(), description, given);
+  }
+
+  class Internal {
+    public static Action simple(int id, final String description, final Runnable runnable) {
+      return Leaf.create(id, description, runnable);
+    }
+
+    public static Action named(int id, String name, Action action) {
+      return Named.create(id, name, action);
+    }
+
+    public static Action concurrent(int id, Action... actions) {
+      return concurrent(id, asList(actions));
+    }
+
+    public static Action concurrent(int id, Iterable<? extends Action> actions) {
+      return Concurrent.Factory.INSTANCE.create(id, actions);
+    }
+
+    public static Action sequential(int id, Action... actions) {
+      return sequential(id, asList(actions));
+    }
+
+    public static Action sequential(int id, Iterable<? extends Action> actions) {
+      return Sequential.Factory.INSTANCE.create(id, actions);
+    }
+
+    public static Action nop(int id) {
+      return nop(id, "(nop)");
+    }
+
+    public static Action nop(int id, final String description) {
+      return new Leaf(id) {
+        @Override
+        public void perform() {
+        }
+
+        @Override
+        public String toString() {
+          return nonameIfNull(description);
+        }
+      };
+    }
+
+    public static Action sleep(int id, final long duration, final TimeUnit timeUnit) {
+      checkArgument(duration >= 0, "duration must be non-negative but %s was given", duration);
+      checkNotNull(timeUnit);
+      return new Leaf(id) {
+        @Override
+        public void perform() {
+          InternalUtils.sleep(duration, timeUnit);
+        }
+
+        @Override
+        public String toString() {
+          return format("sleep for %s", InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
+        }
+      };
+    }
+
+    public static <E> ForEach.Builder<E> forEachOf(int id, Iterable<? extends E> elements) {
+      return ForEach.builder(id, elements);
+    }
+
+    @SafeVarargs
+    public static <E> ForEach.Builder<E> forEachOf(int id, E... elements) {
+      return ForEach.builder(id, asList(elements));
+    }
+
+    public static <T> While.Builder<T> whilst(int id, Supplier<T> value, Predicate<T> condition) {
+      return new While.Builder<>(id, value, condition);
+    }
+
+    public static <T> When.Builder<T> when(int id, Supplier<T> value, Predicate<T> condition) {
+      return new When.Builder<>(id, value, condition);
+    }
+
+    public static TimeOut.Builder timeout(int id, Action action) {
+      return new TimeOut.Builder(id, action);
+    }
+
+    public static <T extends Throwable> Attempt.Builder<T> attempt(int id, Action action) {
+      return Attempt.builder(id, action);
+    }
+
+    public static Retry.Builder retry(int id, Action action) {
+      return Retry.builder(id, action);
+    }
+
+    public static <I, O> TestAction.Builder<I, O> given(int id, String description, Supplier<I> given) {
+      return new TestAction.Builder<I, O>(id).given(description, given);
+    }
   }
 }

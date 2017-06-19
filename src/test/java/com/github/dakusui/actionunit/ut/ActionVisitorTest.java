@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
@@ -53,7 +52,7 @@ public class ActionVisitorTest implements ActionFactory {
   @Test
   public void givenNamesAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = ActionSupport.named("named", createSimpleAction());
+    Action action = named("named", createSimpleAction());
     // when accept
     action.accept(visitor);
     // then visited

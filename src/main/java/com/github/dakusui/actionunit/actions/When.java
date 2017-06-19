@@ -89,12 +89,12 @@ public interface When<T> extends Action, ActionFactory {
 
     @Override
     public Action perform(Supplier<T> value) {
-      return named("perform", handlerFactoryForPerform.apply(Objects.requireNonNull(value)));
+      return ActionFactory.Internal.named(0, "perform", handlerFactoryForPerform.apply(Objects.requireNonNull(value)));
     }
 
     @Override
     public Action otherwise(Supplier<T> value) {
-      return named("otherwise", handlerFactoryForOtherwise.apply(Objects.requireNonNull(value)));
+      return ActionFactory.Internal.named(1, "otherwise", handlerFactoryForOtherwise.apply(Objects.requireNonNull(value)));
     }
   }
 }

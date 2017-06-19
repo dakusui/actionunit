@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
@@ -70,7 +69,7 @@ public interface Attempt<E extends Throwable> extends Action, ActionFactory {
 
     @Override
     public Action attempt() {
-      return ActionSupport.Internal.named(0, "Target", this.attempt);
+      return ActionFactory.Internal.named(0, "Target", this.attempt);
     }
 
     @Override
@@ -80,12 +79,12 @@ public interface Attempt<E extends Throwable> extends Action, ActionFactory {
 
     @Override
     public Action recover(Supplier<E> exception) {
-      return ActionSupport.Internal.named(1, String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
+      return ActionFactory.Internal.named(1, String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
     }
 
     @Override
     public Action ensure() {
-      return ActionSupport.Internal.named(2, "Ensure", this.ensureHandlerFactory.apply(() -> {
+      return ActionFactory.Internal.named(2, "Ensure", this.ensureHandlerFactory.apply(() -> {
         throw new RuntimeException("This method mustn't be called.");
       }));
     }

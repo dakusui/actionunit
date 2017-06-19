@@ -2,9 +2,8 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.*;
+import com.github.dakusui.actionunit.helpers.InternalUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -17,7 +16,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class TimeoutTest implements ActionFactory {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeDuration$whenCreated$thenExceptionThrown() {
-    ActionSupport.timeout(nop()).in(-2, SECONDS);
+    timeout(nop()).in(-2, SECONDS);
   }
 
   @Test(expected = InterruptedException.class)

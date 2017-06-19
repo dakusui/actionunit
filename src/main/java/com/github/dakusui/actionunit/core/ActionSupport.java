@@ -1,19 +1,11 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.nonameIfNull;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * This class contains static utility methods that return objects of type {@code Action}.
@@ -24,101 +16,10 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * @see Action
  * @see Action.Visitor
  */
+@Deprecated
 public enum ActionSupport {
   ;
   private static final AtomicInteger idGenerator = new AtomicInteger(0);
-
-  public static class Internal {
-    public static Action simple(int id, final String description, final Runnable runnable) {
-      return Leaf.create(id, description, runnable);
-    }
-
-    public static Action named(int id, String name, Action action) {
-      return Named.create(id, name, action);
-    }
-
-    public static Action concurrent(int id, Action... actions) {
-      return concurrent(id, asList(actions));
-    }
-
-    public static Action concurrent(int id, Iterable<? extends Action> actions) {
-      return Concurrent.Factory.INSTANCE.create(id, actions);
-    }
-
-    public static Action sequential(int id, Action... actions) {
-      return sequential(id, asList(actions));
-    }
-
-    public static Action sequential(int id, Iterable<? extends Action> actions) {
-      return Sequential.Factory.INSTANCE.create(id, actions);
-    }
-
-    public static Action nop(int id) {
-      return nop(id, "(nop)");
-    }
-
-    public static Action nop(int id, final String description) {
-      return new Leaf(id) {
-        @Override
-        public void perform() {
-        }
-
-        @Override
-        public String toString() {
-          return nonameIfNull(description);
-        }
-      };
-    }
-
-    public static Action sleep(int id, final long duration, final TimeUnit timeUnit) {
-      checkArgument(duration >= 0, "duration must be non-negative but %s was given", duration);
-      checkNotNull(timeUnit);
-      return new Leaf(id) {
-        @Override
-        public void perform() {
-          InternalUtils.sleep(duration, timeUnit);
-        }
-
-        @Override
-        public String toString() {
-          return format("sleep for %s", InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
-        }
-      };
-    }
-
-    public static <E> ForEach.Builder<E> forEachOf(int id, Iterable<? extends E> elements) {
-      return ForEach.builder(id, elements);
-    }
-
-    @SafeVarargs
-    public static <E> ForEach.Builder<E> forEachOf(int id, E... elements) {
-      return ForEach.builder(id, asList(elements));
-    }
-
-    public static <T> While.Builder<T> whilst(int id, Supplier<T> value, Predicate<T> condition) {
-      return new While.Builder<>(id, value, condition);
-    }
-
-    public static <T> When.Builder<T> when(int id, Supplier<T> value, Predicate<T> condition) {
-      return new When.Builder<>(id, value, condition);
-    }
-
-    public static TimeOut.Builder timeout(int id, Action action) {
-      return new TimeOut.Builder(id, action);
-    }
-
-    public static <T extends Throwable> Attempt.Builder<T> attempt(int id, Action action) {
-      return Attempt.builder(id, action);
-    }
-
-    public static Retry.Builder retry(int id, Action action) {
-      return Retry.builder(id, action);
-    }
-
-    public static <I, O> TestAction.Builder<I, O> given(int id, String description, Supplier<I> given) {
-      return new TestAction.Builder<I, O>(id).given(description, given);
-    }
-  }
 
   private static int generateId() {
     return idGenerator.getAndIncrement();
@@ -133,7 +34,7 @@ public enum ActionSupport {
    * @see Leaf
    */
   public static Action simple(final String description, final Runnable runnable) {
-    return Internal.simple(generateId(), description, runnable);
+    return ActionFactory.Internal.simple(generateId(), description, runnable);
   }
 
   /**
@@ -144,7 +45,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action named(String name, Action action) {
-    return Internal.named(generateId(), name, action);
+    return ActionFactory.Internal.named(generateId(), name, action);
   }
 
   /**
@@ -155,7 +56,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Action... actions) {
-    return Internal.concurrent(generateId(), actions);
+    return ActionFactory.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -166,7 +67,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Iterable<? extends Action> actions) {
-    return Internal.concurrent(generateId(), actions);
+    return ActionFactory.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -177,7 +78,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Action... actions) {
-    return Internal.sequential(generateId(), actions);
+    return ActionFactory.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -188,7 +89,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Iterable<? extends Action> actions) {
-    return Internal.sequential(generateId(), actions);
+    return ActionFactory.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -197,7 +98,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop() {
-    return Internal.nop(generateId());
+    return ActionFactory.Internal.nop(generateId());
   }
 
   /**
@@ -207,7 +108,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop(final String description) {
-    return Internal.nop(generateId(), description);
+    return ActionFactory.Internal.nop(generateId(), description);
   }
 
   /**
@@ -218,7 +119,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action sleep(final long duration, final TimeUnit timeUnit) {
-    return Internal.sleep(generateId(), duration, timeUnit);
+    return ActionFactory.Internal.sleep(generateId(), duration, timeUnit);
   }
 
   /**
@@ -232,7 +133,7 @@ public enum ActionSupport {
    * @see ForEach.Builder
    */
   public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
-    return Internal.forEachOf(generateId(), elements);
+    return ActionFactory.Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -247,7 +148,7 @@ public enum ActionSupport {
    */
   @SafeVarargs
   public static <E> ForEach.Builder<E> forEachOf(E... elements) {
-    return Internal.forEachOf(generateId(), elements);
+    return ActionFactory.Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -264,7 +165,7 @@ public enum ActionSupport {
    * @see While.Builder
    */
   public static <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
-    return Internal.whilst(generateId(), value, condition);
+    return ActionFactory.Internal.whilst(generateId(), value, condition);
   }
 
   /**
@@ -279,7 +180,7 @@ public enum ActionSupport {
    * @see When.Builder
    */
   public static <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
-    return Internal.when(generateId(), value, condition);
+    return ActionFactory.Internal.when(generateId(), value, condition);
   }
 
   /**
@@ -292,7 +193,7 @@ public enum ActionSupport {
    * @see TimeOut.Builder
    */
   public static TimeOut.Builder timeout(Action action) {
-    return Internal.timeout(generateId(), action);
+    return ActionFactory.Internal.timeout(generateId(), action);
   }
 
   /**
@@ -306,7 +207,7 @@ public enum ActionSupport {
    * @see Attempt.Builder
    */
   public static <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
-    return Internal.attempt(generateId(), action);
+    return ActionFactory.Internal.attempt(generateId(), action);
   }
 
   /**
@@ -319,7 +220,7 @@ public enum ActionSupport {
    * @see Retry.Builder
    */
   public static Retry.Builder retry(Action action) {
-    return Internal.retry(generateId(), action);
+    return ActionFactory.Internal.retry(generateId(), action);
   }
 
 
@@ -336,6 +237,6 @@ public enum ActionSupport {
    * @see TestAction.Builder
    */
   public static <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
-    return Internal.given(generateId(), description, given);
+    return ActionFactory.Internal.given(generateId(), description, given);
   }
 }

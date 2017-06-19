@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.runner.JUnitCore.runClasses;
 
-public class ActionMethodNegativeTest {
+public class ActionMethodNegativeTest implements ActionFactory {
   public abstract static class Base {
     @Test
     public void runAction(@SuppressWarnings("UnusedParameters") Action action) {
@@ -18,10 +18,10 @@ public class ActionMethodNegativeTest {
   }
 
   @RunWith(ActionUnit.class)
-  public static class NonPublic extends Base {
+  public static class NonPublic extends Base implements ActionFactory {
     @ActionUnit.PerformWith
     protected Action nonPublic() {
-      return ActionSupport.nop();
+      return nop();
     }
   }
 
@@ -37,10 +37,10 @@ public class ActionMethodNegativeTest {
 
 
   @RunWith(ActionUnit.class)
-  public static class NonActionReturning extends Base {
+  public static class NonActionReturning extends Base implements ActionFactory {
     @ActionUnit.PerformWith
     public Object nonActionReturning() {
-      return ActionSupport.nop();
+      return nop();
     }
   }
 
@@ -56,10 +56,10 @@ public class ActionMethodNegativeTest {
 
 
   @RunWith(ActionUnit.class)
-  public static class WithParameter extends Base {
+  public static class WithParameter extends Base implements ActionFactory {
     @ActionUnit.PerformWith
     public Action withParameter(Object arg) {
-      return ActionSupport.nop();
+      return nop();
     }
   }
 

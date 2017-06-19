@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
@@ -14,15 +13,13 @@ import org.junit.runner.RunWith;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(Enclosed.class)
-public class ReportingActionPerformerTest {
+public class ReportingActionPerformerTest implements ActionFactory {
   public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, PrintingActionScanner> {
     @Override
     protected ActionPerformer createRunner() {
@@ -255,7 +252,7 @@ public class ReportingActionPerformerTest {
     @Test
     public void givenTestAction$whenPerformed$thenWorksFine() {
       Action action =
-          ActionSupport.<String, Integer>given("string 'World'", () -> "World")
+          this.<String, Integer>given("string 'World'", () -> "World")
               .when("length", String::length)
               .then("==5", v -> v == 5);
       performAndPrintAction(action);
@@ -289,7 +286,7 @@ public class ReportingActionPerformerTest {
 
     @Test(expected = AssertionError.class)
     public void givenFailingAction$whenPerformed$thenWorksFine() {
-      Action action = ActionSupport.<String, Integer>given("HelloTestCase", () -> "World")
+      Action action = this.<String, Integer>given("HelloTestCase", () -> "World")
           .when(
               "length",
               input -> input.length() + 1)

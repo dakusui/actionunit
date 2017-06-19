@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.scenarios;
 import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -20,8 +21,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.scenarios.ActionPrinterTest.ImplTest.composeAction;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.utils.TestUtils.size;
 import static java.lang.String.format;
@@ -32,9 +31,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
-public class ActionPrinterTest {
-  public static class ImplTest extends TestUtils.TestBase {
-    static Action composeAction() {
+public class ActionPrinterTest implements ActionFactory {
+  private static class ActionComposer extends TestUtils.TestBase implements ActionFactory {
+    Action composeAction() {
       return named("Concurrent (top level)",
           concurrent(
               named("Sequential (1st child)",
@@ -52,6 +51,9 @@ public class ActionPrinterTest {
                       )
                   ))));
     }
+  }
+
+  public static class ImplTest extends ActionComposer {
 
     @Test
     public void givenTrace() {
@@ -103,7 +105,7 @@ public class ActionPrinterTest {
     }
   }
 
-  public static class StdOutErrTest extends TestUtils.TestBase {
+  public static class StdOutErrTest extends ActionComposer implements ActionFactory {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
       composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stdout());
@@ -115,8 +117,8 @@ public class ActionPrinterTest {
     }
   }
 
-  public static class WithResultTest extends TestUtils.TestBase {
-    private static Action composeAction(final List<String> out) {
+  public static class WithResultTest extends TestUtils.TestBase implements ActionFactory {
+    private Action composeAction(final List<String> out) {
       //noinspection unchecked
       return named("Concurrent (top level)", concurrent(
           named("Sequential (1st child)", sequential(
@@ -131,7 +133,7 @@ public class ActionPrinterTest {
               forEachOf(
                   asList("hello1", "hello2", "hello3")
               ).perform(
-                  ($, data) -> given(
+                  ($, data) -> $.given(
                       "ExampleTest", () -> "ExampleTest")
                       .when("Say 'hello'", input -> {
                         out.add(format("hello:%s", data.get()));
@@ -143,12 +145,12 @@ public class ActionPrinterTest {
               forEachOf(
                   asList("world1", "world2", "world3")
               ).perform(
-                  ($, i) -> sequential(
-                      simple("nothing", () -> {
+                  ($, i) -> $.sequential(
+                      $.simple("nothing", () -> {
                       }),
-                      simple("sink1", () -> {
+                      $.simple("sink1", () -> {
                       }),
-                      simple("sink2", () -> {
+                      $.simple("sink2", () -> {
                       })
                   )
               ))
@@ -201,18 +203,16 @@ public class ActionPrinterTest {
     }
   }
 
-  public static class WithResultVariationTest extends TestUtils.TestBase {
+  public static class WithResultVariationTest extends TestUtils.TestBase implements ActionFactory {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
-      Action action = forEachOf(asList("A", "B")).perform(
-          ($, i) -> sequential(
-              simple("+0", () -> {
-                out1.writeLine(i.get() + "0");
-              }),
-              simple("+1", () -> {
-                out1.writeLine(i.get() + "1");
-              })
+      Action action = forEachOf(
+          asList("A", "B")
+      ).perform(
+          ($, i) -> $.sequential(
+              $.simple("+0", () -> out1.writeLine(i.get() + "0")),
+              $.simple("+1", () -> out1.writeLine(i.get() + "1"))
           )
       );
       action.accept(TestUtils.createActionPerformer());
@@ -221,10 +221,10 @@ public class ActionPrinterTest {
       final TestUtils.Out out2 = new TestUtils.Out();
       runAndReport(action, out2);
       assertThat(out2, allOf(
-          hasItemAt(0, containsString("[o]ForEach")),
-          hasItemAt(1, containsString("[oo]Sequential")),
-          hasItemAt(2, containsString("[oo]+0")),
-          hasItemAt(3, containsString("[oo]+1"))
+          hasItemAt(0, TestUtils.allOf(containsString("[o]"), containsString("ForEach"))),
+          hasItemAt(1, TestUtils.allOf(containsString("[oo]"), containsString("Sequential"))),
+          hasItemAt(2, TestUtils.allOf(containsString("[oo]"), containsString("+0"))),
+          hasItemAt(3, TestUtils.allOf(containsString("[oo]"), containsString("+1")))
       ));
       Assert.assertThat(
           out2.size(),
@@ -292,13 +292,37 @@ public class ActionPrinterTest {
             }
           })).times(1).withIntervalOf(
           1, MILLISECONDS);
-      try {
-        runAndReport(action, outForRun);
-      } finally {
-        assertEquals("PassAfterFail", outForRun.get(0));
-        assertEquals("[o]Retry(1[milliseconds]x1times)", outForRun.get(1));
-        assertEquals("  [xo]PassAfterFail", outForRun.get(2));
-      }
+      runAndReport(action, outForRun);
+      assertThat(
+          outForRun,
+          TestUtils.allOf(
+              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
+                  "get(0)", (TestUtils.Out v) -> v.get(0)
+              ).check(
+                  "contains('PassAfterFail')", (String u) -> u.equals("PassAfterFail")
+              ),
+              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
+                  "get(1)", (TestUtils.Out v) -> v.get(1)
+              ).check(
+                  "contains('[o]')", (String u) -> u.contains("[o]")
+              ),
+              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
+                  "get(1)", (TestUtils.Out v) -> v.get(1)
+              ).check(
+                  "contains('Retry(1[milliseconds]x1times')", (String u) -> u.contains("Retry(1[milliseconds]x1times")
+              ),
+              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
+                  "get(2)", (TestUtils.Out v) -> v.get(2)
+              ).check(
+                  "contains('[xo]')", (String u) -> u.contains("[xo]")
+              ),
+              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
+                  "get(2)", (TestUtils.Out v) -> v.get(2)
+              ).check(
+                  "contains('PassAfterFail')", (String u) -> u.contains("PassAfterFail")
+              )
+          )
+      );
     }
 
     @Test
@@ -316,7 +340,7 @@ public class ActionPrinterTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void givenUnsupportedCompositeAction$whenPerformed$thenExceptionThrown() {
-      Action action = new Composite.Base(0, "noname", Collections.<Action>emptyList()) {
+      Action action = new Composite.Base(0, "noname", Collections.emptyList()) {
         @Override
         public void accept(Visitor visitor) {
           visitor.visit(this);

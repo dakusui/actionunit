@@ -2,9 +2,8 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
@@ -37,7 +36,7 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
   @Test(expected = RuntimeException.class, timeout = 3000000)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(0, ActionException.class, ActionSupport.simple("Fail on first time only", new Runnable() {
+    new Retry(0, ActionException.class, simple("Fail on first time only", new Runnable() {
       boolean firstTime = true;
 
       @Override
