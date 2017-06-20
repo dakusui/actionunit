@@ -7,10 +7,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface ValueHandlerFactory<T> extends Function<Supplier<T>, Action>, Context, Cloneable {
-  static <T> ValueHandlerFactory<T> create(String description, Consumer<T> handlerBody) {
+public interface ValueHandlerActionFactory<T> extends Function<Supplier<T>, Action>, Context, Cloneable {
+  static <T> ValueHandlerActionFactory<T> create(String description, Consumer<T> handlerBody) {
     Objects.requireNonNull(handlerBody);
-    return new ValueHandlerFactory<T>() {
+    return new ValueHandlerActionFactory<T>() {
       @Override
       public Action create(Context factory, Supplier<T> data) {
         return Leaf.create(this.generateId(), description, () -> handlerBody.accept(data.get()));

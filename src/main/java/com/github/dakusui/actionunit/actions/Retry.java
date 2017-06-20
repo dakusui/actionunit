@@ -60,6 +60,8 @@ public class Retry extends ActionBase {
     private       Action action;
     private int                        times                = INFINITE;
     private Class<? extends Throwable> targetExceptionClass = ActionException.class;
+    private TimeUnit                   timeUnit             = null;
+    private long                       interval             = -1;
 
     public Builder(int id, Action action) {
       this.id = id;
@@ -76,9 +78,17 @@ public class Retry extends ActionBase {
       return this;
     }
 
-    public Retry withIntervalOf(long interval, TimeUnit timeUnit) {
+    public Builder withIntervalOf(long interval, TimeUnit timeUnit) {
       checkArgument(interval > 0);
-      return new Retry(id, targetExceptionClass, action, requireNonNull(timeUnit).toNanos(interval), times);
+      this.interval = interval;
+      this.timeUnit = Objects.requireNonNull(timeUnit);
+      return this;
+    }
+
+    public Retry build() {
+      checkArgument(interval > 0);
+      requireNonNull(timeUnit);
+      return new Retry(id, targetExceptionClass, action, timeUnit.toNanos(interval), times);
     }
   }
 

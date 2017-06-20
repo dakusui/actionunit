@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ValueHandlerFactory;
+import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -40,7 +40,7 @@ public interface ForEach<T> extends Action {
       return this;
     }
 
-    public ForEach<E> perform(ValueHandlerFactory<E> operation) {
+    public ForEach<E> perform(ValueHandlerActionFactory<E> operation) {
       Objects.requireNonNull(operation);
       Objects.requireNonNull(operation);
       //noinspection unchecked
@@ -59,11 +59,11 @@ public interface ForEach<T> extends Action {
   }
 
   class Impl<T> extends ActionBase implements ForEach<T> {
-    private final ValueHandlerFactory<T> handlerFactory;
-    private final Iterable<T>            data;
-    private final Mode                   mode;
+    private final ValueHandlerActionFactory<T> handlerFactory;
+    private final Iterable<T>                  data;
+    private final Mode                         mode;
 
-    public Impl(int id, ValueHandlerFactory<T> handlerFactory, Iterable<T> data, Mode mode) {
+    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Iterable<T> data, Mode mode) {
       super(id);
       this.handlerFactory = Objects.requireNonNull(handlerFactory);
       this.data = Objects.requireNonNull(data);

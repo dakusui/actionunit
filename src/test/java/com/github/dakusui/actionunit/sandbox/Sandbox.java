@@ -48,7 +48,7 @@ public class Sandbox {
                     3
                 ).withIntervalOf(
                     10, SECONDS
-                )
+                ).build()
             ));
   }
 

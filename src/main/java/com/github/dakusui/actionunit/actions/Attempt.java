@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ValueHandlerFactory;
+import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
@@ -26,18 +26,18 @@ public interface Attempt<E extends Throwable> extends Action, Context {
     private final Action attempt;
     private final int    id;
     @SuppressWarnings("unchecked")
-    private Class<? extends E>     exceptionClass          = (Class<? extends E>) Exception.class;
-    private ValueHandlerFactory<E> exceptionHandlerFactory = ($, data) -> {
+    private Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
+    private ValueHandlerActionFactory<E> exceptionHandlerFactory = ($, data) -> {
       throw Checks.propagate(data.get());
     };
-    private ActionFactory          ensuredActionFactory    = Context::nop;
+    private ActionFactory                ensuredActionFactory    = Context::nop;
 
     public Builder(int id, Action attempt) {
       this.id = id;
       this.attempt = Objects.requireNonNull(attempt);
     }
 
-    public Builder<E> recover(Class<? extends E> exceptionClass, ValueHandlerFactory<E> exceptionHandlerFactory) {
+    public Builder<E> recover(Class<? extends E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory) {
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
       this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
       return this;
@@ -56,12 +56,12 @@ public interface Attempt<E extends Throwable> extends Action, Context {
   }
 
   class Impl<E extends Throwable> extends ActionBase implements Attempt<E> {
-    private final Action                 attempt;
-    private final Class<E>               exceptionClass;
-    private final ValueHandlerFactory<E> exceptionHandlerFactory;
-    private final ActionFactory          ensuredActionFactory;
+    private final Action                       attempt;
+    private final Class<E>                     exceptionClass;
+    private final ValueHandlerActionFactory<E> exceptionHandlerFactory;
+    private final ActionFactory                ensuredActionFactory;
 
-    public Impl(int id, Action attempt, Class<E> exceptionClass, ValueHandlerFactory<E> exceptionHandlerFactory, ActionFactory ensuredActionFactory) {
+    public Impl(int id, Action attempt, Class<E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory, ActionFactory ensuredActionFactory) {
       super(id);
       this.attempt = Objects.requireNonNull(attempt);
       this.exceptionClass = Objects.requireNonNull(exceptionClass);

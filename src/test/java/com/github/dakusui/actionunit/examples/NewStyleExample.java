@@ -1,51 +1,43 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.visitors.reporting.Report;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import static java.util.Arrays.asList;
+import java.util.concurrent.TimeUnit;
 
-@RunWith(ActionUnit.class)
-public class NewStyleExample implements ActionFactory {
-  @ActionUnit.PerformWith(Test.class)
-  public Action createAction() {
-    return this.get();
-  }
-
+public class NewStyleExample {
   @Test
-  public void run(Action action) {
-    new ReportingActionPerformer.Builder(
-        action
-    ).with(
-        Report.Record.Formatter.DEFAULT_INSTANCE
-    ).build(
-    ).performAndReport();
-  }
+  public void run() {
+    ReportingActionPerformer.create(
+        new Context.Impl().forEachOf(
+            "a", "b", "c"
+        ).sequentially(
+        ).perform(
+            (d, i) ->
+                d.sequential(
+                    d.simple(
+                        "print(i)",
+                        () -> System.out.println(i.get())
+                    ),
+                    d.forEachOf(
+                        1, 2, 3, 4, 5
+                    ).concurrently(
+                    ).perform(
+                        (e, j) ->
+                            e.concurrent(
+                                e.retry(
+                                    e.simple(
+                                        "print(j)",
+                                        () -> System.out.println(j.get())
+                                    )).times(3).withIntervalOf(100, TimeUnit.MILLISECONDS).build(),
+                                e.simple(
+                                    "print(j + 100)",
+                                    () -> System.out.println(j.get() + 100)
+                                )
 
-  @Override
-  public Action create(ActionFactory self) {
-    return self.forEachOf(
-        asList("a", "b", "c")
-    ).sequentially(
-    ).perform(
-        (d, i) ->
-            d.sequential(
-                d.simple(
-                    "print(i)",
-                    () -> System.out.println(i.get())
-                ),
-                d.forEachOf(asList(
-                    "1", "2", "3"
-                )).perform(
-                    (e, j) -> e.simple(
-                        "print(j)",
-                        () -> System.out.println(j.get())
-                    )))
-    );
+                            )))
+        )
+    ).performAndReport();
   }
 }

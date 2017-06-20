@@ -59,7 +59,7 @@ public class PracticalExample implements Context {
                 10
             ).withIntervalOf(
                 2, MILLISECONDS
-            ),
+            ).build(),
             sequential(
                 simple(
                     "Do something using retrieved IP address",

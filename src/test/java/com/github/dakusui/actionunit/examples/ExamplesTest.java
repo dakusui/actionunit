@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
+import com.github.dakusui.actionunit.utils.Matchers;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -38,7 +39,7 @@ public class ExamplesTest {
     public void testExample() {
       Result result = JUnitCore.runClasses(ForEachExample.class);
       assertThat(result,
-          TestUtils.allOf(
+          Matchers.allOf(
               TestUtils.<Result, Integer>matcherBuilder()
                   .transform("getRunCount", Result::getRunCount)
                   .check("==12", c -> c == 12),

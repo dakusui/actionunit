@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.Matchers;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -223,10 +224,10 @@ public class ActionPrinterTest implements Context {
       assertThat(
           out2,
           allOf(
-              hasItemAt(0, TestUtils.allOf(containsString("[o]"), containsString("ForEach"))),
-              hasItemAt(1, TestUtils.allOf(containsString("[oo]"), containsString("Sequential"))),
-              hasItemAt(2, TestUtils.allOf(containsString("[oo]"), containsString("+0"))),
-              hasItemAt(3, TestUtils.allOf(containsString("[oo]"), containsString("+1")))
+              hasItemAt(0, Matchers.allOf(containsString("[o]"), containsString("ForEach"))),
+              hasItemAt(1, Matchers.allOf(containsString("[oo]"), containsString("Sequential"))),
+              hasItemAt(2, Matchers.allOf(containsString("[oo]"), containsString("+0"))),
+              hasItemAt(3, Matchers.allOf(containsString("[oo]"), containsString("+1")))
           ));
       Assert.assertThat(
           out2.size(),
@@ -236,7 +237,7 @@ public class ActionPrinterTest implements Context {
 
     @Test
     public void givenRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES);
+      Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES).build();
       TestUtils.Out out = new TestUtils.Out();
       runAndReport(action, out);
       assertThat(
@@ -255,7 +256,7 @@ public class ActionPrinterTest implements Context {
         public void run() {
           throw new IllegalStateException(this.toString());
         }
-      })).times(1).withIntervalOf(1, TimeUnit.MINUTES);
+      })).times(1).withIntervalOf(1, TimeUnit.MINUTES).build();
       try {
         runAndReport(action, out);
       } finally {
@@ -292,12 +293,11 @@ public class ActionPrinterTest implements Context {
                 tried = true;
               }
             }
-          })).times(1).withIntervalOf(
-          1, MILLISECONDS);
+          })).times(1).withIntervalOf(1, MILLISECONDS).build();
       runAndReport(action, outForRun);
       assertThat(
           outForRun,
-          TestUtils.allOf(
+          Matchers.allOf(
               TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
                   "get(0)", (TestUtils.Out v) -> v.get(0)
               ).check(

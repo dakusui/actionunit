@@ -25,7 +25,7 @@ public class RecoveryOperation {
         ($, e) -> $.retry($.sequential(
             cleanUp($),
             deployComponent()
-        )).times(2).withIntervalOf(10, MILLISECONDS)
+        )).times(2).withIntervalOf(10, MILLISECONDS).build()
     ).ensure(
         this::cleanUp
     );

@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.Matchers;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
@@ -155,7 +156,7 @@ public class ReportingActionPerformerTest implements Context {
       //noinspection unchecked
       assertThat(
           getWriter(),
-          TestUtils.allOf(
+          Matchers.allOf(
               hasItemAt(0, startsWith("[o]0-ForEach (SEQUENTIALLY)")),
               hasItemAt(1, equalTo("  [ooo]2-Sequential (2 actions)")),
               hasItemAt(2, equalTo("    [ooo]0-Sink-1")),
@@ -236,7 +237,7 @@ public class ReportingActionPerformerTest implements Context {
           ($) -> $.nop()
       );
       performAndPrintAction(action);
-      assertThat(getWriter(), TestUtils.allOf(
+      assertThat(getWriter(), Matchers.allOf(
           hasItemAt(0, equalTo("[o]1-Attempt")),
           hasItemAt(1, equalTo("  [x]0-Target")),
           hasItemAt(2, equalTo("    [x]0-Howdy, NPE")),

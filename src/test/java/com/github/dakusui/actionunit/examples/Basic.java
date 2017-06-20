@@ -86,7 +86,7 @@ public class Basic implements Context {
                     2
                 ).withIntervalOf(
                     20, TimeUnit.MILLISECONDS
-                )
+                ).build()
         ).ensure(
             Context::nop
         )

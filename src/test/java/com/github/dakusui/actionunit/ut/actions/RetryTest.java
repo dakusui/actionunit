@@ -162,6 +162,6 @@ public class RetryTest extends TestUtils.TestBase implements Context {
         2
     ).withIntervalOf(
         1, MILLISECONDS
-    );
+    ).build();
   }
 }

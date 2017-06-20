@@ -113,7 +113,7 @@ public class ActionVisitorTest implements Context {
   @Test
   public void givenRetryAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = retry(createSimpleAction()).times(1).withIntervalOf(1, TimeUnit.NANOSECONDS);
+    Action action = retry(createSimpleAction()).times(1).withIntervalOf(1, TimeUnit.NANOSECONDS).build();
     // when accept
     action.accept(visitor);
     // then visited

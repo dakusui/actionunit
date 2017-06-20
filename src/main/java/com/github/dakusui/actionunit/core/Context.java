@@ -240,6 +240,9 @@ public interface Context {
     return Internal.given(generateId(), description, given);
   }
 
+  class Impl implements Context {
+  }
+
   class Internal {
     public static Action simple(int id, final String description, final Runnable runnable) {
       return Leaf.create(id, description, runnable);

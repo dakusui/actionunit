@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 import com.github.dakusui.actionunit.helpers.Checks;
-import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
@@ -22,7 +22,7 @@ public class BuildersTest implements Context {
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
           .sequentially()
-          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
+          .perform(ValueHandlerActionFactory.create("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -34,7 +34,7 @@ public class BuildersTest implements Context {
     public void givenA_B_and_C$whenPrintForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
           .sequentially()
-          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
+          .perform(ValueHandlerActionFactory.create("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -46,7 +46,7 @@ public class BuildersTest implements Context {
     public void givenA_B_and_C$whenRunForEachConcurrently$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
           .concurrently()
-          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
+          .perform(ValueHandlerActionFactory.create("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -59,7 +59,7 @@ public class BuildersTest implements Context {
       List<Object> data = asList("A", "B", "C");
       Action action = forEachOf(data)
           .concurrently()
-          .perform(Utils.handlerFactory("print item to stdout", System.out::println));
+          .perform(ValueHandlerActionFactory.create("print item to stdout", System.out::println));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
