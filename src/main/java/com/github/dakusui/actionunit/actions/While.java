@@ -29,6 +29,10 @@ public interface While<T> extends Action, Context {
     public While<T> perform(ActionFactory actionFactory) {
       return new Impl<>(id, value, check, Objects.requireNonNull(actionFactory));
     }
+
+    public While<T> perform(Action action) {
+      return perform(self -> action);
+    }
   }
 
   class Impl<T> extends ActionBase implements While<T> {

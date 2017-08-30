@@ -42,7 +42,6 @@ public interface ForEach<T> extends Action {
 
     public ForEach<E> perform(ValueHandlerActionFactory<E> operation) {
       Objects.requireNonNull(operation);
-      Objects.requireNonNull(operation);
       //noinspection unchecked
       return new ForEach.Impl<>(
           id,
@@ -51,6 +50,12 @@ public interface ForEach<T> extends Action {
           this.mode
       );
     }
+
+    public ForEach<E> perform(Action action) {
+      Objects.requireNonNull(action);
+      return perform((factory, data) -> action);
+    }
+
   }
 
   enum Mode {

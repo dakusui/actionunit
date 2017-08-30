@@ -210,6 +210,12 @@ public class TestUtils {
     return new MatcherBuilder<>();
   }
 
+  public static Out performAndReportAction(Action action) {
+    final Out result = new Out();
+    new ReportingActionPerformer.Builder(action).to(result).build().performAndReport();
+    return result;
+  }
+
   public static class Out extends AbstractList<String> implements Writer {
     private List<String> out = new LinkedList<>();
 
