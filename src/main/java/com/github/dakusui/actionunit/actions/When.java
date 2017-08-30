@@ -35,9 +35,25 @@ public interface When<T> extends Action, Context {
       return this;
     }
 
+    public Builder<T> perform(Supplier<Action> supplier) {
+      return perform(v -> supplier.get());
+    }
+
+    public Builder<T> perform(Action action) {
+      return perform(() -> action);
+    }
+
     public When<T> otherwise(ActionFactory factory) {
       this.actionFactoryForOtherwise = Objects.requireNonNull(factory);
       return $();
+    }
+
+    public When<T> otherwise(Supplier<Action> supplier) {
+      return otherwise(v -> supplier.get());
+    }
+
+    public When<T> otherwise(Action action) {
+      return otherwise(() -> action);
     }
 
     public When<T> $() {
