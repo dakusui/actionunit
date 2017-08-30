@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.Report;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
 
 @RunWith(ActionUnit.class)
-public class WhileExample extends TestUtils.TestBase implements ActionFactory {
+public class WhileExample extends TestUtils.TestBase implements Context {
   @ActionUnit.PerformWith(Test.class)
   public Action composeWhileLoop() {
     /*
@@ -24,11 +24,12 @@ public class WhileExample extends TestUtils.TestBase implements ActionFactory {
      *     while (i++ < 10)
      *       System.err.println(i);
      */
+    AtomicInteger v = new AtomicInteger(0);
     return whilst(
-        toSupplier(new AtomicInteger(0)),
+        toSupplier(v),
         i -> i.getAndIncrement() < 10
     ).perform(
-        i -> simple("print i", () -> System.out.println("i:" + i.get()))
+        self -> self.simple("print v", () -> System.out.println(v.get()))
     );
   }
 

@@ -22,7 +22,8 @@ public class Retry extends ActionBase {
   public final  long                       intervalInNanos;
   private final Class<? extends Throwable> targetExceptionClass;
 
-  public <T extends Throwable> Retry(Class<T> targetExceptionClass, Action action, long intervalInNanos, int times) {
+  public <T extends Throwable> Retry(int id, Class<T> targetExceptionClass, Action action, long intervalInNanos, int times) {
+    super(id);
     checkArgument(intervalInNanos >= 0);
     checkArgument(times >= 0 || times == INFINITE);
     this.targetExceptionClass = targetExceptionClass;
@@ -50,16 +51,20 @@ public class Retry extends ActionBase {
     return (Class<T>) this.targetExceptionClass;
   }
 
-  public static Builder builder(Action action) {
-    return new Builder(action);
+  public static Builder builder(int id, Action action) {
+    return new Builder(id, action);
   }
 
   public static class Builder {
-    private Action action;
+    private final int    id;
+    private       Action action;
     private int                        times                = INFINITE;
     private Class<? extends Throwable> targetExceptionClass = ActionException.class;
+    private TimeUnit                   timeUnit             = null;
+    private long                       interval             = -1;
 
-    public Builder(Action action) {
+    public Builder(int id, Action action) {
+      this.id = id;
       this.action = requireNonNull(action);
     }
 
@@ -73,9 +78,17 @@ public class Retry extends ActionBase {
       return this;
     }
 
-    public Retry withIntervalOf(long interval, TimeUnit timeUnit) {
+    public Builder withIntervalOf(long interval, TimeUnit timeUnit) {
       checkArgument(interval > 0);
-      return new Retry(targetExceptionClass, action, requireNonNull(timeUnit).toNanos(interval), times);
+      this.interval = interval;
+      this.timeUnit = Objects.requireNonNull(timeUnit);
+      return this;
+    }
+
+    public Retry build() {
+      checkArgument(interval > 0);
+      requireNonNull(timeUnit);
+      return new Retry(id, targetExceptionClass, action, timeUnit.toNanos(interval), times);
     }
   }
 

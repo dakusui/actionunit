@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -20,12 +20,12 @@ import static java.util.Arrays.asList;
  */
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class NameOfAction implements ActionFactory {
+public class NameOfAction implements Context {
   @PerformWith(Test.class)
   public Action aMethodToTestSomething() {
     return forEachOf(
         asList(1, 2, 3)).perform(
-        i -> simple("print out incremented value", () -> System.out.println(i.get() + 1))
+        ($, i) -> $.simple("print out incremented value", () -> System.out.println(i.get() + 1))
     );
   }
 
@@ -34,7 +34,7 @@ public class NameOfAction implements ActionFactory {
     return asList(
         simple("print hello", () -> System.out.println("hello")),
         forEachOf(asList(1, 2, 3)).perform(
-            i -> simple("print out incremented value", () -> System.out.println(i.get() + 1))
+            ($, i) -> $.simple("print out incremented value", () -> System.out.println(i.get() + 1))
         ),
         simple("print bye", () -> System.out.println("bye"))
     );

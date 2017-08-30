@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ActionTreeBuilder;
@@ -20,17 +20,17 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEachExample extends TestUtils.TestBase implements ActionFactory {
+public class ForEachExample extends TestUtils.TestBase implements Context {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     return forEachOf(
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
-        value -> sequential(
-            simple("print the given value(1st time)", () -> System.out.println(value.get())),
-            simple("print the given value(2nd time)", () -> System.out.println(value.get())),
-            simple("print the given value(3rd time)", () -> System.out.println(value.get()))
+        ($, value) -> $.sequential(
+            $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
+            $.simple("print the given value(2nd time)", () -> System.out.println(value.get())),
+            $.simple("print the given value(3rd time)", () -> System.out.println(value.get()))
         )
     );
   }
@@ -42,21 +42,21 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
-        (Supplier<String> value) -> sequential(
-            when(value, "C"::equals)
+        (Context $, Supplier<String> value) -> $.sequential(
+            $.when(value, "C"::equals)
                 .perform(
-                    v -> simple("print to stderr", () -> System.err.println(v.get()))
+                    ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get()))
                 )
                 .otherwise(
-                    v -> simple("print to stdout", () -> System.out.println(v.get()))
+                    ($$) -> $$.simple("print to stdout", () -> System.out.println(value.get()))
                 ),
-            simple("print the given value(1st time)", () -> System.out.println(value.get())),
-            simple("print the given value(2nd time)", () -> {
+            $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
+            $.simple("print the given value(2nd time)", () -> {
               if (c.getAndIncrement() > 1)
                 throw new RuntimeException();
               System.out.println(value.get());
             }),
-            simple("print the given value(3rd time)", () -> System.out.println(value.get()))
+            $.simple("print the given value(3rd time)", () -> System.out.println(value.get()))
         )
     );
   }
@@ -68,10 +68,10 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
         forEachOf("A", "B", "C"
         ).concurrently(
         ).perform(
-            (Supplier<String> value) -> sequential(
-                simple("print the given value(1st time)", () -> System.out.println(value.get())),
-                simple("print the given value(2nd time)", () -> System.out.println(value.get())),
-                sleep(2, MICROSECONDS)
+            (Context $, Supplier<String> value) -> $.sequential(
+                $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
+                $.simple("print the given value(2nd time)", () -> System.out.println(value.get())),
+                $.sleep(2, MICROSECONDS)
             )
         ),
         simple("print bye", () -> System.out.println("bye"))
@@ -84,17 +84,17 @@ public class ForEachExample extends TestUtils.TestBase implements ActionFactory 
         "A", "B", "C"
     ).sequentially(
     ).perform(
-        i -> sequential(
-            simple("print the given value(1st time)", () -> System.out.println("BEGIN:" + i.get())),
-            forEachOf(
+        ($, i) -> $.sequential(
+            $.simple("print the given value(1st time)", () -> System.out.println("BEGIN:" + i.get())),
+            $.forEachOf(
                 "a", "b", "c"
             ).sequentially().perform(
-                j -> sequential(
-                    sleep(1, MILLISECONDS),
-                    simple("print i and j", () -> System.out.printf("  i=%s, j=%s%n", i.get(), j.get()))
+                ($$, j) -> $$.sequential(
+                    $$.sleep(1, MILLISECONDS),
+                    $$.simple("print i and j", () -> System.out.printf("  i=%s, j=%s%n", i.get(), j.get()))
                 )
             ),
-            simple("print the given value(2nd time)", () -> System.out.println("END:" + i.get()))
+            $.simple("print the given value(2nd time)", () -> System.out.println("END:" + i.get()))
         )
     );
   }

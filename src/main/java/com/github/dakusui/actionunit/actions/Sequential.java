@@ -16,8 +16,8 @@ public interface Sequential extends Composite {
      *
      * @param actions Actions to be executed by this object.
      */
-    public Impl(Iterable<? extends Action> actions) {
-      super("Sequential", actions);
+    public Impl(int id, Iterable<? extends Action> actions) {
+      super(id, "Sequential", actions);
     }
 
     /**
@@ -38,8 +38,8 @@ public interface Sequential extends Composite {
     INSTANCE;
 
     @Override
-    public Sequential create(Iterable<? extends Action> actions) {
-      return new Impl(actions);
+    public Sequential create(int id, Iterable<? extends Action> actions) {
+      return new Impl(id, actions);
     }
   }
 }

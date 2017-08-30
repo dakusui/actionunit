@@ -8,11 +8,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.core.ActionSupport.forEachOf;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -65,14 +61,28 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return forEachOf(asList("A", "B")).perform(
-          i -> sequential(
-              simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get())),
-              forEachOf("a", "b").perform(
-                  j -> simple("Prefix with '\\_inner-'", () -> getWriter().writeLine("\\_inner-" + j.get()))
-              ),
-              simple("Prefix with 'outer-'", () -> getWriter().writeLine("outer-" + i.get()))
-          )
+      return forEachOf(
+          "A", "B"
+      ).perform(
+          ($, i) ->
+              $.sequential(
+                  $.simple(
+                      "Prefix with 'outer-'",
+                      () -> getWriter().writeLine("outer-" + i.get())
+                  ),
+                  $.forEachOf(
+                      "a", "b"
+                  ).perform(
+                      ($1, j) -> $1.simple(
+                          "Prefix with '\\_inner-'",
+                          () -> getWriter().writeLine("\\_inner-" + j.get())
+                      )
+                  ),
+                  $.simple(
+                      "Prefix with 'outer-'",
+                      () -> getWriter().writeLine("outer-" + i.get())
+                  )
+              )
       );
     }
   }

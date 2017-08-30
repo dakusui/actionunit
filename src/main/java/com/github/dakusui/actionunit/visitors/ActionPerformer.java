@@ -62,7 +62,7 @@ public class ActionPerformer extends ActionWalker {
       Supplier<T> value = while$.value();
       //noinspection unchecked
       while (while$.check().test(value.get())) {
-        while$.createHandler(value).accept(ActionPerformer.this);
+        while$.createAction().accept(ActionPerformer.this);
       }
     };
   }
@@ -73,9 +73,9 @@ public class ActionPerformer extends ActionWalker {
       Supplier<T> value = when.value();
       //noinspection unchecked
       if (when.check().test(value.get())) {
-        when.perform(value).accept(ActionPerformer.this);
+        when.perform().accept(ActionPerformer.this);
       } else {
-        when.otherwise(value).accept(ActionPerformer.this);
+        when.otherwise().accept(ActionPerformer.this);
       }
     };
   }

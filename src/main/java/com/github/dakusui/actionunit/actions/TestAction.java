@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
@@ -10,10 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-
-public interface TestAction extends Action {
+public interface TestAction extends Action, Context {
   Action given();
 
   Action when();
@@ -21,9 +19,14 @@ public interface TestAction extends Action {
   Action then();
 
   class Builder<I, O> {
-    private Supplier<I>    input;
-    private Function<I, O> operation;
-    private Predicate<O>   check;
+    private final int            id;
+    private       Supplier<I>    input;
+    private       Function<I, O> operation;
+    private       Predicate<O>   check;
+
+    public Builder(int id) {
+      this.id = id;
+    }
 
     public Builder<I, O> given(String description, Supplier<I> input) {
       Objects.requireNonNull(input);
@@ -74,7 +77,7 @@ public interface TestAction extends Action {
       Objects.requireNonNull(this.input);
       Objects.requireNonNull(this.operation);
       Objects.requireNonNull(this.check);
-      return new Base<>(this);
+      return new Base<>(id, this);
     }
 
   }
@@ -90,7 +93,8 @@ public interface TestAction extends Action {
         });
     private final Builder<I, O> builder;
 
-    public Base(Builder<I, O> builder) {
+    public Base(int id, Builder<I, O> builder) {
+      super(id);
       this.builder = builder;
     }
 
@@ -112,8 +116,9 @@ public interface TestAction extends Action {
 
     @Override
     public Action given() {
-      return named("Given",
-          simple(
+      return Context.Internal.named(0, "Given",
+          Context.Internal.simple(
+              0,
               builder.input.toString(),
               () -> Base.this.input.set(InternalUtils.describable(builder.input.toString(), builder.input.get())))
       );
@@ -121,31 +126,34 @@ public interface TestAction extends Action {
 
     @Override
     public Action when() {
-      return named("When", simple(
-          builder.operation.toString(),
-          () -> output.set(
-              () -> builder.operation.apply(Base.this.input())
-          )
-      ));
+      return Context.Internal.named(1, "When",
+          Context.Internal.simple(
+              0,
+              builder.operation.toString(),
+              () -> output.set(
+                  () -> builder.operation.apply(Base.this.input())
+              )
+          ));
     }
 
 
     @Override
     public Action then() {
-      return named("Then", simple(
-          check().toString(),
-          () -> {
-            if (!check().test(output()))
-              throw new ActionAssertionError(String.format(
-                  "%s(x) %s was not satisfied because %s(x)=<%s>; x=<%s>",
-                  operation(),
-                  check(),
-                  operation(),
-                  output(),
-                  input()
-              ));
-          }
-      ));
+      return Context.Internal.named(2, "Then",
+          Context.Internal.simple(0,
+              check().toString(),
+              () -> {
+                if (!check().test(output()))
+                  throw new ActionAssertionError(String.format(
+                      "%s(x) %s was not satisfied because %s(x)=<%s>; x=<%s>",
+                      operation(),
+                      check(),
+                      operation(),
+                      output(),
+                      input()
+                  ));
+              }
+          ));
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class Basic implements ActionFactory {
+public class Basic implements Context {
   @Retention(RetentionPolicy.RUNTIME)
   public @interface DryRun {
   }
@@ -78,12 +78,17 @@ public class Basic implements ActionFactory {
             simple("A runnable (1)", runnable)
         ).recover(
             ActionException.class,
-            e -> retry(
-                simple(
-                    "A runnable (2)", runnable)
-            ).times(2).withIntervalOf(20, TimeUnit.MILLISECONDS)
+            ($, data) ->
+                $.retry(
+                    $.simple(
+                        "A runnable (2)", runnable)
+                ).times(
+                    2
+                ).withIntervalOf(
+                    20, TimeUnit.MILLISECONDS
+                ).build()
         ).ensure(
-            nop()
+            Context::nop
         )
     ).in(10, TimeUnit.SECONDS);
   }

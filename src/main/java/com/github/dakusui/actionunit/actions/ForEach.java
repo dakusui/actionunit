@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
@@ -16,15 +16,17 @@ public interface ForEach<T> extends Action {
 
   Mode getMode();
 
-  static <E> ForEach.Builder<E> builder(Iterable<? extends E> elements) {
-    return new ForEach.Builder<>(elements);
+  static <E> ForEach.Builder<E> builder(int id, Iterable<? extends E> elements) {
+    return new ForEach.Builder<>(id, elements);
   }
 
   class Builder<E> {
     private final Iterable<? extends E> elements;
+    private final int                   id;
     private Mode mode = Mode.SEQUENTIALLY;
 
-    Builder(Iterable<? extends E> elements) {
+    Builder(int id, Iterable<? extends E> elements) {
+      this.id = id;
       this.elements = Objects.requireNonNull(elements);
     }
 
@@ -38,16 +40,22 @@ public interface ForEach<T> extends Action {
       return this;
     }
 
-    public ForEach<E> perform(HandlerFactory<E> operation) {
-      Objects.requireNonNull(operation);
+    public ForEach<E> perform(ValueHandlerActionFactory<E> operation) {
       Objects.requireNonNull(operation);
       //noinspection unchecked
       return new ForEach.Impl<>(
+          id,
           operation,
           (Iterable<E>) this.elements,
           this.mode
       );
     }
+
+    public ForEach<E> perform(Action action) {
+      Objects.requireNonNull(action);
+      return perform((factory, data) -> action);
+    }
+
   }
 
   enum Mode {
@@ -56,11 +64,12 @@ public interface ForEach<T> extends Action {
   }
 
   class Impl<T> extends ActionBase implements ForEach<T> {
-    private final Function<Supplier<T>, Action> handlerFactory;
-    private final Iterable<T>                   data;
-    private final Mode                          mode;
+    private final ValueHandlerActionFactory<T> handlerFactory;
+    private final Iterable<T>                  data;
+    private final Mode                         mode;
 
-    public Impl(Function<Supplier<T>, Action> handlerFactory, Iterable<T> data, Mode mode) {
+    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Iterable<T> data, Mode mode) {
+      super(id);
       this.handlerFactory = Objects.requireNonNull(handlerFactory);
       this.data = Objects.requireNonNull(data);
       this.mode = Objects.requireNonNull(mode);

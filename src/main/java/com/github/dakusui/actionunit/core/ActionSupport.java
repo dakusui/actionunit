@@ -1,18 +1,11 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.nonameIfNull;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * This class contains static utility methods that return objects of type {@code Action}.
@@ -23,8 +16,14 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * @see Action
  * @see Action.Visitor
  */
+@Deprecated
 public enum ActionSupport {
   ;
+  private static final AtomicInteger idGenerator = new AtomicInteger(0);
+
+  private static int generateId() {
+    return idGenerator.getAndIncrement();
+  }
 
   /**
    * Creates a simple action object.
@@ -35,7 +34,7 @@ public enum ActionSupport {
    * @see Leaf
    */
   public static Action simple(final String description, final Runnable runnable) {
-    return Leaf.create(description, runnable);
+    return Context.Internal.simple(generateId(), description, runnable);
   }
 
   /**
@@ -46,7 +45,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action named(String name, Action action) {
-    return Named.create(name, action);
+    return Context.Internal.named(generateId(), name, action);
   }
 
   /**
@@ -57,7 +56,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Action... actions) {
-    return concurrent(asList(actions));
+    return Context.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -68,7 +67,7 @@ public enum ActionSupport {
    * @see Concurrent
    */
   public static Action concurrent(Iterable<? extends Action> actions) {
-    return Concurrent.Factory.INSTANCE.create(actions);
+    return Context.Internal.concurrent(generateId(), actions);
   }
 
   /**
@@ -79,7 +78,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Action... actions) {
-    return sequential(asList(actions));
+    return Context.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -90,7 +89,7 @@ public enum ActionSupport {
    * @see Sequential
    */
   public static Action sequential(Iterable<? extends Action> actions) {
-    return Sequential.Factory.INSTANCE.create(actions);
+    return Context.Internal.sequential(generateId(), actions);
   }
 
   /**
@@ -99,7 +98,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop() {
-    return nop("(nop)");
+    return Context.Internal.nop(generateId());
   }
 
   /**
@@ -109,16 +108,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action nop(final String description) {
-    return new Leaf() {
-      @Override
-      public void perform() {
-      }
-
-      @Override
-      public String toString() {
-        return nonameIfNull(description);
-      }
-    };
+    return Context.Internal.nop(generateId(), description);
   }
 
   /**
@@ -129,19 +119,7 @@ public enum ActionSupport {
    * @return Created action
    */
   public static Action sleep(final long duration, final TimeUnit timeUnit) {
-    checkArgument(duration >= 0, "duration must be non-negative but %s was given", duration);
-    checkNotNull(timeUnit);
-    return new Leaf() {
-      @Override
-      public void perform() {
-        InternalUtils.sleep(duration, timeUnit);
-      }
-
-      @Override
-      public String toString() {
-        return format("sleep for %s", InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
-      }
-    };
+    return Context.Internal.sleep(generateId(), duration, timeUnit);
   }
 
   /**
@@ -155,7 +133,7 @@ public enum ActionSupport {
    * @see ForEach.Builder
    */
   public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
-    return ForEach.builder(elements);
+    return Context.Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -170,7 +148,7 @@ public enum ActionSupport {
    */
   @SafeVarargs
   public static <E> ForEach.Builder<E> forEachOf(E... elements) {
-    return ForEach.builder(asList(elements));
+    return Context.Internal.forEachOf(generateId(), elements);
   }
 
   /**
@@ -187,7 +165,7 @@ public enum ActionSupport {
    * @see While.Builder
    */
   public static <T> While.Builder<T> whilst(Supplier<T> value, Predicate<T> condition) {
-    return new While.Builder<>(value, condition);
+    return Context.Internal.whilst(generateId(), value, condition);
   }
 
   /**
@@ -202,7 +180,7 @@ public enum ActionSupport {
    * @see When.Builder
    */
   public static <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
-    return new When.Builder<>(value, condition);
+    return Context.Internal.when(generateId(), value, condition);
   }
 
   /**
@@ -215,7 +193,7 @@ public enum ActionSupport {
    * @see TimeOut.Builder
    */
   public static TimeOut.Builder timeout(Action action) {
-    return new TimeOut.Builder(action);
+    return Context.Internal.timeout(generateId(), action);
   }
 
   /**
@@ -229,7 +207,7 @@ public enum ActionSupport {
    * @see Attempt.Builder
    */
   public static <T extends Throwable> Attempt.Builder<T> attempt(Action action) {
-    return Attempt.builder(action);
+    return Context.Internal.attempt(generateId(), action);
   }
 
   /**
@@ -242,7 +220,7 @@ public enum ActionSupport {
    * @see Retry.Builder
    */
   public static Retry.Builder retry(Action action) {
-    return Retry.builder(action);
+    return Context.Internal.retry(generateId(), action);
   }
 
 
@@ -259,6 +237,6 @@ public enum ActionSupport {
    * @see TestAction.Builder
    */
   public static <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
-    return new TestAction.Builder<I, O>().given(description, given);
+    return Context.Internal.given(generateId(), description, given);
   }
 }

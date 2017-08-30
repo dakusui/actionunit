@@ -251,6 +251,7 @@ public class ActionSupportTest {
         0
     ).withIntervalOf(
         1, MILLISECONDS
+    ).build(
     ).accept(createActionPerformer());
     assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
   }
@@ -277,6 +278,7 @@ public class ActionSupportTest {
         1
     ).withIntervalOf(
         1, MILLISECONDS
+    ).build(
     ).accept(createActionPerformer());
     assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
   }
@@ -293,6 +295,7 @@ public class ActionSupportTest {
         2
     ).withIntervalOf(
         1, MILLISECONDS
+    ).build(
     ).accept(createActionPerformer());
     assertThat(out, hasSize(1));
   }
@@ -315,6 +318,7 @@ public class ActionSupportTest {
           2
       ).withIntervalOf(
           1, MILLISECONDS
+      ).build(
       ).accept(createActionPerformer());
     } catch (Abort e) {
       assertThat(out, hasSize(1));
@@ -337,13 +341,14 @@ public class ActionSupportTest {
         1
     ).withIntervalOf(
         1, MILLISECONDS
+    ).build(
     ).accept(createActionPerformer());
     assertArrayEquals(new Object[] { "Hello", "Hello" }, arr.toArray());
   }
 
   @Test
   public void givenRetryAction$whenDescribe$thenLooksNice() {
-    assertEquals("Retry(2[seconds]x1times)", describe(retry(nop()).times(1).withIntervalOf(2, SECONDS)));
+    assertEquals("Retry(2[seconds]x1times)", describe(retry(nop()).times(1).withIntervalOf(2, SECONDS).build()));
   }
 
   @Test(timeout = 3000000)
@@ -351,7 +356,7 @@ public class ActionSupportTest {
     Action action = whilst(
         () -> "Hello", t -> false
     ).perform(
-        i -> nop()
+        ($) -> nop()
     );
     action.accept(createActionPerformer());
   }
@@ -439,11 +444,6 @@ public class ActionSupportTest {
     sleep(-1, TimeUnit.MILLISECONDS);
   }
 
-  @Test
-  public void givenTestAction$whenBuiltAndPerformed$thenWorksFine() {
-
-  }
-
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$simple() {
     new Action() {
@@ -451,12 +451,17 @@ public class ActionSupportTest {
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
+
+      @Override
+      public int id() {
+        return 0;
+      }
     }.accept(createActionPerformer());
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$composite() {
-    new Composite.Base("unsupported", singletonList(nop())) {
+    new Composite.Base(0, "unsupported", singletonList(nop())) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);

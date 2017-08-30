@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public abstract class ActionScanner extends ActionWalker {
   @Override
@@ -32,22 +31,16 @@ public abstract class ActionScanner extends ActionWalker {
   @Override
   protected <T> Consumer<While<T>> whileActionConsumer() {
     return (While<T> while$) -> {
-      Supplier<T> value = () -> {
-        throw new UnsupportedOperationException();
-      };
-      while$.createHandler(value).accept(ActionScanner.this);
+      while$.createAction().accept(ActionScanner.this);
     };
   }
 
   @Override
   protected <T> Consumer<When<T>> whenActionConsumer() {
     return (When<T> when) -> {
-      Supplier<T> value = () -> {
-        throw new UnsupportedOperationException();
-      };
       //noinspection unchecked
-      when.perform(value).accept(ActionScanner.this);
-      when.otherwise(value).accept(ActionScanner.this);
+      when.perform().accept(ActionScanner.this);
+      when.otherwise().accept(ActionScanner.this);
     };
   }
 

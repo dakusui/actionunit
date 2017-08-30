@@ -2,41 +2,42 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.visitors.reporting.Report;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class RetryTest extends TestUtils.TestBase implements ActionFactory {
+public class RetryTest extends TestUtils.TestBase implements Context {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
-    new Retry(ActionException.class, nop(), -1 /* this is not valid */, 1);
+    new Retry(0, ActionException.class, nop(), -1 /* this is not valid */, 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeTimes$whenCreated$thenExceptionThrown() {
-    new Retry(ActionException.class, nop(), 1, -100 /* this is not valid*/);
+    new Retry(0, ActionException.class, nop(), 1, -100 /* this is not valid*/);
   }
 
   @Test
   public void givenFOREVERAsTimes$whenCreated$thenExceptionNotThrown() {
     // Make sure only an exception is not thrown on instantiation.
-    new Retry(ActionException.class, nop(), 1, Retry.INFINITE);
+    new Retry(0, ActionException.class, nop(), 1, Retry.INFINITE);
   }
 
   @Test(expected = RuntimeException.class, timeout = 3000000)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry(ActionException.class, ActionSupport.simple("Fail on first time only", new Runnable() {
+    new Retry(0, ActionException.class, simple("Fail on first time only", new Runnable() {
       boolean firstTime = true;
 
       @Override
@@ -58,13 +59,19 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      new ReportingActionPerformer.Builder(action).to(outForTree).build().performAndReport();
+      new ReportingActionPerformer.Builder(
+          action
+      ).to(
+          outForTree
+      ).with(
+          Report.Record.Formatter.DEBUG_INSTANCE
+      ).build().performAndReport();
     } finally {
       assertThat(
           outForTree,
           allOf(
-              hasItemAt(0, equalTo("[o]Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  [xxo]Passes on third try"))
+              hasItemAt(0, equalTo("[o]1-Retry(1[milliseconds]x2times)")),
+              hasItemAt(1, equalTo("  [xxo]0-Passes on third try"))
           ));
       assertThat(
           outForTree,
@@ -96,8 +103,16 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
       assertThat(
           outForTree,
           allOf(
-              hasItemAt(0, equalTo("[o]Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  [xxo]Passes on third try"))
+              hasItemAt(0,
+                  allOf(
+                      containsString("[o]"),
+                      containsString("Retry(1[milliseconds]x2times)")
+                  )),
+              hasItemAt(1,
+                  allOf(
+                      containsString("[xxo]"),
+                      containsString("Passes on third try")
+                  ))
           ));
       assertThat(
           outForTree,
@@ -147,6 +162,6 @@ public class RetryTest extends TestUtils.TestBase implements ActionFactory {
         2
     ).withIntervalOf(
         1, MILLISECONDS
-    );
+    ).build();
   }
 }

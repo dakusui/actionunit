@@ -15,6 +15,8 @@ public interface Action {
    */
   void accept(Visitor visitor);
 
+  int id();
+
 
   /**
    * A visitor of actions, in the style of the visitor design pattern. Classes implementing

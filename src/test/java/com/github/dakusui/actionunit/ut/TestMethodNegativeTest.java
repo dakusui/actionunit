@@ -2,8 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
@@ -13,12 +12,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMethodNegativeTest implements ActionFactory {
+public class TestMethodNegativeTest implements Context {
   @RunWith(ActionUnit.class)
-  public static class NoParameter {
+  public static class NoParameter implements Context {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -36,10 +35,10 @@ public class TestMethodNegativeTest implements ActionFactory {
   }
 
   @RunWith(ActionUnit.class)
-  public static class TooManyParameters {
+  public static class TooManyParameters implements Context {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -56,10 +55,10 @@ public class TestMethodNegativeTest implements ActionFactory {
   }
 
   @RunWith(ActionUnit.class)
-  public static class MismatchParameter {
+  public static class MismatchParameter implements Context {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
-      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test
@@ -77,10 +76,10 @@ public class TestMethodNegativeTest implements ActionFactory {
   }
 
   @RunWith(ActionUnit.class)
-  public static class NoRunnerMethod {
+  public static class NoRunnerMethod implements Context {
     @ActionUnit.PerformWith(RunWith.class)
     public Action testMethod() {
-      return ActionSupport.simple("not executed", () -> System.out.println("This method will not be executed."));
+      return simple("not executed", () -> System.out.println("This method will not be executed."));
     }
 
     @Test

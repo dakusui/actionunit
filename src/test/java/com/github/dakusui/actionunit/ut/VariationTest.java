@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -11,13 +11,13 @@ import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerforme
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
-public class VariationTest implements ActionFactory {
+public class VariationTest implements Context {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();
     forEachOf(asList("a", "b")).perform(
-        i -> forEachOf(asList("1", "2")).perform(
-            j -> simple(
+        ($, i) -> forEachOf(asList("1", "2")).perform(
+            ($$, j) -> simple(
                 "add string",
                 () -> list.add(String.format("%s-%s", i.get(), j.get()))
             )
@@ -39,7 +39,7 @@ public class VariationTest implements ActionFactory {
     forEachOf(
         asList("a", "b")
     ).perform(
-        i -> nop()
+        ($, i) -> nop()
     ).accept(createActionPerformer());
   }
 
@@ -48,7 +48,7 @@ public class VariationTest implements ActionFactory {
     forEachOf(
         asList("host1", "host2")
     ).perform(
-        i -> this.<String, Integer>given("given data", i)
+        ($, i) -> this.<String, Integer>given("given data", i)
             .when("when parse int", value -> Integer.parseInt(value.substring(value.length() - 1)))
             .then("then non-null returned", Objects::nonNull)
     ).accept(createActionPerformer());
@@ -57,7 +57,7 @@ public class VariationTest implements ActionFactory {
   @Test
   public void testAction2() {
     forEachOf(asList("host1", "host2")).perform(
-        i -> this.<String, Integer>given("'9' is given", () -> "9")
+        ($, i) -> this.<String, Integer>given("'9' is given", () -> "9")
             .when("when parseInt", value -> Integer.parseInt(value.substring(value.length() - 1)))
             .then("then passes (always)", out -> true)
     ).accept(createActionPerformer());
@@ -66,7 +66,7 @@ public class VariationTest implements ActionFactory {
   @Test
   public void testAction3() {
     forEachOf(asList("host1", "host2")).perform(
-        hostName ->
+        ($, hostName) ->
             this.given("Host name is given", hostName)
                 .when("", input -> Integer.parseInt(input.substring(input.length() - 1)))
                 .then("then passes (always)", out -> true)

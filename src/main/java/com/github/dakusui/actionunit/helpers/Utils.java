@@ -1,8 +1,5 @@
 package com.github.dakusui.actionunit.helpers;
 
-import com.github.dakusui.actionunit.actions.HandlerFactory;
-
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -16,7 +13,11 @@ public enum Utils {
     return () -> value;
   }
 
-  public static <T> HandlerFactory<T> handlerFactory(String description, Consumer<T> handlerBody) {
-    return HandlerFactory.create(description, handlerBody);
+  public static String spaces(int numSpaces) {
+    StringBuilder ret = new StringBuilder();
+    for (int i = 0; i < numSpaces; i++) {
+      ret.append(" ");
+    }
+    return ret.toString();
   }
 }

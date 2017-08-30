@@ -11,13 +11,14 @@ import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
  * framework should extend this class.
  */
 public abstract class Leaf extends ActionBase {
-  protected Leaf() {
+  protected Leaf(int id) {
+    super(id);
   }
 
-  public static Action create(String description, Runnable runnable) {
+  public static Action create(int id, String description, Runnable runnable) {
     checkNotNull(description);
     checkNotNull(runnable);
-    return new Leaf() {
+    return new Leaf(id) {
       @Override
       public void perform() {
         runnable.run();

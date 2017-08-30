@@ -2,8 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Tests for ActionVisitor.
  */
-public class ActionVisitorTest implements ActionFactory {
+public class ActionVisitorTest implements Context {
   final   TestUtils.Out  out     = new TestUtils.Out();
   private Action.Visitor visitor = new Action.Visitor.Base() {
     @Override
@@ -53,7 +52,7 @@ public class ActionVisitorTest implements ActionFactory {
   @Test
   public void givenNamesAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = ActionSupport.named("named", createSimpleAction());
+    Action action = named("named", createSimpleAction());
     // when accept
     action.accept(visitor);
     // then visited
@@ -70,7 +69,7 @@ public class ActionVisitorTest implements ActionFactory {
   @Test
   public void givenCompositeAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = new Composite.Base("", singletonList(createSimpleAction())) {
+    Action action = new Composite.Base(0, "noname", singletonList(createSimpleAction())) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
@@ -97,7 +96,7 @@ public class ActionVisitorTest implements ActionFactory {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEachOf(singletonList("hello")).perform(s -> nop());
+    Action action = forEachOf(singletonList("hello")).perform(($, s) -> nop());
     // when accept
     action.accept(visitor);
     // then visited
@@ -114,7 +113,7 @@ public class ActionVisitorTest implements ActionFactory {
   @Test
   public void givenRetryAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = retry(createSimpleAction()).times(1).withIntervalOf(1, TimeUnit.NANOSECONDS);
+    Action action = retry(createSimpleAction()).times(1).withIntervalOf(1, TimeUnit.NANOSECONDS).build();
     // when accept
     action.accept(visitor);
     // then visited
@@ -149,7 +148,7 @@ public class ActionVisitorTest implements ActionFactory {
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
     Action action = attempt(createSimpleAction())
-        .recover(Exception.class, e -> nop())
+        .recover(Exception.class, ($, e) -> nop())
         .build();
     // when accept
     action.accept(visitor);
@@ -171,7 +170,7 @@ public class ActionVisitorTest implements ActionFactory {
         () -> "Hello",
         v -> true
     ).perform(
-        s -> sequential(
+        $ -> sequential(
             createSimpleAction(),
             createSimpleAction()
         )
@@ -196,9 +195,9 @@ public class ActionVisitorTest implements ActionFactory {
         () -> "Hello",
         "Hello"::equals
     ).perform(
-        v -> createSimpleAction()
+        $ -> createSimpleAction()
     ).otherwise(
-        v -> createSimpleAction()
+        $ -> createSimpleAction()
     );
     // when accept
     action.accept(visitor);

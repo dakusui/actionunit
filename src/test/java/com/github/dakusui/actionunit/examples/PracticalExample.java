@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class PracticalExample implements ActionFactory {
+public class PracticalExample implements Context {
   /**
    * A dummy function that determines an IP address for a given hostname.
    * This function fails probabilistically fails in rate of 50%
@@ -48,7 +48,7 @@ public class PracticalExample implements ActionFactory {
         "alexios", "nikephoros", "manuel", "constantine", "justinian"
     ).concurrently(
     ).perform(
-        hostName -> sequential(
+        ($, hostName) -> sequential(
             retry(
                 simple(
                     "Try to figure out physical ip address",
@@ -59,7 +59,7 @@ public class PracticalExample implements ActionFactory {
                 10
             ).withIntervalOf(
                 2, MILLISECONDS
-            ),
+            ).build(),
             sequential(
                 simple(
                     "Do something using retrieved IP address",

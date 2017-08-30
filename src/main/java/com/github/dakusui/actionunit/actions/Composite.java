@@ -35,7 +35,8 @@ public interface Composite extends Action, Iterable<Action> {
     private final Iterable<? extends Action> actions;
     private final String                     typeName;
 
-    public Base(String typeName, Iterable<? extends Action> actions) {
+    public Base(int id, String typeName, Iterable<? extends Action> actions) {
+      super(id);
       this.actions = checkNotNull(actions);
       this.typeName = checkNotNull(typeName);
     }
@@ -78,6 +79,6 @@ public interface Composite extends Action, Iterable<Action> {
   }
 
   interface Factory {
-    Composite create(Iterable<? extends Action> actions);
+    Composite create(int id, Iterable<? extends Action> actions);
   }
 }

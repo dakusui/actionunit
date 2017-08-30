@@ -10,8 +10,8 @@ public interface Concurrent extends Composite {
    * A class that represents a collection of actions that should be executed concurrently.
    */
   class Base extends Composite.Base implements Concurrent {
-    public Base(Iterable<? extends Action> actions) {
-      super("Concurrent", actions);
+    public Base(int id, Iterable<? extends Action> actions) {
+      super(id, "Concurrent", actions);
     }
 
     @Override
@@ -24,8 +24,8 @@ public interface Concurrent extends Composite {
     INSTANCE;
 
     @Override
-    public Concurrent create(Iterable<? extends Action> actions) {
-      return new Base(actions);
+    public Concurrent create(int id, Iterable<? extends Action> actions) {
+      return new Base(id, actions);
     }
   }
 }

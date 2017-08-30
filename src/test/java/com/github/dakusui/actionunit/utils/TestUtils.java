@@ -10,7 +10,6 @@ import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.DiagnosingMatcher;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +24,6 @@ import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static java.util.stream.Collectors.toList;
 
 public class TestUtils {
   static boolean isRunUnderSurefire() {
@@ -145,38 +143,33 @@ public class TestUtils {
    */
   public static Iterable<Integer> range(final int start, final int stop, final int step) {
     checkArgument(step != 0, "step argument must not be zero. ");
-    return new Iterable<Integer>() {
+    return () -> new Iterator<Integer>() {
+      long current = start;
+
       @Override
-      public Iterator<Integer> iterator() {
-        return new Iterator<Integer>() {
-          long current = start;
+      public boolean hasNext() {
+        long next = current + step;
+        // If next value goes over int range, returned iterator will stop.
+        //noinspection SimplifiableIfStatement
+        if (next > Integer.MAX_VALUE || next < Integer.MIN_VALUE)
+          return false;
+        return Math.signum(step) > 0
+            ? next <= stop
+            : next >= stop;
+      }
 
-          @Override
-          public boolean hasNext() {
-            long next = current + step;
-            // If next value goes over int range, returned iterator will stop.
-            //noinspection SimplifiableIfStatement
-            if (next > Integer.MAX_VALUE || next < Integer.MIN_VALUE)
-              return false;
-            return Math.signum(step) > 0
-                ? next <= stop
-                : next >= stop;
-          }
+      @Override
+      public Integer next() {
+        try {
+          return (int) current;
+        } finally {
+          current += step;
+        }
+      }
 
-          @Override
-          public Integer next() {
-            try {
-              return (int) current;
-            } finally {
-              current += step;
-            }
-          }
-
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
-        };
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
       }
     };
   }
@@ -215,6 +208,12 @@ public class TestUtils {
 
   public static <T, U> MatcherBuilder<T, U> matcherBuilder() {
     return new MatcherBuilder<>();
+  }
+
+  public static Out performAndReportAction(Action action) {
+    final Out result = new Out();
+    new ReportingActionPerformer.Builder(action).to(result).build().performAndReport();
+    return result;
   }
 
   public static class Out extends AbstractList<String> implements Writer {
@@ -274,10 +273,11 @@ public class TestUtils {
   }
 
   public static class MatcherBuilder<V, U> {
-    String         predicateName = "P";
+    String         predicateName = null;
     Predicate<U>   p             = null;
-    String         functionName  = "f";
-    Function<V, U> f             = null;
+    String         functionName  = "";
+    @SuppressWarnings("unchecked")
+    Function<V, U> f = v -> (U) v;
 
     public MatcherBuilder<V, U> transform(String name, Function<V, U> f) {
       this.functionName = Objects.requireNonNull(name);
@@ -324,50 +324,6 @@ public class TestUtils {
           .transform("passthrough", t -> t);
     }
 
-  }
-
-  /**
-   * A bit better version of CoreMatchers.allOf.
-   * For example:
-   * <pre>assertThat("myValue", allOf(startsWith("my"), containsString("Val")))</pre>
-   */
-  @SafeVarargs
-  public static <T> Matcher<T> allOf(Matcher<? super T>... matchers) {
-    /*
-    Expected: (
-      =='Hello'(0thElement(x)) and
-      =='world'(1stElement(x)) and
-      =='!'(2ndElement(x))
-    )
-         but:
-      =='Hello'(0thElement(x)) was false because 0thElement(x)="Hello"; x=<[Hello, world, !]>
-      =='world'(1stElement(x)) was false because 1stElement(x)="world"; x=<[Hello, world, !]>
-      =='!'(2ndElement(x)) was false because 2ndElement(x)="!"; x=<[Hello, world, !]>
-     */
-    return new DiagnosingMatcher<T>() {
-      @Override
-      protected boolean matches(Object o, Description mismatch) {
-        boolean ret = true;
-        for (Matcher<? super T> matcher : matchers) {
-          if (!matcher.matches(o)) {
-            if (ret)
-              mismatch.appendText("(");
-            mismatch.appendText("\n  ");
-            mismatch.appendDescriptionOf(matcher).appendText(" ");
-            matcher.describeMismatch(o, mismatch);
-            ret = false;
-          }
-        }
-        if (!ret)
-          mismatch.appendText("\n)");
-        return ret;
-      }
-
-      @Override
-      public void describeTo(Description description) {
-        description.appendList("(\n  ", " " + "and" + "\n  ", "\n)", Arrays.stream(matchers).collect(toList()));
-      }
-    };
   }
 
   public static <I, O> Function<I, O> memoize(Function<I, O> function) {
