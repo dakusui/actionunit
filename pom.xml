@@ -5,7 +5,7 @@
     <groupId>com.github.dakusui</groupId>
     <artifactId>actionunit</artifactId>
     <packaging>jar</packaging>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
     <description>Action based junit test runner library</description>
 
     <name>actionunit</name>
