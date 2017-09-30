@@ -106,6 +106,7 @@ public class ActionPerformer extends ActionWalker {
         Throwable lastException = e;
         for (int i = 0; i < retry.times || retry.times == Retry.INFINITE; i++) {
           if (retry.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
+            retry.getHandler().accept(lastException);
             InternalUtils.sleep(retry.intervalInNanos, NANOSECONDS);
             try {
               toRunnable(retry.action).run();
