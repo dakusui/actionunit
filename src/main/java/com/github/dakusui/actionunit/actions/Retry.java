@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
@@ -21,14 +22,14 @@ public class Retry extends ActionBase {
   public final  int                        times;
   public final  long                       intervalInNanos;
   private final Class<? extends Throwable> targetExceptionClass;
+  private final Consumer<Throwable>        handler;
 
-  public <T extends Throwable> Retry(Class<T> targetExceptionClass, Action action, long intervalInNanos, int times) {
-    checkArgument(intervalInNanos >= 0);
-    checkArgument(times >= 0 || times == INFINITE);
+  private <T extends Throwable> Retry(Class<T> targetExceptionClass, Action action, long intervalInNanos, int times, Consumer<Throwable> handler) {
     this.targetExceptionClass = targetExceptionClass;
     this.action = checkNotNull(action);
     this.intervalInNanos = intervalInNanos;
     this.times = times;
+    this.handler = handler;
   }
 
   @Override
@@ -45,6 +46,10 @@ public class Retry extends ActionBase {
     );
   }
 
+  public Consumer<Throwable> getHandler() {
+    return handler;
+  }
+
   public <T extends Throwable> Class<T> getTargetExceptionClass() {
     //noinspection unchecked
     return (Class<T>) this.targetExceptionClass;
@@ -58,6 +63,7 @@ public class Retry extends ActionBase {
     private Action action;
     private int                        times                = INFINITE;
     private Class<? extends Throwable> targetExceptionClass = ActionException.class;
+    private Consumer<Throwable>        handler              = throwable -> {};
 
     public Builder(Action action) {
       this.action = requireNonNull(action);
@@ -73,9 +79,16 @@ public class Retry extends ActionBase {
       return this;
     }
 
+    public Builder handler(Consumer<Throwable> handler) {
+      this.handler = Objects.requireNonNull(handler);
+      return this;
+    }
+
     public Retry withIntervalOf(long interval, TimeUnit timeUnit) {
-      checkArgument(interval > 0);
-      return new Retry(targetExceptionClass, action, requireNonNull(timeUnit).toNanos(interval), times);
+      checkArgument(interval >= 0);
+      checkArgument(times >= 0 || times == INFINITE);
+
+      return new Retry(targetExceptionClass, action, requireNonNull(timeUnit).toNanos(interval), times, handler);
     }
   }
 
