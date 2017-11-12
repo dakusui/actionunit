@@ -169,6 +169,21 @@ public enum ActionSupport {
   }
 
   /**
+   * Creates a builder for {@code While} action. This method was named {@code whilst}
+   * just because {@code while} is a reserved word in Java and it can't be used
+   * for a method name.
+   *
+   * @param condition A supplier that determines if an action created by {@code While}
+   *                  object should be executed or not.
+   * @return Created builder
+   * @see While
+   * @see While.Builder
+   */
+  public static While.Builder<Boolean> whilst(Supplier<Boolean> condition) {
+    return Context.Internal.whilst(generateId(), condition, result -> result);
+  }
+
+  /**
    * Creates a builder for {@code When} action.
    *
    * @param value     A supplier that gives value to be examined by {@code condition}.
@@ -181,6 +196,19 @@ public enum ActionSupport {
    */
   public static <T> When.Builder<T> when(Supplier<T> value, Predicate<T> condition) {
     return Context.Internal.when(generateId(), value, condition);
+  }
+
+  /**
+   * Creates a builder for {@code When} action.
+   *
+   * @param condition A supplier that determines if an action created by {@code While}
+   *                  object should be executed or not.
+   * @return Created builder
+   * @see When
+   * @see When.Builder
+   */
+  public static When.Builder<Boolean> when(Supplier<Boolean> condition) {
+    return Context.Internal.when(generateId(), condition, result -> result);
   }
 
   /**

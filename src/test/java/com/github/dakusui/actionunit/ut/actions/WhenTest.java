@@ -28,7 +28,7 @@ public class WhenTest extends TestUtils.TestBase implements Context {
                 "hello",
                 () -> System.out.println("hello" + v.get())
             )
-        ).$()
+        ).build()
     );
     new ReportingActionPerformer.Builder(action).build().performAndReport();
   }

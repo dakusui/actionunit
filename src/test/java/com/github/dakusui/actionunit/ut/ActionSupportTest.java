@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
@@ -13,8 +13,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.lang.System.currentTimeMillis;
@@ -442,6 +442,36 @@ public class ActionSupportTest {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegative$whenSleep$thenException() {
     sleep(-1, TimeUnit.MILLISECONDS);
+  }
+
+  @Test
+  public void givenWhenAction$whenPerform$thenObjectAdded() {
+    List<Object> objects = new LinkedList<>();
+
+    Action action = when(
+        () -> "Hello".startsWith("H")
+    ).perform(
+        simple("meets", () -> objects.add(new Object()))
+    ).otherwise(
+        nop()
+    );
+    action.accept(createActionPerformer());
+
+    assertEquals(1, objects.size());
+  }
+
+  @Test
+  public void givenWhileAction$whenPerform$then100ObjectAdded() {
+    List<Object> objects = new LinkedList<>();
+
+    Action action = whilst(
+        () -> objects.size() < 100
+    ).perform(
+        simple("meets", () -> objects.add(new Object()))
+    );
+    action.accept(createActionPerformer());
+
+    assertEquals(100, objects.size());
   }
 
   @Test(expected = UnsupportedOperationException.class)

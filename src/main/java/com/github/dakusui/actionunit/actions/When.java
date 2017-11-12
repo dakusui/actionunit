@@ -41,14 +41,14 @@ public interface When<T> extends Action, Context {
 
     public When<T> otherwise(ActionFactory factory) {
       this.actionFactoryForOtherwise = Objects.requireNonNull(factory);
-      return $();
+      return build();
     }
 
     public When<T> otherwise(Action action) {
       return otherwise(self -> action);
     }
 
-    public When<T> $() {
+    public When<T> build() {
       return new When.Impl<>(
           id,
           value,
