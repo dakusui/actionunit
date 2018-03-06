@@ -3,18 +3,18 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 
-import java.util.Objects;
-import java.util.function.Supplier;
-
 import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
 import static com.github.dakusui.actionunit.helpers.InternalUtils.summary;
+import static java.util.Objects.requireNonNull;
 
 public interface ForEach<T> extends Action {
   Iterable<T> data();
 
-  Action createHandler(Supplier<T> data);
+  Action createHandler(DataHolder<T> data);
 
   Mode getMode();
+
+  DataHolder<T> defaultValue();
 
   static <E> ForEach.Builder<E> builder(int id, Iterable<? extends E> elements) {
     return new ForEach.Builder<>(id, elements);
@@ -24,10 +24,17 @@ public interface ForEach<T> extends Action {
     private final Iterable<? extends E> elements;
     private final int                   id;
     private Mode mode = Mode.SEQUENTIALLY;
+    private DataHolder<E> defaultValue;
 
     Builder(int id, Iterable<? extends E> elements) {
       this.id = id;
-      this.elements = Objects.requireNonNull(elements);
+      this.elements = requireNonNull(elements);
+      this.defaultValue = DataHolder.empty();
+    }
+
+    public Builder<E> withDefault(E defaultValue) {
+      this.defaultValue = DataHolder.of(defaultValue);
+      return this;
     }
 
     public Builder<E> sequentially() {
@@ -41,18 +48,18 @@ public interface ForEach<T> extends Action {
     }
 
     public ForEach<E> perform(ValueHandlerActionFactory<E> operation) {
-      Objects.requireNonNull(operation);
+      requireNonNull(operation);
       //noinspection unchecked
       return new ForEach.Impl<>(
           id,
           operation,
           (Iterable<E>) this.elements,
-          this.mode
-      );
+          this.mode,
+          defaultValue);
     }
 
     public ForEach<E> perform(Action action) {
-      Objects.requireNonNull(action);
+      requireNonNull(action);
       return perform((factory, data) -> action);
     }
 
@@ -67,12 +74,14 @@ public interface ForEach<T> extends Action {
     private final ValueHandlerActionFactory<T> handlerFactory;
     private final Iterable<T>                  data;
     private final Mode                         mode;
+    private final DataHolder<T>                defaultValue;
 
-    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Iterable<T> data, Mode mode) {
+    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Iterable<T> data, Mode mode, DataHolder<T> defaultValue) {
       super(id);
-      this.handlerFactory = Objects.requireNonNull(handlerFactory);
-      this.data = Objects.requireNonNull(data);
-      this.mode = Objects.requireNonNull(mode);
+      this.handlerFactory = requireNonNull(handlerFactory);
+      this.data = requireNonNull(data);
+      this.mode = requireNonNull(mode);
+      this.defaultValue = requireNonNull(defaultValue);
     }
 
     @Override
@@ -81,13 +90,18 @@ public interface ForEach<T> extends Action {
     }
 
     @Override
-    public Action createHandler(Supplier<T> data) {
+    public Action createHandler(DataHolder<T> data) {
       return this.handlerFactory.apply(data);
     }
 
     @Override
     public Mode getMode() {
       return this.mode;
+    }
+
+    @Override
+    public DataHolder<T> defaultValue() {
+      return defaultValue;
     }
 
     @Override

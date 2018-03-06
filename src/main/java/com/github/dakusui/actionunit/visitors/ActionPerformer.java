@@ -47,7 +47,7 @@ public class ActionPerformer extends ActionWalker {
     return (ForEach<T> forEach) -> {
       Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
       stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
-          .map((T item) -> (Supplier<T>) () -> item)
+          .map(DataHolder::of)
           .map(forEach::createHandler)
           .forEach((Action eachChild) -> {
             branchPath(pathSnapshot);

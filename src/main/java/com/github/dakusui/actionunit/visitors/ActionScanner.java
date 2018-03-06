@@ -23,9 +23,7 @@ public abstract class ActionScanner extends ActionWalker {
 
   @Override
   protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
-    return (ForEach<T> a) -> a.createHandler(() -> {
-      throw new UnsupportedOperationException();
-    }).accept(this);
+    return (ForEach<T> a) -> a.createHandler(a.defaultValue()).accept(this);
   }
 
   @Override
