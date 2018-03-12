@@ -6,6 +6,8 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
+import static java.lang.String.format;
+
 public class AttemptExample implements Context {
   @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenPerform$thenWorksFine() {
@@ -16,6 +18,12 @@ public class AttemptExample implements Context {
   public void givenAttemptAction$whenPrint$thenWorksFine() {
     buildAttemptAction().accept(TestUtils.createPrintingActionScanner(Writer.Std.OUT));
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void givenAttemptAction$whenPerformAndReport$thenWorksFine() {
+    TestUtils.createReportingActionPerformer(buildAttemptAction()).performAndReport();
+  }
+
 
   private Attempt<? super NullPointerException> buildAttemptAction() {
     return attempt(
@@ -28,7 +36,7 @@ public class AttemptExample implements Context {
     ).recover(
         NullPointerException.class,
         ($, e) -> $.simple(
-            "print stacktrace",
+            format("print stacktrace:<%s>", e),
             () -> {
             })
     ).ensure(

@@ -10,11 +10,11 @@ import static java.util.Objects.requireNonNull;
 public interface ForEach<T> extends Action {
   Iterable<T> data();
 
-  Action createHandler(DataHolder<T> data);
+  Action createHandler(ValueHolder<T> data);
 
   Mode getMode();
 
-  DataHolder<T> defaultValue();
+  ValueHolder<T> defaultValue();
 
   static <E> ForEach.Builder<E> builder(int id, Iterable<? extends E> elements) {
     return new ForEach.Builder<>(id, elements);
@@ -24,16 +24,16 @@ public interface ForEach<T> extends Action {
     private final Iterable<? extends E> elements;
     private final int                   id;
     private Mode mode = Mode.SEQUENTIALLY;
-    private DataHolder<E> defaultValue;
+    private ValueHolder<E> defaultValue;
 
     Builder(int id, Iterable<? extends E> elements) {
       this.id = id;
       this.elements = requireNonNull(elements);
-      this.defaultValue = DataHolder.empty();
+      this.defaultValue = ValueHolder.empty();
     }
 
     public Builder<E> withDefault(E defaultValue) {
-      this.defaultValue = DataHolder.of(defaultValue);
+      this.defaultValue = ValueHolder.of(defaultValue);
       return this;
     }
 
@@ -74,9 +74,9 @@ public interface ForEach<T> extends Action {
     private final ValueHandlerActionFactory<T> handlerFactory;
     private final Iterable<T>                  data;
     private final Mode                         mode;
-    private final DataHolder<T>                defaultValue;
+    private final ValueHolder<T>               defaultValue;
 
-    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Iterable<T> data, Mode mode, DataHolder<T> defaultValue) {
+    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Iterable<T> data, Mode mode, ValueHolder<T> defaultValue) {
       super(id);
       this.handlerFactory = requireNonNull(handlerFactory);
       this.data = requireNonNull(data);
@@ -90,7 +90,7 @@ public interface ForEach<T> extends Action {
     }
 
     @Override
-    public Action createHandler(DataHolder<T> data) {
+    public Action createHandler(ValueHolder<T> data) {
       return this.handlerFactory.apply(data);
     }
 
@@ -100,7 +100,7 @@ public interface ForEach<T> extends Action {
     }
 
     @Override
-    public DataHolder<T> defaultValue() {
+    public ValueHolder<T> defaultValue() {
       return defaultValue;
     }
 

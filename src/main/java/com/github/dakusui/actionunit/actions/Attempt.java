@@ -13,7 +13,7 @@ public interface Attempt<E extends Throwable> extends Action, Context {
 
   Class<E> exceptionClass();
 
-  Action recover(DataHolder<E> exception);
+  Action recover(ValueHolder<E> exception);
 
   Action ensure();
 
@@ -79,7 +79,7 @@ public interface Attempt<E extends Throwable> extends Action, Context {
     }
 
     @Override
-    public Action recover(DataHolder<E> exception) {
+    public Action recover(ValueHolder<E> exception) {
       return Context.Internal.named(1, String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
     }
 

@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.actions.DataHolder;
+import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
@@ -42,7 +42,7 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
-        (Context $, DataHolder<String> value) -> $.sequential(
+        (Context $, ValueHolder<String> value) -> $.sequential(
             $.when(value, "C"::equals)
                 .perform(
                     ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get()))
@@ -71,7 +71,7 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
             "unknown"
         ).concurrently(
         ).perform(
-            (Context $, DataHolder<String> value) -> {
+            (Context $, ValueHolder<String> value) -> {
               String v = value.isPresent() ?
                   value.get() :
                   String.format("(%s)", value.get());

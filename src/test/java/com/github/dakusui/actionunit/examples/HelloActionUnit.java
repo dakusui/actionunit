@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.actions.DataHolder;
+import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
@@ -19,7 +19,7 @@ public class HelloActionUnit implements Context {
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        (Context $, DataHolder<String> i) -> sequential(
+        (Context $, ValueHolder<String> i) -> sequential(
             simple(
                 "print {i}",
                 () -> System.out.println("<" + i.get() + ">")
