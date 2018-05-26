@@ -12,7 +12,7 @@ Following is a maven coordinate for ActionUnit.
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>actionunit</artifactId>
-      <version>[3.0.0,)</version>
+      <version>[3.1.0,)</version>
       <scope>test</scope>
     </dependency>
 ```
@@ -44,8 +44,8 @@ public class HelloActionUnit implements ActionFactory {
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        (Supplier<String> i) -> sequential(
-            simple(
+        ($, i) -> sequential(
+            $.simple(
                 "print {i}",
                 () -> System.out.println("<" + i.get() + ">")
             )
@@ -62,6 +62,8 @@ public class HelloActionUnit implements ActionFactory {
   }
 }
 ```
+```$``` is an object called "Context" from which you are supposed to create actions. ```i``` is a supplier which gives you a data to be processed in a lambda.
+When you nest multiple ```forEachOf``` structure, you should always use the inner most context.
 
 This will print out something like
 
