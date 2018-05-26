@@ -113,4 +113,14 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
   public void printOnly(Action action) {
     Node.print(ActionTreeBuilder.traverse(action), Writer.Std.OUT);
   }
+
+  @Override
+  public <V> V set(String variableName, V value) {
+    return null;
+  }
+
+  @Override
+  public <V> V get(String variableName) {
+    return null;
+  }
 }
