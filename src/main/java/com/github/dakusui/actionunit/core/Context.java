@@ -1,8 +1,11 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -12,6 +15,7 @@ import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.helpers.InternalUtils.nonameIfNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
@@ -269,6 +273,21 @@ public interface Context {
   }
 
   class Impl implements Context {
+    ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <V> V set(String variableName, V value) {
+      return (V) map.put(variableName, requireNonNull(value));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <V> V get(String variableName) {
+      if (!map.containsKey(variableName))
+        throw new ActionException(format("Undefined variable '%s' was referenced.", variableName));
+      return (V) map.get(variableName);
+    }
   }
 
   class Internal {
@@ -361,5 +380,38 @@ public interface Context {
     public static <I, O> TestAction.Builder<I, O> given(int id, String description, Supplier<I> given) {
       return new TestAction.Builder<I, O>(id).given(description, given);
     }
+  }
+
+  /**
+   * Associates a {@code value} with a variable specified by {@code variableName}.
+   * <p>
+   * An implementation of this method internally casts a value associated into
+   * a type {@code V}, which is figured out by compiler automatically. This means
+   * a user of this method needs to be responsible for using correct type and
+   * unless otherwise a class cast exception will be thrown at runtime.
+   *
+   * @param variableName A name of a variable a {@code value} is going to be associated with.
+   * @param value        A value of a variable specified by {@code variableName}.
+   * @param <V>          Type of value associated with a variable specified by {@code variableName}.
+   * @return A value previously associated with this context.
+   */
+  default <V> V set(String variableName, V value) {
+    throw new UnsupportedOperationException("'Variable' feature is not supported by this implementation.");
+  }
+
+  /**
+   * Returns a value associated with a variable specified by {@code variableName}.
+   * <p>
+   * An implementation of this method internally casts a value associated into
+   * a type {@code V}, which is figured out by compiler automatically. This means
+   * a user of this method needs to be responsible for using correct type and
+   * unless otherwise a class cast exception will be thrown at runtime.
+   *
+   * @param variableName A name of variable whose value should be returned.
+   * @param <V>          A type of variable.
+   * @return A value associated with this context
+   */
+  default <V> V get(String variableName) {
+    throw new UnsupportedOperationException("'Variable' feature is not supported by this implementation.");
   }
 }
