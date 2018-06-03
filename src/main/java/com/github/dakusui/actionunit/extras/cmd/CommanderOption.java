@@ -11,7 +11,7 @@ public interface CommanderOption {
 
   @SuppressWarnings("unchecked")
   default <B extends Commander> B addTo(B builder, String value, boolean longFormat) {
-    return (B) builder.add(String.format("%s %s", this.format(longFormat), Commander.quoteWithSingleQuotesForShell(value)));
+    return (B) builder.add(String.format("%s %s", this.format(longFormat), CommanderUtils.quoteWithSingleQuotesForShell(value)));
   }
 
   @SuppressWarnings("unchecked")

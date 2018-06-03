@@ -1,9 +1,8 @@
-package com.github.dakusui.actionunit.extras.cmdaction.linux;
+package com.github.dakusui.actionunit.extras.cmdaction;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
-import com.github.dakusui.actionunit.extras.cmdaction.CommanderTestBase;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +10,9 @@ import java.nio.file.Files;
 import java.util.function.Function;
 
 public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBase<C> {
-  final File dir;
+  protected final File dir;
 
-  FsTestBase() throws IOException {
+  public FsTestBase() throws IOException {
     super();
     this.dir = Files.createTempDirectory("tmp").toFile();
     this.dir.deleteOnExit();
@@ -58,7 +57,7 @@ public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBa
     // created inside JVM.
     return new Commander(context) {
       @Override
-      protected String commandPath() {
+      protected String program() {
         return "/bin/rm";
       }
     }.add("-rf").add(dir.getAbsolutePath()).build();

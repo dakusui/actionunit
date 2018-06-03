@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.extras.cmd.linux.Ls;
 import com.github.dakusui.actionunit.extras.cmd.linux.Mkdir;
 import com.github.dakusui.actionunit.extras.cmd.linux.Rm;
 import com.github.dakusui.actionunit.extras.cmd.linux.Touch;
+import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
 import org.junit.Test;
 
@@ -23,7 +24,7 @@ public class RmTest extends FsTestBase<Rm> {
   public void removeNormalFile() {
     perform(
         this.context.sequential(
-            this.commander.file("f").build(),
+            this.commander.file(() -> "f").build(),
             this.configure(new Ls(this.context).cwd(dir).sortByMtime()).build()
         )
     );

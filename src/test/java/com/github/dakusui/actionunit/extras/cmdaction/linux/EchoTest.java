@@ -24,7 +24,7 @@ public class EchoTest extends CommanderTestBase<Echo> {
 
   @Test
   public void enableBackslashInterpretation() {
-    perform(this.commander.enableBackslashInterpretation().addq(helloWorld()).build());
+    perform(this.commander.enableBackslashInterpretation().message(this::helloWorld).build());
     assertThat(
         this.stdout,
         allOf(

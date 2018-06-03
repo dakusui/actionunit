@@ -28,7 +28,7 @@ public class Ls extends Commander<Ls> {
   }
 
   @Override
-  protected String commandPath() {
+  protected String program() {
     return "/bin/ls";
   }
 

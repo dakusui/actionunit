@@ -11,7 +11,7 @@ public class Mkdir extends Commander<Mkdir> {
   }
 
   @Override
-  protected String commandPath() {
+  protected String program() {
     return "/bin/mkdir";
   }
 

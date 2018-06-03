@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.extras.cmdaction.linux;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.extras.cmd.linux.Mkdir;
+import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
 import org.junit.Test;
 
 import java.io.File;
@@ -22,6 +23,15 @@ public class MkdirTest extends FsTestBase<Mkdir> {
     perform(
         context.sequential(
             commander.dir("hello").recursive().build(),
+            checkDirectoryExists(targetDir("hello")).apply(context)
+        ));
+  }
+
+  @Test
+  public void mkdirWithFile() {
+    perform(
+        context.sequential(
+            commander.dir(new File(this.dir, "hello")).recursive().build(),
             checkDirectoryExists(targetDir("hello")).apply(context)
         ));
   }

@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
 
 import java.io.File;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -28,8 +29,12 @@ public class Rm extends Commander<Rm> {
     return this.addq(file);
   }
 
+  public Rm file(Supplier<String> file) {
+    return this.addq(file);
+  }
+
   @Override
-  protected String commandPath() {
+  protected String program() {
     return "/bin/rm";
   }
 }

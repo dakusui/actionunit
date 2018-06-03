@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.extras.cmd.linux.Ls;
 import com.github.dakusui.actionunit.extras.cmd.linux.Touch;
+import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
 import org.junit.Test;
 
 import java.io.IOException;

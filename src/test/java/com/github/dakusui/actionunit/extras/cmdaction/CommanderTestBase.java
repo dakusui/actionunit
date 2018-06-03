@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.extras.cmdaction;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -29,11 +28,12 @@ public abstract class CommanderTestBase<C extends Commander<C>> {
   protected abstract C create(Context context);
 
   protected <D extends Commander<D>> D configure(D commander) {
-    return commander.consumeStdoutWith(
+    commander.cmdBuilder().consumeStdout(
         ((Consumer<String>) requireNonNull(stdout)::add).andThen(System.out::println)
-    ).consumeStderrWith(
+    ).consumeStderr(
         ((Consumer<String>) requireNonNull(stderr)::add).andThen(System.err::println)
     );
+    return commander;
   }
 
   public CommanderTestBase() {
@@ -44,12 +44,6 @@ public abstract class CommanderTestBase<C extends Commander<C>> {
   }
 
   protected void perform(Action action) {
-    ReportingActionPerformer performer = ReportingActionPerformer.create(action);
-    performer.report();
-    try {
-      performer.perform();
-    } finally {
-      performer.report();
-    }
+    CommanderTestUtil.perform(action);
   }
 }

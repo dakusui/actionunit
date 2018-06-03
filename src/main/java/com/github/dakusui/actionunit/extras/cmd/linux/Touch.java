@@ -17,7 +17,7 @@ public class Touch extends Commander<Touch> {
   }
 
   @Override
-  protected String commandPath() {
+  protected String program() {
     return "/usr/bin/touch";
   }
 }

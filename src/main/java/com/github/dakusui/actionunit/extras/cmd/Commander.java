@@ -4,7 +4,6 @@ package com.github.dakusui.actionunit.extras.cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.helpers.Checks;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import com.github.dakusui.cmd.Cmd;
 import com.github.dakusui.cmd.Shell;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
@@ -14,8 +13,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.extras.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
 import static com.github.dakusui.actionunit.helpers.Checks.*;
 import static java.util.Objects.requireNonNull;
 
@@ -25,12 +27,12 @@ import static java.util.Objects.requireNonNull;
  * @param <B> The class itself you implement by extending this class.
  */
 public abstract class Commander<B extends Commander<B>> implements Cloneable {
-  private Stream<String> stdin = null;
+  private final int            summaryLength;
+  private       Stream<String> stdin = null;
 
   private static final Consumer<String> DEFAULT_STDOUT_CONSUMER = System.out::println;
   private static final Consumer<String> DEFAULT_STDERR_CONSUMER = System.err::println;
-  @SuppressWarnings("WeakerAccess")
-  List<String> options;
+  List<Supplier<String>> options;
   private       Cmd.Builder                cmdBuilder;
   private final Context                    context;
   private       int                        numRetries;
@@ -41,15 +43,41 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
   private       long                       timeOutDuration;
   private       Class<? extends Throwable> retryOn = UnexpectedExitValueException.class;
   private       File                       cwd     = null;
+  private final Map<String, String>        env     = new LinkedHashMap<>();
 
+
+  /**
+   * This is a helper method to create a {@code Commander} object for a given
+   * {@code command} without defining a custom class.
+   *
+   * @param context A context to create an action.
+   * @param command A command for which the returned builder works.
+   * @return A new {@code Commander} object.
+   */
+  @SuppressWarnings("unchecked")
+  public static Commander<?> commander(Context context, String command) {
+    return new Commander(context) {
+      @Override
+      protected String program() {
+        return command;
+      }
+    };
+  }
+
+  /**
+   * Creates an instance of this class.
+   *
+   * @param context A context from which this builder object creates an action.
+   */
   public Commander(Context context) {
     this.context = requireNonNull(context);
+    this.summaryLength = 60;
     this.options = new LinkedList<>();
     this.cmdBuilder = Cmd.builder()
         .with(new Bash())
         .consumeStdout(DEFAULT_STDOUT_CONSUMER)
         .consumeStderr(DEFAULT_STDERR_CONSUMER);
-    this.consumeStderrWith(DEFAULT_STDERR_CONSUMER).disconnectStdin().disableTimeout();
+    this.disconnectStdin().disableTimeout();
   }
 
   @SuppressWarnings("unchecked")
@@ -61,21 +89,6 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
     } catch (CloneNotSupportedException e) {
       throw impossibleLineReached(e.getMessage(), e);
     }
-  }
-
-  public static String summarize(String commandLine, int length) {
-    Checks.requireArgument(l -> l > 3, length);
-    return requireNonNull(commandLine).length() < length ?
-        replaceNewLines(commandLine) :
-        replaceNewLines(commandLine).substring(0, length - 3) + "...";
-  }
-
-  private static String escapeSingleQuotesForShell(String s) {
-    return requireNonNull(s).replaceAll("('+)", "'\"$1\"'");
-  }
-
-  private static String replaceNewLines(String s) {
-    return s.replaceAll("\n", " ");
   }
 
   @SuppressWarnings("unchecked")
@@ -94,34 +107,13 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
     return stdin(null);
   }
 
-  @SuppressWarnings("unchecked")
-  public B consumeStdoutWith(Consumer<String> c) {
-    this.cmdBuilder.consumeStdout(c);
-    return (B) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public B consumeStderrWith(Consumer<String> c) {
-    this.cmdBuilder.consumeStderr(c);
-    return (B) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public B transformStdoutWith(Function<Stream<String>, Stream<String>> transformer) {
-    cmdBuilder.transformStdout(transformer);
-    return (B) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public B transformStderrWith(Function<Stream<String>, Stream<String>> transformer) {
-    cmdBuilder.transformStderr(transformer);
-    return (B) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public B transformInputWith(Function<Stream<String>, Stream<String>> transformer) {
-    cmdBuilder.transformInput(transformer);
-    return (B) this;
+  /**
+   * Exposes a builder of {@code Cmd} object.
+   *
+   * @return An internal builder for {@code Cmd} object.
+   */
+  public Cmd.Builder cmdBuilder() {
+    return this.cmdBuilder;
   }
 
   @SuppressWarnings("unchecked")
@@ -171,6 +163,36 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
     return readFrom(this.stdin);
   }
 
+  /**
+   * This method returns a stream for standard output of a command built by
+   * this builder.
+   * <p>
+   * And this does not create any action. This method is meant to reuse a
+   * {@code Commander} object create for creating an action to other purposes
+   * such as a source of data used in a {@code ForEach} action structure.
+   *
+   * @return A stream for standard output of the command.
+   */
+  public Stream<String> toStream() {
+    return composeCmd().stream();
+  }
+
+  /**
+   * This method returns an iterator for standard output of a command built by
+   * this builder.
+   *
+   * @return An iterator for standard output of the command.
+   * @see Commander#toStream();
+   */
+  public Iterable<String> toIterable() {
+    return () -> toStream().iterator();
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toString(this.description);
+  }
+
   private Action readFrom(Stream<String> in) {
     return numRetries > 0 ?
         this.context.retry(
@@ -185,52 +207,9 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
         timeOutIfNecessary(composeAction(in));
   }
 
-  public Stream<String> toStream() {
-    return composeCmd().stream();
-  }
-
-  public Iterable<String> toIterable() {
-    return () -> toStream().iterator();
-  }
-
-  private Action timeOutIfNecessary(Action action) {
-    return this.timeOutDuration > 0 ?
-        this.context.timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit) :
-        action;
-  }
-
-  private Action composeAction(Stream<String> in) {
-    Cmd cmd = composeCmd();
-    return this.context.simple(
-        description().orElse(summarize(cmd.getCommand(), 60)),
-        () -> {
-          Cmd internalCmd = cmd;
-          if (!cmd.getState().equals(Cmd.State.PREPARING)) {
-            // re-build is required to reset status in Cmd. this action is possible to be repeated when retry.
-            internalCmd = composeCmd();
-          }
-          if (in != null)
-            internalCmd.readFrom(in);
-          internalCmd.stream().forEach(s -> {
-          });
-        }
-    );
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toString(this.description);
-  }
-
   private Optional<String> description() {
     return Optional.ofNullable(this.description);
   }
-
-  public static void run(Action action) {
-    new ReportingActionPerformer.Builder(action).build().performAndReport();
-  }
-
-  public static Context ROOT_CONTEXT = new Context.Impl();
 
   /**
    * Add {@code option} quoting with single quotes "'".
@@ -239,12 +218,47 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
    * @return This object
    */
   public B addq(String option) {
-    return this.add(quoteWithSingleQuotesForShell(option));
+    requireNonNull(option);
+    return this.addq(new Supplier<String>() {
+      @Override
+      public String get() {
+        return option;
+      }
+
+      @Override
+      public String toString() {
+        return option;
+      }
+    });
+  }
+
+  @SuppressWarnings("unchecked")
+  public B addq(Supplier<String> option) {
+    requireNonNull(option);
+    options.add(() -> quoteWithSingleQuotesForShell(option.get()));
+    return (B) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public B add(Supplier<String> option) {
+    options.add(requireNonNull(option));
+    return (B) this;
   }
 
   @SuppressWarnings("unchecked")
   public B add(String option) {
-    options.add(requireNonNull(option));
+    requireNonNull(option);
+    options.add(new Supplier<String>() {
+      @Override
+      public String get() {
+        return option;
+      }
+
+      @Override
+      public String toString() {
+        return option;
+      }
+    });
     return (B) this;
   }
 
@@ -266,55 +280,136 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
     return (B) requireNonNull(option).addTo(this, value, longFormat);
   }
 
+  /**
+   * Sets current working directory of a command built by this object to a
+   * given value.
+   *
+   * @param cwd Current working directory for a command built by this object.
+   * @return this object
+   */
   @SuppressWarnings("unchecked")
   public B cwd(File cwd) {
     requireArgument(File::isDirectory, requireNonNull(cwd));
     this.cwd = cwd;
-    cmdBuilder.cwd(cwd);
+    this.cmdBuilder.cwd(cwd);
     return (B) this;
   }
 
+  /**
+   * Returns a current working directory set to this object
+   *
+   * @return A current working directory set to this object.
+   */
+  public File cwd() {
+    if (this.cwd == null)
+      return new File(System.getProperty("user.dir"));
+    return this.cwd;
+  }
+
+  /**
+   * Sets an environment variable used by a command created by this object.
+   *
+   * @param envvar A name of environment variable.
+   * @param value  A value for an environment variable {@code envvar}.
+   * @return This object.
+   */
   @SuppressWarnings("unchecked")
-  public B env(Map<String, String> env) {
-    cmdBuilder.env(env);
+  public B env(String envvar, String value) {
+    this.env.put(requireNonNull(envvar), requireNonNull(value));
     return (B) this;
   }
 
+  /**
+   * Creates a {@code Cmd} object based on properties this object holds.
+   *
+   * @return A created {@code Cmd} object.
+   */
   public Cmd toCmd() {
     return composeCmd();
   }
 
-  private Cmd composeCmd() {
-    cmdBuilder.command(String.format(
-        "%s %s",
-        commandPath(),
-        String.join(" ", this.options())
-    ));
-    return cmdBuilder.build();
-  }
-
-  protected List<String> options() {
-    return Collections.unmodifiableList(this.options);
-  }
-
   /**
-   * Get full path of command
+   * Get full path to a command for which this builder object works.
    *
    * @return full path of command
    */
-  protected abstract String commandPath();
+  protected abstract String program();
 
-  protected File cwd() {
-    requireState(v -> v != null, this.cwd);
-    return this.cwd;
+  private Action timeOutIfNecessary(Action action) {
+    return this.timeOutDuration > 0 ?
+        this.context.timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit) :
+        action;
   }
 
+  private Action composeAction(Stream<String> in) {
+    Cmd cmd = composeCmd();
+    return this.context.simple(
+        description().orElse(CommanderUtils.summarize(cmd.getCommand().toString(), summaryLength)),
+        () -> {
+          Cmd internalCmd = cmd;
+          if (!cmd.getState().equals(Cmd.State.PREPARING)) {
+            // re-build is required to reset status in Cmd. this action is possible to be repeated when retry.
+            internalCmd = composeCmd();
+          }
+          if (in != null)
+            internalCmd.readFrom(in);
+          internalCmd.stream().forEach(s -> {
+          });
+        }
+    );
+  }
+
+  private Cmd composeCmd() {
+    cmdBuilder.env(this.env);
+    cmdBuilder.command(new Supplier<String>() {
+      @Override
+      public String get() {
+        return String.format(
+            "%s %s",
+            Commander.this.program(),
+            Commander.this.formatOptions(Supplier::get)
+        );
+      }
+
+      @Override
+      public String toString() {
+        return String.format(
+            "%s %s",
+            Commander.this.program(),
+            Commander.this.formatOptions(CommanderUtils::toString)
+        );
+      }
+    });
+    return cmdBuilder.build();
+  }
+
+  private String formatOptions(Function<Supplier<String>, String> formatter) {
+    return this.options.stream()
+        .map(formatter)
+        .collect(Collectors.joining(" "));
+  }
+
+  /**
+   * A shell with which a command built by {@code Commander} object is executed
+   * by default.
+   */
   public static class Bash implements Shell {
+    /**
+     * Returns a path to a bash program.
+     *
+     * @return A path to a bash program.
+     */
     @Override
     public String program() {
-      return "bash";
+      return "/bin/bash";
     }
 
+    /**
+     * Returns an option used to execute target command. For this class, it
+     * is defined {@code ["-c"]} based on bash's behaviour.
+     *
+     * @return Returns a command line option passed to shell.
+     */
     @Override
     public List<String> options() {
       return new ArrayList<String>() {{
@@ -326,9 +421,5 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
     public String toString() {
       return format();
     }
-  }
-
-  public static String quoteWithSingleQuotesForShell(String s) {
-    return String.format("'%s'", escapeSingleQuotesForShell(s));
   }
 }

@@ -4,6 +4,8 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
 import com.github.dakusui.actionunit.extras.cmd.CommanderOption;
 
+import java.util.function.Supplier;
+
 /**
  * <pre>
  * NAME
@@ -15,12 +17,17 @@ import com.github.dakusui.actionunit.extras.cmd.CommanderOption;
  * </pre>
  */
 public class Echo extends Commander<Echo> {
+  /**
+   * Creates an object of this class.
+   *
+   * @param context A context from which an action is created by this object.
+   */
   public Echo(Context context) {
     super(context);
   }
 
   @Override
-  protected String commandPath() {
+  protected String program() {
     return "/bin/echo";
   }
 
@@ -40,6 +47,26 @@ public class Echo extends Commander<Echo> {
    */
   public Echo enableBackslashInterpretation() {
     return this.add(Option.ENABLE_BACKSLASH_INTERPRETATION);
+  }
+
+  /**
+   * Adds a message to this object. The message will be escaped so that it can be
+   * placed inside single quotes automatically.
+   * <p>
+   * In case this automatic escaping is not preferable, use {@code Commander#add(String)}
+   * method.
+   *
+   * @param message A message to be added.
+   * @return this object
+   * @see Commander#add(String)
+   * @see Commander#addq(String)
+   */
+  public Echo message(Supplier<String> message) {
+    return this.addq(message);
+  }
+
+  public Echo message(String message) {
+    return this.addq(message);
   }
 
   /**
