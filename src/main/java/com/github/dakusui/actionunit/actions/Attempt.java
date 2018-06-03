@@ -7,14 +7,13 @@ import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public interface Attempt<E extends Throwable> extends Action, Context {
   Action attempt();
 
   Class<E> exceptionClass();
 
-  Action recover(Supplier<E> exception);
+  Action recover(ValueHolder<E> exception);
 
   Action ensure();
 
@@ -80,7 +79,7 @@ public interface Attempt<E extends Throwable> extends Action, Context {
     }
 
     @Override
-    public Action recover(Supplier<E> exception) {
+    public Action recover(ValueHolder<E> exception) {
       return Context.Internal.named(1, String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
     }
 

@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
@@ -8,8 +9,6 @@ import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.function.Supplier;
 
 @RunWith(ActionUnit.class)
 @FixMethodOrder
@@ -20,7 +19,7 @@ public class HelloActionUnit implements Context {
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        (Context $, Supplier<String> i) -> sequential(
+        (Context $, ValueHolder<String> i) -> sequential(
             simple(
                 "print {i}",
                 () -> System.out.println("<" + i.get() + ">")

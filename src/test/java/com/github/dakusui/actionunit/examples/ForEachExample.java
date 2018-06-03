@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
+import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
@@ -13,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
@@ -42,7 +42,7 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
-        (Context $, Supplier<String> value) -> $.sequential(
+        (Context $, ValueHolder<String> value) -> $.sequential(
             $.when(value, "C"::equals)
                 .perform(
                     ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get()))
@@ -65,14 +65,22 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
   public Action composeSingleLoop2() {
     return sequential(
         simple("print hello", () -> System.out.println("hello")),
-        forEachOf("A", "B", "C"
+        forEachOf(
+            asList("A", "B", "C")
+        ).withDefault(
+            "unknown"
         ).concurrently(
         ).perform(
-            (Context $, Supplier<String> value) -> $.sequential(
-                $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
-                $.simple("print the given value(2nd time)", () -> System.out.println(value.get())),
-                $.sleep(2, MICROSECONDS)
-            )
+            (Context $, ValueHolder<String> value) -> {
+              String v = value.isPresent() ?
+                  value.get() :
+                  String.format("(%s)", value.get());
+              return $.sequential(
+                  $.simple("print the given value(1st time)", () -> System.out.println(v)),
+                  $.simple("print the given value(2nd time)", () -> System.out.println(v)),
+                  $.sleep(2, MICROSECONDS)
+              );
+            }
         ),
         simple("print bye", () -> System.out.println("bye"))
     );

@@ -47,7 +47,7 @@ public class ActionPerformer extends ActionWalker {
     return (ForEach<T> forEach) -> {
       Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
       stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
-          .map((T item) -> (Supplier<T>) () -> item)
+          .map(ValueHolder::of)
           .map(forEach::createHandler)
           .forEach((Action eachChild) -> {
             branchPath(pathSnapshot);
@@ -90,7 +90,7 @@ public class ActionPerformer extends ActionWalker {
           throw ActionException.wrap(e);
         }
         //noinspection unchecked
-        attempt.recover(() -> (T) e).accept(this);
+        attempt.recover(ValueHolder.of((T) e)).accept(this);
       } finally {
         attempt.ensure().accept(this);
       }

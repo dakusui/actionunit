@@ -1,11 +1,10 @@
 package com.github.dakusui.actionunit.examples;
 
+import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
-
-import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
@@ -16,7 +15,7 @@ public class Example implements Context {
         asList("hello", "world")
     ).concurrently(
     ).perform(
-        (Context f, Supplier<String> v) -> f.sequential(
+        (Context f, ValueHolder<String> v) -> f.sequential(
             f.simple("print", () -> System.out.println(v.get())),
             f.simple("print", () -> System.out.println(v.get())),
             f.sequential(

@@ -23,9 +23,7 @@ public abstract class ActionScanner extends ActionWalker {
 
   @Override
   protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
-    return (ForEach<T> a) -> a.createHandler(() -> {
-      throw new UnsupportedOperationException();
-    }).accept(this);
+    return (ForEach<T> a) -> a.createHandler(a.defaultValue()).accept(this);
   }
 
   @Override
@@ -53,9 +51,7 @@ public abstract class ActionScanner extends ActionWalker {
   protected <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
     return (Attempt<T> attempt) -> {
       attempt.attempt().accept(this);
-      attempt.recover(() -> {
-        throw new UnsupportedOperationException();
-      }).accept(this);
+      attempt.recover(ValueHolder.empty()).accept(this);
       attempt.ensure().accept(this);
     };
   }

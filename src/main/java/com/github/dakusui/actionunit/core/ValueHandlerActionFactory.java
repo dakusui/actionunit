@@ -1,27 +1,27 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.actions.ValueHolder;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-public interface ValueHandlerActionFactory<T> extends Function<Supplier<T>, Action>, Context, Cloneable {
+public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, Action>, Context, Cloneable {
   static <T> ValueHandlerActionFactory<T> create(String description, Consumer<T> handlerBody) {
     Objects.requireNonNull(handlerBody);
     return new ValueHandlerActionFactory<T>() {
       @Override
-      public Action create(Context context, Supplier<T> data) {
-        return Leaf.create(this.generateId(), description, () -> handlerBody.accept(data.get()));
+      public Action create(Context context, ValueHolder<T> valueHolder) {
+        return Leaf.create(this.generateId(), description, () -> handlerBody.accept(valueHolder.get()));
       }
     };
   }
 
-  default Action apply(Supplier<T> data) {
+  default Action apply(ValueHolder<T> valueHolder) {
     ID_GENERATOR_MANAGER.reset(this);
-    return create(this, data);
+    return create(this, valueHolder);
   }
 
-  Action create(Context factory, Supplier<T> data);
+  Action create(Context factory, ValueHolder<T> valueHolder);
 }
