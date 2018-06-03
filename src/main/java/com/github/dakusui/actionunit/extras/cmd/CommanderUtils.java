@@ -2,8 +2,6 @@ package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.helpers.Checks;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 enum CommanderUtils {
@@ -18,22 +16,6 @@ enum CommanderUtils {
 
   static String quoteWithSingleQuotesForShell(String s) {
     return String.format("'%s'", escapeSingleQuotesForShell(s));
-  }
-
-
-  static String toString(Object obj) {
-    return obj == null ?
-        "null" :
-        isLambda(obj) ?
-            "(lambda)" :
-            Objects.toString(obj);
-  }
-
-  /*
-   * This is a dirty trick to determine is a given object is a lambda or not.
-   */
-  private static boolean isLambda(Object obj) {
-    return obj.getClass().toString().contains("$$Lambda$");
   }
 
 

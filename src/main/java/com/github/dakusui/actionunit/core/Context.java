@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.extras.cmd.Commander;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -270,6 +271,10 @@ public interface Context {
    */
   default <I, O> TestAction.Builder<I, O> given(String description, Supplier<I> given) {
     return Internal.given(generateId(), description, given);
+  }
+
+  default Commander cmd(String program) {
+    return Commander.commander(this, program);
   }
 
   class Impl implements Context {

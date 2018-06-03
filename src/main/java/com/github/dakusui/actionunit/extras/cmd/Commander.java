@@ -235,7 +235,17 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
   @SuppressWarnings("unchecked")
   public B addq(Supplier<String> option) {
     requireNonNull(option);
-    options.add(() -> quoteWithSingleQuotesForShell(option.get()));
+    options.add(new Supplier<String>() {
+      @Override
+      public String get() {
+        return quoteWithSingleQuotesForShell(option.get());
+      }
+
+      @Override
+      public String toString() {
+        return option.toString();
+      }
+    });
     return (B) this;
   }
 
@@ -376,7 +386,15 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
         return String.format(
             "%s %s",
             Commander.this.program(),
-            Commander.this.formatOptions(CommanderUtils::toString)
+            Commander.this.formatOptions(new Function<Supplier<String>, String>() {
+              @Override
+              public String apply(Supplier<String> stringSupplier) {
+                String ret = Objects.toString(stringSupplier);
+                return ret.contains("$$Lambda") ?
+                    "(?)" :
+                    ret;
+              }
+            })
         );
       }
     });
