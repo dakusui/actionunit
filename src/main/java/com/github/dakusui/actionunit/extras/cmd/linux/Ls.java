@@ -74,7 +74,7 @@ public class Ls extends Commander<Ls> {
      */
     HUMAN_READABLE("-h", "--human-readable"),
     /**
-     * append indicator (one of .../=>@|) to entries
+     * append indicator to entries
      */
     CLASSIFY("-F", "--classify"),
     /**

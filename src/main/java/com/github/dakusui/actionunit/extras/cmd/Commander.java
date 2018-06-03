@@ -182,7 +182,7 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
    * this builder.
    *
    * @return An iterator for standard output of the command.
-   * @see Commander#toStream();
+   * @see Commander#toStream()
    */
   public Iterable<String> toIterable() {
     return () -> toStream().iterator();

@@ -14,6 +14,7 @@ public interface Sequential extends Composite {
     /**
      * Creates an object of this class.
      *
+     * @param id An id of this object.
      * @param actions Actions to be executed by this object.
      */
     public Impl(int id, Iterable<? extends Action> actions) {
