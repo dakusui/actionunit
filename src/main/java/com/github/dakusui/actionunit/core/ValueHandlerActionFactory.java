@@ -12,7 +12,7 @@ public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, A
     Objects.requireNonNull(handlerBody);
     return new ValueHandlerActionFactory<T>() {
       @Override
-      public Action create(Context factory, ValueHolder<T> valueHolder) {
+      public Action create(Context context, ValueHolder<T> valueHolder) {
         return Leaf.create(this.generateId(), description, () -> handlerBody.accept(valueHolder.get()));
       }
     };
