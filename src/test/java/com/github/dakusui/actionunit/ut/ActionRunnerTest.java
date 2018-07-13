@@ -67,19 +67,19 @@ public class ActionRunnerTest {
           ($, i) ->
               $.sequential(
                   $.simple(
-                      "Prefix with 'outer-'",
+                      "Prefix env 'outer-'",
                       () -> getWriter().writeLine("outer-" + i.get())
                   ),
                   $.forEachOf(
                       "a", "b"
                   ).perform(
                       ($1, j) -> $1.simple(
-                          "Prefix with '\\_inner-'",
+                          "Prefix env '\\_inner-'",
                           () -> getWriter().writeLine("\\_inner-" + j.get())
                       )
                   ),
                   $.simple(
-                      "Prefix with 'outer-'",
+                      "Prefix env 'outer-'",
                       () -> getWriter().writeLine("outer-" + i.get())
                   )
               )

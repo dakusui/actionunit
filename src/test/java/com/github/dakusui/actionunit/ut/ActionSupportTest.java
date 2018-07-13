@@ -306,7 +306,7 @@ public class ActionSupportTest {
     try {
       retry(
           simple(
-              "Write 'Hello' and Abort.abort with IOException",
+              "Write 'Hello' and Abort.abort env IOException",
               new Runnable() {
                 @Override
                 public void run() {

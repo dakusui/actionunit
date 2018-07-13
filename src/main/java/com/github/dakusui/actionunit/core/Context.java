@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.extras.cmd.Commander;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,6 +10,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
@@ -124,6 +127,20 @@ public interface Context {
    */
   default Action sleep(final long duration, final TimeUnit timeUnit) {
     return Internal.sleep(generateId(), duration, timeUnit);
+  }
+
+  /**
+   * Creates a builder for {@code ForEach} action.
+   *
+   * @param stream Supplier of stream operated by a {@code ForEach} object that returned
+   *               builder will build.
+   * @param <E>    Type of elements
+   * @return Created builder
+   * @see ForEach
+   * @see ForEach.Builder
+   */
+  default <E> ForEach.Builder<E> forEachOf(Supplier<Stream<? extends E>> stream) {
+    return Internal.forEachOf(generateId(), stream);
   }
 
   /**
@@ -272,6 +289,10 @@ public interface Context {
     return Internal.given(generateId(), description, given);
   }
 
+  default Commander cmd(String program) {
+    return Commander.commander(this, program);
+  }
+
   class Impl implements Context {
     ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
 
@@ -348,13 +369,17 @@ public interface Context {
       };
     }
 
+    public static <E> ForEach.Builder<E> forEachOf(int id, Supplier<Stream<? extends E>> streamSupplier) {
+      return ForEach.builder(id, streamSupplier);
+    }
+
     public static <E> ForEach.Builder<E> forEachOf(int id, Iterable<? extends E> elements) {
-      return ForEach.builder(id, elements);
+      return forEachOf(id, () -> StreamSupport.stream(elements.spliterator(), false));
     }
 
     @SafeVarargs
     public static <E> ForEach.Builder<E> forEachOf(int id, E... elements) {
-      return ForEach.builder(id, asList(elements));
+      return forEachOf(id, asList(elements));
     }
 
     public static <T> While.Builder<T> whilst(int id, Supplier<T> value, Predicate<T> condition) {

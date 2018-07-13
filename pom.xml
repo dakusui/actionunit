@@ -22,7 +22,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/actionunit.git
         </developerConnection>
         <url>http://dakusui.github.io/actionuint</url>
-        <tag>actionunit-4.0.x</tag>
+        <tag>actionunit-4.1.x</tag>
     </scm>
 
     <developers>
@@ -38,6 +38,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>cmd</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>thincrest</artifactId>
