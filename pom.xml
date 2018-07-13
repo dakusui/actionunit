@@ -22,7 +22,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/actionunit.git
         </developerConnection>
         <url>http://dakusui.github.io/actionuint</url>
-        <tag>actionunit-4.1.x</tag>
+        <tag>actionunit-4.0.x</tag>
     </scm>
 
     <developers>
