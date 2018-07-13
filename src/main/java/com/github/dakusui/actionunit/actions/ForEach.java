@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
 import static com.github.dakusui.actionunit.helpers.InternalUtils.summary;
@@ -19,10 +18,6 @@ public interface ForEach<T> extends Action {
   Mode getMode();
 
   ValueHolder<T> defaultValue();
-
-  static <E> ForEach.Builder<E> builder(int id, Iterable<? extends E> elements) {
-    return builder(id, () -> StreamSupport.stream(elements.spliterator(), false));
-  }
 
   static <E> ForEach.Builder<E> builder(int id, Supplier<Stream<? extends E>> streamSupplier) {
     return new ForEach.Builder<>(id, streamSupplier);
