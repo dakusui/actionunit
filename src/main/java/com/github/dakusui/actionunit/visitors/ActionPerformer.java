@@ -12,10 +12,10 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.helpers.InternalUtils.runWithTimeout;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.stream.StreamSupport.stream;
 
 public class ActionPerformer extends ActionWalker {
   public ActionPerformer() {
@@ -30,7 +30,7 @@ public class ActionPerformer extends ActionWalker {
   protected Consumer<Concurrent> concurrentActionConsumer() {
     return (Concurrent concurrent) -> {
       Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
-      stream(concurrent.spliterator(), false)
+      StreamSupport.stream(concurrent.spliterator(), false)
           .map(this::toRunnable)
           .map((Runnable runnable) -> (Runnable) () -> {
             branchPath(pathSnapshot);
@@ -46,9 +46,10 @@ public class ActionPerformer extends ActionWalker {
   protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
     return (ForEach<T> forEach) -> {
       Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
-      stream(forEach.data().spliterator(), forEach.getMode() == ForEach.Mode.CONCURRENTLY)
-          .map(ValueHolder::of)
-          .map(forEach::createHandler)
+      (forEach.getMode() == ForEach.Mode.CONCURRENTLY ?
+          forEach.data().parallel() :
+          forEach.data()).map(ValueHolder::<T>of)
+          .map(forEach::<T>createHandler)
           .forEach((Action eachChild) -> {
             branchPath(pathSnapshot);
             eachChild.accept(ActionPerformer.this);
