@@ -1,8 +1,10 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionGenerator;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -48,6 +50,10 @@ public interface ForEach<T> extends Action {
     public Builder<E> concurrently() {
       this.mode = Mode.CONCURRENTLY;
       return this;
+    }
+
+    public ForEach<E> perform(Function<ValueHolder<E>, ActionGenerator> operation) {
+      return perform((factory, valueHolder) -> operation.apply(valueHolder).apply(factory));
     }
 
     public ForEach<E> perform(ValueHandlerActionFactory<E> operation) {

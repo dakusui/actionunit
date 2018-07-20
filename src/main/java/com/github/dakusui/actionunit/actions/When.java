@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.ActionGenerator;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Objects;
@@ -30,13 +31,17 @@ public interface When<T> extends Action, Context {
       this.condition = Objects.requireNonNull(condition);
     }
 
-    public Builder<T> perform(ActionFactory factory) {
+    public Builder<T> perform(ActionGenerator generator) {
+      return perform_(generator::apply);
+    }
+
+    public Builder<T> perform_(ActionFactory factory) {
       this.actionFactoryForPerform = Objects.requireNonNull(factory);
       return this;
     }
 
     public Builder<T> perform(Action action) {
-      return perform(self -> action);
+      return perform_(self -> action);
     }
 
     public When<T> otherwise(ActionFactory factory) {

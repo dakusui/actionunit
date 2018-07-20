@@ -1,12 +1,11 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
+import com.github.dakusui.actionunit.core.*;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface Attempt<E extends Throwable> extends Action, Context {
   Action attempt();
@@ -22,18 +21,22 @@ public interface Attempt<E extends Throwable> extends Action, Context {
   }
 
   class Builder<E extends Throwable> {
-    private final Action attempt;
-    private final int    id;
+    private final Action                       attempt;
+    private final int                          id;
     @SuppressWarnings("unchecked")
-    private Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
-    private ValueHandlerActionFactory<E> exceptionHandlerFactory = ($, data) -> {
+    private       Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
+    private       ValueHandlerActionFactory<E> exceptionHandlerFactory = ($, data) -> {
       throw Checks.propagate(data.get());
     };
-    private ActionFactory                ensuredActionFactory    = Context::nop;
+    private       ActionFactory                ensuredActionFactory    = Context::nop;
 
     public Builder(int id, Action attempt) {
       this.id = id;
       this.attempt = Objects.requireNonNull(attempt);
+    }
+
+    public Builder<E> recover(Class<? extends E> exceptionClass, Function<Supplier<E>, ActionGenerator> exceptionHandlerFactory) {
+      return this.recover(exceptionClass, (c, f) -> exceptionHandlerFactory.apply(f).apply(c));
     }
 
     public Builder<E> recover(Class<? extends E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory) {
@@ -42,7 +45,11 @@ public interface Attempt<E extends Throwable> extends Action, Context {
       return this;
     }
 
-    public Attempt<E> ensure(ActionFactory ensureHandlerFactory) {
+    public Attempt<E> ensure(ActionGenerator ensureHandlerFactory) {
+      return this.ensure_(ensureHandlerFactory::apply);
+    }
+
+    public Attempt<E> ensure_(ActionFactory ensureHandlerFactory) {
       this.ensuredActionFactory = Objects.requireNonNull(ensureHandlerFactory);
       return this.build();
     }

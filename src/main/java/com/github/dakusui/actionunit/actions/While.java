@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.ActionGenerator;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Objects;

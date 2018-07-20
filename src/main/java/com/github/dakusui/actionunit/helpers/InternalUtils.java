@@ -151,7 +151,7 @@ public class InternalUtils {
       return "null";
     }
     if (getToStringMethod(obj.getClass()).equals(getToStringMethod(Object.class))) {
-      return describeClassOf(obj);
+      return describeClassOf(obj).replaceAll("Lambda\\$.+", "Lambda");
     }
     return obj.toString();
   }
