@@ -1,16 +1,13 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;

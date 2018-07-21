@@ -60,7 +60,7 @@ public interface While<T> extends Action {
 
     @Override
     public Action createAction() {
-      return actionFactory.get();
+      return actionFactory.create();
     }
 
     @Override

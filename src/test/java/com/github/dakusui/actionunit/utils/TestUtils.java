@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 import com.github.dakusui.actionunit.io.Writer;
@@ -25,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
+import static com.github.dakusui.actionunit.core.IdGeneratorManager.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 

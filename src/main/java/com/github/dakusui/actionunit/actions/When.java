@@ -100,12 +100,12 @@ public interface When<T> extends Action {
 
     @Override
     public Action perform() {
-      return Context.Internal.named(0, "perform", actionFactoryForPerform.get());
+      return Context.Internal.named(0, "perform", actionFactoryForPerform.create());
     }
 
     @Override
     public Action otherwise() {
-      return Context.Internal.named(1, "otherwise", actionFactoryForOtherwise.get());
+      return Context.Internal.named(1, "otherwise", actionFactoryForOtherwise.create());
     }
   }
 }

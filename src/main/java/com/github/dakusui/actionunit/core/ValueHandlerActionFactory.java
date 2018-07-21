@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
+import static com.github.dakusui.actionunit.core.IdGeneratorManager.ID_GENERATOR_MANAGER;
 
 @Deprecated
 public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, Action>, Context, Cloneable {
@@ -44,4 +44,5 @@ public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, A
   }
 
   Action create(Context factory, ValueHolder<T> valueHolder);
+
 }

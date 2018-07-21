@@ -1,14 +1,10 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static java.lang.String.format;
 
 public class AttemptExample implements UtContext {

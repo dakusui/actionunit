@@ -2,15 +2,12 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.startsWith;

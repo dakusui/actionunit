@@ -21,10 +21,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.utils.TestUtils.size;
 import static java.lang.String.format;

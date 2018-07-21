@@ -2,15 +2,11 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.examples.UtContext;
 import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.runner.JUnitCore.runClasses;
 

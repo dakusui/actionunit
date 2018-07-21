@@ -1,16 +1,13 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static org.junit.Assert.assertTrue;
 
 public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends Action.Visitor> implements UtContext {

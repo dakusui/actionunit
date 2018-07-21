@@ -98,7 +98,7 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action ensure() {
-      return Context.Internal.named(2, "Ensure", this.ensuredActionFactory.get());
+      return Context.Internal.named(2, "Ensure", this.ensuredActionFactory.create());
     }
 
     @Override

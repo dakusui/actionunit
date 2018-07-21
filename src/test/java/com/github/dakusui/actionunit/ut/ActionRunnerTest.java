@@ -8,9 +8,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;

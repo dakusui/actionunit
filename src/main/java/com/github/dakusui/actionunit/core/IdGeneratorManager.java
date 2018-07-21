@@ -7,7 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Deprecated
 public class IdGeneratorManager {
-  private Map<Context, ThreadLocal<AtomicInteger>> idGenerators = new Hashtable<>();
+  public static final IdGeneratorManager                       ID_GENERATOR_MANAGER = new IdGeneratorManager();
+  private             Map<Context, ThreadLocal<AtomicInteger>> idGenerators         = new Hashtable<>();
 
   private void init(Context key) {
     Objects.requireNonNull(key);

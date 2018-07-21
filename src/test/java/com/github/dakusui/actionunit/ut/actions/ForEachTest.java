@@ -2,13 +2,10 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.utils.Matchers;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,9 +13,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.Matchers.allOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
