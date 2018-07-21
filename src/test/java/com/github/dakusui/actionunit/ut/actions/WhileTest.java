@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.crest.Crest;
 import org.junit.Test;
@@ -19,11 +20,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class WhileTest implements Context {
-  public AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
-  }
-
+public class WhileTest implements UtContext {
   @Test
   public void test() {
     final TestUtils.Out out = new TestUtils.Out();

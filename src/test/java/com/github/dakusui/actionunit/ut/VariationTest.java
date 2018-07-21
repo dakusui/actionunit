@@ -1,23 +1,17 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.examples.UtContext;
 import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
-public class VariationTest implements Context {
-  public AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
-  }
-
+public class VariationTest implements UtContext {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();

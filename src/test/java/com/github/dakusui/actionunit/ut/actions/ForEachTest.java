@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.Matchers;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -23,11 +24,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
-public class ForEachTest implements Context {
-  public AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
-  }
-
+public class ForEachTest implements UtContext {
   @Test
   public void givenForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = new LinkedList<>();

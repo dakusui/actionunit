@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.Matchers;
@@ -34,11 +35,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
-public class ActionPrinterTest implements Context {
-  public AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
-  }
-
+public class ActionPrinterTest implements UtContext {
   private static class ActionComposer extends TestUtils.TestBase implements Context {
     Action composeAction() {
       return named("Concurrent (top level)",

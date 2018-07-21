@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
@@ -20,11 +21,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Tests for ActionVisitor.
  */
-public class ActionVisitorTest implements Context {
-  public AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
-  }
-
+public class ActionVisitorTest implements UtContext {
   final   TestUtils.Out  out     = new TestUtils.Out();
   private Action.Visitor visitor = new Action.Visitor.Base() {
     @Override

@@ -1,9 +1,8 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
+import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -13,21 +12,12 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static java.util.Arrays.asList;
 
 @RunWith(Enclosed.class)
-public class BuildersTest implements Context {
-  public AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
-  }
-  public static class ForEachTest implements Context {
-    public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
+public class BuildersTest implements UtContext {
+  public static class ForEachTest implements UtContext {
     @Test
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
@@ -78,11 +68,7 @@ public class BuildersTest implements Context {
     }
   }
 
-  public static class AttemptTest implements Context {
-    public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
-
+  public static class AttemptTest implements UtContext {
     @Test(expected = IllegalStateException.class)
     public void given$when$then() {
       Action action = this.attempt(

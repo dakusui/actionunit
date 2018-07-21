@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.examples.UtContext;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
@@ -14,16 +15,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static org.junit.Assert.assertEquals;
 
-public class TestMethodNegativeTest implements Context {
-  public AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
-  }
+public class TestMethodNegativeTest implements UtContext {
   @RunWith(ActionUnit.class)
-  public static class NoParameter implements Context {
-    public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
-
+  public static class NoParameter implements UtContext {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));
@@ -44,10 +38,7 @@ public class TestMethodNegativeTest implements Context {
   }
 
   @RunWith(ActionUnit.class)
-  public static class TooManyParameters implements Context {
-    public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
+  public static class TooManyParameters implements UtContext {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));
@@ -67,11 +58,7 @@ public class TestMethodNegativeTest implements Context {
   }
 
   @RunWith(ActionUnit.class)
-  public static class MismatchParameter implements Context {
-    public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
-
+  public static class MismatchParameter implements UtContext {
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));
@@ -92,11 +79,7 @@ public class TestMethodNegativeTest implements Context {
   }
 
   @RunWith(ActionUnit.class)
-  public static class NoRunnerMethod implements Context {
-    public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
-
+  public static class NoRunnerMethod implements UtContext {
     @ActionUnit.PerformWith(RunWith.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));

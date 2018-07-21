@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.helpers.InternalUtils.nonameIfNull;
@@ -30,12 +31,10 @@ public interface Context/*<E>*/ {
   default int generateId() {
     return idGenerator().getAndIncrement();
   }
-  AtomicInteger idGenerator();
-  /*
+  //AtomicInteger idGenerator();
   default AtomicInteger idGenerator() {
     return ID_GENERATOR_MANAGER.idGenerator(this);
   }
-  */
 
   /**
    * Creates a simple action object.

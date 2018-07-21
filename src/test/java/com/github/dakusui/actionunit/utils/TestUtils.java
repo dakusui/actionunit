@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
@@ -248,7 +249,7 @@ public class TestUtils {
   /**
    * A base class for tests which writes to stdout/stderr.
    */
-  public static class TestBase implements Context {
+  public static class TestBase implements UtContext {
     PrintStream stdout = System.out;
     PrintStream stderr = System.err;
 
