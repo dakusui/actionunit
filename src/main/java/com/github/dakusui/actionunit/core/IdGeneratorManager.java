@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Deprecated
 public class IdGeneratorManager {
   private Map<Context, ThreadLocal<AtomicInteger>> idGenerators = new Hashtable<>();
 
@@ -19,8 +20,12 @@ public class IdGeneratorManager {
   }
 
   public int generateId(Context key) {
+    return idGenerator(key).getAndIncrement();
+  }
+
+  public AtomicInteger idGenerator(Context key) {
     init(key);
-    return idGenerators.get(key).get().getAndIncrement();
+    return idGenerators.get(key).get();
   }
 
   public void reset(Context key) {

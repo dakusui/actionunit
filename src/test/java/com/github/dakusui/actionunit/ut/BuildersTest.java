@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
@@ -12,12 +13,21 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static java.util.Arrays.asList;
 
 @RunWith(Enclosed.class)
 public class BuildersTest implements Context {
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
   public static class ForEachTest implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
     @Test
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
@@ -69,6 +79,10 @@ public class BuildersTest implements Context {
   }
 
   public static class AttemptTest implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void given$when$then() {
       Action action = this.attempt(
@@ -81,8 +95,8 @@ public class BuildersTest implements Context {
               $.simple("print capture", () -> {
               }),
               $.simple("print stacktrace", () -> {
-                e.get().printStackTrace(System.out);
-                throw Checks.propagate(e.get());
+                ((Throwable) e.get()).printStackTrace(System.out);
+                throw Checks.propagate((Throwable) e.get());
               }),
               $.simple("print recovery", () -> System.out.println("Recovered."))
           )

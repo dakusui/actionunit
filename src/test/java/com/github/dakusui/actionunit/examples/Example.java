@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static java.util.Arrays.asList;
 
-public class Example implements Context {
+public class Example implements UtContext {
   @Test
   public void test() {
     Action action = forEachOf(

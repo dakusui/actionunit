@@ -13,6 +13,9 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
@@ -22,6 +25,10 @@ import static org.hamcrest.Matchers.startsWith;
 
 @RunWith(Enclosed.class)
 public class ReportingActionPerformerTest implements Context {
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
+
   public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, PrintingActionScanner> {
     @Override
     protected ActionPerformer createRunner() {

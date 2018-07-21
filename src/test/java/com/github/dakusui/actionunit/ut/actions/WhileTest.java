@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;
@@ -19,6 +20,10 @@ import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class WhileTest implements Context {
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
+
   @Test
   public void test() {
     final TestUtils.Out out = new TestUtils.Out();

@@ -6,9 +6,16 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static java.lang.String.format;
 
 public class AttemptExample implements Context {
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenPerform$thenWorksFine() {
     buildAttemptAction().accept(TestUtils.createActionPerformer());

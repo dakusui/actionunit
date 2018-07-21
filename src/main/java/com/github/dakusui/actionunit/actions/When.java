@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -66,6 +67,7 @@ public interface When<T> extends Action, Context {
     final private Predicate<T>  condition;
     final private ActionFactory actionFactoryForPerform;
     final private ActionFactory actionFactoryForOtherwise;
+    final private AtomicInteger idGenerator = new AtomicInteger();
 
     public Impl(
         int id,
@@ -104,6 +106,11 @@ public interface When<T> extends Action, Context {
     @Override
     public Action otherwise() {
       return Context.Internal.named(1, "otherwise", actionFactoryForOtherwise.get());
+    }
+
+    @Override
+    public AtomicInteger idGenerator() {
+      return this.idGenerator;
     }
   }
 }

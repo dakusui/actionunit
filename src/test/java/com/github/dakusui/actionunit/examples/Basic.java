@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class Basic implements Context {
+public class Basic implements UtContext {
   @Retention(RetentionPolicy.RUNTIME)
   public @interface DryRun {
   }

@@ -7,7 +7,9 @@ import com.github.dakusui.actionunit.helpers.InternalUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -45,5 +47,9 @@ public class TimeoutTest implements Context {
   @Test(expected = IllegalArgumentException.class)
   public void givenNonPositive$whenCreateTimeoutAction$thenIllegalArgument() {
     timeout(nop()).in(0, TimeUnit.SECONDS);
+  }
+
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
   }
 }

@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.helpers.InternalUtils;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -25,12 +26,16 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * An interface that defines methods to create various actions and builders of
  * actions.
  */
-public interface Context {
-  IdGeneratorManager ID_GENERATOR_MANAGER = new IdGeneratorManager();
-
+public interface Context/*<E>*/ {
   default int generateId() {
-    return ID_GENERATOR_MANAGER.generateId(this);
+    return idGenerator().getAndIncrement();
   }
+  AtomicInteger idGenerator();
+  /*
+  default AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
+  */
 
   /**
    * Creates a simple action object.
@@ -294,7 +299,22 @@ public interface Context {
   }
 
   class Impl implements Context {
+    AtomicInteger idGenerator = new AtomicInteger();
+    private final ValueHolder<?> valueHolder;
     ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
+
+    public Impl(ValueHolder<?> valueHolder) {
+      this.valueHolder = requireNonNull(valueHolder);
+    }
+
+    public Impl() {
+      this(ValueHolder.empty());
+    }
+
+    @Override
+    public AtomicInteger idGenerator() {
+      return this.idGenerator;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -438,5 +458,13 @@ public interface Context {
    */
   default <V> V get(String variableName) {
     throw new UnsupportedOperationException("'Variable' feature is not supported by this implementation.");
+  }
+
+  default Context createChild(ValueHolder valueHolder) {
+    return new Context.Impl(valueHolder);
+  }
+
+  default Context createChild() {
+    return createChild(ValueHolder.empty());
   }
 }

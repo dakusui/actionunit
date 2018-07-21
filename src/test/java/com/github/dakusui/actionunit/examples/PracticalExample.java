@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class PracticalExample implements Context {
+public class PracticalExample implements UtContext {
   /**
    * A dummy function that determines an IP address for a given hostname.
    * This function fails probabilistically fails in rate of 50%

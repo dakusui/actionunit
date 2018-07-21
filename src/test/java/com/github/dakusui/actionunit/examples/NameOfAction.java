@@ -20,7 +20,7 @@ import static java.util.Arrays.asList;
  */
 @FixMethodOrder
 @RunWith(ActionUnit.class)
-public class NameOfAction implements Context {
+public class NameOfAction implements UtContext {
   @PerformWith(Test.class)
   public Action aMethodToTestSomething() {
     return forEachOf(

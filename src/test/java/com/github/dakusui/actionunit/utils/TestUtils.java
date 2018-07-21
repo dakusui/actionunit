@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
@@ -19,9 +20,11 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
@@ -245,10 +248,13 @@ public class TestUtils {
   /**
    * A base class for tests which writes to stdout/stderr.
    */
-  public static class TestBase {
+  public static class TestBase implements Context {
     PrintStream stdout = System.out;
     PrintStream stderr = System.err;
 
+    final public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
     @Before
     public void suppressStdOutErr() {
       if (TestUtils.isRunUnderSurefire()) {

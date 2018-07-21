@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -92,6 +93,7 @@ public interface TestAction extends Action, Context {
           throw new IllegalStateException("output is not set yet.");
         });
     private final Builder<I, O> builder;
+    private AtomicInteger idGenerator = new AtomicInteger();
 
     public Base(int id, Builder<I, O> builder) {
       super(id);
@@ -159,6 +161,11 @@ public interface TestAction extends Action, Context {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
+    }
+
+    @Override
+    public AtomicInteger idGenerator() {
+      return this.idGenerator;
     }
   }
 }

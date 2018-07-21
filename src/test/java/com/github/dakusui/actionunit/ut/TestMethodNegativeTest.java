@@ -9,12 +9,21 @@ import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static org.junit.Assert.assertEquals;
 
 public class TestMethodNegativeTest implements Context {
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
   @RunWith(ActionUnit.class)
   public static class NoParameter implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
+
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));
@@ -36,6 +45,9 @@ public class TestMethodNegativeTest implements Context {
 
   @RunWith(ActionUnit.class)
   public static class TooManyParameters implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));
@@ -56,6 +68,10 @@ public class TestMethodNegativeTest implements Context {
 
   @RunWith(ActionUnit.class)
   public static class MismatchParameter implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
+
     @ActionUnit.PerformWith(Test.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));
@@ -77,6 +93,10 @@ public class TestMethodNegativeTest implements Context {
 
   @RunWith(ActionUnit.class)
   public static class NoRunnerMethod implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
+
     @ActionUnit.PerformWith(RunWith.class)
     public Action testMethod() {
       return simple("not executed", () -> System.out.println("This method will not be executed."));

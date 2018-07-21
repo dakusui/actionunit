@@ -7,10 +7,16 @@ import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.runner.JUnitCore.runClasses;
 
 public class ActionMethodNegativeTest implements Context {
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
   public abstract static class Base {
     @Test
     public void runAction(@SuppressWarnings("UnusedParameters") Action action) {
@@ -19,6 +25,9 @@ public class ActionMethodNegativeTest implements Context {
 
   @RunWith(ActionUnit.class)
   public static class NonPublic extends Base implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
     @ActionUnit.PerformWith
     protected Action nonPublic() {
       return nop();
@@ -38,6 +47,10 @@ public class ActionMethodNegativeTest implements Context {
 
   @RunWith(ActionUnit.class)
   public static class NonActionReturning extends Base implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
+
     @ActionUnit.PerformWith
     public Object nonActionReturning() {
       return nop();
@@ -57,6 +70,10 @@ public class ActionMethodNegativeTest implements Context {
 
   @RunWith(ActionUnit.class)
   public static class WithParameter extends Base implements Context {
+    public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
+    }
+
     @ActionUnit.PerformWith
     public Action withParameter(Object arg) {
       return nop();

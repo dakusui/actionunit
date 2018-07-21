@@ -7,7 +7,9 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static org.junit.Assert.assertTrue;
 
 public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends Action.Visitor> implements Context {
@@ -20,6 +22,10 @@ public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends A
 
   public P getPrinter() {
     return getPrinter(getWriter());
+  }
+
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
   }
 
   @SuppressWarnings("unchecked")

@@ -7,6 +7,7 @@ import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface Attempt<E extends Throwable> extends Action, Context {
   Action attempt();
@@ -22,14 +23,25 @@ public interface Attempt<E extends Throwable> extends Action, Context {
   }
 
   class Builder<E extends Throwable> {
-    private final Action attempt;
-    private final int    id;
+    private final Action                       attempt;
+    private final int                          id;
     @SuppressWarnings("unchecked")
-    private Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
-    private ValueHandlerActionFactory<E> exceptionHandlerFactory = ($, data) -> {
+    private       Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
+    private       ValueHandlerActionFactory<E> exceptionHandlerFactory = new ValueHandlerActionFactory<E>() {
+
+      @Override
+      public AtomicInteger idGenerator() {
+        return null;
+      }
+
+      @Override
+      public Action create(Context factory, ValueHolder<E> valueHolder) {
+        return null;
+      }
+    };/*($, data) -> {
       throw Checks.propagate(data.get());
-    };
-    private ActionFactory                ensuredActionFactory    = Context::nop;
+    };*/
+    private       ActionFactory                ensuredActionFactory    = Context::nop;
 
     public Builder(int id, Action attempt) {
       this.id = id;
@@ -59,6 +71,7 @@ public interface Attempt<E extends Throwable> extends Action, Context {
     private final Class<E>                     exceptionClass;
     private final ValueHandlerActionFactory<E> exceptionHandlerFactory;
     private final ActionFactory                ensuredActionFactory;
+    private final AtomicInteger                idGenerator = new AtomicInteger();
 
     public Impl(int id, Action attempt, Class<E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory, ActionFactory ensuredActionFactory) {
       super(id);
@@ -91,6 +104,11 @@ public interface Attempt<E extends Throwable> extends Action, Context {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
+    }
+
+    @Override
+    public AtomicInteger idGenerator() {
+      return this.idGenerator;
     }
   }
 }

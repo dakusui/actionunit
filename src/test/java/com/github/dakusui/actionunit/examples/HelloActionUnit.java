@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(ActionUnit.class)
 @FixMethodOrder
-public class HelloActionUnit implements Context {
+public class HelloActionUnit implements UtContext {
   @ActionUnit.PerformWith(Test.class)
   public Action helloActionUnit() {
     return forEachOf(

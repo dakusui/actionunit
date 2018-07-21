@@ -7,7 +7,9 @@ import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dakusui.actionunit.core.ActionFactory.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -19,6 +21,10 @@ import static org.junit.Assert.assertThat;
  * Tests for ActionVisitor.
  */
 public class ActionVisitorTest implements Context {
+  public AtomicInteger idGenerator() {
+    return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
+
   final   TestUtils.Out  out     = new TestUtils.Out();
   private Action.Visitor visitor = new Action.Visitor.Base() {
     @Override

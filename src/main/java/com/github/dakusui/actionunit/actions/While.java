@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -39,6 +40,7 @@ public interface While<T> extends Action, Context {
     private final Supplier<T>   value;
     private final Predicate<T>  check;
     private final ActionFactory actionFactory;
+    private final AtomicInteger idGenerator = new AtomicInteger();
 
     Impl(int id, Supplier<T> value, Predicate<T> check, ActionFactory actionFactory) {
       super(id);
@@ -65,6 +67,11 @@ public interface While<T> extends Action, Context {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
+    }
+
+    @Override
+    public AtomicInteger idGenerator() {
+      return this.idGenerator;
     }
   }
 }

@@ -8,7 +8,7 @@ import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
 import org.junit.Test;
 
-public class TestActionExample implements Context {
+public class TestActionExample implements UtContext {
   @Test(expected = ActionAssertionError.class)
   public void givenIncorrectTest$whenRunTest$thenExceptionThrown() {
     Action testAction = this.<String, Integer>given("'Hello world'", () -> {
