@@ -107,10 +107,5 @@ public interface When<T> extends Action {
     public Action otherwise() {
       return Context.Internal.named(1, "otherwise", actionFactoryForOtherwise.get());
     }
-
-    @Override
-    public AtomicInteger idGenerator() {
-      return this.idGenerator;
-    }
   }
 }

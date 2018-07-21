@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface TestAction extends Action, Context {
+public interface TestAction extends Action {
   Action given();
 
   Action when();
@@ -92,8 +92,7 @@ public interface TestAction extends Action, Context {
         () -> {
           throw new IllegalStateException("output is not set yet.");
         });
-    private final Builder<I, O> builder;
-    private AtomicInteger idGenerator = new AtomicInteger();
+    private final Builder<I, O>                builder;
 
     public Base(int id, Builder<I, O> builder) {
       super(id);
@@ -161,11 +160,6 @@ public interface TestAction extends Action, Context {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
-    }
-
-    @Override
-    public AtomicInteger idGenerator() {
-      return this.idGenerator;
     }
   }
 }

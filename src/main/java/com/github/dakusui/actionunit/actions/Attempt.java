@@ -9,7 +9,7 @@ import com.github.dakusui.actionunit.helpers.Checks;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public interface Attempt<E extends Throwable> extends Action, Context {
+public interface Attempt<E extends Throwable> extends Action {
   Action attempt();
 
   Class<E> exceptionClass();
@@ -104,11 +104,6 @@ public interface Attempt<E extends Throwable> extends Action, Context {
     @Override
     public void accept(Visitor visitor) {
       visitor.visit(this);
-    }
-
-    @Override
-    public AtomicInteger idGenerator() {
-      return this.idGenerator;
     }
   }
 }
