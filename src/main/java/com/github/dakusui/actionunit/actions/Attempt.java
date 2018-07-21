@@ -27,7 +27,7 @@ public interface Attempt<E extends Throwable> extends Action, Context {
     private final int                          id;
     @SuppressWarnings("unchecked")
     private       Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
-    private       ValueHandlerActionFactory<E> exceptionHandlerFactory = new ValueHandlerActionFactory<E>() {
+    private       ValueHandlerActionFactory<E> exceptionHandlerFactory = null;/*new ValueHandlerActionFactory<E>() {
 
       @Override
       public AtomicInteger idGenerator() {

@@ -10,4 +10,9 @@ public interface UtContext extends Context {
   default AtomicInteger idGenerator() {
     return ID_GENERATOR_MANAGER.idGenerator(this);
   }
+
+  @Override
+  default <T> Bean<T> bean() {
+    throw new UnsupportedOperationException("This method shouldn't be called.");
+  }
 }

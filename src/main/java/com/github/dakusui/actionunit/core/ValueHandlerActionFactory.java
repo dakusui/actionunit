@@ -15,11 +15,11 @@ public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, A
   static <T> ValueHandlerActionFactory<T> create(String description, Consumer<T> handlerBody) {
     Objects.requireNonNull(handlerBody);
     return new ValueHandlerActionFactory<T>() {
-      private final AtomicInteger idGenerator = new AtomicInteger();
+      private Bean<T> bean = new Bean<>(ValueHolder.empty());
 
       @Override
-      public AtomicInteger idGenerator() {
-        return this.idGenerator;
+      public <T> Bean<T> bean() {
+        return (Bean<T>) this.bean;
       }
 
       @Override
@@ -36,6 +36,11 @@ public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, A
 
   default AtomicInteger idGenerator() {
     return ID_GENERATOR_MANAGER.idGenerator(this);
+  }
+
+  @Override
+  default <T> Bean<T> bean() {
+    throw new UnsupportedOperationException();
   }
 
   Action create(Context factory, ValueHolder<T> valueHolder);

@@ -20,5 +20,9 @@ public interface ActionFactory extends Context, Supplier<Action> {
     return ID_GENERATOR_MANAGER.idGenerator(this);
   }
 
+  default <T> Bean<T> bean() {
+    throw new UnsupportedOperationException("This shouldn't be called");
+  }
+
   Action create(ActionFactory self);
 }

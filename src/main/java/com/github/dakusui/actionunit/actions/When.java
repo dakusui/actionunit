@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface When<T> extends Action, Context {
+public interface When<T> extends Action {
   Supplier<T> value();
 
   Predicate<T> check();
@@ -57,7 +57,7 @@ public interface When<T> extends Action, Context {
           actionFactoryForPerform,
           actionFactoryForOtherwise != null
               ? actionFactoryForOtherwise
-              : (ActionFactory) Context::nop
+              : Context::nop
       );
     }
   }

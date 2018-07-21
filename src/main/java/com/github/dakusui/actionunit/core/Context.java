@@ -31,9 +31,9 @@ public interface Context/*<E>*/ {
   default int generateId() {
     return idGenerator().getAndIncrement();
   }
-  //AtomicInteger idGenerator();
+
   default AtomicInteger idGenerator() {
-    return ID_GENERATOR_MANAGER.idGenerator(this);
+    return bean();
   }
 
   /**
@@ -297,13 +297,57 @@ public interface Context/*<E>*/ {
     return Commander.commander(this, program);
   }
 
+  /**
+   * Associates a {@code value} with a variable specified by {@code variableName}.
+   * <p>
+   * An implementation of this method internally casts a value associated into
+   * a type {@code V}, which is figured out by compiler automatically. This means
+   * a user of this method needs to be responsible for using correct type and
+   * unless otherwise a class cast exception will be thrown at runtime.
+   *
+   * @param variableName A name of a variable a {@code value} is going to be associated with.
+   * @param value        A value of a variable specified by {@code variableName}.
+   * @param <V>          Type of value associated with a variable specified by {@code variableName}.
+   * @return A value previously associated with this context.
+   */
+  default <V> V set(String variableName, V value) {
+    return bean().set(variableName, value);
+  }
+
+  /**
+   * Returns a value associated with a variable specified by {@code variableName}.
+   * <p>
+   * An implementation of this method internally casts a value associated into
+   * a type {@code V}, which is figured out by compiler automatically. This means
+   * a user of this method needs to be responsible for using correct type and
+   * unless otherwise a class cast exception will be thrown at runtime.
+   *
+   * @param variableName A name of variable whose value should be returned.
+   * @param <V>          A type of variable.
+   * @return A value associated with this context
+   */
+  default <V> V get(String variableName) {
+    return bean().get(variableName);
+  }
+
+  default Context createChild(ValueHolder valueHolder) {
+    return new Context.Impl(valueHolder);
+  }
+
+  default Context createChild() {
+    return createChild(ValueHolder.empty());
+  }
+
+  <T> Bean<T> bean();
+
   class Impl implements Context {
-    AtomicInteger idGenerator = new AtomicInteger();
     private final ValueHolder<?> valueHolder;
     ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
+    private final Bean<?> bean;
 
     public Impl(ValueHolder<?> valueHolder) {
       this.valueHolder = requireNonNull(valueHolder);
+      bean = new Bean<>(valueHolder);
     }
 
     public Impl() {
@@ -311,26 +355,40 @@ public interface Context/*<E>*/ {
     }
 
     @Override
-    public AtomicInteger idGenerator() {
-      return this.idGenerator;
+    public <T> Bean<T> bean() {
+      return (Bean<T>) this.bean;
+    }
+  }
+
+  class Bean<T> extends AtomicInteger {
+    private final ValueHolder<T> contextValue;
+    ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
+
+    public Bean(ValueHolder<T> contextValue) {
+      this.contextValue = requireNonNull(contextValue);
+    }
+
+    int generateId() {
+      return getAndIncrement();
+    }
+    ValueHolder<T> contextValue() {
+      return this.contextValue;
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public <V> V set(String variableName, V value) {
       return (V) map.put(variableName, requireNonNull(value));
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public <V> V get(String variableName) {
       if (!map.containsKey(variableName))
         throw new ActionException(format("Undefined variable '%s' was referenced.", variableName));
       return (V) map.get(variableName);
     }
   }
-
-  class Internal {
+  enum Internal {
+    ;
     public static Action simple(int id, final String description, final Runnable runnable) {
       return Leaf.create(id, description, runnable);
     }
@@ -424,46 +482,5 @@ public interface Context/*<E>*/ {
     public static <I, O> TestAction.Builder<I, O> given(int id, String description, Supplier<I> given) {
       return new TestAction.Builder<I, O>(id).given(description, given);
     }
-  }
-
-  /**
-   * Associates a {@code value} with a variable specified by {@code variableName}.
-   * <p>
-   * An implementation of this method internally casts a value associated into
-   * a type {@code V}, which is figured out by compiler automatically. This means
-   * a user of this method needs to be responsible for using correct type and
-   * unless otherwise a class cast exception will be thrown at runtime.
-   *
-   * @param variableName A name of a variable a {@code value} is going to be associated with.
-   * @param value        A value of a variable specified by {@code variableName}.
-   * @param <V>          Type of value associated with a variable specified by {@code variableName}.
-   * @return A value previously associated with this context.
-   */
-  default <V> V set(String variableName, V value) {
-    throw new UnsupportedOperationException("'Variable' feature is not supported by this implementation.");
-  }
-
-  /**
-   * Returns a value associated with a variable specified by {@code variableName}.
-   * <p>
-   * An implementation of this method internally casts a value associated into
-   * a type {@code V}, which is figured out by compiler automatically. This means
-   * a user of this method needs to be responsible for using correct type and
-   * unless otherwise a class cast exception will be thrown at runtime.
-   *
-   * @param variableName A name of variable whose value should be returned.
-   * @param <V>          A type of variable.
-   * @return A value associated with this context
-   */
-  default <V> V get(String variableName) {
-    throw new UnsupportedOperationException("'Variable' feature is not supported by this implementation.");
-  }
-
-  default Context createChild(ValueHolder valueHolder) {
-    return new Context.Impl(valueHolder);
-  }
-
-  default Context createChild() {
-    return createChild(ValueHolder.empty());
   }
 }
