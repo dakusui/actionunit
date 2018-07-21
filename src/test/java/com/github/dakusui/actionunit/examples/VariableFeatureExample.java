@@ -1,38 +1,38 @@
 package com.github.dakusui.actionunit.examples;
 
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
+import java.util.stream.Stream;
 
-public class VariableFeatureExample {
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+
+public class VariableFeatureExample extends TestUtils.TestBase {
   @Test
   public void example() {
-    Context top = new Context.Impl();
-
     run(
-        top.sequential(
-            top.simple("init", () -> top.set("i", 0)),
-            top.forEachOf(asList("a", "b", "c", "d", "e", "f"))
-                .perform(
-                    ($, data) ->
-                        $.sequential(
-                            $.simple(
+        sequential(
+            simple("init", (c) -> c.assignTo("x", 0)),
+            forEach("i", () -> Stream.of("a", "b", "c", "d", "e", "f"))
+                .perform(leaf(
+                    ($) ->
+                        sequential(
+                            simple(
                                 "print i",
-                                () -> System.out.printf("%d %s%n", top.<Integer>get("i"), data.get())
+                                ($$) -> System.out.printf("%d %s%n", $.<Integer>valueOf("x"), $.valueOf("i"))
                             ),
-                            $.simple(
+                            simple(
                                 "i++",
-                                () -> top.set("i", top.<Integer>get("i") + 1)
+                                ($$) -> $.assignTo("i", $.<Integer>valueOf("x") + 1)
                             ))))
-    );
+        ));
   }
 
   private void run(Action action) {
-    ReportingActionPerformer performer = ReportingActionPerformer.create(action);
-    performer.report();
-    performer.performAndReport();
+    ReportingActionPerformer performer = ReportingActionPerformer.create(Writer.Std.OUT);
+    performer.performAndReport(action);
   }
 }

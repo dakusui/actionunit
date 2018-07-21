@@ -1,40 +1,37 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.ContextConsumer;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import java.util.Formatter;
+import java.util.function.Function;
 
-/**
- * A skeletal base class of a simple action, which cannot be divided into smaller
- * actions.
- * Any action that actually does any concrete operation outside "ActionUnit"
- * framework should extend this class.
- */
-public abstract class Leaf extends ActionBase {
-  protected Leaf(int id) {
-    super(id);
+import static java.util.Objects.requireNonNull;
+
+public interface Leaf extends Action, Function<Context, Runnable> {
+  Runnable runnable(Context context);
+
+  default Runnable apply(Context context) {
+    return runnable(context);
   }
 
-  public static Action create(int id, String description, Runnable runnable) {
-    checkNotNull(description);
-    checkNotNull(runnable);
-    return new Leaf(id) {
-      @Override
-      public void perform() {
-        runnable.run();
-      }
-
-      @Override
-      public String toString() {
-        return description;
-      }
-    };
-  }
-
-  @Override
-  public void accept(Visitor visitor) {
+  default void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
-  abstract public void perform();
+  static Leaf of(ContextConsumer consumer) {
+    requireNonNull(consumer);
+    return new Leaf() {
+      @Override
+      public Runnable runnable(Context context) {
+        return () -> consumer.accept(context);
+      }
+
+      @Override
+      public void formatTo(Formatter formatter, int flags, int width, int precision) {
+        formatter.format("%s", consumer);
+      }
+    };
+  }
 }

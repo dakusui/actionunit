@@ -1,63 +1,110 @@
 package com.github.dakusui.actionunit.visitors;
 
+import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 
-import java.util.function.Consumer;
+public abstract class ActionScanner implements Action.Visitor {
+  private int indentLevel = 0;
 
-public abstract class ActionScanner extends ActionWalker {
   @Override
-  protected Consumer<Leaf> leafActionConsumer() {
-    return leaf -> {
-    };
+  public void visit(Leaf action) {
+    this.handleAction(action);
   }
 
   @Override
-  protected Consumer<Concurrent> concurrentActionConsumer() {
-    return (Concurrent concurrent) -> {
-      for (Action each : concurrent) {
-        each.accept(this);
-      }
-    };
+  public void visit(Named action) {
+    this.handleAction(action);
+    this.enter();
+    try {
+      action.action().accept(this);
+    } finally {
+      this.leave();
+    }
   }
 
   @Override
-  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
-    return (ForEach<T> a) -> a.createHandler(a.defaultValue()).accept(this);
+  public void visit(Composite action) {
+    this.handleAction(action);
+    this.enter();
+    try {
+      action.children().forEach(
+          each -> each.accept(this)
+      );
+    } finally {
+      this.leave();
+    }
   }
 
   @Override
-  protected <T> Consumer<While<T>> whileActionConsumer() {
-    return (While<T> while$) -> {
-      while$.createAction().accept(ActionScanner.this);
-    };
+  public <E> void visit(ForEach<E> action) {
+    this.handleAction(action);
+    this.enter();
+    try {
+      action.perform().accept(this);
+    } finally {
+      this.leave();
+    }
   }
 
   @Override
-  protected <T> Consumer<When<T>> whenActionConsumer() {
-    return (When<T> when) -> {
-      //noinspection unchecked
-      when.perform().accept(ActionScanner.this);
-      when.otherwise().accept(ActionScanner.this);
-    };
+  public void visit(When action) {
+    this.handleAction(action);
+    this.enter();
+    try {
+      action.perform().accept(this);
+      action.otherwise().accept(this);
+    } finally {
+      this.leave();
+    }
   }
 
   @Override
-  protected Consumer<Retry> retryActionConsumer() {
-    return (Retry retry) -> retry.action.accept(this);
+  public void visit(Attempt action) {
+    this.handleAction(action);
+    this.enter();
+    try {
+      action.perform().accept(this);
+      action.recover().accept(this);
+      action.ensure().accept(this);
+    } finally {
+      this.leave();
+    }
   }
 
   @Override
-  protected <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
-    return (Attempt<T> attempt) -> {
-      attempt.attempt().accept(this);
-      attempt.recover(ValueHolder.empty()).accept(this);
-      attempt.ensure().accept(this);
-    };
+  public void visit(Retry action) {
+    this.handleAction(action);
+    this.enter();
+    try {
+      action.perform().accept(this);
+    } finally {
+      this.leave();
+    }
   }
 
   @Override
-  protected Consumer<TimeOut> timeOutActionConsumer() {
-    return (TimeOut timeOut) -> timeOut.action.accept(this);
+  public void visit(TimeOut action) {
+    this.handleAction(action);
+    this.enter();
+    try {
+      action.perform().accept(this);
+    } finally {
+      this.leave();
+    }
+  }
+
+  protected abstract void handleAction(Action action);
+
+  protected String indent() {
+    return InternalUtils.indent(this.indentLevel);
+  }
+
+  private void enter() {
+    indentLevel++;
+  }
+
+  private void leave() {
+    indentLevel--;
   }
 }

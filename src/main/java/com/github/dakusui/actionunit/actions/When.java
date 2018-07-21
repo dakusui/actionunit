@@ -1,109 +1,69 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.ContextPredicate;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.Formatter;
 
-public interface When<T> extends Action, Context {
-  Supplier<T> value();
+import static java.util.Objects.requireNonNull;
 
-  Predicate<T> check();
+public interface When extends Action {
+  ContextPredicate cond();
 
   Action perform();
 
   Action otherwise();
 
-  class Builder<T> {
-    private final Supplier<T>   value;
-    private final Predicate<T>  condition;
-    private final int           id;
-    private       ActionFactory actionFactoryForPerform;
-    private       ActionFactory actionFactoryForOtherwise;
+  @Override
+  default void accept(Visitor visitor) {
+    visitor.visit(this);
+  }
 
-    public Builder(int id, Supplier<T> value, Predicate<T> condition) {
-      this.id = id;
-      this.value = Objects.requireNonNull(value);
-      this.condition = Objects.requireNonNull(condition);
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("if [%s] is satisfied", cond());
+  }
+
+  class Builder extends Action.Builder<When> {
+    private final ContextPredicate cond;
+
+    private Action otherwise = Named.of("else", ActionSupport.nop());
+    private Action perform;
+
+    public Builder(ContextPredicate cond) {
+      this.cond = requireNonNull(cond);
     }
 
-    public Builder<T> perform(ActionFactory factory) {
-      this.actionFactoryForPerform = Objects.requireNonNull(factory);
+    public Builder perform(Action perform) {
+      this.perform = Named.of("then", requireNonNull(perform));
       return this;
     }
 
-    public Builder<T> perform(Action action) {
-      return perform(self -> action);
-    }
-
-    public When<T> otherwise(ActionFactory factory) {
-      this.actionFactoryForOtherwise = Objects.requireNonNull(factory);
-      return build();
-    }
-
-    public When<T> otherwise(Action action) {
-      return otherwise(self -> action);
-    }
-
-    public When<T> build() {
-      return new When.Impl<>(
-          id,
-          value,
-          condition,
-          actionFactoryForPerform,
-          actionFactoryForOtherwise != null
-              ? actionFactoryForOtherwise
-              : (ActionFactory) Context::nop
-      );
-    }
-  }
-
-  class Impl<T> extends ActionBase implements When<T> {
-    final private Supplier<T>   value;
-    final private Predicate<T>  condition;
-    final private ActionFactory actionFactoryForPerform;
-    final private ActionFactory actionFactoryForOtherwise;
-
-    public Impl(
-        int id,
-        Supplier<T> value,
-        Predicate<T> condition,
-        ActionFactory actionFactoryForPerform,
-        ActionFactory actionFactoryForOtherwise
-    ) {
-      super(id);
-      this.value = Objects.requireNonNull(value);
-      this.condition = Objects.requireNonNull(condition);
-      this.actionFactoryForPerform = Objects.requireNonNull(actionFactoryForPerform);
-      this.actionFactoryForOtherwise = Objects.requireNonNull(actionFactoryForOtherwise);
+    public Action otherwise(Action otherwise) {
+      this.otherwise = Named.of("else", requireNonNull(otherwise));
+      return this.$();
     }
 
     @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
+    public When build() {
+      requireNonNull(this.perform);
+      return new When() {
+        @Override
+        public ContextPredicate cond() {
+          return Builder.this.cond;
+        }
 
-    @Override
-    public Supplier<T> value() {
-      return value;
-    }
+        @Override
+        public Action perform() {
+          return Builder.this.perform;
+        }
 
-    @Override
-    public Predicate<T> check() {
-      return condition;
-    }
-
-    @Override
-    public Action perform() {
-      return Context.Internal.named(0, "perform", actionFactoryForPerform.get());
-    }
-
-    @Override
-    public Action otherwise() {
-      return Context.Internal.named(1, "otherwise", actionFactoryForOtherwise.get());
+        @Override
+        public Action otherwise() {
+          return Builder.this.otherwise;
+        }
+      };
     }
   }
 }

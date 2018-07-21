@@ -2,89 +2,53 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import java.util.Formatter;
+
+import static java.util.Objects.requireNonNull;
 
 /**
- * An action that has a name.
+ * An action that gives a name to another.
  */
-public interface Named extends Nested {
-  /**
-   * Creates an action with the given {@code name} and {@code action}.
-   *
-   * @param id     An id of this object.
-   * @param name   A name of the returned action.
-   * @param action An action body of the returned action.
-   * @return Created action.
-   */
-  static Named create(int id, String name, Action action) {
-    return new Impl(id, name, action);
-  }
-
+public interface Named extends Action {
   /**
    * Returns a name of this action.
    *
    * @return name of this object.
    */
-  String getName();
+  String name();
 
   /**
    * Returns an action named by this object.
    *
-   * @return A child of this action.
+   * @return An action named by this.
    */
-  Action getAction();
+  Action action();
 
-  /**
-   * A skeletal base class to implement {@code Named} action.
-   */
-  class Impl extends ActionBase implements Named {
-    private final String name;
-    private final Action action;
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format(name());
+  }
 
-    /**
-     * Creates an object of this class.
-     *
-     * @param id An id of this object.
-     * @param name   Name of this object.
-     * @param action Action to be performed as a body of this object.
-     */
-    public Impl(int id, String name, Action action) {
-      super(id);
-      this.name = checkNotNull(name);
-      this.action = checkNotNull(action);
-    }
+  @Override
+  default void accept(Visitor visitor) {
+    visitor.visit(this);
+  }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param visitor the visitor operating on this element.
-     */
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
+  static Action of(String name, Action action) {
+    requireNonNull(name);
+    requireNonNull(action);
+    return new Named() {
+      @Override
+      public String name() {
+        return name;
+      }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-      return name;
-    }
+      @Override
+      public Action action() {
+        return action;
+      }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Action getAction() {
-      return action;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String toString() {
-      return this.getName();
-    }
+    };
   }
 }

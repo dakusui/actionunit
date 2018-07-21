@@ -1,96 +1,88 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
-import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 
-import java.util.Objects;
+import java.util.Formatter;
 
-public interface Attempt<E extends Throwable> extends Action, Context {
-  Action attempt();
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
+import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static java.util.Objects.requireNonNull;
 
-  Class<E> exceptionClass();
+public interface Attempt extends Action {
+  @Override
+  default void accept(Visitor visitor) {
+    visitor.visit(this);
+  }
 
-  Action recover(ValueHolder<E> exception);
+  Action perform();
+
+  Action recover();
 
   Action ensure();
 
-  static <E extends Throwable> Attempt.Builder<E> builder(int id, Action attempt) {
-    return new Builder<>(id, attempt);
+  Class<? extends Throwable> targetExceptionClass();
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("attempt");
   }
 
-  class Builder<E extends Throwable> {
-    private final Action attempt;
-    private final int    id;
-    @SuppressWarnings("unchecked")
-    private Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
-    private ValueHandlerActionFactory<E> exceptionHandlerFactory = ($, data) -> {
-      throw Checks.propagate(data.get());
-    };
-    private ActionFactory                ensuredActionFactory    = Context::nop;
+  class Builder extends Action.Builder<Attempt> {
+    private       Class<? extends Throwable> targetExceptionClass = Exception.class;
+    private final Action                     perform;
+    private       Action                     recover              = Named.of("recover",
+        Leaf.of(
+            $ -> {
+              if ($.wasExceptionThrown()) {
+                throw ActionException.wrap($.thrownException());
+              }
+            }));
+    private       Action                     ensure               = Named.of("ensure",
+        ActionSupport.nop()
+    );
 
-    public Builder(int id, Action attempt) {
-      this.id = id;
-      this.attempt = Objects.requireNonNull(attempt);
+    public Builder(Action perform) {
+      this.perform = requireNonNull(perform);
     }
 
-    public Builder<E> recover(Class<? extends E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory) {
-      this.exceptionClass = Objects.requireNonNull(exceptionClass);
-      this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
+    public Builder recover(Class<? extends Throwable> targetExceptionClass, Action recover) {
+      this.recover = Named.of("recover", requireNonNull(recover));
+      this.targetExceptionClass = requireArgument(
+          Exception.class::isAssignableFrom,
+          requireNonNull(targetExceptionClass)
+      );
       return this;
     }
 
-    public Attempt<E> ensure(ActionFactory ensureHandlerFactory) {
-      this.ensuredActionFactory = Objects.requireNonNull(ensureHandlerFactory);
-      return this.build();
+    public Action ensure(Action ensure) {
+      this.ensure = named("ensure", requireNonNull(ensure));
+      return this.$();
     }
 
-    @SuppressWarnings("unchecked")
-    public Attempt<E> build() {
-      Checks.checkState(exceptionClass != null, "Exception class isn't set yet.");
-      return new Impl<>(id, attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensuredActionFactory);
-    }
-  }
+    public Attempt build() {
+      return new Attempt() {
 
-  class Impl<E extends Throwable> extends ActionBase implements Attempt<E> {
-    private final Action                       attempt;
-    private final Class<E>                     exceptionClass;
-    private final ValueHandlerActionFactory<E> exceptionHandlerFactory;
-    private final ActionFactory                ensuredActionFactory;
+        @Override
+        public Action perform() {
+          return perform;
+        }
 
-    public Impl(int id, Action attempt, Class<E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory, ActionFactory ensuredActionFactory) {
-      super(id);
-      this.attempt = Objects.requireNonNull(attempt);
-      this.exceptionClass = Objects.requireNonNull(exceptionClass);
-      this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
-      this.ensuredActionFactory = Objects.requireNonNull(ensuredActionFactory);
-    }
+        @Override
+        public Action recover() {
+          return recover;
+        }
 
-    @Override
-    public Action attempt() {
-      return Context.Internal.named(0, "Target", this.attempt);
-    }
+        public Class<? extends Throwable> targetExceptionClass() {
+          return targetExceptionClass;
+        }
 
-    @Override
-    public Class<E> exceptionClass() {
-      return this.exceptionClass;
-    }
-
-    @Override
-    public Action recover(ValueHolder<E> exception) {
-      return Context.Internal.named(1, String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
-    }
-
-    @Override
-    public Action ensure() {
-      return Context.Internal.named(2, "Ensure", this.ensuredActionFactory.get());
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
+        @Override
+        public Action ensure() {
+          return ensure;
+        }
+      };
     }
   }
 }

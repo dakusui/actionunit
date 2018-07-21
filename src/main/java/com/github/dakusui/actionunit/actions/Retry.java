@@ -1,79 +1,53 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 
+import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.formatDuration;
-import static java.lang.String.format;
+import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static com.github.dakusui.actionunit.utils.InternalUtils.formatDuration;
+import static com.github.dakusui.actionunit.utils.InternalUtils.formatNumberOfTimes;
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class Retry extends ActionBase {
-  /**
-   * A constant that represents an instance of this class should be repeated infinitely.
-   */
-  public static final int INFINITE = -1;
-  public final  Action                     action;
-  public final  int                        times;
-  public final  long                       intervalInNanos;
-  private final Class<? extends Throwable> targetExceptionClass;
-  private final Consumer<Throwable>        handler;
+public interface Retry extends Action {
 
-  private Retry(int id, Class<? extends Throwable> targetExceptionClass, Action action, long intervalInNanos, int times, Consumer<Throwable> handler) {
-    super(id);
-    this.targetExceptionClass = targetExceptionClass;
-    this.action = action;
-    this.intervalInNanos = intervalInNanos;
-    this.times = times;
-    this.handler = handler;
-  }
+  Action perform();
 
-  @Override
-  public void accept(Visitor visitor) {
+  int times();
+
+  Class<? extends Throwable> targetExceptionClass();
+
+  long intervalInNanoseconds();
+
+  default void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
   @Override
-  public String toString() {
-    return format("%s(%sx%dtimes)",
-        formatClassName(),
-        formatDuration(intervalInNanos),
-        this.times
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("retry %s in %s on %s",
+        formatNumberOfTimes(times()),
+        formatDuration(intervalInNanoseconds()),
+        targetExceptionClass().getSimpleName()
     );
   }
 
-  public Consumer<Throwable> getHandler() {
-    return handler;
-  }
+  class Builder extends Action.Builder<Retry> {
 
-  public <T extends Throwable> Class<T> getTargetExceptionClass() {
-    //noinspection unchecked
-    return (Class<T>) this.targetExceptionClass;
-  }
+    private final Action                     perform;
+    private       int                        times                = 2;
+    private       Class<? extends Throwable> targetExceptionClass = Exception.class;
+    private       long                       interval             = 10;
+    private       TimeUnit                   timeUnit             = SECONDS;
 
-  public static Builder builder(int id, Action action) {
-    return new Builder(id, action);
-  }
-
-  public static class Builder {
-    private final int    id;
-    private       Action action;
-    private int                        times                = INFINITE;
-    private Class<? extends Throwable> targetExceptionClass = ActionException.class;
-    private TimeUnit                   timeUnit             = null;
-    private long                       interval             = -1;
-    private Consumer<Throwable>        handler              = throwable -> {};
-
-    public Builder(int id, Action action) {
-      this.id = id;
-      this.action = requireNonNull(action);
+    public Builder(Action perform) {
+      this.perform = requireNonNull(perform);
     }
 
     public Builder times(int times) {
-      checkArgument(times >= 0 || times == INFINITE);
+      requireArgument(v -> v >= 0, times);
       this.times = times;
       return this;
     }
@@ -83,20 +57,43 @@ public class Retry extends ActionBase {
       return this;
     }
 
-    public Builder handler(Consumer<Throwable> handler) {
-      this.handler = requireNonNull(handler);
-      return this;
-    }
-
     public Builder withIntervalOf(long interval, TimeUnit timeUnit) {
-      checkArgument(interval >= 0);
-      this.interval = interval;
+      this.interval = requireArgument(v -> v > 0, interval);
       this.timeUnit = requireNonNull(timeUnit);
       return this;
     }
 
+    @Override
     public Retry build() {
-      return new Retry(id, targetExceptionClass, action, timeUnit.toNanos(interval), times, handler);
+      return new Retry() {
+        @Override
+        public Action perform() {
+          return Builder.this.perform;
+        }
+
+        @Override
+        public int times() {
+          return Builder.this.times;
+        }
+
+        @Override
+        public Class<? extends Throwable> targetExceptionClass() {
+          return Builder.this.targetExceptionClass;
+        }
+
+        @Override
+        public long intervalInNanoseconds() {
+          return timeUnit.toNanos(Builder.this.interval);
+        }
+
+        @Override
+        public String toString() {
+          return String.format("retry(%sx%dtimes)",
+              formatDuration(intervalInNanoseconds()),
+              times
+          );
+        }
+      };
     }
   }
 }

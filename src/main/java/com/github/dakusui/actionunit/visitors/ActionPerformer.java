@@ -2,149 +2,110 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
-import com.github.dakusui.actionunit.visitors.reporting.Node;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.helpers.InternalUtils.runWithTimeout;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-public class ActionPerformer extends ActionWalker {
-  public ActionPerformer() {
+public abstract class ActionPerformer implements Action.Visitor {
+  protected Context context;
+
+  protected ActionPerformer(Context context) {
+    this.context = requireNonNull(context);
   }
 
-  @Override
-  protected Consumer<Leaf> leafActionConsumer() {
-    return Leaf::perform;
+  public void visit(Leaf action) {
+    action.runnable(context).run();
   }
 
-  @Override
-  protected Consumer<Concurrent> concurrentActionConsumer() {
-    return (Concurrent concurrent) -> {
-      Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
-      StreamSupport.stream(concurrent.spliterator(), false)
-          .map(this::toRunnable)
-          .map((Runnable runnable) -> (Runnable) () -> {
-            branchPath(pathSnapshot);
-            runnable.run();
-          })
-          .collect(Collectors.toList())
-          .parallelStream()
-          .forEach(Runnable::run);
-    };
+  public void visit(Named action) {
+    callAccept(action.action(), this);
   }
 
-  @Override
-  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
-    return (ForEach<T> forEach) -> {
-      Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
-      (forEach.getMode() == ForEach.Mode.CONCURRENTLY ?
-          forEach.data().parallel() :
-          forEach.data()).map(ValueHolder::<T>of)
-          .map(forEach::<T>createHandler)
-          .forEach((Action eachChild) -> {
-            branchPath(pathSnapshot);
-            eachChild.accept(ActionPerformer.this);
-          });
-    };
+  public void visit(Composite action) {
+    Stream<Action> actionStream = action.isParallel()
+        ? action.children().parallelStream()
+        : action.children().stream();
+    actionStream.forEach(
+        a -> callAccept(a, this)
+    );
   }
 
-  @Override
-  protected <T> Consumer<While<T>> whileActionConsumer() {
-    return (While<T> while$) -> {
-      Supplier<T> value = while$.value();
-      //noinspection unchecked
-      while (while$.check().test(value.get())) {
-        while$.createAction().accept(ActionPerformer.this);
-      }
-    };
+  public <E> void visit(ForEach<E> action) {
+    Stream<E> data = requireNonNull(action.data().get());
+    data = action.isParallel()
+        ? data.parallel()
+        : data;
+    data.forEach(
+        e -> callAccept(action.perform(),
+            newInstance(
+                this.context.createChild().assignTo(
+                    action.loopVariableName(),
+                    e
+                )
+            )));
   }
 
-  @Override
-  protected <T> Consumer<When<T>> whenActionConsumer() {
-    return (When<T> when) -> {
-      Supplier<T> value = when.value();
-      //noinspection unchecked
-      if (when.check().test(value.get())) {
-        when.perform().accept(ActionPerformer.this);
-      } else {
-        when.otherwise().accept(ActionPerformer.this);
-      }
-    };
+  public void visit(When action) {
+    if (action.cond().test(this.context)) {
+      callAccept(action.perform(), this);
+    } else {
+      callAccept(action.otherwise(), this);
+    }
   }
 
-  @Override
-  protected <T extends Throwable> Consumer<Attempt<T>> attemptActionConsumer() {
-    return (Attempt<T> attempt) -> {
+  public void visit(Attempt action) {
+    try {
+      callAccept(action.perform(), this);
+    } catch (Throwable t) {
+      if (action.targetExceptionClass().isAssignableFrom(t.getClass()))
+        callAccept(action.recover(), newInstance(
+            this.context.createChild().assignTo(Context.Impl.ONGOING_EXCEPTION, t)
+        ));
+      else
+        throw ActionException.wrap(t);
+    } finally {
+      callAccept(action.ensure(), this);
+    }
+  }
+
+  public void visit(Retry action) {
+    boolean succeeded = false;
+    Throwable lastException = null;
+    for (int i = 0; i <= action.times(); i++) {
       try {
-        attempt.attempt().accept(this);
-      } catch (Throwable e) {
-        if (!attempt.exceptionClass().isAssignableFrom(e.getClass())) {
-          throw ActionException.wrap(e);
+        callAccept(action.perform(), this);
+        succeeded = true;
+        break;
+      } catch (Throwable t) {
+        if (action.targetExceptionClass().isAssignableFrom(t.getClass())) {
+          lastException = t;
+          InternalUtils.sleep(action.intervalInNanoseconds(), NANOSECONDS);
+        } else {
+          throw ActionException.wrap(t);
         }
-        //noinspection unchecked
-        attempt.recover(ValueHolder.of((T) e)).accept(this);
-      } finally {
-        attempt.ensure().accept(this);
       }
-    };
+    }
+    if (!succeeded)
+      throw ActionException.wrap(lastException);
   }
 
-  @Override
-  protected Consumer<Retry> retryActionConsumer() {
-    return (Retry retry) -> {
-      try {
-        toRunnable(retry.action).run();
-      } catch (Throwable e) {
-        Throwable lastException = e;
-        for (int i = 0; i < retry.times || retry.times == Retry.INFINITE; i++) {
-          if (retry.getTargetExceptionClass().isAssignableFrom(lastException.getClass())) {
-            retry.getHandler().accept(lastException);
-            InternalUtils.sleep(retry.intervalInNanos, NANOSECONDS);
-            try {
-              toRunnable(retry.action).run();
-              return;
-            } catch (Throwable t) {
-              lastException = t;
-            }
-          } else {
-            throw ActionException.wrap(lastException);
-          }
-        }
-        throw ActionException.wrap(lastException);
-      }
-    };
+  public void visit(TimeOut action) {
+    InternalUtils.runWithTimeout(
+        () -> {
+          callAccept(action.perform(), ActionPerformer.this);
+          return true;
+        },
+        action.durationInNanos(),
+        NANOSECONDS
+    );
   }
 
-  @Override
-  protected Consumer<TimeOut> timeOutActionConsumer() {
-    return (TimeOut timeOut) -> {
-      Deque<Node<Action>> snapshotPath = snapshotCurrentPath();
-      runWithTimeout((Callable<Object>) () -> {
-            branchPath(snapshotPath);
-            timeOut.action.accept(ActionPerformer.this);
-            return true;
-          },
-          timeOut.durationInNanos,
-          NANOSECONDS
-      );
-    };
-  }
+  protected abstract Action.Visitor newInstance(Context context);
 
-  private Runnable toRunnable(final Action action) {
-    return () -> action.accept(ActionPerformer.this);
-  }
-
-  private Deque<Node<Action>> snapshotCurrentPath() {
-    return new LinkedList<>(this.getCurrentPath());
-  }
+  protected abstract void callAccept(Action action, Action.Visitor visitor);
 }
-

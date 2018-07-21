@@ -1,29 +1,27 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
 
 /**
  * Tests for ActionVisitor.
  */
-public class ActionVisitorTest implements Context {
-  final   TestUtils.Out  out     = new TestUtils.Out();
-  private Action.Visitor visitor = new Action.Visitor.Base() {
+public class ActionVisitorTest extends TestUtils.TestBase {
+  private final TestUtils.Out  out     = new TestUtils.Out();
+  private       Action.Visitor visitor = new Action.Visitor() {
     @Override
     public void visit(Action action) {
-      out.writeLine(action.toString());
+      out.writeLine(String.format("%s", action));
     }
   };
 
@@ -36,16 +34,15 @@ public class ActionVisitorTest implements Context {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, equalTo("simpleAction"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        allOf(
+            asString("get", 0).equalTo("simpleAction").$(),
+            asInteger("size").equalTo(1).$()
+        )
     );
   }
 
   private Action createSimpleAction() {
-    return simple("simpleAction", () -> {
+    return simple("simpleAction", (c) -> {
     });
   }
 
@@ -58,26 +55,20 @@ public class ActionVisitorTest implements Context {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, equalTo("named"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        allOf(
+            asString("get", 0).equalTo("named").$(),
+            asInteger("size").equalTo(1).$()
+        )
     );
   }
 
   @Test
   public void givenCompositeAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = new Composite.Base(0, "noname", singletonList(createSimpleAction())) {
+    Action action = new Composite.Impl(singletonList(createSimpleAction()), false) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
-      }
-
-      @Override
-      public String toString() {
-        return "CompositeActionForTest";
       }
     };
     // when accept
@@ -85,28 +76,29 @@ public class ActionVisitorTest implements Context {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, equalTo("CompositeActionForTest"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).equalTo("do sequentially").$(),
+            asInteger("size").equalTo(1).$()
+        ));
   }
 
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEachOf(singletonList("hello")).perform(($, s) -> nop());
+    Action action = forEach(
+        "i", () -> Stream.of("hello")
+    ).perform(
+        nop()
+    );
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("ForEach"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        allOf(
+            asString("get", 0).startsWith("for each").$(),
+            asInteger("size").equalTo(1).$()
+        )
     );
   }
 
@@ -119,12 +111,10 @@ public class ActionVisitorTest implements Context {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("Retry"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).startsWith("retry").$(),
+            asInteger("size").equalTo(1).$()
+        ));
   }
 
   @Test
@@ -136,55 +126,24 @@ public class ActionVisitorTest implements Context {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("TimeOut"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).startsWith("timeout in 1[nanoseconds]").$(),
+            Crest.asInteger("size").$()
+        ));
   }
 
   @Test
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
     Action action = attempt(createSimpleAction())
-        .recover(Exception.class, ($, e) -> nop())
+        .recover(Exception.class, nop())
         .build();
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("Attempt"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
-  }
-
-  @Test
-  public void givenWhileAction$whenAccept$thenVisited() {
-    // given while action
-    Action action = whilst(
-        () -> "Hello",
-        v -> true
-    ).perform(
-        $ -> sequential(
-            createSimpleAction(),
-            createSimpleAction()
-        )
-    );
-    // when accept
-    action.accept(visitor);
-    // then visited
-    assertThat(
-        out,
-        hasItemAt(0, startsWith("While"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        Crest.asString("get", 0).startsWith("attempt").$()
     );
   }
 
@@ -192,23 +151,20 @@ public class ActionVisitorTest implements Context {
   public void givenWhenAction$whenAccept$thenVisited() {
     // given while action
     Action action = when(
-        () -> "Hello",
-        "Hello"::equals
+        context -> false
     ).perform(
-        $ -> createSimpleAction()
+        createSimpleAction()
     ).otherwise(
-        $ -> createSimpleAction()
+        createSimpleAction()
     );
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("When"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).startsWith("if [condition] is satisfied").$(),
+            asInteger("size").equalTo(1).$()
+        ));
   }
 }

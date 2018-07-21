@@ -1,120 +1,81 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.DataSupplier;
 
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.Formatter;
 
-import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.summary;
 import static java.util.Objects.requireNonNull;
 
-public interface ForEach<T> extends Action {
-  Stream<? extends T> data();
+public interface ForEach<E> extends Action {
+  String loopVariableName();
 
-  Action createHandler(ValueHolder<T> data);
+  DataSupplier<E> data();
 
-  Mode getMode();
+  Action perform();
 
-  ValueHolder<T> defaultValue();
+  boolean isParallel();
 
-  static <E> ForEach.Builder<E> builder(int id, Supplier<Stream<? extends E>> streamSupplier) {
-    return new ForEach.Builder<>(id, streamSupplier);
+  default void accept(Visitor visitor) {
+    visitor.visit(this);
   }
 
-  class Builder<E> {
-    private final Supplier<Stream<? extends E>> elements;
-    private final int                           id;
-    private       Mode                          mode = Mode.SEQUENTIALLY;
-    private       ValueHolder<E>                defaultValue;
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("for each of %s %s", data(), isParallel() ? "parallely" : "sequentially");
+  }
 
-    Builder(int id, Supplier<Stream<? extends E>> elements) {
-      this.id = id;
-      this.elements = requireNonNull(elements);
-      this.defaultValue = ValueHolder.empty();
+  class Builder<E> extends Action.Builder<ForEach<E>> {
+    private final DataSupplier<E> dataSupplier;
+    private final String          loopVariableName;
+    private       Action          perform = ActionSupport.nop();
+    private       boolean         parallel;
+
+    public Builder(String loopVariableName, DataSupplier<E> dataSupplier) {
+      this.loopVariableName = requireNonNull(loopVariableName);
+      this.dataSupplier = requireNonNull(dataSupplier);
+      this.sequentially();
     }
 
-    public Builder<E> withDefault(E defaultValue) {
-      this.defaultValue = ValueHolder.of(defaultValue);
+    public Action perform(Action perform) {
+      this.perform = requireNonNull(perform);
+      return this.$();
+    }
+
+    public Builder<E> parallelly() {
+      this.parallel = true;
       return this;
     }
 
     public Builder<E> sequentially() {
-      this.mode = Mode.SEQUENTIALLY;
+      this.parallel = false;
       return this;
     }
 
-    public Builder<E> concurrently() {
-      this.mode = Mode.CONCURRENTLY;
-      return this;
-    }
+    public ForEach<E> build() {
+      return new ForEach<E>() {
+        @Override
+        public String loopVariableName() {
+          return Builder.this.loopVariableName;
+        }
 
-    public ForEach<E> perform(ValueHandlerActionFactory<E> operation) {
-      requireNonNull(operation);
-      //noinspection unchecked
-      return new ForEach.Impl<E>(
-          id,
-          operation,
-          this.elements,
-          this.mode,
-          defaultValue);
-    }
+        @Override
+        public DataSupplier<E> data() {
+          return Builder.this.dataSupplier;
+        }
 
-    public ForEach<E> perform(Action action) {
-      requireNonNull(action);
-      return perform((factory, data) -> action);
-    }
+        @Override
+        public Action perform() {
+          return Builder.this.perform;
+        }
 
-  }
-
-  enum Mode {
-    SEQUENTIALLY,
-    CONCURRENTLY
-  }
-
-  class Impl<T> extends ActionBase implements ForEach<T> {
-    private final ValueHandlerActionFactory<T>  handlerFactory;
-    private final Supplier<Stream<? extends T>> data;
-    private final Mode                          mode;
-    private final ValueHolder<T>                defaultValue;
-
-    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Supplier<Stream<? extends T>> data, Mode mode, ValueHolder<T> defaultValue) {
-      super(id);
-      this.handlerFactory = requireNonNull(handlerFactory);
-      this.data = requireNonNull(data);
-      this.mode = requireNonNull(mode);
-      this.defaultValue = requireNonNull(defaultValue);
-    }
-
-    @Override
-    public Stream<? extends T> data() {
-      return this.data.get();
-    }
-
-    @Override
-    public Action createHandler(ValueHolder<T> data) {
-      return this.handlerFactory.apply(data);
-    }
-
-    @Override
-    public Mode getMode() {
-      return this.mode;
-    }
-
-    @Override
-    public ValueHolder<T> defaultValue() {
-      return defaultValue;
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
-    }
-
-    @Override
-    public String toString() {
-      return String.format("%s (%s) %s", super.toString(), mode, summary(describe(this.data)));
+        @Override
+        public boolean isParallel() {
+          return Builder.this.parallel;
+        }
+      };
     }
   }
+
 }

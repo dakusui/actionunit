@@ -1,84 +1,75 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.List;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.unknownIfNegative;
-import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
-/**
- * An interface to represent an action which executes its members.
- * The manner in which those members should be executed is left to sub-interfaces
- * of this.
- *
- * @see Sequential
- * @see Concurrent
- */
-public interface Composite extends Action, Iterable<Action> {
-  /**
-   * Returns a number of elements to be handled by this object.
-   *
-   * @return number of actions that this object has if they are given as a {@link Collection}.
-   * Otherwise, for instance actions are given as {@link Iterable}, {@code -1}
-   * will be returned.
-   */
-  int size();
+public interface Composite extends Action {
+  List<Action> children();
 
-  /**
-   * A skeletal implementation for composite actions, such as {@link Sequential.Impl} or {@link Concurrent.Base}.
-   */
-  abstract class Base extends ActionBase implements Composite {
-    private final Iterable<? extends Action> actions;
-    private final String                     typeName;
+  boolean isParallel();
 
-    public Base(int id, String typeName, Iterable<? extends Action> actions) {
-      super(id);
-      this.actions = checkNotNull(actions);
-      this.typeName = checkNotNull(typeName);
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format(
+        "do %s",
+        isParallel()
+            ? "parallelly"
+            : "sequentially"
+    );
+  }
+
+  class Builder {
+    private       boolean      parallel;
+    private final List<Action> actions;
+
+    public Builder(List<Action> actions) {
+      this.actions = actions;
+      this.sequential();
     }
 
-    @Override
-    public String toString() {
-      return format("%s (%s actions)", typeName, unknownIfNegative(this.size()));
+    public Builder parallel() {
+      this.parallel = true;
+      return this;
     }
 
-    /**
-     * This method may return negative number if {@code actions} is not a collection.
-     */
-    @Override
-    public int size() {
-      if (this.actions instanceof Collection) {
-        return ((Collection) this.actions).size();
-      }
-      return -1;
+    public Builder sequential() {
+      this.parallel = false;
+      return this;
     }
 
-    @Override
-    public int hashCode() {
-      return actions.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object object) {
-      if (!(object instanceof Composite)) {
-        return false;
-      }
-      Composite another = (Composite) object;
-      return getClass().equals(another.getClass()) && InternalUtils.elementsEqual(actions, another);
-    }
-
-    @Override
-    public Iterator<Action> iterator() {
-      //noinspection unchecked
-      return (Iterator<Action>) this.actions.iterator();
+    @SuppressWarnings("unchecked")
+    public Composite build() {
+      return new Impl(actions, parallel);
     }
   }
 
-  interface Factory {
-    Composite create(int id, Iterable<? extends Action> actions);
+  class Impl implements Composite {
+    private final List<Action> actions;
+    private final boolean      parallel;
+
+    protected Impl(List<Action> actions, boolean parallel) {
+      this.actions = requireNonNull(actions);
+      this.parallel = parallel;
+    }
+
+    @Override
+    public List<Action> children() {
+      return Collections.unmodifiableList(actions);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+
+    @Override
+    public boolean isParallel() {
+      return this.parallel;
+    }
   }
 }

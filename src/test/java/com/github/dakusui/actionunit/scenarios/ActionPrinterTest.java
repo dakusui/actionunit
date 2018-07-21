@@ -1,54 +1,54 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.actions.ActionBase;
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.actions.Retry;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.utils.Matchers;
-import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
-import org.junit.Assert;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
-import static com.github.dakusui.actionunit.utils.TestUtils.size;
-import static java.lang.String.format;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.size;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.asInteger;
+import static com.github.dakusui.crest.Crest.asString;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
-public class ActionPrinterTest implements Context {
-  private static class ActionComposer extends TestUtils.TestBase implements Context {
+public class ActionPrinterTest extends TestUtils.TestBase {
+  private static class ActionComposer extends TestUtils.TestBase {
     Action composeAction() {
       return named("Concurrent (top level)",
-          concurrent(
+          parallel(
               named("Sequential (1st child)",
                   sequential(
-                      simple("simple1", () -> {
+                      simple("simple1", (context) -> {
                       }),
-                      simple("simple2", () -> {
+                      simple("simple2", (context) -> {
                       }),
-                      simple("simple3", () -> {
+                      simple("simple3", (context) -> {
                       }),
-                      forEachOf(
-                          asList("hello1", "hello2", "hello3")
+                      forEach(
+                          "i",
+                          () -> Stream.of("hello1", "hello2", "hello3")
                       ).perform(
-                          ($, i) -> nop()
+                          nop()
                       )
                   ))));
     }
@@ -58,312 +58,223 @@ public class ActionPrinterTest implements Context {
 
     @Test
     public void givenTrace() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.trace());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.TRACE));
     }
 
     @Test
     public void givenDebug$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.debug());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.DEBUG));
     }
 
     @Test
     public void givenInfo$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.info());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.INFO));
     }
 
     @Test
     public void givenWarn() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.warn());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.WARN));
     }
 
     @Test
     public void givenError() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.error());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.ERROR));
     }
 
     @Test
     public void givenNew() {
       ////
       // Prepare and run a printing scanner
-      PrintingActionScanner printer = new PrintingActionScanner(new Writer.Impl());
-      Writer.Impl writer = (Writer.Impl) printer.getWriter();
+      Writer.Impl writer = new Writer.Impl();
+      ActionPrinter printer = new ActionPrinter(writer);
       // run printing scanner
       composeAction().accept(printer);
       // print data written to a writer
       StreamSupport.stream(writer.spliterator(), false).forEach(System.err::println);
 
       Iterator<String> i = writer.iterator();
-      assertThat(i.next(), containsString("Concurrent (top level)"));
-      assertThat(i.next(), containsString("Concurrent (1 actions)"));
-      assertThat(i.next(), containsString("Sequential (1st child)"));
-      assertThat(i.next(), containsString("Sequential (4 actions)"));
-      assertThat(i.next(), containsString("simple1"));
-      assertThat(i.next(), containsString("simple2"));
-      assertThat(i.next(), containsString("simple3"));
-      assertThat(i.next(), containsString("ForEach"));
-      assertThat(i.next(), containsString("(nop)"));
-      assertEquals(9, size(writer));
+      Crest.assertThat(
+          i,
+          Crest.allOf(
+              asString("next").containsString("Concurrent (top level)").$(),
+              asString("next").containsString("do parallelly").$(),
+              asString("next").containsString("Sequential (1st child)").$(),
+              asString("next").containsString("do sequentially").$(),
+              asString("next").containsString("simple1").$(),
+              asString("next").containsString("(noname)").$(),
+              asString("next").containsString("simple2").$(),
+              asString("next").containsString("(noname)").$(),
+              asString("next").containsString("simple3").$(),
+              asString("next").containsString("(noname)").$(),
+              asString("next").containsString("for each of data sequentially").$(),
+              asString("next").containsString("(nop)").$()
+          )
+      );
+      assertEquals(12, size(writer));
     }
   }
 
-  public static class StdOutErrTest extends ActionComposer implements Context {
+  @RunWith(Enclosed.class)
+  public static class StdOutErrTest extends ActionComposer {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stdout());
+      composeAction().accept(new ActionPrinter(Writer.Std.OUT));
     }
 
     @Test
     public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stderr());
-    }
-  }
-
-  public static class WithResultTest extends TestUtils.TestBase implements Context {
-    private Action composeAction(final List<String> out) {
-      //noinspection unchecked
-      return named("Concurrent (top level)", concurrent(
-          named("Sequential (1st child)", sequential(
-              simple("simple1", () -> {
-              }),
-              simple("simple2", () -> {
-              }),
-              simple("simple3", () -> {
-              }))
-          ),
-          named("ForEach1",
-              forEachOf(
-                  asList("hello1", "hello2", "hello3")
-              ).perform(
-                  ($, data) -> $.given(
-                      "ExampleTest", () -> "ExampleTest")
-                      .when("Say 'hello'", input -> {
-                        out.add(format("hello:%s", data.get()));
-                        return format("hello:%s", data.get());
-                      })
-                      .then("anything", v -> true)
-              )),
-          named("ForEach2",
-              forEachOf(
-                  asList("world1", "world2", "world3")
-              ).perform(
-                  ($, i) -> $.sequential(
-                      $.simple("nothing", () -> {
-                      }),
-                      $.simple("sink1", () -> {
-                      }),
-                      $.simple("sink2", () -> {
-                      })
-                  )
-              ))
-      ));
+      composeAction().accept(new ActionPrinter(Writer.Std.ERR));
     }
 
-    @Test
-    public void givenComplicatedTestAction$whenPerformed$thenWorksFine() {
-      List<String> out = new LinkedList<>();
-      Action action = composeAction(out);
-      try {
+    public static class WithResultVariationTest extends TestUtils.TestBase {
+      @Test
+      public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
+        final TestUtils.Out out1 = new TestUtils.Out();
+        Action action = forEach(
+            "i",
+            () -> Stream.of("A", "B")
+        ).perform(
+            sequential(
+                simple("+0", (c) -> out1.writeLine(c.valueOf("i") + "0")),
+                simple("+1", (c) -> out1.writeLine(c.valueOf("i") + "1"))
+            )
+        );
         action.accept(TestUtils.createActionPerformer());
-        assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);
-      } finally {
-        runAndReport(action, new TestUtils.Out());
+        assertEquals(asList("A0", "A1", "B0", "B1"), out1);
+
+        final TestUtils.Out out2 = new TestUtils.Out();
+        runAndReport(action, out2);
+        Crest.assertThat(
+            out2,
+            Crest.allOf(
+                asString("get", 0).containsString("[o]").containsString("for each").$(),
+                asString("get", 1).containsString("[oo]").containsString("sequential").$(),
+                asString("get", 2).containsString("[oo]").containsString("+0").$(),
+                asString("get", 3).containsString("[oo]").containsString("(noname)").$(),
+                asString("get", 4).containsString("[oo]").containsString("+1").$(),
+                asString("get", 5).containsString("[oo]").containsString("(noname)").$(),
+                asInteger("size").equalTo(6).$()
+            ));
       }
-    }
 
-    @Test
-    public void givenComplicatedTestAction$whenPrinted$thenPrintedCorrectly() {
-      List<String> out = new LinkedList<>();
-      PrintingActionScanner printer = new PrintingActionScanner(new Writer.Impl());
-      Writer.Impl writer = (Writer.Impl) printer.getWriter();
-      composeAction(out).accept(printer);
-      StreamSupport.stream(writer.spliterator(), false).forEach(System.err::println);
-      Iterator<String> i = writer.iterator();
-      assertThat(i.next(), containsString("Concurrent (top level)"));
-      assertThat(i.next(), containsString("Concurrent"));
-      assertThat(i.next(), containsString("Sequential (1st child)"));
-      assertThat(i.next(), containsString("Sequential"));
-      assertThat(i.next(), containsString("simple1"));
-      assertThat(i.next(), containsString("simple2"));
-      assertThat(i.next(), containsString("simple3"));
-      assertThat(i.next(), containsString("ForEach1"));
-      assertThat(i.next(), containsString("ForEach"));
-      assertThat(i.next(), containsString("TestAction"));
-      assertThat(i.next(), containsString("Given"));
-      i.next();
-      assertThat(i.next(), containsString("When"));
-      i.next();
-      assertThat(i.next(), containsString("Then"));
-      i.next();
-      assertThat(i.next(), containsString("ForEach2"));
-      assertThat(i.next(), containsString("ForEach"));
-      assertThat(i.next(), containsString("Sequential"));
-      assertThat(i.next(), containsString("nothing"));
-      assertThat(i.next(), containsString("sink1"));
-      assertThat(i.next(), containsString("sink2"));
-      assertEquals(22, size(writer));
-    }
-  }
-
-  public static class WithResultVariationTest extends TestUtils.TestBase implements Context {
-    @Test
-    public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
-      final TestUtils.Out out1 = new TestUtils.Out();
-      Action action = forEachOf(
-          asList("A", "B")
-      ).perform(
-          ($, i) -> $.sequential(
-              $.simple("+0", () -> out1.writeLine(i.get() + "0")),
-              $.simple("+1", () -> out1.writeLine(i.get() + "1"))
-          )
-      );
-      action.accept(TestUtils.createActionPerformer());
-      assertEquals(asList("A0", "A1", "B0", "B1"), out1);
-
-      final TestUtils.Out out2 = new TestUtils.Out();
-      runAndReport(action, out2);
-      assertThat(
-          out2,
-          allOf(
-              hasItemAt(0, Matchers.allOf(containsString("[o]"), containsString("ForEach"))),
-              hasItemAt(1, Matchers.allOf(containsString("[oo]"), containsString("Sequential"))),
-              hasItemAt(2, Matchers.allOf(containsString("[oo]"), containsString("+0"))),
-              hasItemAt(3, Matchers.allOf(containsString("[oo]"), containsString("+1")))
-          ));
-      Assert.assertThat(
-          out2.size(),
-          equalTo(4)
-      );
-    }
-
-    @Test
-    public void givenRetryAction$whenPerformed$thenResultPrinted() {
-      Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES).build();
-      TestUtils.Out out = new TestUtils.Out();
-      runAndReport(action, out);
-      assertThat(
-          out.get(0),
-          allOf(
-              containsString("[o]"),
-              containsString("Retry(60[seconds]x1times)")
-          ));
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
-      final TestUtils.Out out = new TestUtils.Out();
-      Action action = retry(simple("AlwaysFail", new Runnable() {
-        @Override
-        public void run() {
-          throw new IllegalStateException(this.toString());
-        }
-      })).times(1).withIntervalOf(1, TimeUnit.MINUTES).build();
-      try {
+      @Test
+      public void givenRetryAction$whenPerformed$thenResultPrinted() {
+        Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES).build();
+        TestUtils.Out out = new TestUtils.Out();
         runAndReport(action, out);
-      } finally {
-        assertThat(
+        Crest.assertThat(
             out.get(0),
-            allOf(
-                containsString("[x]"),
-                containsString("Retry(60[seconds]x1times)")
-            ));
-        assertThat(
-            out.get(1),
-            allOf(
-                containsString("[x]"),
-                containsString("AlwaysFail")
+            Crest.allOf(
+                asString().containsString("[o]").$(),
+                asString().containsString("retry once in 60[seconds]").$()
             ));
       }
-    }
 
-    @Test
-    public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
-      final TestUtils.Out outForRun = new TestUtils.Out();
-      Action action = retry(
-          simple("PassAfterFail", new Runnable() {
-            boolean tried = false;
+      @Test(expected = IllegalStateException.class, timeout = 10_000)
+      public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
+        final TestUtils.Out out = new TestUtils.Out();
+        Action action = retry(simple("AlwaysFail", new ContextConsumer() {
+          @Override
+          public void accept(Context context) {
+            throw new IllegalStateException(this.toString());
+          }
+        })).times(
+            1
+        ).withIntervalOf(
+            1, TimeUnit.MILLISECONDS
+        ).on(
+            IllegalStateException.class
+        ).$();
+        runAndReport(action, out);
+        Crest.assertThat(
+            out,
+            Crest.allOf(
+                asString("get", 0).containsString("[E]").$(),
+                asString("get", 0).containsString("retry once in 1[milliseconds] on IllegalStateException").$(),
+                asString("get", 1).containsString("[EE]").$(),
+                asString("get", 1).containsString("AlwaysFail").$()
+            ));
+      }
 
-            @Override
-            public void run() {
-              try {
-                if (!tried) {
-                  outForRun.writeLine("PassAfterFail");
-                  throw new ActionException(this.toString());
+      @Test
+      public void givenPassAfterRetryAction$whenPerformed$thenResultPrinted() {
+        final TestUtils.Out outForRun = new TestUtils.Out();
+        Retry.Builder retry = retry(
+            simple("PassAfterFail", new ContextConsumer() {
+              boolean tried = false;
+
+              @Override
+              public void accept(Context context) {
+                try {
+                  if (!tried) {
+                    outForRun.writeLine("PassAfterFail");
+                    throw new ActionException(this.toString());
+                  }
+                } finally {
+                  tried = true;
                 }
-              } finally {
-                tried = true;
               }
-            }
-          })).times(1).withIntervalOf(1, MILLISECONDS).build();
-      runAndReport(action, outForRun);
-      assertThat(
-          outForRun,
-          Matchers.allOf(
-              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                  "get(0)", (TestUtils.Out v) -> v.get(0)
-              ).check(
-                  "contains('PassAfterFail')", (String u) -> u.equals("PassAfterFail")
-              ),
-              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                  "get(1)", (TestUtils.Out v) -> v.get(1)
-              ).check(
-                  "contains('[o]')", (String u) -> u.contains("[o]")
-              ),
-              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                  "get(1)", (TestUtils.Out v) -> v.get(1)
-              ).check(
-                  "contains('Retry(1[milliseconds]x1times')", (String u) -> u.contains("Retry(1[milliseconds]x1times")
-              ),
-              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                  "get(2)", (TestUtils.Out v) -> v.get(2)
-              ).check(
-                  "contains('[xo]')", (String u) -> u.contains("[xo]")
-              ),
-              TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                  "get(2)", (TestUtils.Out v) -> v.get(2)
-              ).check(
-                  "contains('PassAfterFail')", (String u) -> u.contains("PassAfterFail")
-              )
-          )
-      );
+            }));
+        retry.times(1);
+        retry.withIntervalOf(1, MILLISECONDS);
+        Action action = retry.build();
+        runAndReport(action, outForRun);
+        Crest.assertThat(
+            outForRun,
+            Crest.allOf(
+                asString("get", 0).containsString("PassAfterFail").$(),
+                asString("get", 1).containsString("[o]").$(),
+                asString("get", 1).containsString("retry once in 1[milliseconds]").$(),
+                asString("get", 2).containsString("[Eo]").$(),
+                asString("get", 2).containsString("PassAfterFail").$()
+            )
+        );
+      }
+
+      @Test
+      public void givenTimeoutAction$whenPerformed$thenResultPrinted() {
+        Action action = timeout(nop()).in(1, TimeUnit.MINUTES);
+        final TestUtils.Out out = new TestUtils.Out();
+        runAndReport(action, out);
+        Crest.assertThat(
+            out.get(0),
+            Crest.allOf(
+                Crest.asString().containsString("[o]").$(),
+                Crest.asString().containsString("timeout in 60[seconds]").$()
+            ));
+      }
+
+      @Test
+      public void givenUnsupportedCompositeAction$whenPerformed$thenExceptionThrown() {
+        Action action = new Composite.Impl(Collections.emptyList(), false) {
+          @Override
+          public void accept(Action.Visitor visitor) {
+            visitor.visit(this);
+          }
+        };
+        TestUtils.createReportingActionPerformer().performAndReport(action);
+      }
+
+      @Test(expected = UnsupportedOperationException.class)
+      public void givenUnsupportedSimpleAction$whenPerformed$thenExceptionThrown() {
+        Action action = new Action() {
+          @Override
+          public void formatTo(Formatter formatter, int flags, int width, int precision) {
+            formatter.format("anonymous");
+          }
+
+          @Override
+          public void accept(Action.Visitor visitor) {
+            visitor.visit(this);
+          }
+        };
+        TestUtils.createReportingActionPerformer().performAndReport(action);
+      }
+
     }
 
-    @Test
-    public void givenTimeoutAction$whenPerformed$thenResultPrinted() {
-      Action action = timeout(nop()).in(1, TimeUnit.MINUTES);
-      final TestUtils.Out out = new TestUtils.Out();
-      runAndReport(action, out);
-      assertThat(
-          out.get(0),
-          allOf(
-              containsString("[o]"),
-              containsString("TimeOut(60[seconds])")
-          ));
+    private static void runAndReport(Action action, TestUtils.Out out) {
+      ReportingActionPerformer.create(out).performAndReport(action);
     }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void givenUnsupportedCompositeAction$whenPerformed$thenExceptionThrown() {
-      Action action = new Composite.Base(0, "noname", Collections.emptyList()) {
-        @Override
-        public void accept(Visitor visitor) {
-          visitor.visit(this);
-        }
-      };
-      TestUtils.createReportingActionPerformer(action).performAndReport();
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void givenUnsupportedSimpleAction$whenPerformed$thenExceptionThrown() {
-      Action action = new ActionBase(0) {
-        @Override
-        public void accept(Visitor visitor) {
-          visitor.visit(this);
-        }
-      };
-      TestUtils.createReportingActionPerformer(action).performAndReport();
-    }
-  }
-
-  private static void runAndReport(Action action, TestUtils.Out out) {
-    new ReportingActionPerformer.Builder(action).to(out).build().performAndReport();
   }
 }

@@ -1,27 +1,24 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.Leaf;
-import org.hamcrest.Matchers;
+import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static org.junit.Assert.assertThat;
+import static com.github.dakusui.crest.Crest.asString;
 
 public class LeafTest {
   @Test
   public void givenAnonymousLeaf$whenToString$thenNoname() {
-    String s = simple("NameOfRunnable", () -> {
-    }).toString();
-    assertThat(s, Matchers.equalTo("NameOfRunnable"));
+    String s = String.format("%s", simple("NameOfRunnable", (context) -> {
+    }));
+    Crest.assertThat(s, asString().equalTo("NameOfRunnable").$());
   }
 
   @Test
   public void givenInheritedLeafWithoutName$whenToString$then() {
-    String s = new Leaf(0) {
-      @Override
-      public void perform() {
-      }
-    }.toString();
-    assertThat(s, Matchers.startsWith("LeafTest$"));
+    String s = String.format("%s", Leaf.of(c -> {
+    }));
+    Crest.assertThat(s, asString().startsWith("(noname)").$());
   }
 }
