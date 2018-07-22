@@ -57,7 +57,7 @@ public interface Attempt<E extends Throwable> extends Action {
     private final ActionGenerator<E> exceptionHandlingActionGenerator;
     private final ActionGenerator<?> ensuredActionGenerator;
 
-    private Impl(int id, Action attempt, Class<E> exceptionClass, ActionGenerator<E> exceptionHandlingActionGenerator, ActionGenerator<?> ensuredActionGenerator) {
+    protected Impl(int id, Action attempt, Class<E> exceptionClass, ActionGenerator<E> exceptionHandlingActionGenerator, ActionGenerator<?> ensuredActionGenerator) {
       super(id);
       this.attempt = Objects.requireNonNull(attempt);
       this.exceptionClass = Objects.requireNonNull(exceptionClass);

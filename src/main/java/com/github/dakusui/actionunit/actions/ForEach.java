@@ -76,7 +76,7 @@ public interface ForEach<T> extends Action {
     private final Mode                          mode;
     private final ValueHolder<T>                defaultValue;
 
-    private Impl(int id, ActionGenerator<T> handlerFactory, Supplier<Stream<? extends T>> data, Mode mode, ValueHolder<T> defaultValue) {
+    protected Impl(int id, ActionGenerator<T> handlerFactory, Supplier<Stream<? extends T>> data, Mode mode, ValueHolder<T> defaultValue) {
       super(id);
       requireNonNull(handlerFactory);
       this.handlerFactory = handlerFactory;
