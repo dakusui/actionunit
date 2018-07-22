@@ -15,11 +15,11 @@ public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, A
   static <T> ValueHandlerActionFactory<T> create(String description, Consumer<T> handlerBody) {
     Objects.requireNonNull(handlerBody);
     return new ValueHandlerActionFactory<T>() {
-      private Bean<T> bean = new Bean<>();
+      private Bean bean = new Bean();
 
       @Override
-      public <T> Bean<T> bean() {
-        return (Bean<T>) this.bean;
+      public Bean bean() {
+        return this.bean;
       }
 
       @Override
@@ -39,7 +39,7 @@ public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, A
   }
 
   @Override
-  default <T> Bean<T> bean() {
+  default  Bean bean() {
     throw new UnsupportedOperationException();
   }
 

@@ -26,7 +26,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * An interface that defines methods to create various actions and builders of
  * actions.
  */
-public interface Context/*<E>*/ {
+public interface Context {
   default int generateId() {
     return idGenerator().getAndIncrement();
   }
@@ -329,23 +329,23 @@ public interface Context/*<E>*/ {
     return bean().get(variableName);
   }
 
-  <T> Bean<T> bean();
+  Bean bean();
 
   class Impl implements Context {
-    private final Bean<?> bean;
+    private final Bean bean;
 
     public Impl() {
-      bean = new Bean<>();
+      bean = new Bean();
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Bean<T> bean() {
-      return (Bean<T>) this.bean;
+    public Bean bean() {
+      return this.bean;
     }
   }
 
-  class Bean<T> extends AtomicInteger {
+  class Bean extends AtomicInteger {
     ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
 
     public Bean() {

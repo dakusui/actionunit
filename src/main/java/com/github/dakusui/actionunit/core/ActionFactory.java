@@ -11,7 +11,7 @@ public interface ActionFactory extends Context {
     return 0;
   }
 
-  default <T> Bean<T> bean() {
+  default Bean bean() {
     throw new UnsupportedOperationException("This shouldn't be called");
   }
 

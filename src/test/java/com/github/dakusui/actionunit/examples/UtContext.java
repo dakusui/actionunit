@@ -12,7 +12,7 @@ public interface UtContext extends Context {
   }
 
   @Override
-  default <T> Bean<T> bean() {
+  default Bean bean() {
     throw new UnsupportedOperationException("This method shouldn't be called.");
   }
 }
