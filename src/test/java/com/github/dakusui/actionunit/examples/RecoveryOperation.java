@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -28,7 +27,7 @@ public class RecoveryOperation {
             deployComponent()
         )).times(2).withIntervalOf(10, MILLISECONDS).build()
     ).ensure(
-        ActionFactory.of(v -> this::cleanUp)
+        v -> this::cleanUp
     );
   }
 

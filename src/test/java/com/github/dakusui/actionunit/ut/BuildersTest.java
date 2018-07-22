@@ -88,9 +88,8 @@ public class BuildersTest implements UtContext {
               $.simple("print recovery", () -> System.out.println("Recovered."))
           )
       ).ensure(
-          ActionFactory.of(
-              v -> ($) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
-          ));
+          v -> ($) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
+      );
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {

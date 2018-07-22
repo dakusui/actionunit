@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
@@ -39,10 +38,10 @@ public class AttemptExample implements UtContext {
             format("print stacktrace:<%s>", e),
             () -> {
             })
-    ).ensure(ActionFactory.of(
+    ).ensure(
         v -> $ -> $.simple(
             "print bye",
             () -> System.out.println("Bye 'attempt'"))
-    ));
+    );
   }
 }

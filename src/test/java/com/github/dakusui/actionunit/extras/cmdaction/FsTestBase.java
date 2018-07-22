@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
 
@@ -49,7 +48,7 @@ public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBa
               }
               throw new RuntimeException(t);
             }))
-        .ensure(ActionFactory.of(v -> this::cleanUp));
+        .ensure(v -> this::cleanUp);
   }
 
   private Action cleanUp(Context context) {

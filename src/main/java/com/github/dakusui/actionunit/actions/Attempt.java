@@ -1,13 +1,12 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public interface Attempt<E extends Throwable> extends Action {
   Action attempt();
@@ -27,21 +26,8 @@ public interface Attempt<E extends Throwable> extends Action {
     private final int                          id;
     @SuppressWarnings("unchecked")
     private       Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
-    private       ValueHandlerActionFactory<E> exceptionHandlerFactory = null;/*new ValueHandlerActionFactory<E>() {
-
-      @Override
-      public AtomicInteger idGenerator() {
-        return null;
-      }
-
-      @Override
-      public Action create(Context factory, ValueHolder<E> valueHolder) {
-        return null;
-      }
-    };/*($, data) -> {
-      throw Checks.propagate(data.get());
-    };*/
-    private       ActionFactory                ensuredActionFactory    = ActionFactory.of(v -> Context::nop);
+    private       ValueHandlerActionFactory<E> exceptionHandlerFactory = null;
+    private       ActionGenerator<?>           ensuredActionGenerator  = ActionGenerator.of(v -> Context::nop);
 
     public Builder(int id, Action attempt) {
       this.id = id;
@@ -54,15 +40,15 @@ public interface Attempt<E extends Throwable> extends Action {
       return this;
     }
 
-    public Attempt<E> ensure(ActionFactory ensureHandlerFactory) {
-      this.ensuredActionFactory = Objects.requireNonNull(ensureHandlerFactory);
+    public Attempt<E> ensure(ActionGenerator<?> ensureHandlerGenerator) {
+      this.ensuredActionGenerator = Objects.requireNonNull(ensureHandlerGenerator);
       return this.build();
     }
 
     @SuppressWarnings("unchecked")
     public Attempt<E> build() {
       Checks.checkState(exceptionClass != null, "Exception class isn't set yet.");
-      return new Impl<>(id, attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensuredActionFactory);
+      return new Impl<>(id, attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensuredActionGenerator);
     }
   }
 
@@ -70,15 +56,14 @@ public interface Attempt<E extends Throwable> extends Action {
     private final Action                       attempt;
     private final Class<E>                     exceptionClass;
     private final ValueHandlerActionFactory<E> exceptionHandlerFactory;
-    private final ActionFactory                ensuredActionFactory;
-    private final AtomicInteger                idGenerator = new AtomicInteger();
+    private final ActionGenerator<?>           ensuredActionGenerator;
 
-    public Impl(int id, Action attempt, Class<E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory, ActionFactory ensuredActionFactory) {
+    public Impl(int id, Action attempt, Class<E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory, ActionGenerator<?> ensuredActionGenerator) {
       super(id);
       this.attempt = Objects.requireNonNull(attempt);
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
       this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
-      this.ensuredActionFactory = Objects.requireNonNull(ensuredActionFactory);
+      this.ensuredActionGenerator = Objects.requireNonNull(ensuredActionGenerator);
     }
 
     @Override
@@ -98,7 +83,7 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action ensure() {
-      return Context.Internal.named(2, "Ensure", this.ensuredActionFactory.create());
+      return Context.Internal.named(2, "Ensure", this.ensuredActionGenerator.apply(ValueHolder.empty()).apply(Context.create()));
     }
 
     @Override

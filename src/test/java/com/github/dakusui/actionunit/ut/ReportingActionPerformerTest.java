@@ -207,9 +207,9 @@ public class ReportingActionPerformerTest implements UtContext {
       ).recover(
           Exception.class,
           ($, e) -> $.nop()
-      ).ensure(ActionFactory.of(
+      ).ensure(
           v -> Context::nop
-      ));
+      );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
           hasItemAt(0, equalTo("[o]1-Attempt")),
@@ -236,7 +236,7 @@ public class ReportingActionPerformerTest implements UtContext {
           NullPointerException.class,
           ($, e) -> $.nop()
       ).ensure(
-          ActionFactory.of(v -> Context::nop)
+          v -> Context::nop
       );
       performAndPrintAction(action);
       assertThat(getWriter(), Matchers.allOf(

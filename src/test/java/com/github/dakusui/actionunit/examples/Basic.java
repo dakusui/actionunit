@@ -88,9 +88,9 @@ public class Basic implements UtContext {
                 ).withIntervalOf(
                     20, TimeUnit.MILLISECONDS
                 ).build()
-        ).ensure(ActionFactory.of(
+        ).ensure(
             v -> Context::nop
-        ))
+        )
     ).in(10, TimeUnit.SECONDS);
   }
 
