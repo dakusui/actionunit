@@ -1,10 +1,8 @@
 package com.github.dakusui.actionunit.core;
 
-import com.github.dakusui.actionunit.actions.Attempt;
 import com.github.dakusui.actionunit.actions.ValueHolder;
-import com.github.dakusui.actionunit.actions.When;
-import com.github.dakusui.actionunit.generators.*;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
+import com.github.dakusui.actionunit.generators.*;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 
 import java.util.Arrays;
@@ -56,16 +54,8 @@ public interface ActionSupport {
     return ForEachGenerator.create(streamSupplier);
   }
 
-  static <I> ActionGenerator<I> when(
-      BooleanGenerator<I> cond,
-      ConsumerGenerator<I, When.Builder<Boolean>> when
-      //    Function<Context, Supplier<Boolean>> cond, BiConsumer<Context, When.Builder<Boolean>> consumer
-  ) {
-    return v -> c -> {
-      When.Builder<Boolean> b = c.when(() -> cond.get(v, c));
-      when.get(v, c).accept(b);
-      return b.build();
-    };
+  static <I> WhenGenerator<I> when(BooleanGenerator<I> cond) {
+    return WhenGenerator.create(cond);
   }
 
   static <I> ActionGenerator<I> timeout(ActionGenerator<I> actionGenerator, long durationInSeconds, TimeUnit timeUnit) {
@@ -145,11 +135,17 @@ public interface ActionSupport {
             forEach(
                 () -> Stream.of("hello", "world", "everyone", "!")
             ).perform(
-                concurrent(
+                ActionSupport.concurrent(
                     simple("step1", print(theValue())),
                     simple("step2", print(theValue())),
-                    simple("step3", print(theValue()))
-                ))
+                    simple("step3", print(theValue())),
+                    ActionSupport.<String>when(
+                        BooleanGenerator.equalTo(StringGenerator.of("world"))
+                    ).perform(
+                        simple("MET", print(StringGenerator.of("Condition is met")))
+                    )
+                )
+            )
         ).get(
             ValueHolder.empty(), Context.create()
         )
