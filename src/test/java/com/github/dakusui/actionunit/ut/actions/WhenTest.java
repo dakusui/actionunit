@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
@@ -24,12 +25,12 @@ public class WhenTest extends TestUtils.TestBase implements Context {
         ($, v) -> $.when(
             v,
             (Integer input) -> input > 2
-        ).perform(ActionFactory.of(
+        ).perform(
             w -> ($$) -> $$.simple(
                 "hello",
                 () -> System.out.println("hello" + v.get())
             )
-        )).build()
+        ).build()
     );
     new ReportingActionPerformer.Builder(action).build().performAndReport();
   }
@@ -41,9 +42,9 @@ public class WhenTest extends TestUtils.TestBase implements Context {
         () -> "Hello",
         v -> v.startsWith("H")
     ).perform(
-        simple("meets", () -> out.add("Condition met"))
+        ActionGenerator.from(simple("meets", () -> out.add("Condition met")))
     ).otherwise(
-        simple("not meets", () -> out.add("Condition not met"))
+        ActionGenerator.from(simple("not meets", () -> out.add("Condition not met")))
     );
     new ReportingActionPerformer.Builder(action).build().performAndReport();
 
@@ -62,9 +63,9 @@ public class WhenTest extends TestUtils.TestBase implements Context {
         () -> "Hello",
         v -> v.startsWith("h")
     ).perform(
-        simple("meets", () -> out.add("Condition met"))
+        ActionGenerator.from(simple("meets", () -> out.add("Condition met")))
     ).otherwise(
-        simple("not meets", () -> out.add("Condition not met"))
+        ActionGenerator.from(simple("not meets", () -> out.add("Condition not met")))
     );
     new ReportingActionPerformer.Builder(action).build().performAndReport();
 

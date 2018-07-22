@@ -3,8 +3,6 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 
-import java.util.function.Function;
-
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface

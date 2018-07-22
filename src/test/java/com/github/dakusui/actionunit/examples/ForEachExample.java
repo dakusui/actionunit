@@ -46,10 +46,10 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
         (Context $, ValueHolder<String> value) -> $.sequential(
             $.when(value, "C"::equals)
                 .perform(
-                    ActionFactory.of(v -> ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get())))
+                    v -> ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get()))
                 )
                 .otherwise(
-                    ActionFactory.of(v -> ($$) -> $$.simple("print to stdout", () -> System.out.println(value.get())))
+                    v -> ($$) -> $$.simple("print to stdout", () -> System.out.println(value.get()))
                 ),
             $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
             $.simple("print the given value(2nd time)", () -> {

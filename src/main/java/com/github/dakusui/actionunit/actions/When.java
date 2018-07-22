@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static java.util.Objects.requireNonNull;
+
 public interface When<T> extends Action {
   Supplier<T> value();
 
@@ -20,34 +22,42 @@ public interface When<T> extends Action {
   Action otherwise();
 
   class Builder<T> {
-    private final Supplier<T>   value;
-    private final Predicate<T>  condition;
-    private final int           id;
-    private       ActionFactory actionFactoryForPerform;
-    private       ActionFactory actionFactoryForOtherwise;
+    private final Supplier<T>        value;
+    private final Predicate<T>       condition;
+    private final int                id;
+    private       ActionGenerator<?> actionGeneratorForPerform;
+    private       ActionGenerator<?> actionGeneratorForOtherwise;
 
     public Builder(int id, Supplier<T> value, Predicate<T> condition) {
       this.id = id;
-      this.value = Objects.requireNonNull(value);
-      this.condition = Objects.requireNonNull(condition);
+      this.value = requireNonNull(value);
+      this.condition = requireNonNull(condition);
     }
 
-    public Builder<T> perform(ActionFactory factory) {
-      this.actionFactoryForPerform = Objects.requireNonNull(factory);
+    public Builder<T> perform(ActionGenerator<?> actionGeneratorForPerform) {
+      this.actionGeneratorForPerform = requireNonNull(actionGeneratorForPerform);
       return this;
     }
 
-    public Builder<T> perform(Action action) {
-      return perform(ActionFactory.of(action));
+    private Builder<T> perform(ActionFactory factory) {
+      return perform(ActionGenerator.from(factory::create));
     }
 
-    public When<T> otherwise(ActionFactory factory) {
-      this.actionFactoryForOtherwise = Objects.requireNonNull(factory);
+    private Builder<T> perform(Action action) {
+      return perform(ActionGenerator.from(action));
+    }
+
+    public When<T> otherwise(ActionGenerator<?> generator) {
+      this.actionGeneratorForOtherwise = requireNonNull(generator);
       return build();
     }
 
-    public When<T> otherwise(Action action) {
-      return otherwise(ActionFactory.of(action));
+    private When<T> otherwise(ActionFactory factory) {
+      return this.otherwise(ActionGenerator.from(factory::create));
+    }
+
+    private When<T> otherwise(Action action) {
+      return otherwise(ActionGenerator.from(action));
     }
 
     public When<T> build() {
@@ -55,33 +65,33 @@ public interface When<T> extends Action {
           id,
           value,
           condition,
-          actionFactoryForPerform,
-          actionFactoryForOtherwise != null
-              ? actionFactoryForOtherwise
-              : () -> new ActionFactory.Bean(v -> Context::nop)
+          actionGeneratorForPerform,
+          actionGeneratorForOtherwise != null
+              ? actionGeneratorForOtherwise
+              : ActionGenerator.of(v -> Context::nop)
       );
     }
   }
 
   class Impl<T> extends ActionBase implements When<T> {
-    final private Supplier<T>   value;
-    final private Predicate<T>  condition;
-    final private ActionFactory actionFactoryForPerform;
-    final private ActionFactory actionFactoryForOtherwise;
-    final private AtomicInteger idGenerator = new AtomicInteger();
+    final private Supplier<T>        value;
+    final private Predicate<T>       condition;
+    final private ActionGenerator<?> actionGeneratorForPerform;
+    final private ActionGenerator<?> actionGeneratorForOtherwise;
+    final private AtomicInteger      idGenerator = new AtomicInteger();
 
     public Impl(
         int id,
         Supplier<T> value,
         Predicate<T> condition,
-        ActionFactory actionFactoryForPerform,
-        ActionFactory actionFactoryForOtherwise
+        ActionGenerator<?> actionGeneratorForPerform,
+        ActionGenerator<?> actionGeneratorForOtherwise
     ) {
       super(id);
-      this.value = Objects.requireNonNull(value);
-      this.condition = Objects.requireNonNull(condition);
-      this.actionFactoryForPerform = Objects.requireNonNull(actionFactoryForPerform);
-      this.actionFactoryForOtherwise = Objects.requireNonNull(actionFactoryForOtherwise);
+      this.value = requireNonNull(value);
+      this.condition = requireNonNull(condition);
+      this.actionGeneratorForPerform = requireNonNull(actionGeneratorForPerform);
+      this.actionGeneratorForOtherwise = requireNonNull(actionGeneratorForOtherwise);
     }
 
     @Override
@@ -101,12 +111,20 @@ public interface When<T> extends Action {
 
     @Override
     public Action perform() {
-      return Context.Internal.named(0, "perform", actionFactoryForPerform.create());
+      return Context.Internal.named(
+          0,
+          "perform",
+          actionGeneratorForPerform.apply(ValueHolder.empty(), Context.create())
+      );
     }
 
     @Override
     public Action otherwise() {
-      return Context.Internal.named(1, "otherwise", actionFactoryForOtherwise.create());
+      return Context.Internal.named(
+          1,
+          "otherwise",
+          actionGeneratorForOtherwise.apply(ValueHolder.empty(), Context.create())
+      );
     }
   }
 }

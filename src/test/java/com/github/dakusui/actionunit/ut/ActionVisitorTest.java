@@ -195,11 +195,11 @@ public class ActionVisitorTest implements UtContext {
     Action action = when(
         () -> "Hello",
         "Hello"::equals
-    ).perform(ActionFactory.of(v ->
-        $ -> createSimpleAction()
-    )).otherwise(ActionFactory.of(v ->
-        $ -> createSimpleAction()
-    ));
+    ).perform(
+        v -> $ -> createSimpleAction()
+    ).otherwise(
+        v -> $ -> createSimpleAction()
+    );
     // when accept
     action.accept(visitor);
     // then visited

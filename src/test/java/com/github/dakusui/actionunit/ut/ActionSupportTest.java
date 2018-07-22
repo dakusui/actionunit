@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -453,9 +452,9 @@ public class ActionSupportTest {
     Action action = when(
         () -> "Hello".startsWith("H")
     ).perform(
-        simple("meets", () -> objects.add(new Object()))
+        ActionGenerator.from(simple("meets", () -> objects.add(new Object())))
     ).otherwise(
-        nop()
+        ActionGenerator.from(nop())
     );
     action.accept(createActionPerformer());
 
