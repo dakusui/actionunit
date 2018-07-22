@@ -15,7 +15,7 @@ public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, A
   static <T> ValueHandlerActionFactory<T> create(String description, Consumer<T> handlerBody) {
     Objects.requireNonNull(handlerBody);
     return new ValueHandlerActionFactory<T>() {
-      private Bean<T> bean = new Bean<>(ValueHolder.empty());
+      private Bean<T> bean = new Bean<>();
 
       @Override
       public <T> Bean<T> bean() {

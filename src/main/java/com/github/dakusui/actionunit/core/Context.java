@@ -329,28 +329,13 @@ public interface Context/*<E>*/ {
     return bean().get(variableName);
   }
 
-  default Context createChild(ValueHolder valueHolder) {
-    return new Context.Impl(valueHolder);
-  }
-
-  default Context createChild() {
-    return createChild(ValueHolder.empty());
-  }
-
   <T> Bean<T> bean();
 
   class Impl implements Context {
-    private final ValueHolder<?> valueHolder;
-    ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
     private final Bean<?> bean;
 
-    public Impl(ValueHolder<?> valueHolder) {
-      this.valueHolder = requireNonNull(valueHolder);
-      bean = new Bean<>(valueHolder);
-    }
-
     public Impl() {
-      this(ValueHolder.empty());
+      bean = new Bean<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -361,15 +346,9 @@ public interface Context/*<E>*/ {
   }
 
   class Bean<T> extends AtomicInteger {
-    private final ValueHolder<T> contextValue;
     ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
 
-    public Bean(ValueHolder<T> contextValue) {
-      this.contextValue = requireNonNull(contextValue);
-    }
-
-    ValueHolder<T> contextValue() {
-      return this.contextValue;
+    public Bean() {
     }
 
     @SuppressWarnings("unchecked")
@@ -387,7 +366,6 @@ public interface Context/*<E>*/ {
 
   enum Internal {
     ;
-
     public static Action simple(int id, final String description, final Runnable runnable) {
       return Leaf.create(id, description, runnable);
     }
