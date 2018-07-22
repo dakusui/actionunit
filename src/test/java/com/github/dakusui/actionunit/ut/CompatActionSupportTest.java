@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.generator.ActionGenerator;
+import com.github.dakusui.actionunit.compat.CompatActionSupport;
+import com.github.dakusui.actionunit.generators.ActionGenerator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.compat.CompatActionSupport.*;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
 import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
@@ -26,11 +26,11 @@ import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-public class ActionSupportTest {
+public class CompatActionSupportTest {
   @Test
   public void simpleTest() {
     final List<String> arr = new ArrayList<>();
-    ActionSupport.simple("Add 'Hello'", () -> arr.add("Hello")).accept(createActionPerformer());
+    CompatActionSupport.simple("Add 'Hello'", () -> arr.add("Hello")).accept(createActionPerformer());
     assertArrayEquals(arr.toArray(), new Object[] { "Hello" });
   }
 
@@ -38,7 +38,7 @@ public class ActionSupportTest {
   public void sequentialTest() {
     final List<String> arr = new ArrayList<>();
     sequential(
-        ActionSupport.simple("Add 'Hello A", new Runnable() {
+        CompatActionSupport.simple("Add 'Hello A", new Runnable() {
           @Override
           public void run() {
             arr.add("Hello A");
@@ -90,10 +90,10 @@ public class ActionSupportTest {
   public void concurrentTest$checkConcurrency() throws InterruptedException {
     final List<Map.Entry<Long, Long>> arr = synchronizedList(new ArrayList<Map.Entry<Long, Long>>());
     concurrent(
-        ActionSupport.simple(
+        CompatActionSupport.simple(
             "create entry (1)",
             () -> arr.add(createEntry())),
-        ActionSupport.simple(
+        CompatActionSupport.simple(
             "create entry (2)",
             () -> arr.add(createEntry()))
     ).accept(createActionPerformer());
@@ -407,7 +407,7 @@ public class ActionSupportTest {
   @Test
   public void nopTest() {
     // Just make sure no error happens
-    ActionSupport.nop().accept(createActionPerformer());
+    CompatActionSupport.nop().accept(createActionPerformer());
   }
 
 

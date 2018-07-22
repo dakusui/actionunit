@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.core.generator;
+package com.github.dakusui.actionunit.generators;
 
 public interface StringGenerator<I> extends ValueGenerator<I, String> {
   /**

@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.compat.CompatActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -196,7 +196,7 @@ public class RetryTest extends TestUtils.TestBase implements Context {
   }
 
   private Action actionFailOnce() {
-    return ActionSupport.simple("Fail on first time only", new Runnable() {
+    return CompatActionSupport.simple("Fail on first time only", new Runnable() {
       boolean firstTime = true;
 
       @Override

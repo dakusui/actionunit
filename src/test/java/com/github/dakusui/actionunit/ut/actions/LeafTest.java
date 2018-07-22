@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.actions.Leaf;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.compat.CompatActionSupport.simple;
 import static org.junit.Assert.assertThat;
 
 public class LeafTest {

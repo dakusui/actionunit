@@ -1,4 +1,6 @@
-package com.github.dakusui.actionunit.core;
+package com.github.dakusui.actionunit.compat;
+
+import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Hashtable;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.ActionUnit;
-import com.github.dakusui.actionunit.ActionUnit.PerformWith;
+import com.github.dakusui.actionunit.compat.ActionUnit;
+import com.github.dakusui.actionunit.compat.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;

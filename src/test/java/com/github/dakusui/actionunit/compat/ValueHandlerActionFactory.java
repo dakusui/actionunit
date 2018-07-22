@@ -1,11 +1,13 @@
-package com.github.dakusui.actionunit.core;
+package com.github.dakusui.actionunit.compat;
 
 import com.github.dakusui.actionunit.actions.ValueHolder;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.IdGeneratorManager.ID_GENERATOR_MANAGER;
+import static com.github.dakusui.actionunit.compat.IdGeneratorManager.ID_GENERATOR_MANAGER;
 
 @Deprecated
 public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, Action>, Context, Cloneable {

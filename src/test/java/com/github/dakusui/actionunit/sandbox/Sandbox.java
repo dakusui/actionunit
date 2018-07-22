@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.sandbox;
 
-import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.compat.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.examples.ForEachExample;
 import org.junit.Test;

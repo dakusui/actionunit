@@ -1,12 +1,11 @@
-package com.github.dakusui.actionunit.core.generator;
+package com.github.dakusui.actionunit.generators;
 
-import com.github.dakusui.actionunit.actions.Attempt;
 import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.visitors.reporting.Report;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,7 +29,7 @@ public interface AttemptGenerator<I> extends ActionGenerator<I> {
 
   class Bean {
     final ActionGenerator<?> target;
-    Class<? extends Throwable>                                                            exceptionClass;
+    Class<? extends Throwable>           exceptionClass;
     ActionGenerator<? extends Throwable> exceptionHandler;
     ActionGenerator<?>                   ensured;
     private ActionGenerator<Throwable> recoverBy;
@@ -54,9 +53,26 @@ public interface AttemptGenerator<I> extends ActionGenerator<I> {
   static <I> AttemptGenerator<I> create(ActionGenerator<I> target) {
     return new AttemptGenerator<I>() {
 
+      private ActionGenerator<Throwable> exceptionHandlingGenerator = new ActionGenerator<Throwable>() {
+        @Override
+        public Function<Context, Action> apply(ValueHolder<Throwable> throwableValueHolder) {
+          return context -> context.simple("noname", () -> {
+            throw new RuntimeException(throwableValueHolder.get());
+          });
+        }
+      };
+      private Class<? extends Throwable> exceptionClass = Throwable.class;
+      private ActionGenerator<?> ensuredActionGenerator = v -> Context::nop;
+
       @Override
       public Function<Context, Action> apply(ValueHolder<I> valueHolder) {
-        return null;
+        return context -> context.attempt(
+            target.get(valueHolder, context)
+        ).recover(
+            exceptionClass, exceptionHandlingGenerator
+        ).ensure(
+            ensuredActionGenerator
+        );
       }
 
       Bean bean = new Bean(target);

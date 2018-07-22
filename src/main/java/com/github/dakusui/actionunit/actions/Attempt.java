@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.generator.ActionGenerator;
+import com.github.dakusui.actionunit.generators.ActionGenerator;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
@@ -67,7 +67,11 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action attempt() {
-      return Context.Internal.named(0, "Target", this.attempt);
+      return Context.Internal.named(
+          0,
+          "Target",
+          this.attempt
+      );
     }
 
     @Override
@@ -86,7 +90,11 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action ensure() {
-      return Context.Internal.named(2, "Ensure", this.ensuredActionGenerator.apply(ValueHolder.empty()).apply(Context.create()));
+      return Context.Internal.named(
+          2,
+          "Ensure",
+          this.ensuredActionGenerator.apply(ValueHolder.empty(), Context.create())
+      );
     }
 
     @Override

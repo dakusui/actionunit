@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.core.generator;
+package com.github.dakusui.actionunit.generators;
 
 import java.util.function.Consumer;
 

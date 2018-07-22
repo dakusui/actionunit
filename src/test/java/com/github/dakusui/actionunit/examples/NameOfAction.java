@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.ActionUnit;
+import com.github.dakusui.actionunit.compat.ActionUnit;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.github.dakusui.actionunit.ActionUnit.PerformWith;
+import static com.github.dakusui.actionunit.compat.ActionUnit.PerformWith;
 import static java.util.Arrays.asList;
 
 /**

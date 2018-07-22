@@ -1,11 +1,10 @@
-package com.github.dakusui.actionunit.core.generator;
+package com.github.dakusui.actionunit.generators;
 
 import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public interface PredicateGenerator<I, T> extends ValueGenerator<T, Predicate<ValueGenerator<I, T>>> {
   static <I, T> PredicateGenerator<I, T> of(Predicate<T> predicate) {

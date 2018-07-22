@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Context;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.core.IdGeneratorManager.ID_GENERATOR_MANAGER;
+import static com.github.dakusui.actionunit.compat.IdGeneratorManager.ID_GENERATOR_MANAGER;
 
 public interface UtContext extends Context {
   default AtomicInteger idGenerator() {
