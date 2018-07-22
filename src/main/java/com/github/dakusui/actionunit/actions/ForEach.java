@@ -2,10 +2,8 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 

@@ -78,7 +78,7 @@ public class Basic implements UtContext {
             simple("A runnable (1)", runnable)
         ).recover(
             ActionException.class,
-            ($, data) ->
+            data -> ($) ->
                 $.retry(
                     $.simple(
                         "A runnable (2)", runnable)

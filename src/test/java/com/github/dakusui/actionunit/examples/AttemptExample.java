@@ -34,7 +34,7 @@ public class AttemptExample implements UtContext {
             ))
     ).recover(
         NullPointerException.class,
-        ($, e) -> $.simple(
+        e -> ($) -> $.simple(
             format("print stacktrace:<%s>", e),
             () -> {
             })

@@ -104,12 +104,12 @@ public class BuildersTest implements UtContext {
           })
       ).recover(
           RuntimeException.class,
-          ($, e) -> $.concurrent(
+          e -> ($) -> $.concurrent(
               $.simple("print capture", () -> {
               }),
               $.simple("print stacktrace", () -> {
-                ((Throwable) e.get()).printStackTrace(System.out);
-                throw Checks.propagate((Throwable) e.get());
+                e.get().printStackTrace(System.out);
+                throw Checks.propagate(e.get());
               }),
               $.simple("print recovery", () -> System.out.println("Recovered."))
           )

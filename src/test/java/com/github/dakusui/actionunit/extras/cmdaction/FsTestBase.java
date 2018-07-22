@@ -38,7 +38,7 @@ public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBa
   private Function<Context, Action> withCleanUp(Action action) {
     return (c) -> c.attempt(action).recover(
         Exception.class,
-        (factory, data) ->
+        data -> (factory) ->
             factory.simple("rethrow", () -> {
               Throwable t = data.get();
               if (t instanceof RuntimeException) {

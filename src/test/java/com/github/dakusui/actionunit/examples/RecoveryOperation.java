@@ -22,7 +22,7 @@ public class RecoveryOperation {
         deployComponent()
     ).recover(
         Exception.class,
-        ($, e) -> $.retry($.sequential(
+        e -> ($) -> $.retry($.sequential(
             cleanUp($),
             deployComponent()
         )).times(2).withIntervalOf(10, MILLISECONDS).build()
@@ -30,6 +30,21 @@ public class RecoveryOperation {
         v -> this::cleanUp
     );
   }
+  /*
+  ActionGenerator.of(
+          new Function<ValueHolder<E>, Function<Context, Action>>() {
+            @Override
+            public Function<Context, Action> apply(ValueHolder<E> valueHolder) {
+              return new Function<Context, Action>() {
+                @Override
+                public Action apply(Context context) {
+                  return exceptionHandlerFactory.create(context, valueHolder);
+                }
+              };
+            }
+          }
+      )
+   */
 
 
   private Action deployComponent() {

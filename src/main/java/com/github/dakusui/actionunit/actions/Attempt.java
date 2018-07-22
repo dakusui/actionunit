@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.helpers.Checks;
 
@@ -22,21 +21,21 @@ public interface Attempt<E extends Throwable> extends Action {
   }
 
   class Builder<E extends Throwable> {
-    private final Action                       attempt;
-    private final int                          id;
+    private final Action             attempt;
+    private final int                id;
     @SuppressWarnings("unchecked")
-    private       Class<? extends E>           exceptionClass          = (Class<? extends E>) Exception.class;
-    private       ValueHandlerActionFactory<E> exceptionHandlerFactory = null;
-    private       ActionGenerator<?>           ensuredActionGenerator  = ActionGenerator.of(v -> Context::nop);
+    private       Class<? extends E> exceptionClass                   = (Class<? extends E>) Exception.class;
+    private       ActionGenerator<E> exceptionHandlingActionGenerator = null;
+    private       ActionGenerator<?> ensuredActionGenerator           = ActionGenerator.of(v -> Context::nop);
 
     public Builder(int id, Action attempt) {
       this.id = id;
       this.attempt = Objects.requireNonNull(attempt);
     }
 
-    public Builder<E> recover(Class<? extends E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory) {
+    public Builder<E> recover(Class<? extends E> exceptionClass, ActionGenerator<E> exceptionHandlingActionGenerator) {
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
-      this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
+      this.exceptionHandlingActionGenerator = Objects.requireNonNull(exceptionHandlingActionGenerator);
       return this;
     }
 
@@ -48,21 +47,21 @@ public interface Attempt<E extends Throwable> extends Action {
     @SuppressWarnings("unchecked")
     public Attempt<E> build() {
       Checks.checkState(exceptionClass != null, "Exception class isn't set yet.");
-      return new Impl<>(id, attempt, (Class<E>) exceptionClass, exceptionHandlerFactory, ensuredActionGenerator);
+      return new Impl<>(id, attempt, (Class<E>) exceptionClass, exceptionHandlingActionGenerator, ensuredActionGenerator);
     }
   }
 
   class Impl<E extends Throwable> extends ActionBase implements Attempt<E> {
-    private final Action                       attempt;
-    private final Class<E>                     exceptionClass;
-    private final ValueHandlerActionFactory<E> exceptionHandlerFactory;
-    private final ActionGenerator<?>           ensuredActionGenerator;
+    private final Action             attempt;
+    private final Class<E>           exceptionClass;
+    private final ActionGenerator<E> exceptionHandlingActionGenerator;
+    private final ActionGenerator<?> ensuredActionGenerator;
 
-    public Impl(int id, Action attempt, Class<E> exceptionClass, ValueHandlerActionFactory<E> exceptionHandlerFactory, ActionGenerator<?> ensuredActionGenerator) {
+    private Impl(int id, Action attempt, Class<E> exceptionClass, ActionGenerator<E> exceptionHandlingActionGenerator, ActionGenerator<?> ensuredActionGenerator) {
       super(id);
       this.attempt = Objects.requireNonNull(attempt);
       this.exceptionClass = Objects.requireNonNull(exceptionClass);
-      this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory);
+      this.exceptionHandlingActionGenerator = Objects.requireNonNull(exceptionHandlingActionGenerator);
       this.ensuredActionGenerator = Objects.requireNonNull(ensuredActionGenerator);
     }
 
@@ -78,7 +77,11 @@ public interface Attempt<E extends Throwable> extends Action {
 
     @Override
     public Action recover(ValueHolder<E> exception) {
-      return Context.Internal.named(1, String.format("Recover(%s)", exceptionClass.getSimpleName()), exceptionHandlerFactory.apply(exception));
+      return Context.Internal.named(
+          1,
+          String.format("Recover(%s)", exceptionClass.getSimpleName()),
+          exceptionHandlingActionGenerator.apply(exception, Context.create())
+      );
     }
 
     @Override

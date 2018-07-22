@@ -148,7 +148,7 @@ public class ActionVisitorTest implements UtContext {
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
     Action action = attempt(createSimpleAction())
-        .recover(Exception.class, ($, e) -> nop())
+        .recover(Exception.class, e -> ($) -> nop())
         .build();
     // when accept
     action.accept(visitor);

@@ -205,7 +205,7 @@ public class ReportingActionPerformerTest implements UtContext {
           nop()
       ).recover(
           Exception.class,
-          ($, e) -> $.nop()
+          e -> Context::nop
       ).ensure(
           v -> Context::nop
       );
@@ -233,7 +233,7 @@ public class ReportingActionPerformerTest implements UtContext {
           })
       ).recover(
           NullPointerException.class,
-          ($, e) -> $.nop()
+          e -> Context::nop
       ).ensure(
           v -> Context::nop
       );
