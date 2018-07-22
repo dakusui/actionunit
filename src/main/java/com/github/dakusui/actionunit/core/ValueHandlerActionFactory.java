@@ -12,22 +12,6 @@ import static com.github.dakusui.actionunit.core.IdGeneratorManager.ID_GENERATOR
 
 @Deprecated
 public interface ValueHandlerActionFactory<T> extends Function<ValueHolder<T>, Action>, Context, Cloneable {
-  static <T> ValueHandlerActionFactory<T> create(String description, Consumer<T> handlerBody) {
-    Objects.requireNonNull(handlerBody);
-    return new ValueHandlerActionFactory<T>() {
-      private Bean bean = new Bean();
-
-      @Override
-      public Bean bean() {
-        return this.bean;
-      }
-
-      @Override
-      public Action create(Context context, ValueHolder<T> valueHolder) {
-        return Leaf.create(this.generateId(), description, () -> handlerBody.accept(valueHolder.get()));
-      }
-    };
-  }
 
   default Action apply(ValueHolder<T> valueHolder) {
     ID_GENERATOR_MANAGER.reset(this);
