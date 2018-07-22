@@ -226,10 +226,10 @@ public class ActionPrinterTest implements UtContext {
       assertThat(
           out2,
           allOf(
-              hasItemAt(0, Matchers.allOf(containsString("[o]"), containsString("ForEach"))),
-              hasItemAt(1, Matchers.allOf(containsString("[oo]"), containsString("Sequential"))),
-              hasItemAt(2, Matchers.allOf(containsString("[oo]"), containsString("+0"))),
-              hasItemAt(3, Matchers.allOf(containsString("[oo]"), containsString("+1")))
+              hasItemAt(0, Matchers.allOf(containsString("[.]"), containsString("ForEach"))),
+              hasItemAt(1, Matchers.allOf(containsString("[..]"), containsString("Sequential"))),
+              hasItemAt(2, Matchers.allOf(containsString("[..]"), containsString("+0"))),
+              hasItemAt(3, Matchers.allOf(containsString("[..]"), containsString("+1")))
           ));
       Assert.assertThat(
           out2.size(),
@@ -245,7 +245,7 @@ public class ActionPrinterTest implements UtContext {
       assertThat(
           out.get(0),
           allOf(
-              containsString("[o]"),
+              containsString("[.]"),
               containsString("Retry(60[seconds]x1times)")
           ));
     }
@@ -265,13 +265,13 @@ public class ActionPrinterTest implements UtContext {
         assertThat(
             out.get(0),
             allOf(
-                containsString("[x]"),
+                containsString("[E]"),
                 containsString("Retry(60[seconds]x1times)")
             ));
         assertThat(
             out.get(1),
             allOf(
-                containsString("[x]"),
+                containsString("[E]"),
                 containsString("AlwaysFail")
             ));
       }
@@ -308,7 +308,7 @@ public class ActionPrinterTest implements UtContext {
               TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
                   "get(1)", (TestUtils.Out v) -> v.get(1)
               ).check(
-                  "contains('[o]')", (String u) -> u.contains("[o]")
+                  "contains('[.]')", (String u) -> u.contains("[.]")
               ),
               TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
                   "get(1)", (TestUtils.Out v) -> v.get(1)
@@ -318,7 +318,7 @@ public class ActionPrinterTest implements UtContext {
               TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
                   "get(2)", (TestUtils.Out v) -> v.get(2)
               ).check(
-                  "contains('[xo]')", (String u) -> u.contains("[xo]")
+                  "contains('[xo]')", (String u) -> u.contains("[E.]")
               ),
               TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
                   "get(2)", (TestUtils.Out v) -> v.get(2)
@@ -337,7 +337,7 @@ public class ActionPrinterTest implements UtContext {
       assertThat(
           out.get(0),
           allOf(
-              containsString("[o]"),
+              containsString("[.]"),
               containsString("TimeOut(60[seconds])")
           ));
     }

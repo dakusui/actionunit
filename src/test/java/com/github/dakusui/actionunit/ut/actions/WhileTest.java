@@ -47,8 +47,8 @@ public class WhileTest implements UtContext {
 
     assertThat(result,
         allOf(
-            hasItemAt(0, equalTo("[o]While")),
-            hasItemAt(1, equalTo("  [o...]Say 'Hello'"))
+            hasItemAt(0, equalTo("[.]While")),
+            hasItemAt(1, equalTo("  [... ]Say 'Hello'"))
         ));
     assertEquals(2, result.size());
   }

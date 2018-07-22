@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.fail;
 
 @RunWith(Enclosed.class)
 public class ReportingActionPerformerTest implements UtContext {
@@ -53,8 +54,8 @@ public class ReportingActionPerformerTest implements UtContext {
       //noinspection unchecked
       assertThat(getWriter(),
           allOf(
-              hasItemAt(0, equalTo("[o]1-A passing action")),
-              hasItemAt(1, equalTo("  [o]0-This passes always"))
+              hasItemAt(0, equalTo("[.]1-A passing action")),
+              hasItemAt(1, equalTo("  [.]0-This passes always"))
           )
       );
     }
@@ -76,8 +77,8 @@ public class ReportingActionPerformerTest implements UtContext {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("[x]1-A failing action")),
-                hasItemAt(1, equalTo("  [x]0-This fails always"))
+                hasItemAt(0, startsWith("[F]1-A failing action")),
+                hasItemAt(1, equalTo("  [F]0-This fails always"))
             )
         );
       }
@@ -99,8 +100,8 @@ public class ReportingActionPerformerTest implements UtContext {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("[x]1-An error action")),
-                hasItemAt(1, equalTo("  [x]0-This gives a runtime exception always"))
+                hasItemAt(0, startsWith("[E]1-An error action")),
+                hasItemAt(1, equalTo("  [E]0-This gives a runtime exception always"))
             ));
       }
     }
@@ -122,13 +123,13 @@ public class ReportingActionPerformerTest implements UtContext {
       //Then printed correctly
       //noinspection unchecked
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("[o]6-Concurrent (3 actions)")),
-          hasItemAt(1, equalTo("  [o]1-A passing action-1")),
-          hasItemAt(2, equalTo("    [o]0-This passes always-1")),
-          hasItemAt(3, equalTo("  [o]3-A passing action-2")),
-          hasItemAt(4, equalTo("    [o]2-This passes always-2")),
-          hasItemAt(5, equalTo("  [o]5-A passing action-3")),
-          hasItemAt(6, equalTo("    [o]4-This passes always-3"))
+          hasItemAt(0, equalTo("[.]6-Concurrent (3 actions)")),
+          hasItemAt(1, equalTo("  [.]1-A passing action-1")),
+          hasItemAt(2, equalTo("    [.]0-This passes always-1")),
+          hasItemAt(3, equalTo("  [.]3-A passing action-2")),
+          hasItemAt(4, equalTo("    [.]2-This passes always-2")),
+          hasItemAt(5, equalTo("  [.]5-A passing action-3")),
+          hasItemAt(6, equalTo("    [.]4-This passes always-3"))
       ));
       assertThat(getWriter(), hasSize(7));
     }
@@ -158,10 +159,10 @@ public class ReportingActionPerformerTest implements UtContext {
       assertThat(
           getWriter(),
           Matchers.allOf(
-              hasItemAt(0, startsWith("[o]0-ForEach (SEQUENTIALLY)")),
-              hasItemAt(1, equalTo("  [ooo]2-Sequential (2 actions)")),
-              hasItemAt(2, equalTo("    [ooo]0-Sink-1")),
-              hasItemAt(3, equalTo("    [ooo]1-Sink-2"))
+              hasItemAt(0, startsWith("[.]0-ForEach (SEQUENTIALLY)")),
+              hasItemAt(1, equalTo("  [...]2-Sequential (2 actions)")),
+              hasItemAt(2, equalTo("    [...]0-Sink-1")),
+              hasItemAt(3, equalTo("    [...]1-Sink-2"))
           ));
       assertThat(getWriter(), hasSize(4));
     }
@@ -188,9 +189,9 @@ public class ReportingActionPerformerTest implements UtContext {
         //Then printed correctly
         //noinspection unchecked
         assertThat(getWriter(), allOf(
-            hasItemAt(0, startsWith("[x]0-ForEach")),
-            hasItemAt(1, startsWith("  [x]2-Sequential (2 actions)")),
-            hasItemAt(2, startsWith("    [x]0-Sink-1")),
+            hasItemAt(0, startsWith("[E]0-ForEach")),
+            hasItemAt(1, startsWith("  [E]2-Sequential (2 actions)")),
+            hasItemAt(2, startsWith("    [E]0-Sink-1")),
             hasItemAt(3, startsWith("    []1-Sink-2"))
         ));
         assertThat(getWriter(), hasSize(4));
@@ -211,13 +212,13 @@ public class ReportingActionPerformerTest implements UtContext {
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("[o]1-Attempt")),
-          hasItemAt(1, equalTo("  [o]0-Target")),
-          hasItemAt(2, equalTo("    [o]0-(nop)")),
+          hasItemAt(0, equalTo("[.]1-Attempt")),
+          hasItemAt(1, equalTo("  [.]0-Target")),
+          hasItemAt(2, equalTo("    [.]0-(nop)")),
           hasItemAt(3, equalTo("  []1-Recover(Exception)")),
           hasItemAt(4, equalTo("    []0-(nop)")),
-          hasItemAt(5, equalTo("  [o]2-Ensure")),
-          hasItemAt(6, equalTo("    [o]0-(nop)"))
+          hasItemAt(5, equalTo("  [.]2-Ensure")),
+          hasItemAt(6, equalTo("    [.]0-(nop)"))
       ));
       assertThat(getWriter(), hasSize(7));
     }
@@ -239,13 +240,13 @@ public class ReportingActionPerformerTest implements UtContext {
       );
       performAndPrintAction(action);
       assertThat(getWriter(), Matchers.allOf(
-          hasItemAt(0, equalTo("[o]1-Attempt")),
-          hasItemAt(1, equalTo("  [x]0-Target")),
-          hasItemAt(2, equalTo("    [x]0-Howdy, NPE")),
-          hasItemAt(3, equalTo("  [o]1-Recover(NullPointerException)")),
-          hasItemAt(4, equalTo("    [o]0-(nop)")),
-          hasItemAt(5, equalTo("  [o]2-Ensure")),
-          hasItemAt(6, equalTo("    [o]0-(nop)"))
+          hasItemAt(0, equalTo("[.]1-Attempt")),
+          hasItemAt(1, equalTo("  [E]0-Target")),
+          hasItemAt(2, equalTo("    [E]0-Howdy, NPE")),
+          hasItemAt(3, equalTo("  [.]1-Recover(NullPointerException)")),
+          hasItemAt(4, equalTo("    [.]0-(nop)")),
+          hasItemAt(5, equalTo("  [.]2-Ensure")),
+          hasItemAt(6, equalTo("    [.]0-(nop)"))
       ));
       assertThat(getWriter(), hasSize(7));
     }
@@ -262,28 +263,28 @@ public class ReportingActionPerformerTest implements UtContext {
       assertThat(
           this.getWriter().get(0),
           allOf(
-              containsString("[o]"),
+              containsString("[.]"),
               containsString("TestAction")
           )
       );
       assertThat(
           this.getWriter().get(1),
-          equalTo("  [o]0-Given"));
+          equalTo("  [.]0-Given"));
       assertThat(
           this.getWriter().get(2),
-          equalTo("    [o]0-string 'World'"));
+          equalTo("    [.]0-string 'World'"));
       assertThat(
           this.getWriter().get(3),
-          equalTo("  [o]1-When"));
+          equalTo("  [.]1-When"));
       assertThat(
           this.getWriter().get(4),
-          equalTo("    [o]0-length"));
+          equalTo("    [.]0-length"));
       assertThat(
           this.getWriter().get(5),
-          equalTo("  [o]2-Then"));
+          equalTo("  [.]2-Then"));
       assertThat(
           this.getWriter().get(6),
-          equalTo("    [o]0-==5"));
+          equalTo("    [.]0-==5"));
     }
 
 
@@ -304,13 +305,13 @@ public class ReportingActionPerformerTest implements UtContext {
         //  not match, the AssertionError will be thrown, which confuses JUnit and users.
         //  Thus, here we are going to throw IllegalStateException.
         //noinspection unchecked
-        if (!getWriter().get(0).equals("[x]0-TestAction") ||
-            !getWriter().get(1).equals("  [o]0-Given") ||
-            !getWriter().get(2).equals("    [o]0-HelloTestCase") ||
-            !getWriter().get(3).equals("  [o]1-When") ||
-            !getWriter().get(4).equals("    [o]0-length") ||
-            !getWriter().get(5).equals("  [x]2-Then") ||
-            !getWriter().get(6).equals("    [x]0-equals to 5")) {
+        if (!getWriter().get(0).equals("[F]0-TestAction") ||
+            !getWriter().get(1).equals("  [.]0-Given") ||
+            !getWriter().get(2).equals("    [.]0-HelloTestCase") ||
+            !getWriter().get(3).equals("  [.]1-When") ||
+            !getWriter().get(4).equals("    [.]0-length") ||
+            !getWriter().get(5).equals("  [F]2-Then") ||
+            !getWriter().get(6).equals("    [F]0-equals to 5")) {
           getWriter().forEach(System.err::println);
           //noinspection ThrowFromFinallyBlock
           throw new IllegalStateException();

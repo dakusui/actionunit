@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Report implements Iterable<Node<Action>> {
   private final Map<Node<Action>, Record> records = Collections.synchronizedMap(new HashMap<>());
-  final Node<Action> root;
+  final         Node<Action>              root;
 
   Report(Node<Action> root) {
     Node.walk(root, this::prepare);
@@ -50,7 +50,7 @@ public class Report implements Iterable<Node<Action>> {
           return String.format(
               "%s[%s]%s",
               Utils.spaces(indentLevel * 2),
-              formatRecord(record).replaceAll("o{4,}", "o..."),
+              formatRecord(record).replaceAll(".{4,}", "... "),
               actionNode.getContent()
           );
         }
@@ -107,7 +107,7 @@ public class Report implements Iterable<Node<Action>> {
     public interface Run {
       Record.Run SUCCEEDED = new Record.Run() {
         public String toString() {
-          return "o";
+          return ".";
         }
       };
 
@@ -116,7 +116,9 @@ public class Report implements Iterable<Node<Action>> {
         return new Record.Run() {
           @Override
           public String toString() {
-            return "x";
+            return t instanceof AssertionError
+                ? "F"
+                : "E";
           }
         };
       }

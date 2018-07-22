@@ -101,8 +101,8 @@ public class RetryTest extends TestUtils.TestBase implements Context {
       assertThat(
           outForTree,
           allOf(
-              hasItemAt(0, equalTo("[o]1-Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  [xxo]0-Passes on third try"))
+              hasItemAt(0, equalTo("[.]1-Retry(1[milliseconds]x2times)")),
+              hasItemAt(1, equalTo("  [EE.]0-Passes on third try"))
           ));
       assertThat(
           outForTree,
@@ -136,12 +136,12 @@ public class RetryTest extends TestUtils.TestBase implements Context {
           allOf(
               hasItemAt(0,
                   allOf(
-                      containsString("[o]"),
+                      containsString("[.]"),
                       containsString("Retry(1[milliseconds]x2times)")
                   )),
               hasItemAt(1,
                   allOf(
-                      containsString("[xxo]"),
+                      containsString("[EE.]"),
                       containsString("Passes on third try")
                   ))
           ));
