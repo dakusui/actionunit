@@ -353,6 +353,7 @@ public interface Context/*<E>*/ {
       this(ValueHolder.empty());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> Bean<T> bean() {
       return (Bean<T>) this.bean;
@@ -367,9 +368,6 @@ public interface Context/*<E>*/ {
       this.contextValue = requireNonNull(contextValue);
     }
 
-    int generateId() {
-      return getAndIncrement();
-    }
     ValueHolder<T> contextValue() {
       return this.contextValue;
     }
@@ -386,8 +384,10 @@ public interface Context/*<E>*/ {
       return (V) map.get(variableName);
     }
   }
+
   enum Internal {
     ;
+
     public static Action simple(int id, final String description, final Runnable runnable) {
       return Leaf.create(id, description, runnable);
     }
