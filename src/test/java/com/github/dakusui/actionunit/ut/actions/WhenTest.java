@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.utils.TestUtils;

@@ -1,12 +1,9 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -39,25 +36,9 @@ public interface When<T> extends Action {
       return this;
     }
 
-    private Builder<T> perform(ActionFactory factory) {
-      return perform(ActionGenerator.from(factory::create));
-    }
-
-    private Builder<T> perform(Action action) {
-      return perform(ActionGenerator.from(action));
-    }
-
     public When<T> otherwise(ActionGenerator<?> generator) {
       this.actionGeneratorForOtherwise = requireNonNull(generator);
       return build();
-    }
-
-    private When<T> otherwise(ActionFactory factory) {
-      return this.otherwise(ActionGenerator.from(factory::create));
-    }
-
-    private When<T> otherwise(Action action) {
-      return otherwise(ActionGenerator.from(action));
     }
 
     public When<T> build() {
@@ -78,7 +59,6 @@ public interface When<T> extends Action {
     final private Predicate<T>       condition;
     final private ActionGenerator<?> actionGeneratorForPerform;
     final private ActionGenerator<?> actionGeneratorForOtherwise;
-    final private AtomicInteger      idGenerator = new AtomicInteger();
 
     public Impl(
         int id,
