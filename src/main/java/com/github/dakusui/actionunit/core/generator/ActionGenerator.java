@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.core.Context;
 
 import java.util.function.Function;
 
-public interface ActionGenerator<I> extends Generator<I, Action> {
+public interface ActionGenerator<I> extends ValueGenerator<I, Action> {
   static <I> ActionGenerator<I> of(Function<ValueHolder<I>, Function<Context, Action>> func) {
     return valueHolder -> context -> func.apply(valueHolder).apply(context);
   }

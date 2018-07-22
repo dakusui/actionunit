@@ -132,7 +132,7 @@ public enum ActionSupport {
    * @see ForEach
    * @see ForEach.Builder
    */
-  public static <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
+  public static <E> ForEach.Builder<E> forEachOf(Iterable<E> elements) {
     return Context.Internal.forEachOf(generateId(), elements);
   }
 

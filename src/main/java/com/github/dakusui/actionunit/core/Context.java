@@ -146,7 +146,7 @@ public interface Context {
    * @see ForEach
    * @see ForEach.Builder
    */
-  default <E> ForEach.Builder<E> forEachOf(Supplier<Stream<? extends E>> stream) {
+  default <E> ForEach.Builder<E> forEachOf(Supplier<Stream<E>> stream) {
     return Internal.forEachOf(generateId(), stream);
   }
 
@@ -160,7 +160,7 @@ public interface Context {
    * @see ForEach
    * @see ForEach.Builder
    */
-  default <E> ForEach.Builder<E> forEachOf(Iterable<? extends E> elements) {
+  default <E> ForEach.Builder<E> forEachOf(Iterable<E> elements) {
     return Internal.forEachOf(generateId(), elements);
   }
 
@@ -427,11 +427,11 @@ public interface Context {
       };
     }
 
-    public static <E> ForEach.Builder<E> forEachOf(int id, Supplier<Stream<? extends E>> streamSupplier) {
+    public static <E> ForEach.Builder<E> forEachOf(int id, Supplier<Stream<E>> streamSupplier) {
       return ForEach.builder(id, streamSupplier);
     }
 
-    public static <E> ForEach.Builder<E> forEachOf(int id, Iterable<? extends E> elements) {
+    public static <E> ForEach.Builder<E> forEachOf(int id, Iterable<E> elements) {
       return forEachOf(id, () -> StreamSupport.stream(elements.spliterator(), false));
     }
 

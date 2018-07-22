@@ -20,17 +20,17 @@ public interface ForEach<T> extends Action {
 
   ValueHolder<T> defaultValue();
 
-  static <E> ForEach.Builder<E> builder(int id, Supplier<Stream<? extends E>> streamSupplier) {
+  static <E> ForEach.Builder<E> builder(int id, Supplier<Stream<E>> streamSupplier) {
     return new ForEach.Builder<>(id, streamSupplier);
   }
 
   class Builder<E> {
-    private final Supplier<Stream<? extends E>> elements;
+    private final Supplier<Stream<E>> elements;
     private final int                           id;
     private       Mode                          mode = Mode.SEQUENTIALLY;
     private       ValueHolder<E>                defaultValue;
 
-    Builder(int id, Supplier<Stream<? extends E>> elements) {
+    Builder(int id, Supplier<Stream<E>> elements) {
       this.id = id;
       this.elements = requireNonNull(elements);
       this.defaultValue = ValueHolder.empty();
@@ -52,7 +52,7 @@ public interface ForEach<T> extends Action {
     }
 
     public ForEach<E> perform(ActionGenerator<E> operation) {
-      return new ForEach.Impl<E>(
+      return new ForEach.Impl<>(
           id,
           requireNonNull(operation),
           this.elements,
@@ -72,11 +72,11 @@ public interface ForEach<T> extends Action {
 
   class Impl<T> extends ActionBase implements ForEach<T> {
     private final ActionGenerator<T>            handlerFactory;
-    private final Supplier<Stream<? extends T>> data;
+    private final Supplier<Stream<T>> data;
     private final Mode                          mode;
     private final ValueHolder<T>                defaultValue;
 
-    protected Impl(int id, ActionGenerator<T> handlerFactory, Supplier<Stream<? extends T>> data, Mode mode, ValueHolder<T> defaultValue) {
+    protected Impl(int id, ActionGenerator<T> handlerFactory, Supplier<Stream<T>> data, Mode mode, ValueHolder<T> defaultValue) {
       super(id);
       requireNonNull(handlerFactory);
       this.handlerFactory = handlerFactory;
