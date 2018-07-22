@@ -1,5 +1,12 @@
 package com.github.dakusui.actionunit.core;
 
+import com.github.dakusui.actionunit.actions.ValueHolder;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
+
+import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
+
 @FunctionalInterface
 public interface ActionFactory extends Context {
   default Action create() {
@@ -11,9 +18,32 @@ public interface ActionFactory extends Context {
     return 0;
   }
 
-  default Bean bean() {
-    throw new UnsupportedOperationException("This shouldn't be called");
+  Bean bean();
+
+  default Action create(Context self) {
+    return bean().actionGenerator().apply(ValueHolder.empty()).apply(self);
   }
 
-  Action create(Context self);
+  class Bean extends Context.Bean {
+    private final ActionGenerator<?> actionGenerator;
+
+    public <I> Bean(ActionGenerator<I> actionGenerator) {
+      this.actionGenerator = requireNonNull(actionGenerator);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <I> ActionGenerator<I> actionGenerator() {
+      return (ActionGenerator<I>) this.actionGenerator;
+    }
+
+    ;
+  }
+
+  static <I> ActionFactory of(ActionGenerator<I> actionGenerator) {
+    return () -> new Bean(actionGenerator);
+  }
+
+  static ActionFactory of(Action action) {
+    return () -> new Bean(v -> c -> action);
+  }
 }

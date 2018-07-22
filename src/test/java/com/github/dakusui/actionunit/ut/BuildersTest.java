@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.helpers.Checks;
@@ -87,8 +88,9 @@ public class BuildersTest implements UtContext {
               $.simple("print recovery", () -> System.out.println("Recovered."))
           )
       ).ensure(
-          ($) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
-      );
+          ActionFactory.of(
+              v -> ($) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
+          ));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {

@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
@@ -169,12 +170,12 @@ public class ActionVisitorTest implements UtContext {
     Action action = whilst(
         () -> "Hello",
         v -> true
-    ).perform(
+    ).perform(ActionFactory.of(v ->
         $ -> sequential(
             createSimpleAction(),
             createSimpleAction()
         )
-    );
+    ));
     // when accept
     action.accept(visitor);
     // then visited
@@ -194,11 +195,11 @@ public class ActionVisitorTest implements UtContext {
     Action action = when(
         () -> "Hello",
         "Hello"::equals
-    ).perform(
+    ).perform(ActionFactory.of(v ->
         $ -> createSimpleAction()
-    ).otherwise(
+    )).otherwise(ActionFactory.of(v ->
         $ -> createSimpleAction()
-    );
+    ));
     // when accept
     action.accept(visitor);
     // then visited

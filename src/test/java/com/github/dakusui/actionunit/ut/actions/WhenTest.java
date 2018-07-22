@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -23,12 +24,12 @@ public class WhenTest extends TestUtils.TestBase implements Context {
         ($, v) -> $.when(
             v,
             (Integer input) -> input > 2
-        ).perform(
-            ($$) -> $$.simple(
+        ).perform(ActionFactory.of(
+            w -> ($$) -> $$.simple(
                 "hello",
                 () -> System.out.println("hello" + v.get())
             )
-        ).build()
+        )).build()
     );
     new ReportingActionPerformer.Builder(action).build().performAndReport();
   }

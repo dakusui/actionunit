@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +38,7 @@ public interface When<T> extends Action {
     }
 
     public Builder<T> perform(Action action) {
-      return perform(self -> action);
+      return perform(ActionFactory.of(action));
     }
 
     public When<T> otherwise(ActionFactory factory) {
@@ -46,7 +47,7 @@ public interface When<T> extends Action {
     }
 
     public When<T> otherwise(Action action) {
-      return otherwise(self -> action);
+      return otherwise(ActionFactory.of(action));
     }
 
     public When<T> build() {
@@ -57,7 +58,7 @@ public interface When<T> extends Action {
           actionFactoryForPerform,
           actionFactoryForOtherwise != null
               ? actionFactoryForOtherwise
-              : Context::nop
+              : () -> new ActionFactory.Bean(v -> Context::nop)
       );
     }
   }

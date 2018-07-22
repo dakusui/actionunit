@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -29,7 +30,7 @@ public class WhileExample extends TestUtils.TestBase implements Context {
         toSupplier(v),
         i -> i.getAndIncrement() < 10
     ).perform(
-        self -> self.simple("print v", () -> System.out.println(v.get()))
+        ActionFactory.of(w -> self -> self.simple("print v", () -> System.out.println(v.get())))
     );
   }
 

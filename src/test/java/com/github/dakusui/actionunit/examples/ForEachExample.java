@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.ActionUnit;
 import com.github.dakusui.actionunit.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -45,10 +46,10 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
         (Context $, ValueHolder<String> value) -> $.sequential(
             $.when(value, "C"::equals)
                 .perform(
-                    ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get()))
+                    ActionFactory.of(v -> ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get())))
                 )
                 .otherwise(
-                    ($$) -> $$.simple("print to stdout", () -> System.out.println(value.get()))
+                    ActionFactory.of(v -> ($$) -> $$.simple("print to stdout", () -> System.out.println(value.get())))
                 ),
             $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
             $.simple("print the given value(2nd time)", () -> {

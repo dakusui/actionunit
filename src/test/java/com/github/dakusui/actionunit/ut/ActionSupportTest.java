@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
@@ -355,9 +356,9 @@ public class ActionSupportTest {
   public void givenNothingForChildAction$whenWhilActionPerformedWithAlwaysFalseCondition$thenQuitImmediately() {
     Action action = whilst(
         () -> "Hello", t -> false
-    ).perform(
-        ($) -> nop()
-    );
+    ).perform(ActionFactory.of(
+        v -> ($) -> nop()
+    ));
     action.accept(createActionPerformer());
   }
 

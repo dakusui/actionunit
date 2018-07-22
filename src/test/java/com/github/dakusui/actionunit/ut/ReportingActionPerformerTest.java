@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.io.Writer;
@@ -206,9 +207,9 @@ public class ReportingActionPerformerTest implements UtContext {
       ).recover(
           Exception.class,
           ($, e) -> $.nop()
-      ).ensure(
-          Context::nop
-      );
+      ).ensure(ActionFactory.of(
+          v -> Context::nop
+      ));
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
           hasItemAt(0, equalTo("[o]1-Attempt")),
@@ -235,7 +236,7 @@ public class ReportingActionPerformerTest implements UtContext {
           NullPointerException.class,
           ($, e) -> $.nop()
       ).ensure(
-          ($) -> $.nop()
+          ActionFactory.of(v -> Context::nop)
       );
       performAndPrintAction(action);
       assertThat(getWriter(), Matchers.allOf(

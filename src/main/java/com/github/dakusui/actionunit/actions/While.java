@@ -32,7 +32,7 @@ public interface While<T> extends Action {
     }
 
     public While<T> perform(Action action) {
-      return perform(self -> action);
+      return perform(ActionFactory.of(v -> self -> action));
     }
   }
 

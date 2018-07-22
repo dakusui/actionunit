@@ -41,7 +41,7 @@ public interface Attempt<E extends Throwable> extends Action {
     };/*($, data) -> {
       throw Checks.propagate(data.get());
     };*/
-    private       ActionFactory                ensuredActionFactory    = Context::nop;
+    private       ActionFactory                ensuredActionFactory    = ActionFactory.of(v -> Context::nop);
 
     public Builder(int id, Action attempt) {
       this.id = id;
