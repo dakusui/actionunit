@@ -30,7 +30,7 @@ public class WhileExample extends TestUtils.TestBase implements Context {
         toSupplier(v),
         i -> i.getAndIncrement() < 10
     ).perform(
-        ActionFactory.of(w -> self -> self.simple("print v", () -> System.out.println(v.get())))
+        w -> self -> self.simple("print v", () -> System.out.println(v.get()))
     );
   }
 

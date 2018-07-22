@@ -27,6 +27,10 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * actions.
  */
 public interface Context {
+  static Context create() {
+    return new Context.Impl();
+  }
+
   default int generateId() {
     return idGenerator().getAndIncrement();
   }

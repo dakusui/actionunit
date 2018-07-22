@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -356,9 +357,9 @@ public class ActionSupportTest {
   public void givenNothingForChildAction$whenWhilActionPerformedWithAlwaysFalseCondition$thenQuitImmediately() {
     Action action = whilst(
         () -> "Hello", t -> false
-    ).perform(ActionFactory.of(
+    ).perform(
         v -> ($) -> nop()
-    ));
+    );
     action.accept(createActionPerformer());
   }
 
@@ -467,9 +468,9 @@ public class ActionSupportTest {
 
     Action action = whilst(
         () -> objects.size() < 100
-    ).perform(
+    ).perform(ActionGenerator.from(
         simple("meets", () -> objects.add(new Object()))
-    );
+    ));
     action.accept(createActionPerformer());
 
     assertEquals(100, objects.size());

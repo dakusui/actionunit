@@ -170,12 +170,12 @@ public class ActionVisitorTest implements UtContext {
     Action action = whilst(
         () -> "Hello",
         v -> true
-    ).perform(ActionFactory.of(v ->
-        $ -> sequential(
+    ).perform(
+        v -> $ -> sequential(
             createSimpleAction(),
             createSimpleAction()
         )
-    ));
+    );
     // when accept
     action.accept(visitor);
     // then visited

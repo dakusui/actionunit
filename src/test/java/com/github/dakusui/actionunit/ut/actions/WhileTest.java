@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionFactory;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.crest.Crest;
@@ -28,14 +28,12 @@ public class WhileTest implements UtContext {
         toSupplier(v),
         i -> i.get() < 4
     ).perform(
-        ActionFactory.of(
-            w -> ($) -> $.simple("Say 'Hello'",
-                () -> {
-                  out.writeLine("Hello");
-                  v.getAndIncrement();
-                }
-            ))
-    );
+        w -> ($) -> $.simple("Say 'Hello'",
+            () -> {
+              out.writeLine("Hello");
+              v.getAndIncrement();
+            }
+        ));
     final TestUtils.Out result = TestUtils.performAndReportAction(action);
     assertThat(out,
         allOf(
@@ -62,14 +60,14 @@ public class WhileTest implements UtContext {
     Action action = whilst(
         toSupplier(v),
         i -> i.get() < 4
-    ).perform(
+    ).perform(ActionGenerator.from(
         simple("Say 'Hello'",
             () -> {
               out.add("Hello");
               v.getAndIncrement();
             }
         )
-    );
+    ));
     TestUtils.performAndReportAction(action);
     Crest.assertThat(
         out,

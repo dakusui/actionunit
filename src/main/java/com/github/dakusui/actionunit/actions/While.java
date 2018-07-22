@@ -3,11 +3,13 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionFactory;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
 
 public interface While<T> extends Action {
   Supplier<T> value();
@@ -23,29 +25,25 @@ public interface While<T> extends Action {
 
     public Builder(int id, Supplier<T> value, Predicate<T> check) {
       this.id = id;
-      this.value = Objects.requireNonNull(value);
-      this.check = Objects.requireNonNull(check);
+      this.value = requireNonNull(value);
+      this.check = requireNonNull(check);
     }
 
-    public While<T> perform(ActionFactory actionFactory) {
-      return new Impl<>(id, value, check, Objects.requireNonNull(actionFactory));
-    }
-
-    public While<T> perform(Action action) {
-      return perform(ActionFactory.of(v -> self -> action));
+    public While<T> perform(ActionGenerator<T> actionGenerator) {
+      return new Impl<>(id, value, check, actionGenerator);
     }
   }
 
   class Impl<T> extends ActionBase implements While<T> {
-    private final Supplier<T>   value;
-    private final Predicate<T>  check;
-    private final ActionFactory actionFactory;
+    private final Supplier<T>        value;
+    private final Predicate<T>       check;
+    private final ActionGenerator<T> actionGenerator;
 
-    Impl(int id, Supplier<T> value, Predicate<T> check, ActionFactory actionFactory) {
+    Impl(int id, Supplier<T> value, Predicate<T> check, ActionGenerator<T> actionGenerator) {
       super(id);
       this.value = value;
       this.check = check;
-      this.actionFactory = actionFactory;
+      this.actionGenerator = requireNonNull(actionGenerator);
     }
 
     @Override
@@ -60,7 +58,7 @@ public interface While<T> extends Action {
 
     @Override
     public Action createAction() {
-      return actionFactory.create();
+      return this.actionGenerator.<T>apply(ValueHolder.from(this.value)).apply(Context.create());
     }
 
     @Override

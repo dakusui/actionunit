@@ -57,6 +57,10 @@ public interface ValueHolder<T> extends Supplier<T>, Formattable {
     };
   }
 
+  static <T> ValueHolder<T> from(Supplier<T> supplier) {
+    return () -> supplier.get();
+  }
+
   static <T> ValueHolder<T> empty() {
     return () -> {
       throw new NoSuchElementException();
