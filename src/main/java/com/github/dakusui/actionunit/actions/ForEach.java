@@ -1,8 +1,11 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -50,22 +53,18 @@ public interface ForEach<T> extends Action {
       return this;
     }
 
-    public ForEach<E> perform(ValueHandlerActionFactory<E> operation) {
-      requireNonNull(operation);
-      //noinspection unchecked
+    public ForEach<E> perform(ActionGenerator<E> operation) {
       return new ForEach.Impl<E>(
           id,
-          operation,
+          requireNonNull(operation),
           this.elements,
           this.mode,
           defaultValue);
     }
 
     public ForEach<E> perform(Action action) {
-      requireNonNull(action);
-      return perform((factory, data) -> action);
+      return perform(ActionGenerator.from(requireNonNull(action)));
     }
-
   }
 
   enum Mode {
@@ -74,14 +73,15 @@ public interface ForEach<T> extends Action {
   }
 
   class Impl<T> extends ActionBase implements ForEach<T> {
-    private final ValueHandlerActionFactory<T>  handlerFactory;
+    private final ActionGenerator<T>            handlerFactory;
     private final Supplier<Stream<? extends T>> data;
     private final Mode                          mode;
     private final ValueHolder<T>                defaultValue;
 
-    public Impl(int id, ValueHandlerActionFactory<T> handlerFactory, Supplier<Stream<? extends T>> data, Mode mode, ValueHolder<T> defaultValue) {
+    private Impl(int id, ActionGenerator<T> handlerFactory, Supplier<Stream<? extends T>> data, Mode mode, ValueHolder<T> defaultValue) {
       super(id);
-      this.handlerFactory = requireNonNull(handlerFactory);
+      requireNonNull(handlerFactory);
+      this.handlerFactory = handlerFactory;
       this.data = requireNonNull(data);
       this.mode = requireNonNull(mode);
       this.defaultValue = requireNonNull(defaultValue);
@@ -94,7 +94,7 @@ public interface ForEach<T> extends Action {
 
     @Override
     public Action createHandler(ValueHolder<T> data) {
-      return this.handlerFactory.apply(data);
+      return this.handlerFactory.apply(data, Context.create());
     }
 
     @Override

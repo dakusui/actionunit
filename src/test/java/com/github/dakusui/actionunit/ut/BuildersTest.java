@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ValueHandlerActionFactory;
+import com.github.dakusui.actionunit.core.generator.ActionGenerator;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.io.Writer;
@@ -39,12 +40,16 @@ public class BuildersTest implements UtContext {
     };
   }
 
+  public static <E> ActionGenerator<E> actionGeneratorFromValueActionHandler(ValueHandlerActionFactory<E> operation) {
+    return ActionGenerator.<E>of(valueHolder -> context -> operation.create(context, valueHolder));
+  }
+
   public static class ForEachTest implements UtContext {
     @Test
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
           .sequentially()
-          .perform(createValueHandlerActionFactory("print item to stdout", System.out::println));
+          .perform(actionGeneratorFromValueActionHandler(createValueHandlerActionFactory("print item to stdout", System.out::println)));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -56,7 +61,7 @@ public class BuildersTest implements UtContext {
     public void givenA_B_and_C$whenPrintForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
           .sequentially()
-          .perform(createValueHandlerActionFactory("print item to stdout", System.out::println));
+          .perform(actionGeneratorFromValueActionHandler(createValueHandlerActionFactory("print item to stdout", System.out::println)));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -68,7 +73,7 @@ public class BuildersTest implements UtContext {
     public void givenA_B_and_C$whenRunForEachConcurrently$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")
           .concurrently()
-          .perform(createValueHandlerActionFactory("print item to stdout", System.out::println));
+          .perform(actionGeneratorFromValueActionHandler(createValueHandlerActionFactory("print item to stdout", System.out::println)));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {
@@ -81,7 +86,7 @@ public class BuildersTest implements UtContext {
       List<Object> data = asList("A", "B", "C");
       Action action = forEachOf(data)
           .concurrently()
-          .perform(createValueHandlerActionFactory("print item to stdout", System.out::println));
+          .perform(actionGeneratorFromValueActionHandler(createValueHandlerActionFactory("print item to stdout", System.out::println)));
       try {
         action.accept(TestUtils.createActionPerformer());
       } finally {

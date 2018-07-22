@@ -14,7 +14,7 @@ public class CmdExample {
         context.forEachOf(
             "a", "b", "c"
         ).perform(
-            ($, data) -> $.cmd("echo").addq("hi:").addq(data).addq(":").build()
+            data -> ($) -> $.cmd("echo").addq("hi:").addq(data).addq(":").build()
         )
     );
   }

@@ -23,7 +23,7 @@ public class CommanderSupportTest {
         context.forEachOf(
             asList(1, 2, 3)
         ).perform(
-            ($, data) -> commander($, "echo hello:").add(() -> data.get().toString()).build()
+            data -> ($) -> commander($, "echo hello:").add(() -> data.get().toString()).build()
         )
     );
   }

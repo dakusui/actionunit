@@ -96,7 +96,7 @@ public class ActionVisitorTest implements UtContext {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEachOf(singletonList("hello")).perform(($, s) -> nop());
+    Action action = forEachOf(singletonList("hello")).perform(s -> ($) -> nop());
     // when accept
     action.accept(visitor);
     // then visited

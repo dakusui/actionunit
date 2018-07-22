@@ -64,7 +64,7 @@ public class ActionRunnerTest {
       return forEachOf(
           "A", "B"
       ).perform(
-          ($, i) ->
+          i -> ($) ->
               $.sequential(
                   $.simple(
                       "Prefix env 'outer-'",
@@ -73,7 +73,7 @@ public class ActionRunnerTest {
                   $.forEachOf(
                       "a", "b"
                   ).perform(
-                      ($1, j) -> $1.simple(
+                      j -> ($1) -> $1.simple(
                           "Prefix env '\\_inner-'",
                           () -> getWriter().writeLine("\\_inner-" + j.get())
                       )

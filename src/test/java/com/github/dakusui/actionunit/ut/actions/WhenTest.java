@@ -21,9 +21,8 @@ public class WhenTest extends TestUtils.TestBase implements Context {
     Action action = forEachOf(
         asList(1, 2, 3, 4)
     ).perform(
-        ($, v) -> $.when(
-            v,
-            (Integer input) -> input > 2
+        v -> $ -> $.when(
+            v, (Integer input) -> input > 2
         ).perform(
             w -> ($$) -> $$.simple(
                 "hello",

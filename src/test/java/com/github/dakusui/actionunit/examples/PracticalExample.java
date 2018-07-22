@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
@@ -48,7 +47,7 @@ public class PracticalExample implements UtContext {
         "alexios", "nikephoros", "manuel", "constantine", "justinian"
     ).concurrently(
     ).perform(
-        ($, hostName) -> sequential(
+        hostName -> ($) -> sequential(
             retry(
                 simple(
                     "Try to figure out physical ip address",

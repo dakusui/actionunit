@@ -142,7 +142,7 @@ public class ReportingActionPerformerTest implements UtContext {
       Action action = forEachOf(
           asList("ItemA", "ItemB", "ItemC")
       ).perform(
-          ($, i) -> $.sequential(
+          i -> ($) -> $.sequential(
               $.simple("Sink-1", () -> {
               }),
               $.simple("Sink-2", () -> {
@@ -173,7 +173,7 @@ public class ReportingActionPerformerTest implements UtContext {
       Action action = forEachOf(
           asList("ItemA", "ItemB", "ItemC")
       ).perform(
-          ($, i) -> $.sequential(
+          i -> $ -> $.sequential(
               $.simple("Sink-1", () -> {
                 throw new RuntimeException("Failing");
               }),

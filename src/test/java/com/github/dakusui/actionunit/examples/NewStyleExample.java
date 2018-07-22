@@ -14,7 +14,7 @@ public class NewStyleExample {
             "a", "b", "c"
         ).sequentially(
         ).perform(
-            ($, i) -> $.sequential(
+            i -> $ -> $.sequential(
                 $.simple(
                     "print(i)",
                     () -> System.out.println(i.get())
@@ -23,7 +23,7 @@ public class NewStyleExample {
                     1, 2, 3, 4, 5
                 ).concurrently(
                 ).perform(
-                    ($$, j) -> $$.concurrent(
+                    j -> $$ -> $$.concurrent(
                         $$.retry(
                             $$.simple(
                                 "print(j)",

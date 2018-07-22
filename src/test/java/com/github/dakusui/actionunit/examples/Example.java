@@ -15,7 +15,7 @@ public class Example implements UtContext {
         asList("hello", "world")
     ).concurrently(
     ).perform(
-        (Context f, ValueHolder<String> v) -> f.sequential(
+        (ValueHolder<String> v) -> (Context f) -> f.sequential(
             f.simple("print", () -> System.out.println(v.get())),
             f.simple("print", () -> System.out.println(v.get())),
             f.sequential(

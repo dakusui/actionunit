@@ -49,7 +49,7 @@ public class ActionPrinterTest implements UtContext {
                       forEachOf(
                           asList("hello1", "hello2", "hello3")
                       ).perform(
-                          ($, i) -> nop()
+                          i -> $ -> nop()
                       )
                   ))));
     }
@@ -135,7 +135,7 @@ public class ActionPrinterTest implements UtContext {
               forEachOf(
                   asList("hello1", "hello2", "hello3")
               ).perform(
-                  ($, data) -> $.given(
+                  data -> ($) -> $.given(
                       "ExampleTest", () -> "ExampleTest")
                       .when("Say 'hello'", input -> {
                         out.add(format("hello:%s", data.get()));
@@ -147,14 +147,15 @@ public class ActionPrinterTest implements UtContext {
               forEachOf(
                   asList("world1", "world2", "world3")
               ).perform(
-                  ($, i) -> $.sequential(
-                      $.simple("nothing", () -> {
-                      }),
-                      $.simple("sink1", () -> {
-                      }),
-                      $.simple("sink2", () -> {
-                      })
-                  )
+                  i -> $ ->
+                      $.sequential(
+                          $.simple("nothing", () -> {
+                          }),
+                          $.simple("sink1", () -> {
+                          }),
+                          $.simple("sink2", () -> {
+                          })
+                      )
               ))
       ));
     }
@@ -212,7 +213,7 @@ public class ActionPrinterTest implements UtContext {
       Action action = forEachOf(
           asList("A", "B")
       ).perform(
-          ($, i) -> $.sequential(
+          i -> $ -> $.sequential(
               $.simple("+0", () -> out1.writeLine(i.get() + "0")),
               $.simple("+1", () -> out1.writeLine(i.get() + "1"))
           )

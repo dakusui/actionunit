@@ -27,7 +27,7 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
-        ($, value) -> $.sequential(
+        value -> ($) -> $.sequential(
             $.simple("print the given value(1st time)", () -> System.out.println(value.get())),
             $.simple("print the given value(2nd time)", () -> System.out.println(value.get())),
             $.simple("print the given value(3rd time)", () -> System.out.println(value.get()))
@@ -42,7 +42,7 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
         asList("A", "B", "C")
     ).sequentially(
     ).perform(
-        (Context $, ValueHolder<String> value) -> $.sequential(
+        (ValueHolder<String> value) -> (Context $) -> $.sequential(
             $.when(value, "C"::equals)
                 .perform(
                     v -> ($$) -> $$.simple("print to stderr", () -> System.err.println(value.get()))
@@ -71,7 +71,7 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
             "unknown"
         ).concurrently(
         ).perform(
-            (Context $, ValueHolder<String> value) -> {
+            (ValueHolder<String> value) -> (Context $) -> {
               String v = value.isPresent() ?
                   value.get() :
                   String.format("(%s)", value.get());
@@ -92,12 +92,12 @@ public class ForEachExample extends TestUtils.TestBase implements Context {
         "A", "B", "C"
     ).sequentially(
     ).perform(
-        ($, i) -> $.sequential(
+        (i) -> ($) -> $.sequential(
             $.simple("print the given value(1st time)", () -> System.out.println("BEGIN:" + i.get())),
             $.forEachOf(
                 "a", "b", "c"
             ).sequentially().perform(
-                ($$, j) -> $$.sequential(
+                (j) -> ($$) -> $$.sequential(
                     $$.sleep(1, MILLISECONDS),
                     $$.simple("print i and j", () -> System.out.printf("  i=%s, j=%s%n", i.get(), j.get()))
                 )

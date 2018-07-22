@@ -19,7 +19,7 @@ public class HelloActionUnit implements UtContext {
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        (Context $, ValueHolder<String> i) -> sequential(
+        (ValueHolder<String> i) -> (Context $) -> sequential(
             simple(
                 "print {i}",
                 () -> System.out.println("<" + i.get() + ">")

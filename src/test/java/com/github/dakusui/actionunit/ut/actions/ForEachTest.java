@@ -27,17 +27,16 @@ public class ForEachTest implements UtContext {
     Action action = forEachOf(
         "Hello", "world", "!"
     ).perform(
-        ($, s) -> $.sequential(asList(
-            $.simple(
-                "print {s}",
-                () -> System.out.println("<" + s.get() + ">")
-            ),
-            $.simple(
-                "add {s} to 'out'",
-                () -> out.add("'" + s.get() + "'")
-            )
-        ))
-    );
+        s -> $ ->
+            $.sequential(asList(
+                $.simple(
+                    "print {s}",
+                    () -> System.out.println("<" + s.get() + ">")
+                ),
+                $.simple(
+                    "add {s} to 'out'",
+                    () -> out.add("'" + s.get() + "'")
+                ))));
     // When
     TestUtils.createReportingActionPerformer(action).performAndReport();
     // Then
@@ -65,7 +64,7 @@ public class ForEachTest implements UtContext {
         "Hello", "world", "!"
     ).concurrently(
     ).perform(
-        ($, s) -> $.sequential(
+        s -> $ -> $.sequential(
             $.simple(
                 "print {s}",
                 () -> System.out.println("<" + s.get() + ">")
@@ -145,7 +144,7 @@ public class ForEachTest implements UtContext {
         "Hello", "world", "!"
     ).sequentially(
     ).perform(
-        ($, s) -> $.concurrent(asList(
+        s -> $ -> $.concurrent(asList(
             Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION"),
             Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION")
         ))
@@ -209,7 +208,7 @@ public class ForEachTest implements UtContext {
         "Hello", "world", "!"
     ).sequentially(
     ).perform(
-        ($, s) -> $.concurrent(asList(
+        s -> $ -> $.concurrent(asList(
             $.nop("Action 1"),
             $.nop("Action 2")
         ))

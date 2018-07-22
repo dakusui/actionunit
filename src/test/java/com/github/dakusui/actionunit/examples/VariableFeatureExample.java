@@ -17,7 +17,7 @@ public class VariableFeatureExample {
             top.simple("init", () -> top.set("i", 0)),
             top.forEachOf(asList("a", "b", "c", "d", "e", "f"))
                 .perform(
-                    ($, data) ->
+                    (data) -> ($) ->
                         $.sequential(
                             $.simple(
                                 "print i",

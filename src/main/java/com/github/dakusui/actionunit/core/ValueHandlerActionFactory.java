@@ -1,11 +1,8 @@
 package com.github.dakusui.actionunit.core;
 
-import com.github.dakusui.actionunit.actions.Leaf;
 import com.github.dakusui.actionunit.actions.ValueHolder;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.core.IdGeneratorManager.ID_GENERATOR_MANAGER;
