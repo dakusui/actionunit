@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
 import com.github.dakusui.actionunit.generators.*;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -109,46 +108,4 @@ public interface ActionSupport {
     return v -> c -> v.get();
   }
 
-
-  static void main(String... args) {
-    new ReportingActionPerformer.Builder(
-        sequential(
-            retry(
-                setContextVariable("X", StringGenerator.of("weld")),
-                2, 1, RuntimeException.class
-            ),
-            attempt(
-                simple("Let's go", print(StringGenerator.of("GO!")))
-            ).recover(
-                Throwable.class,
-                simple("Fail", throwException())
-            ).ensure(
-                simple("Ensured", print(StringGenerator.of("bye...")))
-            ),
-            simple(
-                "hello",
-                print(
-                    format(
-                        StringGenerator.of(">>>>>%s"),
-                        getContextVariable("X")
-                    ))),
-            forEach(
-                () -> Stream.of("hello", "world", "everyone", "!")
-            ).perform(
-                ActionSupport.concurrent(
-                    simple("step1", print(theValue())),
-                    simple("step2", print(theValue())),
-                    simple("step3", print(theValue())),
-                    ActionSupport.<String>when(
-                        BooleanGenerator.equalTo(StringGenerator.of("world"))
-                    ).perform(
-                        simple("MET", print(StringGenerator.of("Condition is met")))
-                    )
-                )
-            )
-        ).get(
-            ValueHolder.empty(), Context.create()
-        )
-    ).build().performAndReport();
-  }
 }
