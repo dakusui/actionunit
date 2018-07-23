@@ -19,7 +19,7 @@ public enum ActionSupport {
   }
 
   public static <I> ActionGenerator<I> cmd(
-      ValueGenerator<I, String> commandLineComposer,
+      StringGenerator<I> commandLineComposer,
       ConsumerGenerator<I, Commander> consumer) {
     return v -> c -> {
       Commander commander = c.cmd(commandLineComposer.get(v, c));

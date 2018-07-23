@@ -1,19 +1,33 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.ValueHolder;
+import com.github.dakusui.actionunit.extras.cmd.Commander;
+import com.github.dakusui.actionunit.generators.ActionGenerator;
+import com.github.dakusui.actionunit.generators.ConsumerGenerator;
 import com.github.dakusui.actionunit.generators.StringGenerator;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.generators.BooleanGenerator.equalTo;
 
-public class ActionSupportTest implements ActionSupport {
+public class ActionSupportTest {
+  @Test
+  public void echoTest() {
+    run(
+        cmd(StringGenerator.of("echo"),
+            valueHolder -> context -> commander -> commander.add("hello")
+        )
+    );
+  }
+
   @Test
   public void main() {
-    new ReportingActionPerformer.Builder(
+    run(
         sequential(
             retry(
                 setContextVariable("X", StringGenerator.of("weld")),
@@ -48,11 +62,12 @@ public class ActionSupportTest implements ActionSupport {
                     ).otherwise(
                         simple("NOT MET", print(StringGenerator.of("Condition was not met")))
                     )
-                )
-            )
-        ).get(
-            ValueHolder.empty(), Context.create()
-        )
+                ))));
+  }
+
+  private void run(ActionGenerator<?> actionGenerator) {
+    new ReportingActionPerformer.Builder(
+        actionGenerator.apply(ValueHolder.empty(), Context.create())
     ).build().performAndReport();
   }
 }
