@@ -1,15 +1,13 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.ValueHolder;
-import com.github.dakusui.actionunit.extras.cmd.Commander;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.generators.ActionGenerator;
-import com.github.dakusui.actionunit.generators.ConsumerGenerator;
+import com.github.dakusui.actionunit.generators.NopGenerator;
 import com.github.dakusui.actionunit.generators.StringGenerator;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
@@ -21,6 +19,32 @@ public class ActionSupportTest {
     run(
         cmd(StringGenerator.of("echo"),
             valueHolder -> context -> commander -> commander.add("hello")
+        )
+    );
+  }
+
+
+  @Test(expected = ActionException.class)
+  public void attemptTest1() {
+    run(
+        attempt(
+            simple("Let's go", throwException(ActionException::new))
+        ).ensure(
+            simple("Ensured", print(StringGenerator.of("bye...")))
+        )
+    );
+  }
+
+  @Test
+  public void attemptTest2() {
+    run(
+        attempt(
+            simple("Let's go", throwException(ActionException::new))
+        ).recover(
+            ActionException.class,
+            NopGenerator.instance()
+        ).ensure(
+            simple("Ensured", print(StringGenerator.of("bye...")))
         )
     );
   }

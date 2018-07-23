@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.generators.*;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -14,8 +15,13 @@ import static java.util.stream.Collectors.toList;
 
 public enum ActionSupport {
   ;
-  public static <I> ActionGenerator<I> simple(String description, RunnableGenerator<I> runnable) {
-    return v -> c -> c.simple(description, runnable.get(v, c));
+
+  public static <I> SimpleGenerator<I> simple(String description, RunnableGenerator<I> runnableGenerator) {
+    return simple(runnableGenerator).describe(description);
+  }
+
+  public static <I> SimpleGenerator<I> simple(RunnableGenerator<I> runnableGenerator) {
+    return SimpleGenerator.create(runnableGenerator);
   }
 
   public static <I> ActionGenerator<I> cmd(
@@ -81,8 +87,12 @@ public enum ActionSupport {
   }
 
   public static <I> RunnableGenerator<I> throwException() {
+    return RunnableGenerator.of(v -> c -> () -> new RuntimeException(String.valueOf(v.get())));
+  }
+
+  public static <I> RunnableGenerator<I> throwException(Function<String, RuntimeException> func) {
     return v -> c -> () -> {
-      throw new RuntimeException((Throwable) v.get());
+      throw func.apply(String.valueOf(v.get()));
     };
   }
 
