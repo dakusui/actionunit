@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
+import static org.junit.Assume.assumeTrue;
 
 public class MkdirTest extends FsTestBase<Mkdir> {
 
@@ -38,6 +40,7 @@ public class MkdirTest extends FsTestBase<Mkdir> {
 
   @Test
   public void mkdirP() {
+    assumeTrue(isRunUnderLinux());
     perform(
         context.sequential(
             commander.cwd(this.dir).dir("hello/world").recursive().build(),

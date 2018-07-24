@@ -3,14 +3,18 @@ package com.github.dakusui.actionunit.extras.cmdaction;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 
+import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assume.assumeThat;
+import static org.junit.Assume.assumeTrue;
 
 public class RetryOnTimeOutTest<R extends Commander<R>> extends FsTestBase<R> {
   public RetryOnTimeOutTest() throws IOException {
@@ -31,6 +35,7 @@ public class RetryOnTimeOutTest<R extends Commander<R>> extends FsTestBase<R> {
 
   @Test(expected = ActionException.class)
   public void whenRetryOnce$thenFail() {
+    assumeTrue(isRunUnderLinux());
     try {
       perform(this.commander
           .timeoutIn(1, SECONDS)

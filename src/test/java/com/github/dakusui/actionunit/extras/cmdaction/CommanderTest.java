@@ -10,8 +10,10 @@ import java.nio.file.Files;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.stream.Collectors.toList;
+import static org.junit.Assume.assumeTrue;
 
 public class CommanderTest extends CommanderTestBase<Echo> {
   @Override
@@ -50,6 +52,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
 
   @Test
   public void cwdExplicit() throws IOException {
+    assumeTrue(isRunUnderLinux());
     File tmp = Files.createTempDirectory("tmp").toFile();
     tmp.deleteOnExit();
     perform(
@@ -66,6 +69,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
 
   @Test
   public void toCmd() {
+    assumeTrue(isRunUnderLinux());
     assertThat(
         this.commander
             .noTrailingNewline()
@@ -113,6 +117,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
 
   @Test
   public void toIterable() {
+    assumeTrue(isRunUnderLinux());
     assertThat(
         StreamSupport.stream(
             this.commander
@@ -133,6 +138,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
 
   @Test
   public void toStream() {
+    assumeTrue(isRunUnderLinux());
     assertThat(
         this.commander
             .noTrailingNewline()

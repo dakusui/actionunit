@@ -5,10 +5,12 @@ import com.github.dakusui.actionunit.extras.cmd.linux.Echo;
 import com.github.dakusui.actionunit.extras.cmdaction.CommanderTestBase;
 import org.junit.Test;
 
+import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.junit.Assume.assumeTrue;
 
 public class EchoTest extends CommanderTestBase<Echo> {
   @Test
@@ -24,6 +26,7 @@ public class EchoTest extends CommanderTestBase<Echo> {
 
   @Test
   public void enableBackslashInterpretation() {
+    assumeTrue(isRunUnderLinux());
     perform(this.commander.enableBackslashInterpretation().message(this::helloWorld).build());
     assertThat(
         this.stdout,
@@ -39,6 +42,7 @@ public class EchoTest extends CommanderTestBase<Echo> {
 
   @Test
   public void noTrailingNewlineAndEnableBackslashInterpretation() {
+    assumeTrue(isRunUnderLinux());
     perform(this.commander.noTrailingNewline().enableBackslashInterpretation().addq(helloWorld()).build());
     assertThat(
         this.stdout,
@@ -54,6 +58,7 @@ public class EchoTest extends CommanderTestBase<Echo> {
 
   @Test
   public void disableBackslashInterpretation() {
+    assumeTrue(isRunUnderLinux());
     perform(this.commander.disableBackslashInterpretation().addq(helloWorld()).build());
     assertThat(
         this.stdout,

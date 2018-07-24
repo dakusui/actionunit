@@ -14,8 +14,13 @@ import static java.util.stream.Collectors.toList;
 
 public enum ActionSupport {
   ;
+
   public static <I> ActionGenerator<I> simple(String description, RunnableGenerator<I> runnable) {
     return v -> c -> c.simple(description, runnable.get(v, c));
+  }
+
+  public static <I> ActionGenerator<I> nop() {
+    return NopGenerator.instance();
   }
 
   public static <I> ActionGenerator<I> cmd(
@@ -83,6 +88,12 @@ public enum ActionSupport {
   public static <I> RunnableGenerator<I> throwException() {
     return v -> c -> () -> {
       throw new RuntimeException((Throwable) v.get());
+    };
+  }
+
+  public static <I> RunnableGenerator<I> throwException(Supplier<RuntimeException> exceptionSupplier) {
+    return v -> c -> () -> {
+      throw exceptionSupplier.get();
     };
   }
 

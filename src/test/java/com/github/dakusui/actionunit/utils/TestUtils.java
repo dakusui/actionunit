@@ -28,9 +28,44 @@ import static com.github.dakusui.actionunit.compat.IdGeneratorManager.ID_GENERAT
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
 
+import java.util.Locale;
+
 public class TestUtils {
-  static boolean isRunUnderSurefire() {
+  /**
+   * types of Operating Systems
+   */
+  public enum OSType {
+    Windows, MacOS, Linux, Other
+  }
+
+  /**
+   * detect the operating system from the os.name System property and cache
+   * the result
+   *
+   * @return - the operating system detected
+   */
+  private static OSType getOperatingSystemType(Properties properties) {
+    OSType detectedOS;
+    String OS = properties.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+    if ((OS.contains("mac")) || (OS.contains("darwin"))) {
+      detectedOS = OSType.MacOS;
+    } else if (OS.contains("win")) {
+      detectedOS = OSType.Windows;
+    } else if (OS.contains("nux")) {
+      detectedOS = OSType.Linux;
+    } else {
+      detectedOS = OSType.Other;
+    }
+
+    return detectedOS;
+  }
+
+  private static boolean isRunUnderSurefire() {
     return System.getProperty("surefire.real.class.path") != null;
+  }
+
+  public static boolean isRunUnderLinux() {
+    return getOperatingSystemType(System.getProperties()).equals(OSType.Linux);
   }
 
   public static <T> Matcher<Iterable<? super T>> hasItemAt(int position, Matcher<? super T> itemMatcher) {
@@ -255,6 +290,7 @@ public class TestUtils {
     final public AtomicInteger idGenerator() {
       return ID_GENERATOR_MANAGER.idGenerator(this);
     }
+
     @Before
     public void suppressStdOutErr() {
       if (TestUtils.isRunUnderSurefire()) {
@@ -279,9 +315,9 @@ public class TestUtils {
   }
 
   public static class MatcherBuilder<V, U> {
-    String         predicateName = null;
-    Predicate<U>   p             = null;
-    String         functionName  = "";
+    String       predicateName = null;
+    Predicate<U> p             = null;
+    String       functionName  = "";
     @SuppressWarnings("unchecked")
     Function<V, U> f = v -> (U) v;
 

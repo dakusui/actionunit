@@ -13,8 +13,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;
+import static org.junit.Assume.assumeTrue;
 
 public class RmTest extends FsTestBase<Rm> {
   public RmTest() throws IOException {
@@ -48,6 +50,7 @@ public class RmTest extends FsTestBase<Rm> {
 
   @Test
   public void removeDirectoryWithForceAndRecursiveOptions$thenFail() {
+    assumeTrue(isRunUnderLinux());
     perform(
         this.context.sequential(
             this.commander.file("g").force().recursive().build(),
