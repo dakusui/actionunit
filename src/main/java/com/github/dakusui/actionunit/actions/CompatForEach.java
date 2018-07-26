@@ -11,7 +11,7 @@ import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
 import static com.github.dakusui.actionunit.helpers.InternalUtils.summary;
 import static java.util.Objects.requireNonNull;
 
-public interface ForEach<T> extends Action {
+public interface CompatForEach<T> extends Action {
   Stream<? extends T> data();
 
   Action createHandler(ValueHolder<T> data);
@@ -20,8 +20,8 @@ public interface ForEach<T> extends Action {
 
   ValueHolder<T> defaultValue();
 
-  static <E> ForEach.Builder<E> builder(int id, Supplier<Stream<E>> streamSupplier) {
-    return new ForEach.Builder<>(id, streamSupplier);
+  static <E> CompatForEach.Builder<E> builder(int id, Supplier<Stream<E>> streamSupplier) {
+    return new CompatForEach.Builder<>(id, streamSupplier);
   }
 
   class Builder<E> {
@@ -51,8 +51,8 @@ public interface ForEach<T> extends Action {
       return this;
     }
 
-    public ForEach<E> perform(ActionGenerator<E> operation) {
-      return new ForEach.Impl<>(
+    public CompatForEach<E> perform(ActionGenerator<E> operation) {
+      return new CompatForEach.Impl<>(
           id,
           requireNonNull(operation),
           this.elements,
@@ -60,7 +60,7 @@ public interface ForEach<T> extends Action {
           defaultValue);
     }
 
-    public ForEach<E> perform(Action action) {
+    public CompatForEach<E> perform(Action action) {
       return perform(ActionGenerator.from(requireNonNull(action)));
     }
   }
@@ -70,7 +70,7 @@ public interface ForEach<T> extends Action {
     CONCURRENTLY
   }
 
-  class Impl<T> extends ActionBase implements ForEach<T> {
+  class Impl<T> extends ActionBase implements CompatForEach<T> {
     private final ActionGenerator<T>            handlerFactory;
     private final Supplier<Stream<T>> data;
     private final Mode                          mode;

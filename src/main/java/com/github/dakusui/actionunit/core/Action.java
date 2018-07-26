@@ -94,7 +94,7 @@ public interface Action {
      * @param action action to be visited by this object.
      * @param <T>    Type of elements from which {@code ForEach} action creates a child action.
      */
-    default <T> void visit(ForEach<T> action) {
+    default <T> void visit(CompatForEach<T> action) {
       this.visit((Action) action);
     }
 

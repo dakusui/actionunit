@@ -131,10 +131,10 @@ public enum CompatActionSupport {
    *                 builder will build.
    * @param <E>      Type of elements
    * @return Created builder
-   * @see ForEach
-   * @see ForEach.Builder
+   * @see CompatForEach
+   * @see CompatForEach.Builder
    */
-  public static <E> ForEach.Builder<E> forEachOf(Iterable<E> elements) {
+  public static <E> CompatForEach.Builder<E> forEachOf(Iterable<E> elements) {
     return Context.Internal.forEachOf(generateId(), elements);
   }
 
@@ -145,11 +145,11 @@ public enum CompatActionSupport {
    *                 builder will build.
    * @param <E>      Type of elements
    * @return Created builder
-   * @see ForEach
-   * @see ForEach.Builder
+   * @see CompatForEach
+   * @see CompatForEach.Builder
    */
   @SafeVarargs
-  public static <E> ForEach.Builder<E> forEachOf(E... elements) {
+  public static <E> CompatForEach.Builder<E> forEachOf(E... elements) {
     return Context.Internal.forEachOf(generateId(), elements);
   }
 

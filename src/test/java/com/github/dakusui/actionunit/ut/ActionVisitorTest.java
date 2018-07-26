@@ -102,7 +102,7 @@ public class ActionVisitorTest implements UtContext {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("ForEach"))
+        hasItemAt(0, startsWith("CompatForEach"))
     );
     assertThat(
         out,

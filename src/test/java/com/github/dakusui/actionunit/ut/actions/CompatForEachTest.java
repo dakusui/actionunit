@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.ForEach;
+import com.github.dakusui.actionunit.actions.CompatForEach;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.io.Writer;
@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
-public class ForEachTest implements UtContext {
+public class CompatForEachTest implements UtContext {
   @Test
   public void givenForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = new LinkedList<>();
@@ -139,7 +139,7 @@ public class ForEachTest implements UtContext {
     }
   }
 
-  public ForEach<String> createConfusingAction() {
+  public CompatForEach<String> createConfusingAction() {
     return forEachOf(
         "Hello", "world", "!"
     ).sequentially(
@@ -171,7 +171,7 @@ public class ForEachTest implements UtContext {
           e.getMessage(),
           allOf(
               containsString("Node matching '1(confusing)' was not found under"),
-              containsString("0(ForEach (SEQUENTIALLY)")
+              containsString("0(CompatForEach (SEQUENTIALLY)")
           )
       );
     }
@@ -203,7 +203,7 @@ public class ForEachTest implements UtContext {
     }
   }
 
-  public ForEach<String> createBrokenAction() {
+  public CompatForEach<String> createBrokenAction() {
     return forEachOf(
         "Hello", "world", "!"
     ).sequentially(

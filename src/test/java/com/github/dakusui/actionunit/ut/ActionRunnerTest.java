@@ -26,7 +26,7 @@ public class ActionRunnerTest {
     }
   }
 
-  public static class DoubleCompatForEach extends Base {
+  public static class DoubleCompatCompatForEach extends Base {
     @Test
     public void givenDoubleForEachAction$whenPerformed$thenExecutedCorrectly() {
       ////

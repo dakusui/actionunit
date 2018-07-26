@@ -34,10 +34,10 @@ public class ExamplesTest {
   }
 
 
-  public static class ForEachExampleTest extends TestUtils.ContextTestBase {
+  public static class CompatForEachExampleTest extends TestUtils.ContextTestBase {
     @Test
     public void testExample() {
-      Result result = JUnitCore.runClasses(ForEachExample.class);
+      Result result = JUnitCore.runClasses(CompatForEachExample.class);
       assertThat(result,
           Matchers.allOf(
               TestUtils.<Result, Integer>matcherBuilder()

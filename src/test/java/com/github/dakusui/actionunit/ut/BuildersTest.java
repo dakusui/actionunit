@@ -44,7 +44,7 @@ public class BuildersTest implements UtContext {
     return ActionGenerator.<E>of(valueHolder -> context -> operation.create(context, valueHolder));
   }
 
-  public static class ForEachTest implements UtContext {
+  public static class CompatForEachTest implements UtContext {
     @Test
     public void givenA_B_and_C$whenRunForEachSequentially$thenWorksFine() {
       Action action = forEachOf("A", "B", "C")

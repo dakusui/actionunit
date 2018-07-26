@@ -143,10 +143,10 @@ public interface Context {
    *               builder will build.
    * @param <E>    Type of elements
    * @return Created builder
-   * @see ForEach
-   * @see ForEach.Builder
+   * @see CompatForEach
+   * @see CompatForEach.Builder
    */
-  default <E> ForEach.Builder<E> forEachOf(Supplier<Stream<E>> stream) {
+  default <E> CompatForEach.Builder<E> forEachOf(Supplier<Stream<E>> stream) {
     return Internal.forEachOf(generateId(), stream);
   }
 
@@ -157,10 +157,10 @@ public interface Context {
    *                 builder will build.
    * @param <E>      Type of elements
    * @return Created builder
-   * @see ForEach
-   * @see ForEach.Builder
+   * @see CompatForEach
+   * @see CompatForEach.Builder
    */
-  default <E> ForEach.Builder<E> forEachOf(Iterable<E> elements) {
+  default <E> CompatForEach.Builder<E> forEachOf(Iterable<E> elements) {
     return Internal.forEachOf(generateId(), elements);
   }
 
@@ -172,11 +172,11 @@ public interface Context {
    *                 builder will build.
    * @param <E>      Type of elements
    * @return Created builder
-   * @see ForEach
-   * @see ForEach.Builder
+   * @see CompatForEach
+   * @see CompatForEach.Builder
    */
   @SuppressWarnings("unchecked")
-  default <E> ForEach.Builder<E> forEachOf(E... elements) {
+  default <E> CompatForEach.Builder<E> forEachOf(E... elements) {
     return Internal.forEachOf(generateId(), elements);
   }
 
@@ -427,16 +427,16 @@ public interface Context {
       };
     }
 
-    public static <E> ForEach.Builder<E> forEachOf(int id, Supplier<Stream<E>> streamSupplier) {
-      return ForEach.builder(id, streamSupplier);
+    public static <E> CompatForEach.Builder<E> forEachOf(int id, Supplier<Stream<E>> streamSupplier) {
+      return CompatForEach.builder(id, streamSupplier);
     }
 
-    public static <E> ForEach.Builder<E> forEachOf(int id, Iterable<E> elements) {
+    public static <E> CompatForEach.Builder<E> forEachOf(int id, Iterable<E> elements) {
       return forEachOf(id, () -> StreamSupport.stream(elements.spliterator(), false));
     }
 
     @SafeVarargs
-    public static <E> ForEach.Builder<E> forEachOf(int id, E... elements) {
+    public static <E> CompatForEach.Builder<E> forEachOf(int id, E... elements) {
       return forEachOf(id, asList(elements));
     }
 

@@ -22,8 +22,8 @@ public abstract class ActionScanner extends ActionWalker {
   }
 
   @Override
-  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
-    return (ForEach<T> a) -> a.createHandler(a.defaultValue()).accept(this);
+  protected <T> Consumer<CompatForEach<T>> forEachActionConsumer() {
+    return (CompatForEach<T> a) -> a.createHandler(a.defaultValue()).accept(this);
   }
 
   @Override

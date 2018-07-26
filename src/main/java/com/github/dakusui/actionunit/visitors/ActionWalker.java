@@ -67,7 +67,7 @@ abstract class ActionWalker implements Action.Visitor {
    * {@inheritDoc}
    */
   @Override
-  public <T> void visit(ForEach<T> action) {
+  public <T> void visit(CompatForEach<T> action) {
     handle(
         action,
         forEachActionConsumer()
@@ -154,7 +154,7 @@ abstract class ActionWalker implements Action.Visitor {
 
   protected abstract Consumer<Concurrent> concurrentActionConsumer();
 
-  protected abstract <T> Consumer<ForEach<T>> forEachActionConsumer();
+  protected abstract <T> Consumer<CompatForEach<T>> forEachActionConsumer();
 
   protected abstract <T> Consumer<While<T>> whileActionConsumer();
 

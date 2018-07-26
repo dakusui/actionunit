@@ -135,7 +135,7 @@ public class ReportingActionPerformerTest implements UtContext {
     }
   }
 
-  public static class ForEachAction extends Base {
+  public static class CompatForEachAction extends Base {
     @Test
     public void givenPassingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
@@ -159,7 +159,7 @@ public class ReportingActionPerformerTest implements UtContext {
       assertThat(
           getWriter(),
           Matchers.allOf(
-              hasItemAt(0, startsWith("[.]0-ForEach (SEQUENTIALLY)")),
+              hasItemAt(0, startsWith("[.]0-CompatForEach (SEQUENTIALLY)")),
               hasItemAt(1, equalTo("  [...]2-Sequential (2 actions)")),
               hasItemAt(2, equalTo("    [...]0-Sink-1")),
               hasItemAt(3, equalTo("    [...]1-Sink-2"))
@@ -189,7 +189,7 @@ public class ReportingActionPerformerTest implements UtContext {
         //Then printed correctly
         //noinspection unchecked
         assertThat(getWriter(), allOf(
-            hasItemAt(0, startsWith("[E]0-ForEach")),
+            hasItemAt(0, startsWith("[E]0-CompatForEach")),
             hasItemAt(1, startsWith("  [E]2-Sequential (2 actions)")),
             hasItemAt(2, startsWith("    [E]0-Sink-1")),
             hasItemAt(3, startsWith("    []1-Sink-2"))

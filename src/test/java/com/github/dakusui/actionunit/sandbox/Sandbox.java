@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.sandbox;
 
 import com.github.dakusui.actionunit.compat.ActionUnit;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.examples.ForEachExample;
+import com.github.dakusui.actionunit.examples.CompatForEachExample;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -25,7 +25,7 @@ public class Sandbox {
   }
 
   @ActionUnit.PerformWith(Test.class)
-  public static Action composeNestedLoop2(ForEachExample self) {
+  public static Action composeNestedLoop2(CompatForEachExample self) {
     class FailedToLookUpServerid extends RuntimeException {
     }
     Function<String, String> lookupServerIdThroughUinventoryApi = String::toUpperCase;
