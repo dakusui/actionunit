@@ -43,10 +43,25 @@ public class ActionPerformer extends ActionWalker {
   }
 
   @Override
-  protected <T> Consumer<CompatForEach<T>> forEachActionConsumer() {
+  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
+    return (ForEach<T> forEach) -> {
+      Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
+      (forEach.getMode() == ForEach.Mode.CONCURRENTLY ?
+          forEach.data().parallel() :
+          forEach.data()).map(ValueHolder::<T>of)
+          .map(forEach::<T>createHandler)
+          .forEach((Action eachChild) -> {
+            branchPath(pathSnapshot);
+            eachChild.accept(ActionPerformer.this);
+          });
+    };
+  }
+
+  @Override
+  protected <T> Consumer<CompatForEach<T>> compatForEachActionConsumer() {
     return (CompatForEach<T> forEach) -> {
       Deque<Node<Action>> pathSnapshot = snapshotCurrentPath();
-      (forEach.getMode() == CompatForEach.Mode.CONCURRENTLY ?
+      (forEach.getMode() == ForEach.Mode.CONCURRENTLY ?
           forEach.data().parallel() :
           forEach.data()).map(ValueHolder::<T>of)
           .map(forEach::<T>createHandler)

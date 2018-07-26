@@ -16,7 +16,7 @@ public interface CompatForEach<T> extends Action {
 
   Action createHandler(ValueHolder<T> data);
 
-  Mode getMode();
+  ForEach.Mode getMode();
 
   ValueHolder<T> defaultValue();
 
@@ -26,9 +26,9 @@ public interface CompatForEach<T> extends Action {
 
   class Builder<E> {
     private final Supplier<Stream<E>> elements;
-    private final int                           id;
-    private       Mode                          mode = Mode.SEQUENTIALLY;
-    private       ValueHolder<E>                defaultValue;
+    private final int                 id;
+    private       ForEach.Mode        mode = ForEach.Mode.SEQUENTIALLY;
+    private       ValueHolder<E>      defaultValue;
 
     Builder(int id, Supplier<Stream<E>> elements) {
       this.id = id;
@@ -42,12 +42,12 @@ public interface CompatForEach<T> extends Action {
     }
 
     public Builder<E> sequentially() {
-      this.mode = Mode.SEQUENTIALLY;
+      this.mode = ForEach.Mode.SEQUENTIALLY;
       return this;
     }
 
     public Builder<E> concurrently() {
-      this.mode = Mode.CONCURRENTLY;
+      this.mode = ForEach.Mode.CONCURRENTLY;
       return this;
     }
 
@@ -65,18 +65,13 @@ public interface CompatForEach<T> extends Action {
     }
   }
 
-  enum Mode {
-    SEQUENTIALLY,
-    CONCURRENTLY
-  }
-
   class Impl<T> extends ActionBase implements CompatForEach<T> {
-    private final ActionGenerator<T>            handlerFactory;
+    private final ActionGenerator<T>  handlerFactory;
     private final Supplier<Stream<T>> data;
-    private final Mode                          mode;
-    private final ValueHolder<T>                defaultValue;
+    private final ForEach.Mode        mode;
+    private final ValueHolder<T>      defaultValue;
 
-    protected Impl(int id, ActionGenerator<T> handlerFactory, Supplier<Stream<T>> data, Mode mode, ValueHolder<T> defaultValue) {
+    protected Impl(int id, ActionGenerator<T> handlerFactory, Supplier<Stream<T>> data, ForEach.Mode mode, ValueHolder<T> defaultValue) {
       super(id);
       requireNonNull(handlerFactory);
       this.handlerFactory = handlerFactory;
@@ -96,7 +91,7 @@ public interface CompatForEach<T> extends Action {
     }
 
     @Override
-    public Mode getMode() {
+    public ForEach.Mode getMode() {
       return this.mode;
     }
 

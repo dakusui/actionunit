@@ -70,7 +70,7 @@ abstract class ActionWalker implements Action.Visitor {
   public <T> void visit(CompatForEach<T> action) {
     handle(
         action,
-        forEachActionConsumer()
+        compatForEachActionConsumer()
     );
   }
 
@@ -154,7 +154,9 @@ abstract class ActionWalker implements Action.Visitor {
 
   protected abstract Consumer<Concurrent> concurrentActionConsumer();
 
-  protected abstract <T> Consumer<CompatForEach<T>> forEachActionConsumer();
+  protected abstract <T> Consumer<ForEach<T>> forEachActionConsumer();
+
+  protected abstract <T> Consumer<CompatForEach<T>> compatForEachActionConsumer();
 
   protected abstract <T> Consumer<While<T>> whileActionConsumer();
 

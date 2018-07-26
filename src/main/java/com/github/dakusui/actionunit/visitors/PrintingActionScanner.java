@@ -1,11 +1,13 @@
 package com.github.dakusui.actionunit.visitors;
 
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.helpers.Utils;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
@@ -15,6 +17,11 @@ public class PrintingActionScanner extends ActionScanner {
 
   public PrintingActionScanner(Writer writer) {
     this.writer = Objects.requireNonNull(writer);
+  }
+
+  @Override
+  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

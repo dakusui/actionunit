@@ -1,9 +1,11 @@
 package com.github.dakusui.actionunit.visitors.reporting;
 
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.visitors.ActionScanner;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class ActionTreeBuilder extends ActionScanner implements Action.Visitor {
   public static Node<Action> traverse(Action action) {
@@ -13,6 +15,11 @@ public class ActionTreeBuilder extends ActionScanner implements Action.Visitor {
   }
 
   private ActionTreeBuilder() {
+  }
+
+  @Override
+  protected <T> Consumer<ForEach<T>> forEachActionConsumer() {
+    throw new UnsupportedOperationException();
   }
 
   @SuppressWarnings("unchecked")

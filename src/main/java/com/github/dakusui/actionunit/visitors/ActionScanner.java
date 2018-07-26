@@ -22,7 +22,7 @@ public abstract class ActionScanner extends ActionWalker {
   }
 
   @Override
-  protected <T> Consumer<CompatForEach<T>> forEachActionConsumer() {
+  protected <T> Consumer<CompatForEach<T>> compatForEachActionConsumer() {
     return (CompatForEach<T> a) -> a.createHandler(a.defaultValue()).accept(this);
   }
 
