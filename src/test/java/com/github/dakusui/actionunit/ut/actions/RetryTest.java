@@ -25,7 +25,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class RetryTest extends TestUtils.TestBase implements Context {
+public class RetryTest extends TestUtils.ContextTestBase implements Context {
   @Rule
   public TestName testName = new TestName();
 

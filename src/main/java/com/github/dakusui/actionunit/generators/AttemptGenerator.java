@@ -10,6 +10,30 @@ import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
 
 public interface AttemptGenerator<I> extends ActionGenerator<I> {
+
+  ActionGenerator<Throwable> RETHROW_EXCEPTION = ActionGenerator.of(
+      throwable -> (Function<Context, Action>) context ->
+          context.simple("handle",
+              new Runnable() {
+                @Override
+                public void run() {
+                  throw wrap(throwable.get());
+                }
+
+                private ActionException wrap(Throwable t) {
+                  if (t.getCause() == null) {
+                    if (t instanceof Error)
+                      throw (Error) t;
+                    if (t instanceof RuntimeException)
+                      throw (RuntimeException) t;
+                    throw new ActionException(t);
+                  }
+                  throw wrap(t.getCause());
+                }
+              }
+          )
+  );
+
   AttemptGenerator<I> recover(
       Class<? extends Throwable> exceptionClass,
       ActionGenerator<Throwable> recoverBy
@@ -20,16 +44,7 @@ public interface AttemptGenerator<I> extends ActionGenerator<I> {
   class Impl<I> implements AttemptGenerator<I> {
     final ActionGenerator<I> target;
     Class<? extends Throwable>           exceptionClass   = Throwable.class;
-    ActionGenerator<? extends Throwable> exceptionHandler = ActionGenerator.of(
-        throwable -> context -> {
-          Throwable t = throwable.get();
-          if (t instanceof Error)
-            throw (Error) t;
-          if (t instanceof RuntimeException)
-            throw (RuntimeException) t;
-          throw new ActionException(t);
-        }
-    );
+    ActionGenerator<? extends Throwable> exceptionHandler = RETHROW_EXCEPTION;
     ActionGenerator<?>                   ensured;
 
     public Impl(ActionGenerator<I> target) {
@@ -51,6 +66,7 @@ public interface AttemptGenerator<I> extends ActionGenerator<I> {
       return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Function<Context, Action> apply(ValueHolder<I> valueHolder) {
       return context -> context.attempt(

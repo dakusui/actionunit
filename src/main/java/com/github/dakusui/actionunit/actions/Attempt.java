@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.generators.ActionGenerator;
+import com.github.dakusui.actionunit.generators.AttemptGenerator;
 import com.github.dakusui.actionunit.helpers.Checks;
 
 import java.util.Objects;
@@ -25,7 +26,7 @@ public interface Attempt<E extends Throwable> extends Action {
     private final int                id;
     @SuppressWarnings("unchecked")
     private       Class<? extends E> exceptionClass                   = (Class<? extends E>) Exception.class;
-    private       ActionGenerator<E> exceptionHandlingActionGenerator = null;
+    private       ActionGenerator<E> exceptionHandlingActionGenerator =  (ActionGenerator<E>) AttemptGenerator.RETHROW_EXCEPTION;
     private       ActionGenerator<?> ensuredActionGenerator           = ActionGenerator.of(v -> Context::nop);
 
     public Builder(int id, Action attempt) {

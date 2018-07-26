@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(Enclosed.class)
 public class ExamplesTest {
-  public static class BasicTest extends TestUtils.TestBase {
+  public static class BasicTest extends TestUtils.ContextTestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(Basic.class);
@@ -23,7 +23,7 @@ public class ExamplesTest {
     }
   }
 
-  public static class NameOfActionTest extends TestUtils.TestBase {
+  public static class NameOfActionTest extends TestUtils.ContextTestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(NameOfAction.class);
@@ -34,7 +34,7 @@ public class ExamplesTest {
   }
 
 
-  public static class ForEachExampleTest extends TestUtils.TestBase {
+  public static class ForEachExampleTest extends TestUtils.ContextTestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(ForEachExample.class);
@@ -53,7 +53,7 @@ public class ExamplesTest {
     }
   }
 
-  public static class WhileExampleTest extends TestUtils.TestBase {
+  public static class WhileExampleTest extends TestUtils.ContextTestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(WhileExample.class);
@@ -63,7 +63,7 @@ public class ExamplesTest {
     }
   }
 
-  public static class LoopWithRetryExampleTest extends TestUtils.TestBase {
+  public static class LoopWithRetryExampleTest extends TestUtils.ContextTestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(PracticalExample.class);

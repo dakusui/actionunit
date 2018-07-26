@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
 
 @RunWith(ActionUnit.class)
-public class WhileExample extends TestUtils.TestBase implements Context {
+public class WhileExample extends TestUtils.ContextTestBase implements Context {
   @ActionUnit.PerformWith(Test.class)
   public Action composeWhileLoop() {
     /*

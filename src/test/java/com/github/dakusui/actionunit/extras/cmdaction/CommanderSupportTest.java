@@ -2,12 +2,13 @@ package com.github.dakusui.actionunit.extras.cmdaction;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.extras.cmd.Commander.commander;
 import static java.util.Arrays.asList;
 
-public class CommanderSupportTest {
+public class CommanderSupportTest extends TestUtils.ContextTestBase {
   Context context = new Context.Impl();
 
   @Test

@@ -15,7 +15,7 @@ import static com.github.dakusui.crest.Crest.asListOf;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static java.util.Arrays.asList;
 
-public class WhenTest extends TestUtils.TestBase implements Context {
+public class WhenTest extends TestUtils.ContextTestBase implements Context {
   @Test
   public void test() {
     Action action = forEachOf(

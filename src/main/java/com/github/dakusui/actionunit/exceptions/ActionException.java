@@ -10,14 +10,13 @@ import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
  */
 public class ActionException extends RuntimeException {
   enum Mapping implements ExceptionMapping<ActionException> {
-    @SuppressWarnings("unused")IO(IOException.class),
-    @SuppressWarnings("unused")CLASS_CAST(ClassCastException.class),
-    @SuppressWarnings("unused")ILLEGAL_ACCESS(IllegalAccessException.class),
-    @SuppressWarnings("unused")TIMEOUT(TimeoutException.class),
-    @SuppressWarnings("unused")INTERRUPTED(InterruptedException.class),
-    @SuppressWarnings("unused")RUNTIME(RuntimeException.class),
-    @SuppressWarnings("unused")NOSUCHMETHOD(NoSuchMethodException.class)
-    ;
+    @SuppressWarnings("unused") IO(IOException.class),
+    @SuppressWarnings("unused") CLASS_CAST(ClassCastException.class),
+    @SuppressWarnings("unused") ILLEGAL_ACCESS(IllegalAccessException.class),
+    @SuppressWarnings("unused") TIMEOUT(TimeoutException.class),
+    @SuppressWarnings("unused") INTERRUPTED(InterruptedException.class),
+    @SuppressWarnings("unused") RUNTIME(RuntimeException.class),
+    @SuppressWarnings("unused") NOSUCHMETHOD(NoSuchMethodException.class);
 
     private final Class<? extends Throwable>       from;
     private final Class<? extends ActionException> to;

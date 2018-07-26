@@ -331,12 +331,9 @@ public class CompatActionSupportTest {
   public void retryTest$failForever() {
     final List<String> arr = new ArrayList<>();
     retry(
-        simple("", new Runnable() {
-          @Override
-          public void run() {
-            arr.add("Hello");
-            throw new ActionException("fail");
-          }
+        simple("", () -> {
+          arr.add("Hello");
+          throw new ActionException("fail");
         })
     ).times(
         1

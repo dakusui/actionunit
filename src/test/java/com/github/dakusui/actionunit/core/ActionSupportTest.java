@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.generators.ActionGenerator;
 import com.github.dakusui.actionunit.generators.StringGenerator;
+import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -27,7 +28,7 @@ public class ActionSupportTest {
     }
   }
 
-  public static class AttemptTest {
+  public static class AttemptTest extends TestUtils.TestBase {
     @Test
     public void attemptTest1() {
       run(
@@ -52,9 +53,42 @@ public class ActionSupportTest {
           )
       );
     }
+
+    @Test
+    public void attemptTest3() {
+      run(
+          forEach(() -> Stream.of("Hello", "World")).perform(
+              ActionSupport.<String>attempt(
+                  i -> c -> c.simple("attempt", new Runnable() {
+                    @Override
+                    public void run() {
+                      System.out.println("attempt:" + i.get());
+                      throw new ActionException("exception");
+                    }
+                  })
+              ).recover(
+                  ActionException.class,
+                  i -> c -> c.simple("recover", new Runnable() {
+                    @Override
+                    public void run() {
+                      System.out.println("attempt:" + i.get());
+                    }
+                  })
+              ).ensure(
+                  i -> c -> c.simple("ensure", new Runnable() {
+                    @Override
+                    public void run() {
+                      System.out.println("ensure:" + i.get());
+                    }
+                  })
+              )
+          )
+      );
+    }
+
   }
 
-  public static class Example {
+  public static class Example extends TestUtils.TestBase {
     @Test
     public void main() {
       run(

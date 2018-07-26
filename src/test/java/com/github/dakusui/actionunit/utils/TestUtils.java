@@ -280,16 +280,9 @@ public class TestUtils {
     }
   }
 
-  /**
-   * A base class for tests which writes to stdout/stderr.
-   */
-  public static class TestBase implements UtContext {
+  public static class TestBase {
     PrintStream stdout = System.out;
     PrintStream stderr = System.err;
-
-    final public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
 
     @Before
     public void suppressStdOutErr() {
@@ -311,6 +304,15 @@ public class TestUtils {
     public void restoreStdOutErr() {
       System.setOut(stdout);
       System.setOut(stderr);
+    }
+  }
+
+  /**
+   * A base class for tests which writes to stdout/stderr.
+   */
+  public static class ContextTestBase extends TestBase implements UtContext {
+    final public AtomicInteger idGenerator() {
+      return ID_GENERATOR_MANAGER.idGenerator(this);
     }
   }
 
@@ -365,7 +367,6 @@ public class TestUtils {
       return new MatcherBuilder<T, T>()
           .transform("passthrough", t -> t);
     }
-
   }
 
   public static <I, O> Function<I, O> memoize(Function<I, O> function) {

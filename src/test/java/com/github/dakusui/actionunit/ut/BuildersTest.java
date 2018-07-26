@@ -122,5 +122,22 @@ public class BuildersTest implements UtContext {
         action.accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.OUT));
       }
     }
+
+
+    @Test(expected = IllegalStateException.class)
+    public void given$when$then2() {
+      Action action = this.attempt(
+          this.simple("throw IllegalStateException", () -> {
+            throw new IllegalStateException();
+          })
+      ).ensure(
+          v -> ($) -> $.simple("Say 'bye'", () -> System.out.println("Bye"))
+      );
+      try {
+        action.accept(TestUtils.createActionPerformer());
+      } finally {
+        action.accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(Writer.Std.OUT));
+      }
+    }
   }
 }

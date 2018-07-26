@@ -20,7 +20,7 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @RunWith(ActionUnit.class)
-public class ForEachExample extends TestUtils.TestBase implements Context {
+public class ForEachExample extends TestUtils.ContextTestBase implements Context {
   @PerformWith(Test.class)
   public Action composeSingleLoop() {
     return forEachOf(

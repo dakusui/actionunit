@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class ActionPrinterTest implements UtContext {
-  private static class ActionComposer extends TestUtils.TestBase implements Context {
+  private static class ActionComposer extends TestUtils.ContextTestBase implements Context {
     Action composeAction() {
       return named("Concurrent (top level)",
           concurrent(
@@ -119,7 +119,7 @@ public class ActionPrinterTest implements UtContext {
     }
   }
 
-  public static class WithResultTest extends TestUtils.TestBase implements Context {
+  public static class WithResultTest extends TestUtils.ContextTestBase implements Context {
     private Action composeAction(final List<String> out) {
       //noinspection unchecked
       return named("Concurrent (top level)", concurrent(
@@ -206,7 +206,7 @@ public class ActionPrinterTest implements UtContext {
     }
   }
 
-  public static class WithResultVariationTest extends TestUtils.TestBase implements Context {
+  public static class WithResultVariationTest extends TestUtils.ContextTestBase implements Context {
     @Test
     public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
       final TestUtils.Out out1 = new TestUtils.Out();
