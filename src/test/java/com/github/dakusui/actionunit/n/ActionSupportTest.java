@@ -141,4 +141,10 @@ public class ActionSupportTest extends TestUtils.TestBase {
     action.accept(ActionPerformer.create());
   }
 
+  @Test
+  public void givenCmd$when$then() {
+    Action action = cmd("/bin/echo").addq("hello").build();
+
+    action.accept(ActionPerformer.create());
+  }
 }

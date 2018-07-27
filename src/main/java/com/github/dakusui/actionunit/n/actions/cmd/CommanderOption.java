@@ -1,6 +1,4 @@
-package com.github.dakusui.actionunit.extras.cmd;
-
-import com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils;
+package com.github.dakusui.actionunit.n.actions.cmd;
 
 public interface CommanderOption {
   String longFormat();

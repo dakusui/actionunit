@@ -28,7 +28,7 @@ public interface Retry extends Action {
     private final Action                     perform;
     private       int                        times                = 2;
     private       Class<? extends Throwable> targetExceptionClass = Exception.class;
-    private       int                        interval             = 10;
+    private       long                       interval             = 10;
     private       TimeUnit                   timeUnit             = SECONDS;
 
     public Builder(Action perform) {
@@ -46,7 +46,7 @@ public interface Retry extends Action {
       return this;
     }
 
-    public Builder withIntervalOf(int interval, TimeUnit timeUnit) {
+    public Builder withIntervalOf(long interval, TimeUnit timeUnit) {
       this.interval = requireArgument(v -> v > 0, interval);
       this.timeUnit = requireNonNull(timeUnit);
       return this;

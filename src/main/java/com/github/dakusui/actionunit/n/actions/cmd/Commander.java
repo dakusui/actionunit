@@ -1,10 +1,9 @@
-package com.github.dakusui.actionunit.extras.cmd;
+package com.github.dakusui.actionunit.n.actions.cmd;
 
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.helpers.Checks;
-import com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.utils.ActionSupport;
 import com.github.dakusui.cmd.Cmd;
 import com.github.dakusui.cmd.Shell;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
@@ -18,14 +17,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
 import static com.github.dakusui.actionunit.helpers.Checks.*;
+import static com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
 import static java.util.Objects.requireNonNull;
 
 /**
  * COMMAND action buildER class for ActionUnit style.
  *
- * @param <B> The class itself you implement by extending this class.
+ * @param <B> The class you implement by extending this class.
  */
 public abstract class Commander<B extends Commander<B>> implements Cloneable {
   private final int            summaryLength;
@@ -35,7 +34,6 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
   private static final Consumer<String> DEFAULT_STDERR_CONSUMER = System.err::println;
   List<Supplier<String>> options;
   private       Cmd.Builder                cmdBuilder;
-  private final Context                    context;
   private       int                        numRetries;
   private       String                     description;
   private       long                       retryIntervalDuration;
@@ -51,13 +49,12 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
    * This is a helper method to create a {@code Commander} object for a given
    * {@code command} without defining a custom class.
    *
-   * @param context A context to create an action.
    * @param command A command for which the returned builder works.
    * @return A new {@code Commander} object.
    */
   @SuppressWarnings("unchecked")
-  public static Commander<?> commander(Context context, String command) {
-    return new Commander(context) {
+  public static Commander<?> commander(String command) {
+    return new Commander() {
       @Override
       protected String program() {
         return command;
@@ -67,11 +64,8 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
 
   /**
    * Creates an instance of this class.
-   *
-   * @param context A context from which this builder object creates an action.
    */
-  public Commander(Context context) {
-    this.context = requireNonNull(context);
+  public Commander() {
     this.summaryLength = 60;
     this.options = new LinkedList<>();
     this.cmdBuilder = Cmd.builder()
@@ -196,7 +190,7 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
 
   private Action readFrom(Stream<String> in) {
     return numRetries > 0 ?
-        this.context.retry(
+        ActionSupport.retry(
             this.timeOutIfNecessary(composeAction(in))
         ).on(
             this.retryOn
@@ -347,26 +341,27 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
   protected abstract String program();
 
   private Action timeOutIfNecessary(Action action) {
-    return this.timeOutDuration > 0 ?
-        this.context.timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit) :
-        action;
+    return this.timeOutDuration > 0
+        ? ActionSupport.timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit).$()
+        : action;
   }
 
   private Action composeAction(Stream<String> in) {
     Cmd cmd = composeCmd();
-    return this.context.simple(
+    return ActionSupport.named(
         description().orElse(CommanderUtils.summarize(cmd.getCommand().toString(), summaryLength)),
-        () -> {
-          Cmd internalCmd = cmd;
-          if (!cmd.getState().equals(Cmd.State.PREPARING)) {
-            // re-build is required to reset status in Cmd. this action is possible to be repeated when retry.
-            internalCmd = composeCmd();
-          }
-          if (in != null)
-            internalCmd.readFrom(in);
-          internalCmd.stream().forEach(s -> {
-          });
-        }
+        ActionSupport.leaf(
+            (context) -> {
+              Cmd internalCmd = cmd;
+              if (!cmd.getState().equals(Cmd.State.PREPARING)) {
+                // re-build is required to reset status in Cmd. this action is possible to be repeated when retry.
+                internalCmd = composeCmd();
+              }
+              if (in != null)
+                internalCmd.readFrom(in);
+              internalCmd.stream().forEach(s -> {
+              });
+            })
     );
   }
 
