@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.generators.ActionGenerator;
 import com.github.dakusui.actionunit.generators.StringGenerator;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -54,6 +55,7 @@ public class ActionSupportTest {
       );
     }
 
+    @Ignore
     @Test
     public void attemptTest3() {
       run(

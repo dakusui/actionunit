@@ -417,7 +417,7 @@ public interface Context {
       return new Leaf(id) {
         @Override
         public void perform() {
-          InternalUtils.sleep(duration, timeUnit);
+          com.github.dakusui.actionunit.n.utils.InternalUtils.sleep(duration, timeUnit);
         }
 
         @Override

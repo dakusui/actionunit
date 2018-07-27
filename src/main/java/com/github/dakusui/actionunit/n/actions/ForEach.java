@@ -1,10 +1,10 @@
-package com.github.dakusui.actionunit.n;
+package com.github.dakusui.actionunit.n.actions;
+
+import com.github.dakusui.actionunit.n.core.Action;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.n.Actions.attempt;
-import static com.github.dakusui.actionunit.n.Actions.forEach;
 import static java.util.Objects.requireNonNull;
 
 public interface ForEach<E> extends Action {
@@ -20,10 +20,10 @@ public interface ForEach<E> extends Action {
     visitor.visit(this);
   }
 
-  class Builder<E> {
+  class Builder<E> extends Action.Builder<ForEach<E>> {
     private final Supplier<Stream<E>> dataSupplier;
     private final String              loopVariableName;
-    private       Action              perform = Actions.nop();
+    private       Action              perform = Leaf.NOP;
     private       boolean             parallel;
 
     public Builder(String loopVariableName, Supplier<Stream<E>> dataSupplier) {
@@ -69,17 +69,6 @@ public interface ForEach<E> extends Action {
           return Builder.this.parallel;
         }
       };
-    }
-
-    /**
-     * A synonym of {@code build()} method. This method is defined not to use a
-     * method name 'build', which introduces extra word not relating to what is
-     * being achieved.
-     *
-     * @return An object built by {@code build} method.
-     */
-    public ForEach<E> $() {
-      return build();
     }
   }
 

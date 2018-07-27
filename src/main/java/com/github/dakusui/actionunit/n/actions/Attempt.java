@@ -1,6 +1,7 @@
-package com.github.dakusui.actionunit.n;
+package com.github.dakusui.actionunit.n.actions;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.core.Action;
 
 import static com.github.dakusui.actionunit.helpers.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
@@ -19,18 +20,16 @@ public interface Attempt extends Action {
 
   Class<? extends Throwable> targetExceptionClass();
 
-  class Builder {
+  class Builder extends Action.Builder<Attempt> {
     private       Class<? extends Throwable> targetExceptionClass = Exception.class;
     private final Action                     perform;
-    private       Action                     recover              = Leaf.create(context -> () -> {
-      if (context.thrownException().isPresent()) {
-        Throwable exception = context.thrownException().get();
-        if (exception instanceof RuntimeException)
-          throw (RuntimeException) exception;
-        throw new ActionException(exception);
-      }
-    });
-    private       Action                     ensure               = Actions.nop();
+    private       Action                     recover              = Leaf.of(
+        $ -> {
+          if ($.thrownException().isPresent()) {
+            throw ActionException.wrap($.thrownException().get());
+          }
+        });
+    private       Action                     ensure               = Leaf.NOP;
 
     public Builder(Action perform) {
       this.perform = requireNonNull(perform);
@@ -50,7 +49,7 @@ public interface Attempt extends Action {
       return this;
     }
 
-    Attempt build() {
+    public Attempt build() {
       return new Attempt() {
 
         @Override
@@ -72,10 +71,6 @@ public interface Attempt extends Action {
           return ensure;
         }
       };
-    }
-
-    Attempt $() {
-      return build();
     }
   }
 }

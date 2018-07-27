@@ -49,7 +49,7 @@ public class TimeOut extends ActionBase {
     super(id);
     // This check is still necessary because the value can overflow.
     checkArgument(timeoutInNanos > 0,
-        "Timeout duration must be positive  but %d was given",
+        "TimeOut duration must be positive  but %d was given",
         timeoutInNanos
     );
     this.durationInNanos = timeoutInNanos;

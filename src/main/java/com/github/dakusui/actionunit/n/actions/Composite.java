@@ -1,4 +1,6 @@
-package com.github.dakusui.actionunit.n;
+package com.github.dakusui.actionunit.n.actions;
+
+import com.github.dakusui.actionunit.n.core.Action;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,15 +35,6 @@ public interface Composite extends Action {
     public Composite build() {
       return new Base(actions, parallel);
     }
-  }
-
-  static void main(String... args) {
-    Action action = Actions.sequential(
-        Leaf.of(() -> System.out.println("hello")),
-        Leaf.of(() -> System.out.println("world"))
-    );
-
-    action.accept(new Visitor.Performer());
   }
 
   final class Base implements Composite {

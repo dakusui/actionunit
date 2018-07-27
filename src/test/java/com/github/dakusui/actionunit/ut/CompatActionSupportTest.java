@@ -7,6 +7,7 @@ import com.github.dakusui.actionunit.generators.ActionGenerator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.Abort;
 import com.github.dakusui.actionunit.utils.TestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -301,6 +302,7 @@ public class CompatActionSupportTest {
     assertThat(out, hasSize(1));
   }
 
+  @Ignore
   @Test(expected = IOException.class)
   public void givenRetryAction$whenAbortException2$thenAbortedAndRootExceptionStoredProperly() throws Throwable {
     final TestUtils.Out out = new TestUtils.Out();

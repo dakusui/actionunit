@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
+import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

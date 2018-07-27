@@ -16,7 +16,7 @@ public class Retry extends ActionBase {
    * A constant that represents an instance of this class should be repeated infinitely.
    */
   public static final int INFINITE = -1;
-  public final  Action                     action;
+  public final Action action;
   public final  int                        times;
   public final  long                       intervalInNanos;
   private final Class<? extends Throwable> targetExceptionClass;

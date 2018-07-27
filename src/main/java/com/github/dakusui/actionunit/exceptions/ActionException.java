@@ -13,10 +13,10 @@ public class ActionException extends RuntimeException {
     @SuppressWarnings("unused") IO(IOException.class),
     @SuppressWarnings("unused") CLASS_CAST(ClassCastException.class),
     @SuppressWarnings("unused") ILLEGAL_ACCESS(IllegalAccessException.class),
-    @SuppressWarnings("unused") TIMEOUT(TimeoutException.class),
+    @SuppressWarnings("unused") TIMEOUT(TimeoutException.class, ActionTimeOutException.class),
     @SuppressWarnings("unused") INTERRUPTED(InterruptedException.class),
     @SuppressWarnings("unused") RUNTIME(RuntimeException.class),
-    @SuppressWarnings("unused") NOSUCHMETHOD(NoSuchMethodException.class);
+    @SuppressWarnings("unused") NOSUCHMETHOD(NoSuchMethodException.class),;
 
     private final Class<? extends Throwable>       from;
     private final Class<? extends ActionException> to;
@@ -76,12 +76,16 @@ public class ActionException extends RuntimeException {
 
 
   public static <T extends ActionException> T wrap(Throwable t) {
-    if (t instanceof Error) {
-      throw (Error) t;
+    if (t.getCause() == null) {
+      if (t instanceof Error) {
+        throw (Error) t;
+      }
+      if (t instanceof RuntimeException) {
+        throw (RuntimeException) t;
+      }
+      throw RESOLVER.resolve(t);
+    } else {
+      throw wrap(t.getCause());
     }
-    if (t instanceof RuntimeException) {
-      throw (RuntimeException) t;
-    }
-    throw RESOLVER.resolve(t);
   }
 }

@@ -14,22 +14,8 @@ public interface AttemptGenerator<I> extends ActionGenerator<I> {
   ActionGenerator<Throwable> RETHROW_EXCEPTION = ActionGenerator.of(
       throwable -> (Function<Context, Action>) context ->
           context.simple("handle",
-              new Runnable() {
-                @Override
-                public void run() {
-                  throw wrap(throwable.get());
-                }
-
-                private ActionException wrap(Throwable t) {
-                  if (t.getCause() == null) {
-                    if (t instanceof Error)
-                      throw (Error) t;
-                    if (t instanceof RuntimeException)
-                      throw (RuntimeException) t;
-                    throw new ActionException(t);
-                  }
-                  throw wrap(t.getCause());
-                }
+              () -> {
+                throw ActionException.wrap(throwable.get());
               }
           )
   );
