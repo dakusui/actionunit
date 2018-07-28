@@ -1,8 +1,9 @@
 package com.github.dakusui.actionunit.n.actions.cmd;
 
 
-import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.utils.Checks;
 import com.github.dakusui.cmd.Cmd;
 import com.github.dakusui.cmd.Shell;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
@@ -16,9 +17,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.utils.Checks.*;
 import static com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
 import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.n.utils.Checks.*;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -32,7 +33,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
 
   private static final Consumer<String> DEFAULT_STDOUT_CONSUMER = System.out::println;
   private static final Consumer<String> DEFAULT_STDERR_CONSUMER = System.err::println;
-  List<Supplier<String>> options;
+  List<Function<Context, String>> options;
   private       Cmd.Builder                cmdBuilder;
   private       int                        numRetries;
   private       String                     description;
@@ -168,8 +169,8 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
    *
    * @return A stream for standard output of the command.
    */
-  public Stream<String> toStream() {
-    return composeCmd().stream();
+  public Stream<String> toStream(Context context) {
+    return composeCmd(context).stream();
   }
 
   /**
@@ -177,10 +178,10 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
    * this builder.
    *
    * @return An iterator for standard output of the command.
-   * @see Commander#toStream()
+   * @see Commander#toStream(Context)
    */
-  public Iterable<String> toIterable() {
-    return () -> toStream().iterator();
+  public Iterable<String> toIterable(Context context) {
+    return () -> toStream(context).iterator();
   }
 
   @Override
@@ -202,8 +203,13 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
         timeOutIfNecessary(composeAction(in));
   }
 
-  private Optional<String> description() {
-    return Optional.ofNullable(this.description);
+  private String description() {
+    return CommanderUtils.summarize(
+        this.description != null
+            ? this.description
+            : "(commander)",
+        this.summaryLength
+    );
   }
 
   /**
@@ -214,9 +220,9 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
    */
   public B addq(String option) {
     requireNonNull(option);
-    return this.addq(new Supplier<String>() {
+    return this.addq(new Function<Context, String>() {
       @Override
-      public String get() {
+      public String apply(Context context) {
         return option;
       }
 
@@ -228,24 +234,24 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   }
 
   @SuppressWarnings("unchecked")
-  public B addq(Supplier<String> option) {
+  public B addq(Function<Context, String> option) {
     requireNonNull(option);
-    options.add(new Supplier<String>() {
+    options.add(new Function<Context, String>() {
       @Override
-      public String get() {
-        return quoteWithSingleQuotesForShell(option.get());
+      public String apply(Context context) {
+        return quoteWithSingleQuotesForShell(option.apply(context));
       }
 
       @Override
       public String toString() {
-        return option.toString();
+        return String.format("<%s>", option);
       }
     });
     return (B) this;
   }
 
   @SuppressWarnings("unchecked")
-  public B add(Supplier<String> option) {
+  public B add(Function<Context, String> option) {
     options.add(requireNonNull(option));
     return (B) this;
   }
@@ -253,9 +259,9 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   @SuppressWarnings("unchecked")
   public B add(String option) {
     requireNonNull(option);
-    options.add(new Supplier<String>() {
+    options.add(new Function<Context, String>() {
       @Override
-      public String get() {
+      public String apply(Context context) {
         return option;
       }
 
@@ -329,8 +335,8 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
    *
    * @return A created {@code Cmd} object.
    */
-  public Cmd toCmd() {
-    return composeCmd();
+  public Cmd toCmd(Context context) {
+    return composeCmd(context);
   }
 
   /**
@@ -347,25 +353,16 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   }
 
   private Action composeAction(Stream<String> in) {
-    Cmd cmd = composeCmd();
     return named(
-        description().orElse(CommanderUtils.summarize(cmd.getCommand().toString(), summaryLength)),
+        description(),
         leaf(
-            (context) -> {
-              Cmd internalCmd = cmd;
-              if (!cmd.getState().equals(Cmd.State.PREPARING)) {
-                // re-build is required to reset status in Cmd. this action is possible to be repeated when retry.
-                internalCmd = composeCmd();
-              }
-              if (in != null)
-                internalCmd.readFrom(in);
-              internalCmd.stream().forEach(s -> {
-              });
+            context -> composeCmd(context).readFrom(in).stream().forEach(s -> {
             })
+        )
     );
   }
 
-  private Cmd composeCmd() {
+  private Cmd composeCmd(Context context) {
     cmdBuilder.env(this.env);
     cmdBuilder.command(new Supplier<String>() {
       @Override
@@ -373,7 +370,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
         return String.format(
             "%s %s",
             Commander.this.program(),
-            Commander.this.formatOptions(Supplier::get)
+            Commander.this.formatOptions(option -> option.apply(context))
         );
       }
 
@@ -394,7 +391,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
     return cmdBuilder.build();
   }
 
-  private String formatOptions(Function<Supplier<String>, String> formatter) {
+  private String formatOptions(Function<Function<Context, String>, String> formatter) {
     return this.options.stream()
         .map(formatter)
         .collect(Collectors.joining(" "));

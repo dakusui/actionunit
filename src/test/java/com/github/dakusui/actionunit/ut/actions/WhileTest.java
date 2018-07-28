@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.generators.ActionGenerator;
+import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.generators.ActionGenerator;
 import com.github.dakusui.actionunit.examples.UtContext;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
@@ -12,8 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.utils.Utils.toSupplier;
-import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.compat.utils.Utils.toSupplier;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.junit.MatcherAssert.assertThat;

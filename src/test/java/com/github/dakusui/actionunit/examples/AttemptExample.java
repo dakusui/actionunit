@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.actions.Attempt;
+import com.github.dakusui.actionunit.compat.actions.Attempt;
 import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import org.junit.Test;
 
 import static java.lang.String.format;

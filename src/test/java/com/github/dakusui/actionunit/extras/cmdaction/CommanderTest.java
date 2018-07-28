@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.linux.Echo;
+import com.github.dakusui.actionunit.n.extras.linux.Echo;
 import org.junit.Test;
 
 import java.io.File;
@@ -10,15 +9,15 @@ import java.nio.file.Files;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assume.assumeTrue;
 
 public class CommanderTest extends CommanderTestBase<Echo> {
   @Override
-  protected Echo create(Context context) {
-    return new Echo(context);
+  protected Echo create() {
+    return new Echo();
   }
 
   @Test
@@ -74,7 +73,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
         this.commander
             .noTrailingNewline()
             .enableBackslashInterpretation().addq("hello\\nworld\\n")
-            .toCmd()
+            .toCmd(context)
             .stream()
             .collect(toList()),
         allOf(
@@ -93,7 +92,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
             .disconnectStdin() // to cover disconnectStdin() method
             .disableTimeout() // to cover disableTimeout() method()
             .describe("describing echo hello")
-            .addq(() -> "hello")
+            .addq(context -> "hello")
             .build(),
         asString("toString").equalTo("describing echo hello").$()
     );
@@ -123,7 +122,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
             this.commander
                 .noTrailingNewline()
                 .enableBackslashInterpretation().addq("hello\\nworld\\n")
-                .toIterable()
+                .toIterable(context)
                 .spliterator(),
             false
         ).collect(
@@ -143,7 +142,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
         this.commander
             .noTrailingNewline()
             .enableBackslashInterpretation().addq("hello\\nworld\\n")
-            .toStream()
+            .toStream(context)
             .collect(toList()),
         allOf(
             asInteger("size").eq(2).$(),

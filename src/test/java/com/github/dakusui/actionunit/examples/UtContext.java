@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.compat.core.Context;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

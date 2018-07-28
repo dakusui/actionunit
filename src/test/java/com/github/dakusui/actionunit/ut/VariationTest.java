@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 

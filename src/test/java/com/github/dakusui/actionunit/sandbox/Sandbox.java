@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.sandbox;
 
 import com.github.dakusui.actionunit.compat.ActionUnit;
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.examples.CompatForEachExample;
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.n.utils.Checks.checkNotNull;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 

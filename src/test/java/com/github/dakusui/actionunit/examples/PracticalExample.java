@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.function.Function;

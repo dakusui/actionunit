@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.sandbox.Autocloseables.autocloseable;
-import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;

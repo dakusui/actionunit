@@ -1,16 +1,16 @@
 package com.github.dakusui.actionunit.extras.cmdaction.linux;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.linux.Mkdir;
 import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.extras.linux.Mkdir;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.simple;
 import static com.github.dakusui.crest.Crest.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -23,18 +23,18 @@ public class MkdirTest extends FsTestBase<Mkdir> {
   @Test
   public void mkdir() {
     perform(
-        context.sequential(
+        sequential(
             commander.dir("hello").recursive().build(),
-            checkDirectoryExists(targetDir("hello")).apply(context)
+            checkDirectoryExists(targetDir("hello"))
         ));
   }
 
   @Test
   public void mkdirWithFile() {
     perform(
-        context.sequential(
+        sequential(
             commander.dir(new File(this.dir, "hello")).recursive().build(),
-            checkDirectoryExists(targetDir("hello")).apply(context)
+            checkDirectoryExists(targetDir("hello"))
         ));
   }
 
@@ -42,9 +42,9 @@ public class MkdirTest extends FsTestBase<Mkdir> {
   public void mkdirP() {
     assumeTrue(isRunUnderLinux());
     perform(
-        context.sequential(
+        sequential(
             commander.cwd(this.dir).dir("hello/world").recursive().build(),
-            checkDirectoryExists(targetDir("hello/world")).apply(context)
+            checkDirectoryExists(targetDir("hello/world"))
         ));
   }
 
@@ -52,10 +52,10 @@ public class MkdirTest extends FsTestBase<Mkdir> {
     return new File(dir.getAbsolutePath() + "/" + "hello");
   }
 
-  private Function<Context, Action> checkDirectoryExists(File file) {
-    return context -> context.simple(
+  private Action checkDirectoryExists(File file) {
+    return simple(
         String.format("Check if a directory %s/ exists", file.getAbsolutePath()),
-        () -> assertThat(
+        (c) -> assertThat(
             file,
             allOf(
                 asBoolean("exists").isTrue().$(),
@@ -66,8 +66,8 @@ public class MkdirTest extends FsTestBase<Mkdir> {
   }
 
   @Override
-  protected Mkdir create(Context context) {
-    return new Mkdir(context);
+  protected Mkdir create() {
+    return new Mkdir();
   }
 
 }

@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.n.core.Action;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static com.github.dakusui.actionunit.n.utils.Checks.requireArgument;
 import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatDuration;
 import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatNumberOfTimes;
 import static java.util.Objects.requireNonNull;

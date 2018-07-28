@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.compat.core.Context;
+import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

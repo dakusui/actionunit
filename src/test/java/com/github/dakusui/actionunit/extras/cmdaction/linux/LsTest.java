@@ -1,15 +1,15 @@
 package com.github.dakusui.actionunit.extras.cmdaction.linux;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.linux.Ls;
-import com.github.dakusui.actionunit.extras.cmd.linux.Touch;
 import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.extras.linux.Ls;
+import com.github.dakusui.actionunit.n.extras.linux.Touch;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.n.core.ActionSupport.named;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.sequential;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 
@@ -19,13 +19,13 @@ public class LsTest extends FsTestBase<Ls> {
   }
 
   @Override
-  protected Function<Context, Action> preparation() {
-    return (Context $) -> $.named(
+  protected Action preparation() {
+    return named(
         "prepare test file",
-        $.sequential(
-            new Touch($).cwd(dir).add("a").build(),
-            new Touch($).cwd(dir).add("b").build(),
-            new Touch($).cwd(dir).add("c").build()
+        sequential(
+            new Touch().cwd(dir).add("a").build(),
+            new Touch().cwd(dir).add("b").build(),
+            new Touch().cwd(dir).add("c").build()
         ));
   }
 
@@ -104,7 +104,7 @@ public class LsTest extends FsTestBase<Ls> {
   }
 
   @Override
-  protected Ls create(Context context) {
-    return new Ls(context);
+  protected Ls create() {
+    return new Ls();
   }
 }

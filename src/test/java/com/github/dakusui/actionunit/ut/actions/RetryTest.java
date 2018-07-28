@@ -1,13 +1,13 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.Retry;
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.actions.Retry;
+import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActionSupport;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.compat.core.Context;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.reporting.Report;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.visitors.reporting.Report;
+import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -15,7 +15,7 @@ import org.junit.rules.TestName;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.containsString;

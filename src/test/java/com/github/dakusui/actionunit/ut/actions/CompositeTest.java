@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.actions.Composite;
 import org.junit.Test;
 
 import java.util.Collections;

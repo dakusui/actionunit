@@ -1,16 +1,16 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.actions.Leaf;
-import com.github.dakusui.actionunit.actions.ValueHolder;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.compat.actions.Leaf;
+import com.github.dakusui.actionunit.compat.actions.ValueHolder;
+import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.core.Context;
 import com.github.dakusui.actionunit.compat.ValueHandlerActionFactory;
-import com.github.dakusui.actionunit.generators.ActionGenerator;
+import com.github.dakusui.actionunit.compat.generators.ActionGenerator;
 import com.github.dakusui.actionunit.examples.UtContext;
-import com.github.dakusui.actionunit.utils.Checks;
+import com.github.dakusui.actionunit.n.utils.Checks;
 import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

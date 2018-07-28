@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.compat.actions.Leaf;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 

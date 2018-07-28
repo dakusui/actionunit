@@ -1,8 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmdaction.linux;
 
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.linux.Cat;
 import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
+import com.github.dakusui.actionunit.n.extras.linux.Cat;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class CatTest extends FsTestBase<Cat> {
   }
 
   @Override
-  protected Cat create(Context context) {
+  protected Cat create() {
     return new Cat(context);
   }
 }

@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.compat;
 
-import com.github.dakusui.actionunit.actions.ValueHolder;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.compat.actions.ValueHolder;
+import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.core.Context;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;

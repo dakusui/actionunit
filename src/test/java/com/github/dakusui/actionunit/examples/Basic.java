@@ -2,11 +2,11 @@ package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.compat.ActionUnit;
 import com.github.dakusui.actionunit.compat.ActionUnit.PerformWith;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.core.Context;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -14,7 +14,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
 
 @FixMethodOrder

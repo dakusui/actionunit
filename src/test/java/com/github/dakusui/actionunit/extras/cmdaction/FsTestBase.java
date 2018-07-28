@@ -1,13 +1,16 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.Commander;
+import com.github.dakusui.actionunit.n.actions.cmd.Commander;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.ActionSupport;
+import com.github.dakusui.actionunit.n.core.Context;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Function;
+
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 
 public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBase<C> {
   protected final File dir;
@@ -25,37 +28,36 @@ public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBa
   }
 
   private Action withPreparation(Action target, Context context) {
-    return context.sequential(
-        preparation().apply(context),
+    return sequential(
+        preparation(),
         target
     );
   }
 
-  protected Function<Context, Action> preparation() {
-    return Context::nop;
+  protected Action preparation() {
+    return ActionSupport.nop();
   }
 
   private Function<Context, Action> withCleanUp(Action action) {
-    return (c) -> c.attempt(action).recover(
+    return (c) -> attempt(action).recover(
         Exception.class,
-        data -> (factory) ->
-            factory.simple("rethrow", () -> {
-              Throwable t = data.get();
-              if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-              } else if (t instanceof Error) {
-                throw (Error) t;
-              }
-              throw new RuntimeException(t);
-            }))
-        .ensure(v -> this::cleanUp);
+        simple("rethrow", context -> {
+          Throwable t = context.thrownException().orElseThrow(RuntimeException::new);
+          if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+          } else if (t instanceof Error) {
+            throw (Error) t;
+          }
+          throw new RuntimeException(t);
+        }))
+        .ensure(cleanUp());
   }
 
-  private Action cleanUp(Context context) {
+  private Action cleanUp() {
     ////
     // This is necessary because 'deleteOnExit' only requests to remove files
     // created inside JVM.
-    return new Commander(context) {
+    return new Commander() {
       @Override
       protected String program() {
         return "/bin/rm";

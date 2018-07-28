@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.n.exceptions;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.n.utils.Checks.checkNotNull;
 
 /**
  * Encapsulate a general Action error or warning.

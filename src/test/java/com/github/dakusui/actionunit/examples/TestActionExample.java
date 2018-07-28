@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.n.exceptions.ActionAssertionError;
 import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
 import org.junit.Test;
 
 public class TestActionExample implements UtContext {

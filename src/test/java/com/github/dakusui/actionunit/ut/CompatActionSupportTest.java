@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.actions.Composite;
+import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActionSupport;
-import com.github.dakusui.actionunit.generators.ActionGenerator;
+import com.github.dakusui.actionunit.compat.generators.ActionGenerator;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.utils.Abort;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.utils.Abort;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,8 +17,8 @@ import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.compat.CompatActionSupport.*;
 import static com.github.dakusui.actionunit.n.exceptions.ActionException.wrap;
-import static com.github.dakusui.actionunit.utils.InternalUtils.describe;
-import static com.github.dakusui.actionunit.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.actionunit.compat.utils.InternalUtils.describe;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

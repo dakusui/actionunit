@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.n.visitors;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
-import com.github.dakusui.actionunit.visitors.reporting.Report;
+import com.github.dakusui.actionunit.compat.visitors.reporting.Report;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

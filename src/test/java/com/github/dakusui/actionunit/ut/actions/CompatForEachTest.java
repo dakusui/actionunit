@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.CompatForEach;
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.actions.CompatForEach;
+import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.github.dakusui.actionunit.utils.Matchers.allOf;
+import static com.github.dakusui.actionunit.compat.utils.Matchers.allOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;

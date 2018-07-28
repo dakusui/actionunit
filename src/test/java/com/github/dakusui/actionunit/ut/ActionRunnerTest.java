@@ -1,14 +1,14 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.utils.TestUtils;
-import com.github.dakusui.actionunit.visitors.PrintingActionScanner;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

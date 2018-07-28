@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.compat.ActionUnit;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.core.Context;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

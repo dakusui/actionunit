@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.compat;
 
-import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.compat.actions.*;
+import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.core.Context;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  * This class contains static utility methods that return objects of type {@code Action}.
  * How objects returned by methods in this class are performed is subject to actual implementations
  * of {@link Action.Visitor} interfaces, such as
- * {@link com.github.dakusui.actionunit.visitors.ActionPerformer}.
+ * {@link com.github.dakusui.actionunit.compat.visitors.ActionPerformer}.
  *
  * @see Action
  * @see Action.Visitor

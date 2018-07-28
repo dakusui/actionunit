@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.n.core.Action;
 
 import java.util.Formatter;
 
-import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static com.github.dakusui.actionunit.n.utils.Checks.requireArgument;
 import static com.github.dakusui.actionunit.n.core.ActionSupport.named;
 import static java.util.Objects.requireNonNull;
 

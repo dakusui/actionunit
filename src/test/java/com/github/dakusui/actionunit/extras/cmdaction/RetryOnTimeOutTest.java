@@ -1,18 +1,16 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.n.actions.cmd.Commander;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.extras.cmd.Commander;
 import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
 public class RetryOnTimeOutTest<R extends Commander<R>> extends FsTestBase<R> {
@@ -21,9 +19,9 @@ public class RetryOnTimeOutTest<R extends Commander<R>> extends FsTestBase<R> {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected R create(Context context) {
+  protected R create() {
     long start = System.currentTimeMillis() / 1000;
-    return (R) new Commander<R>(context) {
+    return (R) new Commander<R>() {
       @Override
       protected String program() {
         return "if [[ $(($(date +'%s') - " + start + ")) -ge 3 ]]; then echo success; else echo fail && sleep 3;fi";

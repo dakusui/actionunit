@@ -1,20 +1,25 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.core.Context;
 import org.junit.Test;
 
+import java.util.stream.Stream;
+
 import static com.github.dakusui.actionunit.extras.cmdaction.CommanderTestUtil.perform;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.cmd;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.forEach;
 
 public class CmdExample {
-  private Context context = new Context.Impl();
 
   @Test
   public void example() {
     perform(
-        context.forEachOf(
-            "a", "b", "c"
+        forEach(
+            "i",
+            () -> Stream.of("a", "b", "c")
         ).perform(
-            data -> ($) -> $.cmd("echo").addq("hi:").addq(data).addq(":").build()
+            cmd("echo").addq("hi:").addq(c -> {
+              return "hi"; // TODO
+            }).addq(":").build()
         )
     );
   }

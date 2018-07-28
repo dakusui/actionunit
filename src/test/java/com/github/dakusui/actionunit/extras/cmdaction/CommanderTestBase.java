@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.Commander;
+import com.github.dakusui.actionunit.n.actions.cmd.Commander;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.Context;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +25,7 @@ public abstract class CommanderTestBase<C extends Commander<C>> {
   protected final List<String> stdout;
   protected final List<String> stderr;
 
-  protected abstract C create(Context context);
+  protected abstract C create();
 
   protected <D extends Commander<D>> D configure(D commander) {
     commander.cmdBuilder().consumeStdout(
@@ -37,10 +37,10 @@ public abstract class CommanderTestBase<C extends Commander<C>> {
   }
 
   public CommanderTestBase() {
-    this.context = new Context.Impl();
+    this.context = Context.create();
     this.stdout = new LinkedList<>();
     this.stderr = new LinkedList<>();
-    this.commander = this.configure(create(this.context));
+    this.commander = this.configure(create());
   }
 
   protected void perform(Action action) {

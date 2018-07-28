@@ -1,13 +1,14 @@
 package com.github.dakusui.actionunit.n;
 
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
 import com.github.dakusui.actionunit.n.core.ContextConsumer;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
-import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
 import java.util.stream.Stream;
@@ -43,6 +44,16 @@ public class ActionSupportTest extends TestUtils.TestBase {
                       $ -> {
                         throw new IllegalStateException();
                       })))
+      ).recover(
+          Exception.class,
+          simple("let's recover", new ContextConsumer() {
+            @Override
+            public void accept(Context context) {
+              Throwable t = context.thrownException().orElse(null);
+              assert t != null;
+              throw ActionException.wrap(t);
+            }
+          })
       ).ensure(
           simple(
               "a simple action",

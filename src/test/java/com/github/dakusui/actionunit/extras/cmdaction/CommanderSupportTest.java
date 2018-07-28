@@ -1,36 +1,37 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.extras.cmd.Commander.commander;
-import static java.util.Arrays.asList;
+import java.util.stream.Stream;
 
-public class CommanderSupportTest extends TestUtils.ContextTestBase {
-  Context context = new Context.Impl();
+import static com.github.dakusui.actionunit.n.actions.cmd.Commander.commander;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+
+public class CommanderSupportTest {
 
   @Test
   public void test() {
     perform(
-        commander(context, "echo hello").build()
+        cmd("echo hello").build()
     );
   }
 
   @Test
   public void test2() {
     perform(
-        context.forEachOf(
-            asList(1, 2, 3)
+        forEach(
+            "i",
+            () -> Stream.of(1, 2, 3)
         ).perform(
-            data -> ($) -> commander($, "echo hello:").add(() -> data.get().toString()).build()
+            leaf(context -> commander("echo hello:").add(c -> c.valueOf("i")).build())
         )
     );
   }
 
-
   private void perform(Action action) {
-    CommanderTestUtil.perform(action);
+    ReportingActionPerformer performer = ReportingActionPerformer.create();
+    action.accept(performer);
   }
 }

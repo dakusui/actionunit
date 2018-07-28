@@ -2,9 +2,10 @@ package com.github.dakusui.actionunit.n.utils;
 
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
 
+import java.util.Objects;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.n.utils.Checks.checkNotNull;
 import static java.lang.String.format;
 
 public enum InternalUtils {
@@ -84,5 +85,11 @@ public enum InternalUtils {
       ret.append(" ");
     }
     return ret.toString();
+  }
+
+  public static String summary(String s) {
+    return Objects.requireNonNull(s).length() > 40
+        ? s.substring(0, 40) + "..."
+        : s;
   }
 }

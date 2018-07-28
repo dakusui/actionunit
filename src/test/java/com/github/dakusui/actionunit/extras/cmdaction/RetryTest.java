@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.Commander;
+import com.github.dakusui.actionunit.n.actions.cmd.Commander;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
 import org.junit.Test;
 
@@ -14,9 +13,9 @@ public class RetryTest<R extends Commander<R>> extends FsTestBase<R> {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected R create(Context context) {
+  protected R create() {
     long start = System.currentTimeMillis() / 1000;
-    return (R) new Commander<R>(context) {
+    return (R) new Commander<R>() {
       @Override
       protected String program() {
         return "if [[ $(($(date +'%s') - " + start + ")) -ge 3 ]]; then echo success; else echo fail && exit 1;fi";

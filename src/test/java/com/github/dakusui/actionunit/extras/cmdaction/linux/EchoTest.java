@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.extras.cmdaction.linux;
 
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.extras.cmd.linux.Echo;
 import com.github.dakusui.actionunit.extras.cmdaction.CommanderTestBase;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.extras.linux.Echo;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -15,12 +15,12 @@ import static org.junit.Assume.assumeTrue;
 public class EchoTest extends CommanderTestBase<Echo> {
   @Test
   public void noTrailingNewline() {
-    perform(this.commander.noTrailingNewline().addq(helloWorld()).build());
+    perform(this.commander.noTrailingNewline().addq(helloWorld(context)).build());
     assertThat(
         this.stdout,
         allOf(
             asInteger("size").eq(1).$(),
-            asListOf(String.class).equalTo(singletonList(helloWorld())).$()
+            asListOf(String.class).equalTo(singletonList(helloWorld(context))).$()
         ));
   }
 
@@ -43,7 +43,7 @@ public class EchoTest extends CommanderTestBase<Echo> {
   @Test
   public void noTrailingNewlineAndEnableBackslashInterpretation() {
     assumeTrue(isRunUnderLinux());
-    perform(this.commander.noTrailingNewline().enableBackslashInterpretation().addq(helloWorld()).build());
+    perform(this.commander.noTrailingNewline().enableBackslashInterpretation().addq(helloWorld(context)).build());
     assertThat(
         this.stdout,
         allOf(
@@ -59,12 +59,12 @@ public class EchoTest extends CommanderTestBase<Echo> {
   @Test
   public void disableBackslashInterpretation() {
     assumeTrue(isRunUnderLinux());
-    perform(this.commander.disableBackslashInterpretation().addq(helloWorld()).build());
+    perform(this.commander.disableBackslashInterpretation().addq(helloWorld(context)).build());
     assertThat(
         this.stdout,
         allOf(
             asInteger("size").eq(1).$(),
-            asListOf(String.class).equalTo(singletonList(helloWorld())).$()
+            asListOf(String.class).equalTo(singletonList(helloWorld(context))).$()
         ));
     assertThat(
         this.stderr,
@@ -73,11 +73,11 @@ public class EchoTest extends CommanderTestBase<Echo> {
   }
 
   @Override
-  protected Echo create(Context context) {
-    return new Echo(context);
+  protected Echo create() {
+    return new Echo();
   }
 
-  private String helloWorld() {
+  private String helloWorld(Context context) {
     return "hello\\nworld\\n";
   }
 }

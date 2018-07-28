@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.actionunit.compat.utils.InternalUtils;
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.utils.TestUtils;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.TestClass;
@@ -15,8 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.utils.TestUtils.range;
-import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.range;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
