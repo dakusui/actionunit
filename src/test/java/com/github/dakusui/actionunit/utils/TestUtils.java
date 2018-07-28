@@ -2,8 +2,7 @@ package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.examples.UtContext;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
-import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import com.github.dakusui.actionunit.sandbox.Autocloseables;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
@@ -25,8 +24,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.compat.IdGeneratorManager.ID_GENERATOR_MANAGER;
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 
 import java.util.Locale;
 

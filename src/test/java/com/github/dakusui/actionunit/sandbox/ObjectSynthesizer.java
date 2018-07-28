@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.sandbox;
 
 
-import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.utils.Checks;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

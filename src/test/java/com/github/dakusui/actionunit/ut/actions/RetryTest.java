@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActionSupport;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.reporting.Report;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;

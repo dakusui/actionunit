@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils;
 import com.github.dakusui.cmd.Cmd;
 import com.github.dakusui.cmd.Shell;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
-import static com.github.dakusui.actionunit.helpers.Checks.*;
+import static com.github.dakusui.actionunit.utils.Checks.*;
 import static java.util.Objects.requireNonNull;
 
 /**

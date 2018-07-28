@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.compat;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.compat.CompatActionSupport.named;
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.Checks.propagate;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.Checks.propagate;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;

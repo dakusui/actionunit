@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.Utils;
+import com.github.dakusui.actionunit.n.utils.InternalUtils;
 
 import java.util.*;
 
@@ -49,7 +49,7 @@ public class Report implements Iterable<Node<Action>> {
         public String format(Node<Action> actionNode, Record record, int indentLevel) {
           return String.format(
               "%s[%s]%s",
-              Utils.spaces(indentLevel * 2),
+              InternalUtils.spaces(indentLevel * 2),
               formatRecord(record).replaceAll(".{4,}", "... "),
               actionNode.getContent()
           );
@@ -67,7 +67,7 @@ public class Report implements Iterable<Node<Action>> {
         public String format(Node<Action> actionNode, Record record, int indentLevel) {
           return String.format(
               "%s[%s]%d-%s",
-              Utils.spaces(indentLevel * 2),
+              InternalUtils.spaces(indentLevel * 2),
               formatRecord(record).replaceAll("o{4,}", "o..."),
               actionNode.getContent().id(),
               actionNode.getContent()

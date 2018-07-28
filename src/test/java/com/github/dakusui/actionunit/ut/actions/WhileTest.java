@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.actionunit.helpers.Utils.toSupplier;
+import static com.github.dakusui.actionunit.utils.Utils.toSupplier;
 import static com.github.dakusui.actionunit.utils.TestUtils.hasItemAt;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;

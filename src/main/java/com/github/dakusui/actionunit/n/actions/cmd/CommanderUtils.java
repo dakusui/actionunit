@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.n.actions.cmd;
 
-import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.utils.Checks;
 
 import static java.util.Objects.requireNonNull;
 

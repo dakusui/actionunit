@@ -7,8 +7,8 @@ import com.github.dakusui.actionunit.generators.ActionGenerator;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.helpers.InternalUtils.describe;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.summary;
+import static com.github.dakusui.actionunit.utils.InternalUtils.describe;
+import static com.github.dakusui.actionunit.utils.InternalUtils.summary;
 import static java.util.Objects.requireNonNull;
 
 public interface CompatForEach<T> extends Action {

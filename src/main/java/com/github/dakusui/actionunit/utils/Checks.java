@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.helpers;
+package com.github.dakusui.actionunit.utils;
 
 import java.util.Objects;
 import java.util.function.Function;

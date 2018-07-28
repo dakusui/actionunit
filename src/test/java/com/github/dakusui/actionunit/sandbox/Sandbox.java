@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 

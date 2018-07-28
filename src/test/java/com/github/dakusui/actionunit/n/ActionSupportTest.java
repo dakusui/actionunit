@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.n;
 
-import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
 import com.github.dakusui.actionunit.n.core.ContextConsumer;
+import com.github.dakusui.actionunit.n.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
-import com.github.dakusui.actionunit.n.visitors.ActionScanner;
+import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
@@ -164,6 +164,6 @@ public class ActionSupportTest extends TestUtils.TestBase {
 
   @Test
   public void print() {
-    EXAMPLE_ACTION.accept(new ActionScanner());
+    EXAMPLE_ACTION.accept(new ActionPrinter());
   }
 }

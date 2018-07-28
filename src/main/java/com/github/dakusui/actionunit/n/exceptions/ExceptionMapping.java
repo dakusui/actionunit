@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.exceptions;
+package com.github.dakusui.actionunit.n.exceptions;
 
 import java.lang.reflect.InvocationTargetException;
 

@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,9 +13,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.nonameIfNull;
+import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.InternalUtils.nonameIfNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;

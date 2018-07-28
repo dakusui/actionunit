@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.n.actions;
 
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.core.Action;
 
 import java.util.Formatter;
 
-import static com.github.dakusui.actionunit.helpers.Checks.requireArgument;
+import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
 import static com.github.dakusui.actionunit.n.core.ActionSupport.named;
 import static java.util.Objects.requireNonNull;
 

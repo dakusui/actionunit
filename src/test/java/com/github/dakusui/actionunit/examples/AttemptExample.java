@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.actions.Attempt;
-import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 

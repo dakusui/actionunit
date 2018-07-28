@@ -1,6 +1,5 @@
-package com.github.dakusui.actionunit.helpers;
+package com.github.dakusui.actionunit.utils;
 
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -8,13 +7,12 @@ import org.junit.runners.model.TestClass;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.n.exceptions.ActionException.wrap;
+import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 

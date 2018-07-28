@@ -5,8 +5,8 @@ import com.github.dakusui.actionunit.core.Action;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatDuration;
 import static java.lang.String.format;
 

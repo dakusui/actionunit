@@ -1,9 +1,9 @@
-package com.github.dakusui.actionunit.exceptions;
+package com.github.dakusui.actionunit.n.exceptions;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 
 /**
  * Encapsulate a general Action error or warning.

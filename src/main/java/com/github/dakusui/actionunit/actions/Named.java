@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 
 /**
  * An action that has a name.

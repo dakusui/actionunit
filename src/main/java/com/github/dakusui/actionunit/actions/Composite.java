@@ -1,15 +1,13 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.unknownIfNegative;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.InternalUtils.unknownIfNegative;
 import static java.lang.String.format;
 
 /**

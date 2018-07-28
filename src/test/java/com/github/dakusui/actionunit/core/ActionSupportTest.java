@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.ValueHolder;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.generators.ActionGenerator;
 import com.github.dakusui.actionunit.generators.StringGenerator;
 import com.github.dakusui.actionunit.utils.TestUtils;

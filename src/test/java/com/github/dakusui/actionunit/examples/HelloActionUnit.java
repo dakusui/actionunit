@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.compat.ActionUnit;
 import com.github.dakusui.actionunit.actions.ValueHolder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

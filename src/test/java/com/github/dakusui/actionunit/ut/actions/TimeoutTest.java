@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.examples.UtContext;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import org.junit.Test;
 

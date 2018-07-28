@@ -1,9 +1,8 @@
 package com.github.dakusui.actionunit.visitors.reporting;
 
-import com.github.dakusui.actionunit.helpers.Checks;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
-import com.github.dakusui.actionunit.helpers.Utils;
-import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.Checks;
+import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.actionunit.n.io.Writer;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -44,7 +43,7 @@ public class Node<A> {
   }
 
   public static <A> void print(Node<A> node, Writer writer) {
-    walk(node, (aNode, nodes) -> writer.writeLine(Utils.spaces(nodes.size() * 2) + aNode));
+    walk(node, (aNode, nodes) -> writer.writeLine(com.github.dakusui.actionunit.n.utils.InternalUtils.spaces(nodes.size() * 2) + aNode));
   }
 
   void add(Node<A> node) {

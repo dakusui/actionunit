@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.generators.ActionGenerator;
 import com.github.dakusui.actionunit.generators.AttemptGenerator;
-import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.utils.Checks;
 
 import java.util.Objects;
 

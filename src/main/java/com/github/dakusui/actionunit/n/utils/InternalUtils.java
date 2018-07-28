@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.n.utils;
 
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 
 import java.util.concurrent.*;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 import static java.lang.String.format;
 
 public enum InternalUtils {
@@ -76,5 +76,13 @@ public enum InternalUtils {
       }
     }
     return TimeUnit.DAYS;
+  }
+
+  public static String spaces(int numSpaces) {
+    StringBuilder ret = new StringBuilder();
+    for (int i = 0; i < numSpaces; i++) {
+      ret.append(" ");
+    }
+    return ret.toString();
   }
 }

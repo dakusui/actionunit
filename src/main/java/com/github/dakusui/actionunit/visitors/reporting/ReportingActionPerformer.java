@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.visitors.reporting;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
-import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 
 import java.util.Objects;

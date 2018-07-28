@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.visitors;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.visitors.reporting.Node;
 
 import java.util.Deque;

@@ -1,9 +1,8 @@
 package com.github.dakusui.actionunit.n.actions.cmd;
 
 
-import com.github.dakusui.actionunit.helpers.Checks;
+import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.ActionSupport;
 import com.github.dakusui.cmd.Cmd;
 import com.github.dakusui.cmd.Shell;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
@@ -17,7 +16,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.helpers.Checks.*;
+import static com.github.dakusui.actionunit.utils.Checks.*;
 import static com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
 import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static java.util.Objects.requireNonNull;

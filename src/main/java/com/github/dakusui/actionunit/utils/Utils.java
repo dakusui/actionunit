@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.helpers;
+package com.github.dakusui.actionunit.utils;
 
 import java.util.function.Supplier;
 
@@ -13,11 +13,4 @@ public enum Utils {
     return () -> value;
   }
 
-  public static String spaces(int numSpaces) {
-    StringBuilder ret = new StringBuilder();
-    for (int i = 0; i < numSpaces; i++) {
-      ret.append(" ");
-    }
-    return ret.toString();
-  }
 }

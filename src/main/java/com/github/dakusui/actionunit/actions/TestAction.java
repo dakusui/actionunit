@@ -2,11 +2,10 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.exceptions.ActionAssertionError;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
+import com.github.dakusui.actionunit.n.exceptions.ActionAssertionError;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;

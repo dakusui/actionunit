@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
 import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatDuration;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
