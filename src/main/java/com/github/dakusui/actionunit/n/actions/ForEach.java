@@ -32,9 +32,9 @@ public interface ForEach<E> extends Action {
       this.sequential();
     }
 
-    public Builder<E> perform(Action perform) {
+    public Action perform(Action perform) {
       this.perform = requireNonNull(perform);
-      return this;
+      return this.$();
     }
 
     public Builder<E> parallel() {

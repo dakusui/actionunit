@@ -26,7 +26,7 @@ public interface TimeOut extends Action {
       this.action = requireNonNull(action);
     }
 
-    public Builder in(long duration, TimeUnit timeUnit) {
+    public Action in(long duration, TimeUnit timeUnit) {
       checkArgument(duration > 0,
           "Timeout duration must be positive  but %d was given",
           duration
@@ -34,7 +34,7 @@ public interface TimeOut extends Action {
       requireNonNull(timeUnit);
       this.duration = duration;
       this.timeUnit = timeUnit;
-      return this;
+      return this.$();
     }
 
     @Override

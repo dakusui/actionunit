@@ -12,6 +12,9 @@ public interface Action {
      * A synonym of {@code build()} method. This method is defined not to use a
      * method name 'build', which introduces extra word not relating to what is
      * being achieved.
+     * <p>
+     * If you prefer a word 'build' in your code, simply use {@code build}
+     * method.
      *
      * @return An object built by {@code build} method.
      */

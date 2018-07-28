@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.context.Context;
 import com.github.dakusui.actionunit.n.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.n.utils.ActionSupport;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import com.github.dakusui.actionunit.n.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -35,17 +34,19 @@ public class ActionSupportTest extends TestUtils.TestBase {
                       throw new IllegalStateException();
                     }))
         ).ensure(
-            leaf(
-                context -> System.out.println("bye: ensured : " + context.valueOf("i"))
-            )).$()).$();
-
+            simple(
+                "a simple action",
+                $ -> System.out.println("bye: ensured : " + $.valueOf("i"))
+            )
+        )
+    );
     action.accept(ActionPerformer.create());
   }
 
 
   @Test
   public void givenSequentialAction$whenPerformed$thenWorksFine() {
-    Action action = ActionSupport.sequential(
+    Action action = sequential(
         leaf($ -> System.out.println("hello")),
         leaf($ -> System.out.println("world")));
 
@@ -71,7 +72,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
     ).otherwise(
         leaf($ -> System.out.println("world")
         )
-    ).$();
+    );
 
     action.accept(ActionPerformer.create());
   }
@@ -84,7 +85,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         leaf($ -> System.out.println("hello"))
     ).otherwise(
         leaf($ -> System.out.println("world"))
-    ).$();
+    );
 
     action.accept(ActionPerformer.create());
   }
@@ -125,7 +126,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         leaf($ -> System.out.println("hello"))
     ).in(
         1, MILLISECONDS
-    ).$();
+    );
 
     action.accept(ActionPerformer.create());
   }
@@ -136,14 +137,14 @@ public class ActionSupportTest extends TestUtils.TestBase {
         leaf($ -> InternalUtils.sleep(1, SECONDS))
     ).in(
         5, MILLISECONDS
-    ).$();
+    );
 
     action.accept(ActionPerformer.create());
   }
 
   @Test
   public void givenCmd$when$then() {
-    Action action = cmd("/bin/echo").addq("hello").build();
+    Action action = cmd("/bin/echo").addq("hello").$();
 
     action.accept(ActionPerformer.create());
   }

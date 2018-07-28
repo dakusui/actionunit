@@ -26,7 +26,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <B> The class you implement by extending this class.
  */
-public abstract class Commander<B extends Commander<B>> implements Cloneable {
+public abstract class Commander<B extends Commander<B>> extends Action.Builder<Action> implements Cloneable {
   private final int            summaryLength;
   private       Stream<String> stdin = null;
 
@@ -190,7 +190,7 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
 
   private Action readFrom(Stream<String> in) {
     return numRetries > 0 ?
-        ActionSupport.retry(
+        ActionSupport.Core.retry(
             this.timeOutIfNecessary(composeAction(in))
         ).on(
             this.retryOn
@@ -342,15 +342,15 @@ public abstract class Commander<B extends Commander<B>> implements Cloneable {
 
   private Action timeOutIfNecessary(Action action) {
     return this.timeOutDuration > 0
-        ? ActionSupport.timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit).$()
+        ? ActionSupport.Core.timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit).$()
         : action;
   }
 
   private Action composeAction(Stream<String> in) {
     Cmd cmd = composeCmd();
-    return ActionSupport.named(
+    return ActionSupport.Core.named(
         description().orElse(CommanderUtils.summarize(cmd.getCommand().toString(), summaryLength)),
-        ActionSupport.leaf(
+        ActionSupport.Core.leaf(
             (context) -> {
               Cmd internalCmd = cmd;
               if (!cmd.getState().equals(Cmd.State.PREPARING)) {

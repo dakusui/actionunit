@@ -12,8 +12,26 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
-public enum ActionSupport {
-  ;
+public class ActionSupport extends Core {
+  private ActionSupport() {
+  }
+
+  public static Action simple(String name, ContextConsumer consumer) {
+    return Core.named(name, Core.leaf(consumer));
+  }
+
+  public static Action sequential(Action... actions) {
+    return Core.sequential(asList(actions));
+  }
+
+  public static Action parallel(Action... actions) {
+    return Core.parallel(asList(actions));
+  }
+}
+
+class Core {
+  Core() {
+  }
 
   public static Action nop() {
     return Leaf.NOP;
@@ -27,8 +45,8 @@ public enum ActionSupport {
     return Named.of(name, action);
   }
 
-  public static Attempt.Builder attempt(Action perform) {
-    return new Attempt.Builder(perform);
+  public static Attempt.Builder attempt(Action action) {
+    return new Attempt.Builder(action);
   }
 
   public static <E> ForEach.Builder<E> forEach(String variableName, Supplier<Stream<E>> dataSupplier) {
@@ -39,31 +57,23 @@ public enum ActionSupport {
     return new When.Builder(cond);
   }
 
-  public static Retry.Builder retry(Action target) {
-    return new Retry.Builder(target);
+  public static Retry.Builder retry(Action action) {
+    return new Retry.Builder(action);
   }
 
-  public static TimeOut.Builder timeout(Action target) {
-    return new TimeOut.Builder(target);
+  public static TimeOut.Builder timeout(Action action) {
+    return new TimeOut.Builder(action);
   }
 
-  public static Composite sequential(Action... actions) {
-    return sequential(asList(actions));
-  }
-
-  public static Composite sequential(List<Action> actions) {
+  public static Action sequential(List<Action> actions) {
     return new Composite.Builder(actions).build();
   }
 
-  public static Composite parallel(Action... actions) {
-    return parallel(asList(actions));
-  }
-
-  public static Composite parallel(List<Action> actions) {
+  public static Action parallel(List<Action> actions) {
     return new Composite.Builder(actions).parallel().build();
   }
 
-  public static  Commander cmd(String program) {
+  public static Commander cmd(String program) {
     return new Commander() {
       @Override
       protected String program() {
@@ -72,3 +82,4 @@ public enum ActionSupport {
     };
   }
 }
+

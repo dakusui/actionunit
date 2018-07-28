@@ -32,9 +32,9 @@ public interface When extends Action {
       return this;
     }
 
-    public Builder otherwise(Action otherwise) {
+    public Action otherwise(Action otherwise) {
       this.otherwise = requireNonNull(otherwise);
-      return this;
+      return this.$();
     }
 
     @Override

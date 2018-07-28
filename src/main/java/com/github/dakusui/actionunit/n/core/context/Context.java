@@ -23,12 +23,11 @@ public interface Context {
     private final       Context             parent;
 
     private Impl() {
-      this.parent = null;
+      this(null);
     }
 
     private Impl(Context parent) {
       this.parent = parent;
-      this.variables.putAll(Impl.class.cast(this.parent).variables);
     }
 
     @Override
@@ -41,7 +40,9 @@ public interface Context {
     public <V> V valueOf(String variableName) {
       if (this.variables.containsKey(requireNonNull(variableName)))
         return (V) this.variables.get(variableName);
-      throw new NoSuchElementException();
+      if (parent == null)
+        throw new NoSuchElementException(String.format("Variable '%s' is not defined.", variableName));
+      return parent.valueOf(variableName);
     }
 
     @Override

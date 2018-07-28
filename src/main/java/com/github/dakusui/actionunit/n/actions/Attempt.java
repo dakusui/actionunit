@@ -44,9 +44,9 @@ public interface Attempt extends Action {
       return this;
     }
 
-    public Builder ensure(Action ensure) {
+    public Action ensure(Action ensure) {
       this.ensure = requireNonNull(ensure);
-      return this;
+      return this.$();
     }
 
     public Attempt build() {
