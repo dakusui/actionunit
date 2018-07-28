@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.extras.cmd.Commander;
-import com.github.dakusui.actionunit.helpers.InternalUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -422,7 +421,7 @@ public interface Context {
 
         @Override
         public String toString() {
-          return format("sleep for %s", InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
+          return format("sleep for %s", com.github.dakusui.actionunit.n.utils.InternalUtils.formatDuration(NANOSECONDS.convert(duration, timeUnit)));
         }
       };
     }

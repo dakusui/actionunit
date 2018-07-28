@@ -2,10 +2,12 @@ package com.github.dakusui.actionunit.n.actions;
 
 import com.github.dakusui.actionunit.n.core.Action;
 
+import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.helpers.Checks.requireArgument;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.formatDuration;
+import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatDuration;
+import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatNumberOfTimes;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -21,6 +23,11 @@ public interface Retry extends Action {
 
   default void accept(Visitor visitor) {
     visitor.visit(this);
+  }
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("retry %s %s", formatNumberOfTimes(times()), formatDuration(intervalInNanoseconds()));
   }
 
   class Builder extends Action.Builder<Retry> {

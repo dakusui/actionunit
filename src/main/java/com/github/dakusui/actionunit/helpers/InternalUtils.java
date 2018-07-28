@@ -20,22 +20,6 @@ import static java.util.Collections.singletonList;
 
 public class InternalUtils {
 
-  private static TimeUnit chooseTimeUnit(long intervalInNanos) {
-    // TimeUnit.values() returns elements of TimeUnit in declared order
-    // And they are declared in ascending order.
-    for (TimeUnit timeUnit : TimeUnit.values()) {
-      if (1000 > timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {
-        return timeUnit;
-      }
-    }
-    return TimeUnit.DAYS;
-  }
-
-  public static String formatDuration(long durationInNanos) {
-    TimeUnit timeUnit = chooseTimeUnit(durationInNanos);
-    return format("%d[%s]", timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
-  }
-
   public static String shortClassNameOf(Class clazz) {
     String name = checkNotNull(clazz).getName();
     return name.substring(name.lastIndexOf('.') + 1);

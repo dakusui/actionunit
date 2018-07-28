@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
-import static com.github.dakusui.actionunit.helpers.InternalUtils.formatDuration;
+import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatDuration;
 import static java.lang.String.format;
 
 public class TimeOut extends ActionBase {

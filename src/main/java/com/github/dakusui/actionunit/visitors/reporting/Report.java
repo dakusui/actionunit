@@ -86,11 +86,11 @@ public class Report implements Iterable<Node<Action>> {
 
     final List<Record.Run> runs = Collections.synchronizedList(new LinkedList<>());
 
-    void succeeded() {
+    public void succeeded() {
       runs.add(Record.Run.SUCCEEDED);
     }
 
-    void failed(Throwable t) {
+    public void failed(Throwable t) {
       runs.add(Record.Run.failed(t));
     }
 

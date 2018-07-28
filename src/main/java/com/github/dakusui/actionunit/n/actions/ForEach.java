@@ -1,16 +1,16 @@
 package com.github.dakusui.actionunit.n.actions;
 
 import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.DataSupplier;
 
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.Formatter;
 
 import static java.util.Objects.requireNonNull;
 
 public interface ForEach<E> extends Action {
   String loopVariableName();
 
-  Stream<E> data();
+  DataSupplier<E> data();
 
   Action perform();
 
@@ -20,13 +20,18 @@ public interface ForEach<E> extends Action {
     visitor.visit(this);
   }
 
-  class Builder<E> extends Action.Builder<ForEach<E>> {
-    private final Supplier<Stream<E>> dataSupplier;
-    private final String              loopVariableName;
-    private       Action              perform = Leaf.NOP;
-    private       boolean             parallel;
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("foreach of %s %s", data(), isParallel() ? "parallely" : "sequentially");
+  }
 
-    public Builder(String loopVariableName, Supplier<Stream<E>> dataSupplier) {
+  class Builder<E> extends Action.Builder<ForEach<E>> {
+    private final DataSupplier<E> dataSupplier;
+    private final String          loopVariableName;
+    private       Action          perform = Leaf.NOP;
+    private       boolean         parallel;
+
+    public Builder(String loopVariableName, DataSupplier<E> dataSupplier) {
       this.loopVariableName = requireNonNull(loopVariableName);
       this.dataSupplier = requireNonNull(dataSupplier);
       this.sequential();
@@ -55,8 +60,8 @@ public interface ForEach<E> extends Action {
         }
 
         @Override
-        public Stream<E> data() {
-          return requireNonNull(Builder.this.dataSupplier.get());
+        public DataSupplier<E> data() {
+          return Builder.this.dataSupplier;
         }
 
         @Override

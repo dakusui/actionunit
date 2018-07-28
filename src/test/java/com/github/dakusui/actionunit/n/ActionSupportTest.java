@@ -5,7 +5,8 @@ import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
 import com.github.dakusui.actionunit.n.core.ContextConsumer;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
-import com.github.dakusui.actionunit.n.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.n.visitors.ActionScanner;
+import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
 import com.github.dakusui.actionunit.utils.TestUtils;
 import org.junit.Test;
 
@@ -16,31 +17,43 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ActionSupportTest extends TestUtils.TestBase {
+
+  private static final Action EXAMPLE_ACTION = forEach(
+      "i",
+      () -> Stream.of("a", "b", "c")
+  ).parallel(
+  ).perform(
+      attempt(
+          sequential(
+              timeout(
+                  leaf(
+                      $ -> System.out.println("hello"))
+              ).in(10, SECONDS),
+              retry(
+                  leaf(
+                      $ -> System.out.println("i=" + $.valueOf("i")))
+              ).on(
+                  Exception.class
+              ).withIntervalOf(
+                  500, MILLISECONDS
+              ).$(),
+              nop(),
+              forEach("i", () -> Stream.of(1, 2, 3)).perform(
+                  leaf(
+                      $ -> {
+                        throw new IllegalStateException();
+                      })))
+      ).ensure(
+          simple(
+              "a simple action",
+              $ -> System.out.println("bye: ensured : " + $.valueOf("i"))
+          )
+      )
+  );
+
   @Test(expected = IllegalStateException.class)
   public void giveExampleScenarioThatThrowsError$whenPerform$thenExceptionThrown() {
-    Action action = forEach(
-        "i",
-        () -> Stream.of("a", "b", "c")
-    ).parallel(
-    ).perform(
-        attempt(
-            sequential(
-                leaf(
-                    $ -> System.out.println("hello")),
-                leaf(
-                    $ -> System.out.println("i=" + $.valueOf("i"))),
-                leaf(
-                    $ -> {
-                      throw new IllegalStateException();
-                    }))
-        ).ensure(
-            simple(
-                "a simple action",
-                $ -> System.out.println("bye: ensured : " + $.valueOf("i"))
-            )
-        )
-    );
-    action.accept(ActionPerformer.create());
+    EXAMPLE_ACTION.accept(SimpleActionPerformer.create());
   }
 
 
@@ -50,7 +63,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         leaf($ -> System.out.println("hello")),
         leaf($ -> System.out.println("world")));
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test
@@ -59,7 +72,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         leaf($ -> System.out.println("hello")),
         leaf($ -> System.out.println("world")));
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test
@@ -74,11 +87,11 @@ public class ActionSupportTest extends TestUtils.TestBase {
         )
     );
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test
-  public void givenRetryAction$whenNotMet$thenOtherwise() {
+  public void givenWhenAction$whenNotMet$thenOtherwise() {
     Action action = when(
         c -> false
     ).perform(
@@ -87,7 +100,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         leaf($ -> System.out.println("world"))
     );
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test
@@ -96,7 +109,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         leaf($ -> System.out.println("hello"))
     ).$();
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test
@@ -117,7 +130,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         1, MILLISECONDS
     ).$();
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test
@@ -128,7 +141,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
         1, MILLISECONDS
     );
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test(expected = ActionTimeOutException.class)
@@ -139,13 +152,18 @@ public class ActionSupportTest extends TestUtils.TestBase {
         5, MILLISECONDS
     );
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
   }
 
   @Test
   public void givenCmd$when$then() {
     Action action = cmd("/bin/echo").addq("hello").$();
 
-    action.accept(ActionPerformer.create());
+    action.accept(SimpleActionPerformer.create());
+  }
+
+  @Test
+  public void print() {
+    EXAMPLE_ACTION.accept(new ActionScanner());
   }
 }

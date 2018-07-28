@@ -4,8 +4,6 @@ import com.github.dakusui.actionunit.n.actions.*;
 import com.github.dakusui.actionunit.n.actions.cmd.Commander;
 
 import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -28,7 +26,7 @@ public enum ActionSupport {
     return new Attempt.Builder(action);
   }
 
-  public static <E> ForEach.Builder<E> forEach(String variableName, Supplier<Stream<E>> dataSupplier) {
+  public static <E> ForEach.Builder<E> forEach(String variableName, DataSupplier<E> dataSupplier) {
     return new ForEach.Builder<>(variableName, dataSupplier);
   }
 

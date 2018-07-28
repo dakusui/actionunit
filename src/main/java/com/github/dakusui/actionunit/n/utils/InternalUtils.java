@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import java.util.concurrent.*;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkNotNull;
+import static java.lang.String.format;
 
 public enum InternalUtils {
   ;
@@ -43,5 +44,37 @@ public enum InternalUtils {
     } finally {
       executor.shutdownNow();
     }
+  }
+
+  public static String indent(int level) {
+    StringBuilder b = new StringBuilder();
+    for (int i = 0; i < level; i++)
+      b.append("  ");
+    return b.toString();
+  }
+
+  public static String formatNumberOfTimes(int i) {
+    if (i == 1)
+      return "once";
+    if (i == 2)
+      return "twice";
+    return String.format("%s times", i);
+  }
+
+
+  public static String formatDuration(long durationInNanos) {
+    TimeUnit timeUnit = chooseTimeUnit(durationInNanos);
+    return format("%d[%s]", timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
+  }
+
+  private static TimeUnit chooseTimeUnit(long intervalInNanos) {
+    // TimeUnit.values() returns elements of TimeUnit in declared order
+    // And they are declared in ascending order.
+    for (TimeUnit timeUnit : TimeUnit.values()) {
+      if (1000 > timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {
+        return timeUnit;
+      }
+    }
+    return TimeUnit.DAYS;
   }
 }

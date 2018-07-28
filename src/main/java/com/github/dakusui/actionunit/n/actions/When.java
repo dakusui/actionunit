@@ -3,6 +3,8 @@ package com.github.dakusui.actionunit.n.actions;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.ContextPredicate;
 
+import java.util.Formatter;
+
 import static java.util.Objects.requireNonNull;
 
 public interface When extends Action {
@@ -17,10 +19,15 @@ public interface When extends Action {
     visitor.visit(this);
   }
 
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("if [%s] is satisfied", cond());
+  }
+
   class Builder extends Action.Builder<When> {
     private final ContextPredicate cond;
 
-    private Action otherwise = Leaf.NOP;
+    private Action otherwise = Named.of("else", Leaf.NOP);
     private Action perform;
 
     public Builder(ContextPredicate cond) {
@@ -28,12 +35,12 @@ public interface When extends Action {
     }
 
     public Builder perform(Action perform) {
-      this.perform = requireNonNull(perform);
+      this.perform = Named.of("then", requireNonNull(perform));
       return this;
     }
 
     public Action otherwise(Action otherwise) {
-      this.otherwise = requireNonNull(otherwise);
+      this.otherwise = Named.of("else", requireNonNull(otherwise));
       return this.$();
     }
 

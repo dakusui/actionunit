@@ -8,86 +8,74 @@ import com.github.dakusui.actionunit.n.utils.InternalUtils;
 
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-public class ActionPerformer implements Action.Visitor {
-  private Context context;
+public abstract class ActionPerformer implements Action.Visitor {
+  protected Context context;
 
-  private ActionPerformer() {
-    this(Context.create());
-  }
-
-  private ActionPerformer(Context context) {
+  protected ActionPerformer(Context context) {
     this.context = context;
   }
 
-  public static ActionPerformer create() {
-    return new ActionPerformer();
-  }
-
-  @Override
   public void visit(Leaf action) {
     action.runnable(context).run();
   }
 
-  @Override
   public void visit(Named action) {
-    action.action().accept(this);
+    callAccept(action.action(), this);
   }
 
-  @Override
   public void visit(Composite action) {
     Stream<Action> actionStream = action.isParallel()
         ? action.children().parallelStream()
         : action.children().stream();
     actionStream.forEach(
-        a -> a.accept(this)
+        a -> callAccept(a, this)
     );
   }
 
-  @Override
   public <E> void visit(ForEach<E> action) {
-    Stream<E> data = action.isParallel()
-        ? action.data().parallel()
-        : action.data();
+    Stream<E> data = requireNonNull(action.data().get());
+    data = action.isParallel()
+        ? data.parallel()
+        : data;
     data.forEach(
-        e -> action.perform().accept(
-            new ActionPerformer(
-                this.context.createChild().assignTo(
-                    action.loopVariableName(),
-                    e
-                ))));
+        e -> callAccept(action.perform(),
+            newInstance(this.context.createChild().assignTo(
+                action.loopVariableName(),
+                e
+            ))));
   }
 
-  @Override
   public void visit(When action) {
     if (action.cond().test(this.context)) {
-      action.perform().accept(this);
+      callAccept(action.perform(), this);
     } else {
-      action.otherwise().accept(this);
+      callAccept(action.otherwise(), this);
     }
   }
 
-  @Override
   public void visit(Attempt action) {
     try {
-      action.perform().accept(this);
+      callAccept(action.perform(), this);
     } catch (Throwable t) {
       if (action.targetExceptionClass().isAssignableFrom(t.getClass()))
-        action.recover().accept(new ActionPerformer(this.context.createChild().assignTo(Context.Impl.ONGOING_EXCEPTION, t)));
+        callAccept(action.recover(), newInstance(
+            this.context.createChild().assignTo(Context.Impl.ONGOING_EXCEPTION, t)
+        ));
       throw ActionException.wrap(t);
     } finally {
-      action.ensure().accept(this);
+      callAccept(action.ensure(), this);
     }
   }
 
-  @Override
   public void visit(Retry action) {
     boolean succeeded = false;
     Throwable lastException = null;
     for (int i = 0; i <= action.times(); i++) {
       try {
-        action.perform().accept(this);
+        callAccept(action.perform(), this);
         succeeded = true;
       } catch (Throwable t) {
         if (action.targetExceptionClass().isAssignableFrom(t.getClass())) {
@@ -102,15 +90,18 @@ public class ActionPerformer implements Action.Visitor {
       throw new ActionException(lastException);
   }
 
-  @Override
   public void visit(TimeOut action) {
     InternalUtils.runWithTimeout(
         () -> {
-          action.perform().accept(ActionPerformer.this);
+          callAccept(action.perform(), ActionPerformer.this);
           return true;
         },
         action.durationInNanos(),
         NANOSECONDS
     );
   }
+
+  protected abstract Action.Visitor newInstance(Context context);
+
+  protected abstract void callAccept(Action action, Action.Visitor visitor);
 }

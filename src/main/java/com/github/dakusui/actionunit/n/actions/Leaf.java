@@ -4,13 +4,21 @@ import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
 import com.github.dakusui.actionunit.n.core.ContextConsumer;
 
+import java.util.Formatter;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-@FunctionalInterface
 public interface Leaf extends Action, Function<Context, Runnable> {
-  Action NOP = Leaf.of(context -> {
+  Action NOP = Leaf.of(new ContextConsumer() {
+    @Override
+    public void accept(Context context) {
+    }
+
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision) {
+      formatter.format("(nop)");
+    }
   });
 
   Runnable runnable(Context context);
@@ -25,6 +33,16 @@ public interface Leaf extends Action, Function<Context, Runnable> {
 
   static Leaf of(ContextConsumer consumer) {
     requireNonNull(consumer);
-    return context -> () -> consumer.accept(context);
+    return new Leaf() {
+      @Override
+      public Runnable runnable(Context context) {
+        return () -> consumer.accept(context);
+      }
+
+      @Override
+      public void formatTo(Formatter formatter, int flags, int width, int precision) {
+        formatter.format("%s", consumer);
+      }
+    };
   }
 }

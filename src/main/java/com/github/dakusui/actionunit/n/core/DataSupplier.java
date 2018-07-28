@@ -2,12 +2,12 @@ package com.github.dakusui.actionunit.n.core;
 
 import java.util.Formattable;
 import java.util.Formatter;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-@FunctionalInterface
-public interface ContextConsumer extends Consumer<Context>, Formattable {
+public interface DataSupplier<T> extends Supplier<Stream<T>>, Formattable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("(noname)");
+    formatter.format("data");
   }
 }

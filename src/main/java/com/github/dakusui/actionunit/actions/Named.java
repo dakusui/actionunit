@@ -44,7 +44,7 @@ public interface Named extends Nested {
     /**
      * Creates an object of this class.
      *
-     * @param id An id of this object.
+     * @param id     An id of this object.
      * @param name   Name of this object.
      * @param action Action to be performed as a body of this object.
      */

@@ -2,9 +2,11 @@ package com.github.dakusui.actionunit.n.actions;
 
 import com.github.dakusui.actionunit.n.core.Action;
 
+import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.helpers.Checks.checkArgument;
+import static com.github.dakusui.actionunit.n.utils.InternalUtils.formatDuration;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -13,8 +15,14 @@ public interface TimeOut extends Action {
 
   long durationInNanos();
 
+  @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);
+  }
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format("timeout in %s", formatDuration(durationInNanos()));
   }
 
   class Builder extends Action.Builder<TimeOut> {

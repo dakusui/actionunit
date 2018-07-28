@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.n.actions;
 import com.github.dakusui.actionunit.n.core.Action;
 
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -11,6 +12,16 @@ public interface Composite extends Action {
   List<Action> children();
 
   boolean isParallel();
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format(
+        "do %s",
+        isParallel()
+            ? "parallelly"
+            : "sequentially"
+    );
+  }
 
   class Builder {
     private       boolean      parallel;

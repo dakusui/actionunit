@@ -2,7 +2,9 @@ package com.github.dakusui.actionunit.n.core;
 
 import com.github.dakusui.actionunit.n.actions.*;
 
-public interface Action {
+import java.util.Formattable;
+
+public interface Action extends Formattable {
   void accept(Visitor visitor);
 
   abstract class Builder<A extends Action> {
