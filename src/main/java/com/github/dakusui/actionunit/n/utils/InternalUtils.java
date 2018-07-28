@@ -25,6 +25,7 @@ public enum InternalUtils {
     try {
       return future.get(timeout, timeUnit);
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw ActionException.wrap(e);
     } catch (TimeoutException e) {
       future.cancel(true);
