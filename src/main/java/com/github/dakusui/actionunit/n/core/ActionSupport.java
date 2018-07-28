@@ -1,10 +1,7 @@
-package com.github.dakusui.actionunit.n.utils;
+package com.github.dakusui.actionunit.n.core;
 
 import com.github.dakusui.actionunit.n.actions.*;
 import com.github.dakusui.actionunit.n.actions.cmd.Commander;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.n.core.context.ContextPredicate;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -12,26 +9,8 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
-public class ActionSupport extends Core {
-  private ActionSupport() {
-  }
-
-  public static Action simple(String name, ContextConsumer consumer) {
-    return Core.named(name, Core.leaf(consumer));
-  }
-
-  public static Action sequential(Action... actions) {
-    return Core.sequential(asList(actions));
-  }
-
-  public static Action parallel(Action... actions) {
-    return Core.parallel(asList(actions));
-  }
-}
-
-class Core {
-  Core() {
-  }
+public enum ActionSupport {
+  ;
 
   public static Action nop() {
     return Leaf.NOP;
@@ -80,6 +59,18 @@ class Core {
         return program;
       }
     };
+  }
+
+  public static Action simple(String name, ContextConsumer consumer) {
+    return named(name, leaf(consumer));
+  }
+
+  public static Action sequential(Action... actions) {
+    return sequential(asList(actions));
+  }
+
+  public static Action parallel(Action... actions) {
+    return parallel(asList(actions));
   }
 }
 

@@ -41,7 +41,7 @@ public class ActionException extends RuntimeException {
     }
   }
 
-  public static final ExceptionMapping.Resolver<ActionException> RESOLVER = ExceptionMapping.Resolver.Factory.create(Mapping.class);
+  private static final ExceptionMapping.Resolver<ActionException> RESOLVER = ExceptionMapping.Resolver.Factory.create(Mapping.class);
 
   /**
    * Creates a new {@code ActionException} with a given message.

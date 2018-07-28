@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.n;
 
 import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.context.Context;
-import com.github.dakusui.actionunit.n.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.core.ContextConsumer;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import com.github.dakusui.actionunit.n.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.utils.TestUtils;
@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.n.utils.ActionSupport.*;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 

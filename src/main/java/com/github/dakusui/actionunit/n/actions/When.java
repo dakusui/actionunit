@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.n.actions;
 
 import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.n.core.ContextPredicate;
 
 import static java.util.Objects.requireNonNull;
 

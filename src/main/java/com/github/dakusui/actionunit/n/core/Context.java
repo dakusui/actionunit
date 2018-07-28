@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.n.core.context;
+package com.github.dakusui.actionunit.n.core;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -13,6 +13,7 @@ public enum InternalUtils {
     try {
       checkNotNull(timeUnit).sleep(duration);
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw ActionException.wrap(e);
     }
   }

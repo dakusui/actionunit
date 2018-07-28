@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.n.visitors;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.actions.*;
 import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.context.Context;
+import com.github.dakusui.actionunit.n.core.Context;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 
 import java.util.stream.Stream;

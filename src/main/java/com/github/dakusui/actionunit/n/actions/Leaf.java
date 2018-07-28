@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.n.actions;
 
 import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.context.Context;
-import com.github.dakusui.actionunit.n.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.core.ContextConsumer;
 
 import java.util.function.Function;
 

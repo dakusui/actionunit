@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.n.actions.cmd;
 
 import com.github.dakusui.actionunit.helpers.Checks;
 import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.utils.ActionSupport;
+import com.github.dakusui.actionunit.n.core.ActionSupport;
 import com.github.dakusui.cmd.Cmd;
 import com.github.dakusui.cmd.Shell;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.helpers.Checks.*;
 import static com.github.dakusui.actionunit.n.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -190,7 +191,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
 
   private Action readFrom(Stream<String> in) {
     return numRetries > 0 ?
-        ActionSupport.Core.retry(
+        retry(
             this.timeOutIfNecessary(composeAction(in))
         ).on(
             this.retryOn
@@ -342,15 +343,15 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
 
   private Action timeOutIfNecessary(Action action) {
     return this.timeOutDuration > 0
-        ? ActionSupport.Core.timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit).$()
+        ? timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit)
         : action;
   }
 
   private Action composeAction(Stream<String> in) {
     Cmd cmd = composeCmd();
-    return ActionSupport.Core.named(
+    return named(
         description().orElse(CommanderUtils.summarize(cmd.getCommand().toString(), summaryLength)),
-        ActionSupport.Core.leaf(
+        leaf(
             (context) -> {
               Cmd internalCmd = cmd;
               if (!cmd.getState().equals(Cmd.State.PREPARING)) {
