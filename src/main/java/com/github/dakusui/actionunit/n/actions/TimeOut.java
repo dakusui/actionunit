@@ -11,7 +11,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public interface TimeOut extends Action {
   Action perform();
 
-  long durationInNnanos();
+  long durationInNanos();
 
   default void accept(Visitor visitor) {
     visitor.visit(this);
@@ -46,7 +46,7 @@ public interface TimeOut extends Action {
         }
 
         @Override
-        public long durationInNnanos() {
+        public long durationInNanos() {
           return Builder.this.timeUnit.toNanos(Builder.this.duration);
         }
       };

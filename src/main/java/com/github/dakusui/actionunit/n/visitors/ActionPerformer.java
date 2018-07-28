@@ -109,7 +109,7 @@ public class ActionPerformer implements Action.Visitor {
           action.perform().accept(ActionPerformer.this);
           return true;
         },
-        action.durationInNnanos(),
+        action.durationInNanos(),
         NANOSECONDS
     );
   }
