@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.compat.visitors.reporting;
 
 import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.n.utils.InternalUtils;
+import com.github.dakusui.actionunit.n.visitors.Record;
 
 import java.util.*;
 
@@ -41,87 +41,4 @@ public class Report implements Iterable<Node<Action>> {
     return this.records.keySet().iterator();
   }
 
-  public static class Record implements Iterable<Record.Run> {
-    @FunctionalInterface
-    public interface Formatter {
-      Formatter DEFAULT_INSTANCE = new Formatter() {
-        @Override
-        public String format(Node<Action> actionNode, Record record, int indentLevel) {
-          return String.format(
-              "%s[%s]%s",
-              InternalUtils.spaces(indentLevel * 2),
-              formatRecord(record).replaceAll(".{4,}", "... "),
-              actionNode.getContent()
-          );
-        }
-
-        private String formatRecord(Report.Record runs) {
-          StringBuilder b = new StringBuilder();
-          runs.forEach(run -> b.append(run.toString()));
-          return b.toString();
-        }
-      };
-
-      Formatter DEBUG_INSTANCE = new Formatter() {
-        @Override
-        public String format(Node<Action> actionNode, Record record, int indentLevel) {
-          return String.format(
-              "%s[%s]%d-%s",
-              InternalUtils.spaces(indentLevel * 2),
-              formatRecord(record).replaceAll("o{4,}", "o..."),
-              actionNode.getContent().id(),
-              actionNode.getContent()
-          );
-        }
-
-        private String formatRecord(Report.Record runs) {
-          StringBuilder b = new StringBuilder();
-          runs.forEach(run -> b.append(run.toString()));
-          return b.toString();
-        }
-      };
-
-      String format(Node<Action> actionNode, Record record, int indentLevel);
-    }
-
-    final List<Record.Run> runs = Collections.synchronizedList(new LinkedList<>());
-
-    public void succeeded() {
-      runs.add(Record.Run.SUCCEEDED);
-    }
-
-    public void failed(Throwable t) {
-      runs.add(Record.Run.failed(t));
-    }
-
-    @Override
-    public Iterator<Record.Run> iterator() {
-      return runs.iterator();
-    }
-
-    @Override
-    public String toString() {
-      return runs.toString();
-    }
-
-    public interface Run {
-      Record.Run SUCCEEDED = new Record.Run() {
-        public String toString() {
-          return ".";
-        }
-      };
-
-      static Record.Run failed(Throwable t) {
-        Objects.requireNonNull(t);
-        return new Record.Run() {
-          @Override
-          public String toString() {
-            return t instanceof AssertionError
-                ? "F"
-                : "E";
-          }
-        };
-      }
-    }
-  }
 }

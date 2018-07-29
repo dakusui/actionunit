@@ -42,7 +42,7 @@ public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBa
     return (c) -> attempt(action).recover(
         Exception.class,
         simple("rethrow", context -> {
-          Throwable t = context.thrownException().orElseThrow(RuntimeException::new);
+          Throwable t = context.thrownException();
           if (t instanceof RuntimeException) {
             throw (RuntimeException) t;
           } else if (t instanceof Error) {

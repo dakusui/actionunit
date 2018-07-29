@@ -3,9 +3,9 @@ package com.github.dakusui.actionunit.examples;
 import com.github.dakusui.actionunit.compat.ActionUnit;
 import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.core.Context;
+import com.github.dakusui.actionunit.compat.visitors.reporting.Formatter;
 import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.reporting.Report;
 import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +36,7 @@ public class WhileExample extends TestUtils.ContextTestBase implements Context {
   @Test
   public void runAction2(Action action) {
     new ReportingActionPerformer.Builder(action)
-        .with(Report.Record.Formatter.DEFAULT_INSTANCE)
+        .with(Formatter.DEFAULT_INSTANCE)
         .to(Writer.Std.OUT)
         .build()
         .performAndReport();

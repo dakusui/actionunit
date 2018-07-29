@@ -4,10 +4,10 @@ import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
 import com.github.dakusui.actionunit.n.core.ContextConsumer;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
 
   private static final Action EXAMPLE_ACTION = forEach(
       "i",
-      () -> Stream.of("a", "b", "c")
+      () -> Stream.of("a", "b", "c", "d", "e")
   ).parallel(
   ).perform(
       attempt(
@@ -45,16 +45,14 @@ public class ActionSupportTest extends TestUtils.TestBase {
               forEach("i", () -> Stream.of(1, 2, 3)).perform(
                   leaf(
                       $ -> {
-                        throw new IllegalStateException();
+                        throw new IllegalStateException("err");
                       })))
       ).recover(
           Exception.class,
           simple(
               "let's recover",
               context -> {
-                Throwable t = context.thrownException().orElse(null);
-                assert t != null;
-                throw ActionException.wrap(t);
+                System.out.println("Exception was caught:" + context.thrownException().getMessage());
               })
       ).ensure(
           simple(
@@ -64,7 +62,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
       )
   );
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void giveExampleScenarioThatThrowsError$whenPerform$thenExceptionThrown() {
     EXAMPLE_ACTION.accept(SimpleActionPerformer.create());
   }
@@ -140,7 +138,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
           }
         })
     ).withIntervalOf(
-        1, MILLISECONDS
+        1_000, MILLISECONDS
     ).$();
 
     action.accept(SimpleActionPerformer.create());
@@ -178,5 +176,10 @@ public class ActionSupportTest extends TestUtils.TestBase {
   @Test
   public void print() {
     EXAMPLE_ACTION.accept(new ActionPrinter());
+  }
+
+  @Test
+  public void performAndReport() {
+    ReportingActionPerformer.create().perform(EXAMPLE_ACTION).report(EXAMPLE_ACTION);
   }
 }

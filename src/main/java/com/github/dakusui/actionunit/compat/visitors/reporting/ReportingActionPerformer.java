@@ -12,25 +12,25 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 public class ReportingActionPerformer extends ActionPerformer {
-  private final Writer                  writer;
-  private final Report.Record.Formatter formatter;
-  private final Report                  report;
-  private final Identifier              identifier;
+  private final Writer     writer;
+  private final Formatter  formatter;
+  private final Report     report;
+  private final Identifier identifier;
 
   public static class Builder {
-    private final Action action;
-    private Report.Record.Formatter formatter  = Report.Record.Formatter.DEFAULT_INSTANCE;
-    private Writer                  writer     = Writer.Std.OUT;
+    private final Action     action;
+    private       Formatter  formatter  = Formatter.DEFAULT_INSTANCE;
+    private       Writer     writer     = Writer.Std.OUT;
     /**
      * A bi-predicate to check if given 2 nodes are identical or not.
      */
-    private Identifier              identifier = Identifier.BY_ID;
+    private       Identifier identifier = Identifier.BY_ID;
 
     public Builder(Action action) {
       this.action = Objects.requireNonNull(action);
     }
 
-    public Builder with(Report.Record.Formatter formatter) {
+    public Builder with(Formatter formatter) {
       this.formatter = Objects.requireNonNull(formatter);
       return this;
     }
@@ -50,7 +50,7 @@ public class ReportingActionPerformer extends ActionPerformer {
     }
   }
 
-  private ReportingActionPerformer(Node<Action> tree, Identifier identifier, Writer writer, Report.Record.Formatter formatter) {
+  private ReportingActionPerformer(Node<Action> tree, Identifier identifier, Writer writer, Formatter formatter) {
     super();
     this.report = new Report(tree);
     this.identifier = Objects.requireNonNull(identifier);
@@ -86,7 +86,7 @@ public class ReportingActionPerformer extends ActionPerformer {
     return new Builder(
         action
     ).with(
-        Report.Record.Formatter.DEFAULT_INSTANCE
+        Formatter.DEFAULT_INSTANCE
     ).with(
         Identifier.BY_ID
     ).to(

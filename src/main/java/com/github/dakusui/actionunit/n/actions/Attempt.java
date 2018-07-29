@@ -34,8 +34,8 @@ public interface Attempt extends Action {
     private       Action                     recover              = Named.of("recover",
         Leaf.of(
             $ -> {
-              if ($.thrownException().isPresent()) {
-                throw ActionException.wrap($.thrownException().get());
+              if ($.wasExceptionThrown()) {
+                throw ActionException.wrap($.thrownException());
               }
             }));
     private       Action                     ensure               = Named.of("ensure",

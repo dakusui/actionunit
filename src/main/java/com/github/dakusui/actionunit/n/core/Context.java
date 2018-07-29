@@ -3,19 +3,25 @@ package com.github.dakusui.actionunit.n.core;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
+import static com.github.dakusui.actionunit.n.core.Context.Impl.ONGOING_EXCEPTION;
 import static java.util.Objects.requireNonNull;
 
 public interface Context {
 
   Context createChild();
 
+  boolean defined(String variableName);
+
   <V> V valueOf(String variableName);
 
   Context assignTo(String variableName, Object value);
 
-  Optional<Throwable> thrownException();
+  <T extends Throwable> T thrownException();
+
+  default boolean wasExceptionThrown() {
+    return defined(ONGOING_EXCEPTION);
+  }
 
   class Impl implements Context {
     public static final String              ONGOING_EXCEPTION = "ONGOING_EXCEPTION";
@@ -33,6 +39,15 @@ public interface Context {
     @Override
     public Context createChild() {
       return new Impl(this);
+    }
+
+    @Override
+    public boolean defined(String variableName) {
+      if (this.variables.containsKey(variableName))
+        return true;
+      if (this.parent == null)
+        return false;
+      return parent.defined(variableName);
     }
 
     @SuppressWarnings("unchecked")
@@ -53,11 +68,10 @@ public interface Context {
       return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Optional<Throwable> thrownException() {
-      return this.variables.containsKey(ONGOING_EXCEPTION)
-          ? Optional.of((Throwable) this.variables.get(ONGOING_EXCEPTION))
-          : Optional.empty();
+    public <T extends Throwable> T thrownException() {
+      return (T) this.variables.get(ONGOING_EXCEPTION);
     }
   }
 

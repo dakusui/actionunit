@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.n.visitors;
 
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.actions.*;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 
 import java.util.stream.Stream;
@@ -15,7 +15,7 @@ public abstract class ActionPerformer implements Action.Visitor {
   protected Context context;
 
   protected ActionPerformer(Context context) {
-    this.context = context;
+    this.context = requireNonNull(context);
   }
 
   public void visit(Leaf action) {
@@ -42,10 +42,12 @@ public abstract class ActionPerformer implements Action.Visitor {
         : data;
     data.forEach(
         e -> callAccept(action.perform(),
-            newInstance(this.context.createChild().assignTo(
-                action.loopVariableName(),
-                e
-            ))));
+            newInstance(
+                this.context.createChild().assignTo(
+                    action.loopVariableName(),
+                    e
+                )
+            )));
   }
 
   public void visit(When action) {
@@ -64,7 +66,8 @@ public abstract class ActionPerformer implements Action.Visitor {
         callAccept(action.recover(), newInstance(
             this.context.createChild().assignTo(Context.Impl.ONGOING_EXCEPTION, t)
         ));
-      throw ActionException.wrap(t);
+      else
+        throw ActionException.wrap(t);
     } finally {
       callAccept(action.ensure(), this);
     }
@@ -77,6 +80,7 @@ public abstract class ActionPerformer implements Action.Visitor {
       try {
         callAccept(action.perform(), this);
         succeeded = true;
+        break;
       } catch (Throwable t) {
         if (action.targetExceptionClass().isAssignableFrom(t.getClass())) {
           lastException = t;

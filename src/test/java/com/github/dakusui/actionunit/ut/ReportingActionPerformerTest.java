@@ -2,13 +2,13 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.core.Context;
+import com.github.dakusui.actionunit.compat.visitors.reporting.Formatter;
 import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.Matchers;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.compat.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
-import com.github.dakusui.actionunit.compat.visitors.reporting.Report;
 import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -36,7 +36,7 @@ public class ReportingActionPerformerTest implements UtContext {
     }
 
     void performAndPrintAction(Action action) {
-      new ReportingActionPerformer.Builder(action).to(getWriter()).with(Report.Record.Formatter.DEBUG_INSTANCE).build().performAndReport();
+      new ReportingActionPerformer.Builder(action).to(getWriter()).with(Formatter.DEBUG_INSTANCE).build().performAndReport();
     }
   }
 

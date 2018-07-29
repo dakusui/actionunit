@@ -1,21 +1,21 @@
 package com.github.dakusui.actionunit.n.visitors;
 
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
-import com.github.dakusui.actionunit.compat.visitors.reporting.Report;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static java.util.Objects.requireNonNull;
+
 public class ReportingActionPerformer extends ActionPerformer {
-  private Map<Action, Report.Record> report;
+  private final Map<Action, Record> report;
 
   private ReportingActionPerformer() {
-    this(null, new LinkedHashMap<>());
+    this(Context.create(), new LinkedHashMap<>());
   }
 
-  private ReportingActionPerformer(Context context, Map<Action, Report.Record> report) {
+  private ReportingActionPerformer(Context context, Map<Action, Record> report) {
     super(context);
     this.report = report;
   }
@@ -27,16 +27,22 @@ public class ReportingActionPerformer extends ActionPerformer {
 
   @Override
   protected void callAccept(Action action, Action.Visitor visitor) {
-    report.computeIfAbsent(action, a -> new Report.Record());
-
-    Report.Record record = report.get(action);
+    synchronized (report) {
+      report.computeIfAbsent(action, a -> new Record());
+    }
+    Record record = requireNonNull(report.get(action));
     try {
       action.accept(visitor);
       record.succeeded();
     } catch (Throwable t) {
       record.failed(t);
-      throw ActionException.wrap(t);
+      throw t;
     }
+  }
+
+  public ActionReporter perform(Action action) {
+    callAccept(requireNonNull(action), this);
+    return new ActionReporter(this.report);
   }
 
   public static ReportingActionPerformer create() {

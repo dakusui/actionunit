@@ -4,9 +4,9 @@ import com.github.dakusui.actionunit.compat.actions.Retry;
 import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.CompatActionSupport;
 import com.github.dakusui.actionunit.compat.core.Context;
+import com.github.dakusui.actionunit.compat.visitors.reporting.Formatter;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.reporting.Report;
 import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
 import org.junit.Rule;
 import org.junit.Test;
@@ -95,7 +95,7 @@ public class RetryTest extends TestUtils.ContextTestBase implements Context {
       ).to(
           outForTree
       ).with(
-          Report.Record.Formatter.DEBUG_INSTANCE
+          Formatter.DEBUG_INSTANCE
       ).build().performAndReport();
     } finally {
       assertThat(
