@@ -2,14 +2,26 @@ package com.github.dakusui.actionunit.n.actions;
 
 import com.github.dakusui.actionunit.n.core.Action;
 
-import java.util.Formattable;
 import java.util.Formatter;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * An action that gives a name to another.
+ */
 public interface Named extends Action {
+  /**
+   * Returns a name of this action.
+   *
+   * @return name of this object.
+   */
   String name();
 
+  /**
+   * Returns an action named by this object.
+   *
+   * @return An action named by this.
+   */
   Action action();
 
   @Override
