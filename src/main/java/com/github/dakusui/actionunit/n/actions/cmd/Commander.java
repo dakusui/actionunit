@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class Commander<B extends Commander<B>> extends Action.Builder<Action> implements Cloneable {
   private final int            summaryLength;
-  private       Stream<String> stdin = null;
+  private       Stream<String> stdin;
 
   private static final Consumer<String> DEFAULT_STDOUT_CONSUMER = System.out::println;
   private static final Consumer<String> DEFAULT_STDERR_CONSUMER = System.err::println;
@@ -95,12 +95,12 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
 
   @SuppressWarnings("unchecked")
   public B stdin(Stream<String> stdin) {
-    this.stdin = stdin;
+    this.stdin = requireNonNull(stdin);
     return (B) this;
   }
 
   public B disconnectStdin() {
-    return stdin(null);
+    return stdin(Stream.empty());
   }
 
   /**

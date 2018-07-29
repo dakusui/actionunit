@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.n.actions;
 
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 
 import java.util.Formatter;
 
-import static com.github.dakusui.actionunit.n.utils.Checks.requireArgument;
 import static com.github.dakusui.actionunit.n.core.ActionSupport.named;
+import static com.github.dakusui.actionunit.n.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
 public interface Attempt extends Action {
@@ -49,7 +49,7 @@ public interface Attempt extends Action {
     public Builder recover(Class<? extends Throwable> targetExceptionClass, Action recover) {
       this.recover = Named.of("recover", requireNonNull(recover));
       this.targetExceptionClass = requireArgument(
-          t -> Exception.class.isAssignableFrom(t.getClass()),
+          Exception.class::isAssignableFrom,
           requireNonNull(targetExceptionClass)
       );
       return this;

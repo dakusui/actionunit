@@ -10,6 +10,8 @@ import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.stream.Stream;
 
@@ -17,6 +19,7 @@ import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@RunWith(JUnit4.class)
 public class ActionSupportTest extends TestUtils.TestBase {
 
   private static final Action EXAMPLE_ACTION = forEach(
@@ -46,14 +49,13 @@ public class ActionSupportTest extends TestUtils.TestBase {
                       })))
       ).recover(
           Exception.class,
-          simple("let's recover", new ContextConsumer() {
-            @Override
-            public void accept(Context context) {
-              Throwable t = context.thrownException().orElse(null);
-              assert t != null;
-              throw ActionException.wrap(t);
-            }
-          })
+          simple(
+              "let's recover",
+              context -> {
+                Throwable t = context.thrownException().orElse(null);
+                assert t != null;
+                throw ActionException.wrap(t);
+              })
       ).ensure(
           simple(
               "a simple action",
