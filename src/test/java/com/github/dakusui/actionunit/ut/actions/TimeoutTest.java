@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.compat.core.Action;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import org.junit.Test;
@@ -8,11 +9,13 @@ import org.junit.Test;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.timeout;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class TimeoutTest implements UtContext {
+public class TimeoutTest extends TestUtils.TestBase {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeDuration$whenCreated$thenExceptionThrown() {
     timeout(nop()).in(-2, SECONDS);
@@ -21,15 +24,12 @@ public class TimeoutTest implements UtContext {
   @Test(expected = InterruptedException.class)
   public void whenInterrupted() throws Throwable {
     final Thread main = currentThread();
-    Thread interrupter = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        InternalUtils.sleep(500, MILLISECONDS);
-        main.interrupt();
-      }
+    Thread interrupter = new Thread(() -> {
+      InternalUtils.sleep(500, MILLISECONDS);
+      main.interrupt();
     });
     Action action = timeout(
-        sleep(5, SECONDS)
+        TestUtils.sleep(5, SECONDS)
     ).in(
         10, SECONDS
     );

@@ -2,14 +2,15 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.compat.actions.ActionBase;
 import com.github.dakusui.actionunit.compat.actions.Composite;
-import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.core.Context;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.Matchers;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
 import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -24,7 +25,7 @@ import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.size;
-import static java.lang.String.format;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,23 +33,24 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
-public class ActionPrinterTest implements UtContext {
-  private static class ActionComposer extends TestUtils.ContextTestBase implements Context {
+public class ActionPrinterTest extends TestUtils.TestBase {
+  private static class ActionComposer extends TestUtils.TestBase {
     Action composeAction() {
       return named("Concurrent (top level)",
-          concurrent(
+          parallel(
               named("Sequential (1st child)",
                   sequential(
-                      simple("simple1", () -> {
+                      simple("simple1", (context) -> {
                       }),
-                      simple("simple2", () -> {
+                      simple("simple2", (context) -> {
                       }),
-                      simple("simple3", () -> {
+                      simple("simple3", (context) -> {
                       }),
-                      forEachOf(
-                          asList("hello1", "hello2", "hello3")
+                      forEach(
+                          "i",
+                          () -> asList("hello1", "hello2", "hello3").stream()
                       ).perform(
-                          i -> $ -> nop()
+                          nop()
                       )
                   ))));
     }
@@ -58,35 +60,35 @@ public class ActionPrinterTest implements UtContext {
 
     @Test
     public void givenTrace() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.trace());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.TRACE));
     }
 
     @Test
     public void givenDebug$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.debug());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.DEBUG));
     }
 
     @Test
     public void givenInfo$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.info());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.INFO));
     }
 
     @Test
     public void givenWarn() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.warn());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.WARN));
     }
 
     @Test
     public void givenError() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.error());
+      composeAction().accept(new ActionPrinter(Writer.Slf4J.ERROR));
     }
 
     @Test
     public void givenNew() {
       ////
       // Prepare and run a printing scanner
-      PrintingActionScanner printer = new PrintingActionScanner(new Writer.Impl());
-      Writer.Impl writer = (Writer.Impl) printer.getWriter();
+      Writer.Impl writer = new Writer.Impl();
+      ActionPrinter printer = new ActionPrinter(writer);
       // run printing scanner
       composeAction().accept(printer);
       // print data written to a writer
@@ -106,63 +108,22 @@ public class ActionPrinterTest implements UtContext {
     }
   }
 
-  public static class StdOutErrTest extends ActionComposer implements Context {
+  public static class StdOutErrTest extends ActionComposer {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stdout());
+      composeAction().accept(new ActionPrinter(Writer.Std.OUT));
     }
 
     @Test
     public void givenStderr$whenTestActionAccepts$thenNoErrorWillBeGiven() {
-      composeAction().accept(PrintingActionScanner.Factory.DEFAULT_INSTANCE.stderr());
+      composeAction().accept(new ActionPrinter(Writer.Std.ERR));
     }
   }
-
-  public static class WithResultTest extends TestUtils.ContextTestBase implements Context {
-    private Action composeAction(final List<String> out) {
-      //noinspection unchecked
-      return named("Concurrent (top level)", concurrent(
-          named("Sequential (1st child)", sequential(
-              simple("simple1", () -> {
-              }),
-              simple("simple2", () -> {
-              }),
-              simple("simple3", () -> {
-              }))
-          ),
-          named("ForEach1",
-              forEachOf(
-                  asList("hello1", "hello2", "hello3")
-              ).perform(
-                  data -> ($) -> $.given(
-                      "ExampleTest", () -> "ExampleTest")
-                      .when("Say 'hello'", input -> {
-                        out.add(format("hello:%s", data.get()));
-                        return format("hello:%s", data.get());
-                      })
-                      .then("anything", v -> true)
-              )),
-          named("ForEach2",
-              forEachOf(
-                  asList("world1", "world2", "world3")
-              ).perform(
-                  i -> $ ->
-                      $.sequential(
-                          $.simple("nothing", () -> {
-                          }),
-                          $.simple("sink1", () -> {
-                          }),
-                          $.simple("sink2", () -> {
-                          })
-                      )
-              ))
-      ));
-    }
 
     @Test
     public void givenComplicatedTestAction$whenPerformed$thenWorksFine() {
       List<String> out = new LinkedList<>();
-      Action action = composeAction(out);
+      Action action = composeAction();
       try {
         action.accept(TestUtils.createActionPerformer());
         assertEquals(asList("hello:hello1", "hello:hello2", "hello:hello3"), out);

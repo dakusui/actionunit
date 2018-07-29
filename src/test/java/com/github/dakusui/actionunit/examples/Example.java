@@ -1,30 +1,38 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.actions.ValueHolder;
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.compat.core.Context;
-import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
+import java.util.stream.Stream;
 
-public class Example implements UtContext {
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+
+public class Example extends TestUtils.TestBase {
   @Test
   public void test() {
-    Action action = forEachOf(
-        asList("hello", "world")
-    ).concurrently(
+    Action action = forEach(
+        "i",
+        () -> Stream.of("hello", "world")
+    ).parallelly(
     ).perform(
-        (ValueHolder<String> v) -> (Context f) -> f.sequential(
-            f.simple("print", () -> System.out.println(v.get())),
-            f.simple("print", () -> System.out.println(v.get())),
-            f.sequential(
-                f.simple("print", () -> System.out.println(v.get())),
-                f.simple("print", () -> System.out.println(v.get()))
+        sequential(
+            simple("print", (c) -> System.out.println(v(c))),
+            simple("print", (c) -> System.out.println(v(c))),
+            sequential(
+                simple("print", (c) -> System.out.println(v(c))),
+                simple("print", (c) -> System.out.println(v(c)))
             )
         )
     );
 
-    new ReportingActionPerformer.Builder(action).build().performAndReport();
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+  }
+
+  static private String v(Context c) {
+    return c.valueOf("v");
   }
 }

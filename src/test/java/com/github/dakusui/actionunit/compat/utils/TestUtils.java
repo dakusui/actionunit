@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.compat.utils;
 
 import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.n.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
@@ -19,9 +20,11 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.actionunit.n.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.n.utils.Checks.checkArgument;
 import static com.github.dakusui.actionunit.n.utils.Checks.checkNotNull;
 
@@ -90,6 +93,17 @@ public class TestUtils {
 
   public static ReportingActionPerformer createReportingActionPerformer() {
     return ReportingActionPerformer.create(Writer.Std.OUT);
+  }
+
+  public static Action sleep(long duration, TimeUnit timeUnit) {
+    return simple(String.format("sleep %s[%s]", duration, timeUnit), context -> {
+      try {
+        Thread.sleep(timeUnit.toMillis(duration));
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw ActionException.wrap(e);
+      }
+    });
   }
 
   public static <I, O> AutocloseableIterator<O> transform(final AutocloseableIterator<I> in, final Function<? super I, ? extends O> function) {

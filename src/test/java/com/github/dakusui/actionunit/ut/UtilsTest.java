@@ -1,22 +1,18 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.utils.InternalUtils;
-import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import org.junit.Test;
-import org.junit.runners.Parameterized;
-import org.junit.runners.model.TestClass;
 
-import java.lang.annotation.Annotation;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.range;
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.compat.utils.TestUtils.*;
+import static com.sun.org.glassfish.gmbal.ManagedObjectManagerFactory.getMethod;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -31,7 +27,7 @@ import static org.junit.Assert.assertFalse;
 public class UtilsTest {
   @Test
   public void whenRangeIntIsInvoked$thenWorksRight() {
-    List<Integer> result = InternalUtils.toList(
+    List<Integer> result = toList(
         range(1));
     assertEquals(
         singletonList(0),
@@ -41,7 +37,7 @@ public class UtilsTest {
 
   @Test
   public void whenRangeIntIntIsInvoked$thenWorksRight() {
-    List<Integer> result = InternalUtils.toList(
+    List<Integer> result = toList(
         range(0, 3));
 
     assertEquals(
@@ -57,7 +53,7 @@ public class UtilsTest {
 
   @Test
   public void whenRangeIntIntInIsInvoked$thenWorksRight() {
-    List<Integer> result = InternalUtils.toList(
+    List<Integer> result = toList(
         range(0, 3, 1));
     assertEquals(
         asList(0, 1, 2),
@@ -67,7 +63,7 @@ public class UtilsTest {
 
   @Test
   public void givenStartAndStopAreAscendingAndNegativeStep$whenRangeIntIntInIsInvoked$thenEmptyReturned() {
-    List<Integer> result = InternalUtils.toList(
+    List<Integer> result = toList(
         range(0, 3, -1));
     assertEquals(
         emptyList(),
@@ -77,7 +73,7 @@ public class UtilsTest {
 
   @Test
   public void givenStartAndStopAreDescendingAndNegativeStep$whenRangeIntIntInIsInvoked$thenWorksRight() {
-    List<Integer> result = InternalUtils.toList(
+    List<Integer> result = toList(
         range(3, 0, -1));
     assertEquals(
         asList(3, 2, 1),
@@ -88,57 +84,6 @@ public class UtilsTest {
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeStep$whenRangeIsInvoked$thenIllegalArgument() {
     range(0, 1, 0);
-  }
-
-  @Test
-  public void givenNearIntegerMax$whenGoBeyondMaximum$thenImmediatelyStops() {
-    List<Integer> result = InternalUtils.toList(
-        range(Integer.MAX_VALUE, 0, 1));
-    assertEquals(
-        emptyList(),
-        result
-    );
-  }
-
-  @Test
-  public void givenNearIntegerMin$whenGoBeyondMaximum$thenImmediatelyStops() {
-    List<Integer> result = InternalUtils.toList(
-        range(Integer.MIN_VALUE, 0, -1));
-    assertEquals(
-        emptyList(),
-        result
-    );
-  }
-
-  @Test
-  public void givenToStringNotOverridden$whenDescribe$thenLooksGood() {
-    assertEquals(
-        "Hello, world",
-        InternalUtils.describe("Hello, world")
-    );
-  }
-
-  @Test
-  public void givenNull$whenDescribe$thenLooksGood() {
-    assertEquals(
-        "null",
-        InternalUtils.describe(null)
-    );
-  }
-
-  @Test
-  public void givenToStringOverridden$whenDescribe$thenLooksGood() {
-    assertEquals(
-        "hello world",
-        InternalUtils.describe(
-            new Object() {
-              @Override
-              public String toString() {
-                return "hello world";
-              }
-            }
-        )
-    );
   }
 
 
@@ -270,53 +215,37 @@ public class UtilsTest {
    */
   private Iterable<String> createAutoclosingIterable(
       final TestUtils.Out out) {
-    return new Iterable<String>() {
-      @Override
-      public Iterator<String> iterator() {
-        class Ret implements Iterator<String>, AutoCloseable {
-          Iterator<String> inner = createAutoclosingCollection(out).iterator();
+    return () -> {
+      class Ret implements Iterator<String>, AutoCloseable {
+        Iterator<String> inner = createAutoclosingCollection(out).iterator();
 
-          @Override
-          public void close() throws Exception {
-            out.writeLine("closed@Iterable");
-            ((AutoCloseable) inner).close();
-          }
-
-          @Override
-          public boolean hasNext() {
-            return inner.hasNext();
-          }
-
-          @Override
-          public String next() {
-            return inner.next();
-          }
-
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
+        @Override
+        public void close() throws Exception {
+          out.writeLine("closed@Iterable");
+          ((AutoCloseable) inner).close();
         }
-        return new Ret();
+
+        @Override
+        public boolean hasNext() {
+          return inner.hasNext();
+        }
+
+        @Override
+        public String next() {
+          return inner.next();
+        }
+
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException();
+        }
       }
+      return new Ret();
     };
   }
 
   @Test(expected = ActionException.class)
   public void givenNonExistingMethodName$whenGetMethodIsPerformed$thenWrappedExceptionThrown() {
-    InternalUtils.getMethod(Object.class, "notExistingMethod");
-  }
-
-  @Test
-  public void gienTestClassMoke$whenAnnotationTypeMethodRun$thenParameterizedParametersReturned() {
-    Class<? extends Annotation> annotationType = InternalUtils.createTestClassMock(new TestClass(DummyTestClass.class))
-        .getAnnotatedMethods(Parameterized.Parameters.class)
-        .get(0)
-        .getAnnotation(Parameterized.Parameters.class)
-        .annotationType();
-    assertEquals(Parameterized.Parameters.class, annotationType);
-  }
-
-  public static class DummyTestClass {
+    getMethod(Object.class, "notExistingMethod");
   }
 }

@@ -1,14 +1,17 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.util.stream.Stream;
+
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -22,7 +25,7 @@ public class ActionRunnerTest {
 
     @Override
     public Action.Visitor getPrinter(Writer writer) {
-      return PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(writer);
+      return new ActionPrinter(writer);
     }
   }
 
@@ -61,28 +64,29 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return forEachOf(
-          "A", "B"
+      return forEach(
+          "i",
+          () -> Stream.of("A", "B")
       ).perform(
-          i -> ($) ->
-              $.sequential(
-                  $.simple(
-                      "Prefix env 'outer-'",
-                      () -> getWriter().writeLine("outer-" + i.get())
-                  ),
-                  $.forEachOf(
-                      "a", "b"
-                  ).perform(
-                      j -> ($1) -> $1.simple(
-                          "Prefix env '\\_inner-'",
-                          () -> getWriter().writeLine("\\_inner-" + j.get())
-                      )
-                  ),
-                  $.simple(
-                      "Prefix env 'outer-'",
-                      () -> getWriter().writeLine("outer-" + i.get())
+          sequential(
+              simple(
+                  "Prefix env 'outer-'",
+                  (c) -> getWriter().writeLine("outer-" + c.valueOf("i"))
+              ),
+              forEach(
+                  "j",
+                  () -> Stream.of("a", "b")
+              ).perform(
+                  simple(
+                      "Prefix env '\\_inner-'",
+                      (cc) -> getWriter().writeLine("\\_inner-" + cc.valueOf("j"))
                   )
+              ),
+              simple(
+                  "Prefix env 'outer-'",
+                  (cc) -> getWriter().writeLine("outer-" + cc.valueOf("i"))
               )
+          )
       );
     }
   }

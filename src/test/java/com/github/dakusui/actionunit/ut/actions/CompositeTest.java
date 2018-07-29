@@ -1,37 +1,20 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.compat.actions.Composite;
+import com.github.dakusui.actionunit.n.core.Action;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.Iterator;
 
-import static com.github.dakusui.actionunit.compat.CompatActionSupport.*;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.parallel;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.sequential;
 import static org.junit.Assert.assertFalse;
 
 public class CompositeTest {
   @Test
-  public void givenSequentialActionCreatedFromNonCollectionIterable$whenSize$thenCorrectSizeReturned() {
-    // given
-    Composite action = (Composite) sequential(new Iterable<Action>() {
-      @Override
-      public Iterator<Action> iterator() {
-        return singletonList(nop()).iterator();
-      }
-    });
-    // when
-    int size = action.size();
-    // then
-    assertEquals(-1, size);
-  }
-
-  @Test
   public void givenSequentialActionAndNonCompositeAction$whenEquals$thenFalse() {
     // given
-    Action action = sequential(Collections.<Action>emptyList());
+    Action action = sequential(Collections.emptyList());
     Action another = nop();
     // when
     boolean result = action.equals(another);
@@ -43,7 +26,7 @@ public class CompositeTest {
   @Test
   public void givenSequentialActionAndAnotherDifferentSequentialAction$whenEquals$thenFalse() {
     // given
-    Action action = sequential(Collections.<Action>emptyList());
+    Action action = sequential(Collections.emptyList());
     Action another = sequential(nop());
 
     // when
@@ -57,7 +40,7 @@ public class CompositeTest {
   public void givenSequentialActionAndConcurrentAction$whenEquals$thenFalse() {
     // given
     Action action = sequential(Collections.<Action>emptyList());
-    Action another = concurrent(nop());
+    Action another = parallel(nop());
 
     // when
     boolean result = action.equals(another);
