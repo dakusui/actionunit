@@ -1,20 +1,20 @@
 package com.github.dakusui.actionunit.compat.core;
 
-import com.github.dakusui.actionunit.compat.actions.ValueHolder;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.compat.generators.ActionGenerator;
-import com.github.dakusui.actionunit.compat.generators.StringGenerator;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.ActionSupport;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.compat.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.compat.generators.BooleanGenerator.equalTo;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 
 @RunWith(Enclosed.class)
 public class ActionSupportTest {
@@ -22,9 +22,7 @@ public class ActionSupportTest {
     @Test
     public void echoTest() {
       run(
-          cmd(StringGenerator.of("echo"),
-              valueHolder -> context -> commander -> commander.add("hello")
-          )
+          cmd("echo").add("hello").$()
       );
     }
   }
@@ -34,23 +32,30 @@ public class ActionSupportTest {
     public void attemptTest1() {
       run(
           attempt(
-              simple("Fail", throwException(() -> new ActionException("hi")))
+              simple("Fail", context -> {
+                throw new ActionException("hi");
+              })
           ).recover(
               ActionException.class,
-              simple("Let's go", print(StringGenerator.of("GO!")))
+              simple("Let's go", context -> print("GO!"))
           ).ensure(
-              simple("Ensured", print(StringGenerator.of("bye...")))
-          )
-      );
+              simple("Ensured", context ->
+                  print("bye...")
+              )
+          ));
     }
 
     @Test(expected = ActionException.class)
     public void attemptTest2() {
       run(
           attempt(
-              simple("Fail", throwException(() -> new ActionException("hi")))
+              simple("Fail", context -> {
+                throw new ActionException("hi");
+              })
           ).ensure(
-              simple("Ensured", print(StringGenerator.of("bye...")))
+              simple("Ensured", context -> {
+                print("bye...");
+              })
           )
       );
     }
@@ -59,30 +64,26 @@ public class ActionSupportTest {
     @Test
     public void attemptTest3() {
       run(
-          forEach(() -> Stream.of("Hello", "World")).perform(
+          forEach("i", () -> Stream.of("Hello", "World")).perform(
               ActionSupport.<String>attempt(
-                  i -> c -> c.simple("attempt", new Runnable() {
-                    @Override
-                    public void run() {
-                      System.out.println("attempt:" + i.get());
-                      throw new ActionException("exception");
-                    }
+                  leaf(context -> {
+                    String i = context.valueOf("i");
+                    System.out.println("attempt:" + i);
+                    throw new ActionException("exception");
                   })
               ).recover(
                   ActionException.class,
-                  i -> c -> c.simple("recover", new Runnable() {
-                    @Override
-                    public void run() {
-                      System.out.println("attempt:" + i.get());
-                    }
-                  })
+                  leaf(context -> {
+                        String i = context.valueOf("i");
+                        System.out.println("attempt:" + i);
+                      }
+                  )
               ).ensure(
-                  i -> c -> c.simple("ensure", new Runnable() {
-                    @Override
-                    public void run() {
-                      System.out.println("ensure:" + i.get());
-                    }
-                  })
+                  leaf(context -> {
+                        String i = context.valueOf("i");
+                        System.out.println("ensure:" + i);
+                      }
+                  )
               )
           )
       );
@@ -95,46 +96,53 @@ public class ActionSupportTest {
     public void main() {
       run(
           sequential(
-              retry(
-                  setContextVariable("X", StringGenerator.of("weld")),
-                  2, 1, RuntimeException.class
-              ),
+              retry(leaf(
+                  context -> context.assignTo("X", "weld"))
+              ).withIntervalOf(1, TimeUnit.SECONDS).on(RuntimeException.class).times(2).$(),
               attempt(
-                  simple("Let's go", print(StringGenerator.of("GO!")))
+                  simple("Let's go", context -> print("GO!"))
               ).recover(
                   Throwable.class,
-                  simple("Fail", throwException())
+                  simple("Fail", context -> {
+                    throw new RuntimeException();
+                  })
               ).ensure(
-                  simple("Ensured", print(StringGenerator.of("bye...")))
+                  simple("Ensured", context -> print("bye..."))
               ),
               simple(
                   "hello",
-                  print(
-                      format(
-                          StringGenerator.of(">>>>>%s"),
-                          getContextVariable("X")
+                  context -> print(
+                      String.format(
+                          ">>>>>%s",
+                          context.valueOf("X")
                       ))),
               forEach(
+                  "i",
                   () -> Stream.of("hello", "world", "everyone", "!")
               ).perform(
-                  ActionSupport.concurrent(
-                      simple("step1", print(theValue())),
-                      simple("step2", print(theValue())),
-                      simple("step3", print(theValue())),
+                  ActionSupport.parallel(
+                      simple("step1", context -> print(context.valueOf("i"))),
+                      simple("step2", context -> print(context.valueOf("i"))),
+                      simple("step3", context -> print(context.valueOf("i"))),
                       ActionSupport.<String>when(
-                          equalTo(StringGenerator.of("world"))
+                          context -> "world".equals(context.valueOf("i"))
                       ).<String>perform(
-                          simple("MET", print(StringGenerator.of("Condition is met")))
+                          simple("MET", context -> print("Condition is met"))
                       ).otherwise(
-                          simple("NOT MET", print(StringGenerator.of("Condition was not met")))
+                          simple("NOT MET", context -> print("Condition was not met"))
                       )
-                  ))));
+                  )
+              )
+          )
+      );
     }
   }
 
-  private static void run(ActionGenerator<?> actionGenerator) {
-    new ReportingActionPerformer.Builder(
-        actionGenerator.apply(ValueHolder.empty(), Context.create())
-    ).build().performAndReport();
+  private static void run(Action action) {
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+  }
+
+  private static void print(String str) {
+    System.out.println(str);
   }
 }

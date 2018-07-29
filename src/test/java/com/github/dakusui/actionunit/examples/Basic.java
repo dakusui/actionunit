@@ -1,7 +1,5 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.ActionUnit;
-import com.github.dakusui.actionunit.compat.ActionUnit.PerformWith;
 import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.core.Context;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;

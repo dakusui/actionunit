@@ -44,15 +44,15 @@ public interface Composite extends Action {
 
     @SuppressWarnings("unchecked")
     public Composite build() {
-      return new Base(actions, parallel);
+      return new Impl(actions, parallel);
     }
   }
 
-  final class Base implements Composite {
+  class Impl implements Composite {
     private final List<Action> actions;
     private final boolean      parallel;
 
-    protected Base(List<Action> actions, boolean parallel) {
+    protected Impl(List<Action> actions, boolean parallel) {
       this.actions = requireNonNull(actions);
       this.parallel = parallel;
     }

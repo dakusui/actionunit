@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.compat.actions.ActionBase;
 import com.github.dakusui.actionunit.compat.actions.Composite;
 import com.github.dakusui.actionunit.compat.core.Action;
 import com.github.dakusui.actionunit.compat.core.Context;
-import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.Matchers;

@@ -34,7 +34,7 @@ public interface ForEach<E> extends Action {
     public Builder(String loopVariableName, DataSupplier<E> dataSupplier) {
       this.loopVariableName = requireNonNull(loopVariableName);
       this.dataSupplier = requireNonNull(dataSupplier);
-      this.sequential();
+      this.sequentially();
     }
 
     public Action perform(Action perform) {
@@ -42,12 +42,12 @@ public interface ForEach<E> extends Action {
       return this.$();
     }
 
-    public Builder<E> parallel() {
+    public Builder<E> parallelly() {
       this.parallel = true;
       return this;
     }
 
-    public Builder<E> sequential() {
+    public Builder<E> sequentially() {
       this.parallel = false;
       return this;
     }

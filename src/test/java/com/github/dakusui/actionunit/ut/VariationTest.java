@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.examples.UtContext;
 import org.junit.Test;
 
 import java.util.LinkedList;

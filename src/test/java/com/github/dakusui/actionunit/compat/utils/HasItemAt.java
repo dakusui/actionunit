@@ -31,7 +31,7 @@ public class HasItemAt<T> extends TypeSafeDiagnosingMatcher<Iterable<? super T>>
       mismatchDescription.appendText("was not greater than " + this.position);
       return false;
     }
-    Object item = InternalUtils.toList(collection).get(this.position);
+    Object item = TestUtils.toList(collection).get(this.position);
     if (this.elementMatcher.matches(item)) {
       return true;
     } else {

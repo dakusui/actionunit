@@ -1,8 +1,6 @@
 package com.github.dakusui.actionunit.sandbox;
 
-import com.github.dakusui.actionunit.compat.ActionUnit;
 import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.examples.CompatForEachExample;
 import org.junit.Test;
 
 import java.util.Collection;

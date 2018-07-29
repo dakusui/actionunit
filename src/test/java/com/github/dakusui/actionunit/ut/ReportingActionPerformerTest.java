@@ -1,42 +1,42 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.compat.core.Context;
-import com.github.dakusui.actionunit.compat.visitors.reporting.Formatter;
-import com.github.dakusui.actionunit.examples.UtContext;
-import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.Matchers;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
-import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.core.ContextConsumer;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.util.stream.Stream;
+
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
-import static java.util.Arrays.asList;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.fail;
 
 @RunWith(Enclosed.class)
-public class ReportingActionPerformerTest implements UtContext {
-  public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, PrintingActionScanner> {
+public class ReportingActionPerformerTest extends TestUtils.TestBase {
+  public abstract static class Base extends ActionRunnerTestBase<ActionPerformer, ActionPrinter> {
     @Override
     protected ActionPerformer createRunner() {
       return TestUtils.createActionPerformer();
     }
 
     @Override
-    public PrintingActionScanner getPrinter(Writer writer) {
+    public ActionPrinter getPrinter(Writer writer) {
       return TestUtils.createPrintingActionScanner(Writer.Std.ERR);
     }
 
     void performAndPrintAction(Action action) {
-      new ReportingActionPerformer.Builder(action).to(getWriter()).with(Formatter.DEBUG_INSTANCE).build().performAndReport();
+      ReportingActionPerformer.create(getWriter()).performAndReport(action);
     }
   }
 
@@ -112,7 +112,7 @@ public class ReportingActionPerformerTest implements UtContext {
     public void givenConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = concurrent(
+      Action action = parallel(
           createPassingAction(1, 100),
           createPassingAction(2, 200),
           createPassingAction(3, 300));
@@ -140,13 +140,14 @@ public class ReportingActionPerformerTest implements UtContext {
     public void givenPassingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = forEachOf(
-          asList("ItemA", "ItemB", "ItemC")
+      Action action = forEach(
+          "i",
+          () -> Stream.of("ItemA", "ItemB", "ItemC")
       ).perform(
-          i -> ($) -> $.sequential(
-              $.simple("Sink-1", () -> {
+          sequential(
+              simple("Sink-1", (c) -> {
               }),
-              $.simple("Sink-2", () -> {
+              simple("Sink-2", (c) -> {
               })
           )
       );
@@ -171,14 +172,15 @@ public class ReportingActionPerformerTest implements UtContext {
     public void givenFailingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = forEachOf(
-          asList("ItemA", "ItemB", "ItemC")
+      Action action = forEach(
+          "i",
+          () -> Stream.of("ItemA", "ItemB", "ItemC")
       ).perform(
-          i -> $ -> $.sequential(
-              $.simple("Sink-1", () -> {
+          sequential(
+              simple("Sink-1", (c) -> {
                 throw new RuntimeException("Failing");
               }),
-              $.simple("Sink-2", () -> {
+              simple("Sink-2", (c) -> {
               })));
       ////
       //When performed and printed
@@ -199,16 +201,16 @@ public class ReportingActionPerformerTest implements UtContext {
     }
   }
 
-  public static class AttemptAction extends Base implements Context {
+  public static class AttemptAction extends Base {
     @Test
     public void givenPassingAttemptAction$whenPerformed$thenWorksFine() {
       Action action = attempt(
           nop()
       ).recover(
           Exception.class,
-          e -> Context::nop
+          nop()
       ).ensure(
-          v -> Context::nop
+          nop()
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
@@ -226,17 +228,17 @@ public class ReportingActionPerformerTest implements UtContext {
     @Test
     public void givenFailingAttemptAction$whenPerformed$thenWorksFine() {
       Action action = attempt(
-          simple("Howdy, NPE", new Runnable() {
+          simple("Howdy, NPE", new ContextConsumer() {
             @Override
-            public void run() {
+            public void accept(Context context) {
               throw new NullPointerException(this.toString());
             }
           })
       ).recover(
           NullPointerException.class,
-          e -> Context::nop
+          nop()
       ).ensure(
-          v -> Context::nop
+          nop()
       );
       performAndPrintAction(action);
       assertThat(getWriter(), Matchers.allOf(
@@ -249,74 +251,6 @@ public class ReportingActionPerformerTest implements UtContext {
           hasItemAt(6, equalTo("    [.]0-(nop)"))
       ));
       assertThat(getWriter(), hasSize(7));
-    }
-  }
-
-  public static class TestTest extends Base implements Context {
-    @Test
-    public void givenTestAction$whenPerformed$thenWorksFine() {
-      Action action =
-          this.<String, Integer>given("string 'World'", () -> "World")
-              .when("length", String::length)
-              .then("==5", v -> v == 5);
-      performAndPrintAction(action);
-      assertThat(
-          this.getWriter().get(0),
-          allOf(
-              containsString("[.]"),
-              containsString("TestAction")
-          )
-      );
-      assertThat(
-          this.getWriter().get(1),
-          equalTo("  [.]0-Given"));
-      assertThat(
-          this.getWriter().get(2),
-          equalTo("    [.]0-string 'World'"));
-      assertThat(
-          this.getWriter().get(3),
-          equalTo("  [.]1-When"));
-      assertThat(
-          this.getWriter().get(4),
-          equalTo("    [.]0-length"));
-      assertThat(
-          this.getWriter().get(5),
-          equalTo("  [.]2-Then"));
-      assertThat(
-          this.getWriter().get(6),
-          equalTo("    [.]0-==5"));
-    }
-
-
-    @Test(expected = AssertionError.class)
-    public void givenFailingAction$whenPerformed$thenWorksFine() {
-      Action action = this.<String, Integer>given("HelloTestCase", () -> "World")
-          .when(
-              "length",
-              input -> input.length() + 1)
-          .then("equals to 5", integer -> integer.equals(5));
-      try {
-        performAndPrintAction(action);
-      } finally {
-        ////
-        //Then:
-        //  Expectation is to get 0 and therefore AssertionError will be thrown.
-        //  If we use assertXyz method here and if the output to the printer does
-        //  not match, the AssertionError will be thrown, which confuses JUnit and users.
-        //  Thus, here we are going to throw IllegalStateException.
-        //noinspection unchecked
-        if (!getWriter().get(0).equals("[F]0-TestAction") ||
-            !getWriter().get(1).equals("  [.]0-Given") ||
-            !getWriter().get(2).equals("    [.]0-HelloTestCase") ||
-            !getWriter().get(3).equals("  [.]1-When") ||
-            !getWriter().get(4).equals("    [.]0-length") ||
-            !getWriter().get(5).equals("  [F]2-Then") ||
-            !getWriter().get(6).equals("    [F]0-equals to 5")) {
-          getWriter().forEach(System.err::println);
-          //noinspection ThrowFromFinallyBlock
-          throw new IllegalStateException();
-        }
-      }
     }
   }
 }

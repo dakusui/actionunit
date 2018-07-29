@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.compat.utils;
 
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.compat.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner;
-import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
-import com.github.dakusui.actionunit.examples.UtContext;
+import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import com.github.dakusui.actionunit.sandbox.Autocloseables;
 import org.hamcrest.BaseMatcher;
@@ -19,15 +19,21 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.compat.IdGeneratorManager.ID_GENERATOR_MANAGER;
 import static com.github.dakusui.actionunit.n.utils.Checks.checkArgument;
 import static com.github.dakusui.actionunit.n.utils.Checks.checkNotNull;
 
 public class TestUtils {
+  public static <T> List<T> toList(Iterable<T> iterable) {
+    return new LinkedList<T>() {{
+      for (T i : iterable) {
+        add(i);
+      }
+    }};
+  }
+
   /**
    * types of Operating Systems
    */
@@ -75,15 +81,15 @@ public class TestUtils {
 
   @SuppressWarnings("unchecked")
   public static <P extends Action.Visitor> P createPrintingActionScanner(Writer writer) {
-    return (P) PrintingActionScanner.Factory.DEFAULT_INSTANCE.create(writer);
+    return (P) new ActionPrinter(writer);
   }
 
   public static ActionPerformer createActionPerformer() {
-    return new ActionPerformer();
+    return SimpleActionPerformer.create();
   }
 
-  public static ReportingActionPerformer createReportingActionPerformer(Action action) {
-    return new ReportingActionPerformer.Builder(action).to(Writer.Std.OUT).build();
+  public static ReportingActionPerformer createReportingActionPerformer() {
+    return ReportingActionPerformer.create(Writer.Std.OUT);
   }
 
   public static <I, O> AutocloseableIterator<O> transform(final AutocloseableIterator<I> in, final Function<? super I, ? extends O> function) {
@@ -238,7 +244,11 @@ public class TestUtils {
   public static <T> int size(Iterable<? super T> iterable) {
     if (iterable instanceof Collection)
       return ((Collection) iterable).size();
-    return InternalUtils.toList(iterable).size();
+    return new LinkedList<T>() {{
+      for (Object i : iterable) {
+        add((T) i);
+      }
+    }}.size();
   }
 
   public static <T, U> MatcherBuilder<T, U> matcherBuilder() {
@@ -247,7 +257,7 @@ public class TestUtils {
 
   public static Out performAndReportAction(Action action) {
     final Out result = new Out();
-    new ReportingActionPerformer.Builder(action).to(result).build().performAndReport();
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
     return result;
   }
 
@@ -307,10 +317,7 @@ public class TestUtils {
   /**
    * A base class for tests which writes to stdout/stderr.
    */
-  public static class ContextTestBase extends TestBase implements UtContext {
-    final public AtomicInteger idGenerator() {
-      return ID_GENERATOR_MANAGER.idGenerator(this);
-    }
+  public static class ContextTestBase extends TestBase {
   }
 
   public static class MatcherBuilder<V, U> {

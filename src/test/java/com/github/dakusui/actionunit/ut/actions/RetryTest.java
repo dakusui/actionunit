@@ -1,37 +1,34 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.compat.actions.Retry;
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.compat.CompatActionSupport;
-import com.github.dakusui.actionunit.compat.core.Context;
-import com.github.dakusui.actionunit.compat.visitors.reporting.Formatter;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.n.actions.Retry;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.core.ContextConsumer;
+import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class RetryTest extends TestUtils.ContextTestBase implements Context {
+public class RetryTest extends TestUtils.TestBase {
   @Rule
   public TestName testName = new TestName();
 
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeInterval$whenCreated$thenExceptionThrown() {
-    new Retry.Builder(0, nop())
+    new Retry.Builder(nop())
         .on(ActionException.class)
         .withIntervalOf(-1 /* this is not valid */, SECONDS)
         .times(1)
@@ -40,27 +37,17 @@ public class RetryTest extends TestUtils.ContextTestBase implements Context {
 
   @Test(expected = IllegalArgumentException.class)
   public void givenNegativeTimes$whenCreated$thenExceptionThrown() {
-    new Retry.Builder(0, nop())
+    new Retry.Builder(nop())
         .on(ActionException.class)
         .withIntervalOf(1, SECONDS)
         .times(-100 /* this is not valid */)
         .build();
   }
 
-  @Test
-  public void givenFOREVERAsTimes$whenCreated$thenExceptionNotThrown() {
-    // Make sure only an exception is not thrown on instantiation.
-    new Retry.Builder(0, nop())
-        .on(ActionException.class)
-        .withIntervalOf(1, SECONDS)
-        .times(Retry.INFINITE)
-        .build();
-  }
-
   @Test(expected = RuntimeException.class)
   public void given0AsTimes$whenActionFails$thenRetryNotAttempted() {
     // Make sure if 0 is given as retries, action will immediately quit.
-    new Retry.Builder(0, actionFailOnce())
+    new Retry.Builder(actionFailOnce())
         .on(RuntimeException.class)
         .withIntervalOf(1, SECONDS)
         .times(0)
@@ -69,34 +56,14 @@ public class RetryTest extends TestUtils.ContextTestBase implements Context {
   }
 
   @Test
-  public void givenExceptionCollector$whenActionFails$thenExceptionCollected() {
-    List<Throwable> throwables = new ArrayList<>();
-
-    new Retry.Builder(0, actionFailOnce())
-        .on(RuntimeException.class)
-        .times(10)
-        .withIntervalOf(10, MILLISECONDS)
-        .handler(throwables::add)
-        .build()
-        .accept(TestUtils.createActionPerformer());
-
-    assertThat(throwables, hasSize(1));
-    assertThat(throwables.get(0).getMessage(), is(testName.getMethodName()));
-  }
-
-  @Test
   public void givenRetryOnNpe$whenNpeThrown$thenRetriedAndPassed() {
     TestUtils.Out outForRun = new TestUtils.Out();
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      new ReportingActionPerformer.Builder(
-          action
-      ).to(
+      ReportingActionPerformer.create(
           outForTree
-      ).with(
-          Formatter.DEBUG_INSTANCE
-      ).build().performAndReport();
+      ).performAndReport(action);
     } finally {
       assertThat(
           outForTree,
@@ -129,7 +96,7 @@ public class RetryTest extends TestUtils.ContextTestBase implements Context {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
     try {
-      new ReportingActionPerformer.Builder(action).to(outForTree).build().performAndReport();
+      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
     } finally {
       assertThat(
           outForTree,
@@ -168,11 +135,11 @@ public class RetryTest extends TestUtils.ContextTestBase implements Context {
     return retry(
         simple(
             "Passes on third try",
-            new Runnable() {
+            new ContextConsumer() {
               int tried = 0;
 
               @Override
-              public void run() {
+              public void accept(Context context) {
                 try {
                   if (tried < 2) {
                     out.writeLine("Throwing:" + exceptionToBeThrown.getMessage());
@@ -196,11 +163,11 @@ public class RetryTest extends TestUtils.ContextTestBase implements Context {
   }
 
   private Action actionFailOnce() {
-    return CompatActionSupport.simple("Fail on first time only", new Runnable() {
+    return simple("Fail on first time only", new ContextConsumer() {
       boolean firstTime = true;
 
       @Override
-      public void run() {
+      public void accept(Context context) {
         try {
           if (firstTime) {
             throw new RuntimeException(testName.getMethodName());

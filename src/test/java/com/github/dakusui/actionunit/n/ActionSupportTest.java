@@ -25,7 +25,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
   private static final Action EXAMPLE_ACTION = forEach(
       "i",
       () -> Stream.of("a", "b", "c", "d", "e")
-  ).parallel(
+  ).parallelly(
   ).perform(
       attempt(
           sequential(

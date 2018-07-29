@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.n.visitors;
 
 import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.io.Writer;
 
 import java.util.Map;
 
@@ -9,7 +10,8 @@ import static java.util.Objects.requireNonNull;
 public class ActionReporter extends ActionPrinter {
   private final Map<Action, Record> report;
 
-  public ActionReporter(Map<Action, Record> report) {
+  public ActionReporter(Writer writer, Map<Action, Record> report) {
+    super(writer);
     this.report = requireNonNull(report);
   }
 

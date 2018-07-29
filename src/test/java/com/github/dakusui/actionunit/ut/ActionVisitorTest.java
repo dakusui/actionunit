@@ -1,14 +1,15 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.actions.Composite;
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.examples.UtContext;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.n.actions.Composite;
+import com.github.dakusui.actionunit.n.core.Action;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -18,9 +19,9 @@ import static org.junit.Assert.assertThat;
 /**
  * Tests for ActionVisitor.
  */
-public class ActionVisitorTest implements UtContext {
+public class ActionVisitorTest extends TestUtils.TestBase {
   final   TestUtils.Out  out     = new TestUtils.Out();
-  private Action.Visitor visitor = new Action.Visitor.Base() {
+  private Action.Visitor visitor = new Action.Visitor() {
     @Override
     public void visit(Action action) {
       out.writeLine(action.toString());
@@ -45,7 +46,7 @@ public class ActionVisitorTest implements UtContext {
   }
 
   private Action createSimpleAction() {
-    return simple("simpleAction", () -> {
+    return simple("simpleAction", (c) -> {
     });
   }
 
@@ -69,7 +70,7 @@ public class ActionVisitorTest implements UtContext {
   @Test
   public void givenCompositeAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = new Composite.Base(0, "noname", singletonList(createSimpleAction())) {
+    Action action = new Composite.Impl(singletonList(createSimpleAction()), false) {
       @Override
       public void accept(Visitor visitor) {
         visitor.visit(this);
@@ -96,7 +97,11 @@ public class ActionVisitorTest implements UtContext {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEachOf(singletonList("hello")).perform(s -> ($) -> nop());
+    Action action = forEach(
+        "i", () -> Stream.of("hello")
+    ).perform(
+        nop()
+    );
     // when accept
     action.accept(visitor);
     // then visited
@@ -148,7 +153,7 @@ public class ActionVisitorTest implements UtContext {
   public void givenAttemptAction$whenAccept$thenVisited() {
     // given attempt action
     Action action = attempt(createSimpleAction())
-        .recover(Exception.class, e -> ($) -> nop())
+        .recover(Exception.class, nop())
         .build();
     // when accept
     action.accept(visitor);
@@ -164,40 +169,14 @@ public class ActionVisitorTest implements UtContext {
   }
 
   @Test
-  public void givenWhileAction$whenAccept$thenVisited() {
-    // given while action
-    Action action = whilst(
-        () -> "Hello",
-        v -> true
-    ).perform(
-        v -> $ -> sequential(
-            createSimpleAction(),
-            createSimpleAction()
-        )
-    );
-    // when accept
-    action.accept(visitor);
-    // then visited
-    assertThat(
-        out,
-        hasItemAt(0, startsWith("While"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
-  }
-
-  @Test
   public void givenWhenAction$whenAccept$thenVisited() {
     // given while action
     Action action = when(
-        () -> "Hello",
-        "Hello"::equals
+        context -> false
     ).perform(
-        v -> $ -> createSimpleAction()
+        createSimpleAction()
     ).otherwise(
-        v -> $ -> createSimpleAction()
+        createSimpleAction()
     );
     // when accept
     action.accept(visitor);

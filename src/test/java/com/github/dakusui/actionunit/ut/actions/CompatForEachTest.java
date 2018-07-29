@@ -1,44 +1,41 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.compat.actions.CompatForEach;
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.examples.UtContext;
-import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
-import org.junit.Assert;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.compat.utils.Matchers.allOf;
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.containsString;
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
 import static org.junit.Assert.assertThat;
 
-public class CompatForEachTest implements UtContext {
+public class CompatForEachTest extends TestUtils.TestBase {
   @Test
   public void givenForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = new LinkedList<>();
     // Given
-    Action action = forEachOf(
-        "Hello", "world", "!"
+    Action action = forEach(
+        "i",
+        () -> Stream.of("Hello", "world", "!")
     ).perform(
-        s -> $ ->
-            $.sequential(asList(
-                $.simple(
-                    "print {s}",
-                    () -> System.out.println("<" + s.get() + ">")
-                ),
-                $.simple(
-                    "add {s} to 'out'",
-                    () -> out.add("'" + s.get() + "'")
-                ))));
+        sequential(
+            simple(
+                "print {s}",
+                (c) -> System.out.println("<" + c.valueOf("i") + ">")
+            ),
+            simple(
+                "add {s} to 'out'",
+                (c) -> out.add("'" + c.valueOf("i") + "'")
+            )));
     // When
-    TestUtils.createReportingActionPerformer(action).performAndReport();
+    TestUtils.createReportingActionPerformer().performAndReport(action);
     // Then
     assertThat(
         out,
@@ -60,23 +57,24 @@ public class CompatForEachTest implements UtContext {
   public void givenConcurrentForEachAction$whenPerformWithReporting$worksCorrectly() throws InterruptedException {
     List<String> out = Collections.synchronizedList(new LinkedList<>());
     // Given
-    Action action = forEachOf(
-        "Hello", "world", "!"
-    ).concurrently(
+    Action action = forEach(
+        "i",
+        () -> Stream.of("Hello", "world", "!")
+    ).parallelly(
     ).perform(
-        s -> $ -> $.sequential(
-            $.simple(
+        sequential(
+            simple(
                 "print {s}",
-                () -> System.out.println("<" + s.get() + ">")
+                (c) -> System.out.println("<" + c.valueOf("i") + ">")
             ),
-            $.simple(
+            simple(
                 "add {s} to 'out'",
-                () -> out.add("'" + s.get() + "'")
+                (c) -> out.add("'" + c.valueOf("i") + "'")
             )
         )
     );
     // When3
-    new ReportingActionPerformer.Builder(action).to(Writer.Std.ERR).build().performAndReport();
+    ReportingActionPerformer.create(Writer.Std.ERR).performAndReport(action);
     // Then
     assertThat(
         out,
@@ -91,127 +89,5 @@ public class CompatForEachTest implements UtContext {
                 .transform("passthrough", list -> list)
                 .check("contains:'!'", s -> s.contains("'!'"))
         ));
-  }
-
-
-  @Test
-  public void givenConfusingForEachAction$whenPerformWithReporting$worksIllegalStateThrown() {
-    // Given
-    Action action = createConfusingAction();
-    // When
-    try {
-      TestUtils.createReportingActionPerformer(action).performAndReport();
-      // The statement above must throw an exception
-      Assert.fail();
-    } catch (IllegalStateException e) {
-      // Then
-      assertThat(
-          e.getMessage(),
-          allOf(
-              containsString("More than one node whose id is "),
-              containsString("Examine they are created in an appropriate context.")
-          )
-      );
-    }
-  }
-
-  @Test
-  public void givenConfusingForEachAction$whenPerformWithReportingAndIdentificationDoneByName$worksIllegalStateThrown() {
-    // Given
-    Action action = createConfusingAction();
-    // When
-    try {
-      new ReportingActionPerformer.Builder(action).with(
-          ReportingActionPerformer.Identifier.BY_NAME
-      ).build(
-      ).performAndReport();
-      // The statement above must throw an exception
-      Assert.fail();
-    } catch (IllegalStateException e) {
-      // Then
-      assertThat(
-          e.getMessage(),
-          allOf(
-              containsString("More than one node matching"),
-              containsString("Consider using 'named' action for them.")
-          )
-      );
-    }
-  }
-
-  public CompatForEach<String> createConfusingAction() {
-    return forEachOf(
-        "Hello", "world", "!"
-    ).sequentially(
-    ).perform(
-        s -> $ -> $.concurrent(asList(
-            Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION"),
-            Internal.nop(0, "YOU CANNOT CREATE ACTIONS OF THE SAME ID UNDER ONE forEachOf ACTION")
-        ))
-    );
-  }
-
-  @Test
-  public void givenMismatchingForEachAction$whenPerformWithReporting$thenIllegalStateThrown() {
-    // Given
-    Action action = createBrokenAction();
-    // When
-    try {
-      sequential(
-          nop("confusing"),
-          nop("action")
-      ).accept(
-          new ReportingActionPerformer.Builder(action).build()
-      );
-      // The statement above must throw an exception
-      Assert.fail();
-    } catch (IllegalStateException e) {
-      // Then
-      assertThat(
-          e.getMessage(),
-          allOf(
-              containsString("Node matching '1(confusing)' was not found under"),
-              containsString("0(CompatForEach (SEQUENTIALLY)")
-          )
-      );
-    }
-  }
-
-  @Test
-  public void givenMismatchingForEachAction$whenPerformWithReportingAndIdetificationDoneByName$thenIllegalStateThrown() {
-    // Given
-    Action action = createBrokenAction();
-    // When
-    try {
-      sequential(
-          nop("confusing"),
-          nop("action")
-      ).accept(
-          new ReportingActionPerformer.Builder(action).with(ReportingActionPerformer.Identifier.BY_NAME).build()
-      );
-      // The statement above must throw an exception
-      Assert.fail();
-    } catch (IllegalStateException e) {
-      // Then
-      assertThat(
-          e.getMessage(),
-          allOf(
-              containsString("Node matching 'confusing' was not found under"),
-              containsString("ForEach (SEQUENTIALLY)")
-          )
-      );
-    }
-  }
-
-  public CompatForEach<String> createBrokenAction() {
-    return forEachOf(
-        "Hello", "world", "!"
-    ).sequentially(
-    ).perform(
-        s -> $ -> $.concurrent(asList(
-            $.nop("Action 1"),
-            $.nop("Action 2")
-        ))
-    );
   }
 }

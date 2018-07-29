@@ -1,16 +1,20 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.compat.core.Action;
-import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.compat.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.n.io.Writer;
+import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.function.Function;
+import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.n.utils.InternalUtils.sleep;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class PracticalExample implements UtContext {
+public class PracticalExample extends TestUtils.TestBase {
   /**
    * A dummy function that determines an IP address for a given hostname.
    * This function fails probabilistically fails in rate of 50%
@@ -43,15 +47,16 @@ public class PracticalExample implements UtContext {
     Function<String, String> toBackendIpAddress = TestUtils.memoize(TO_BACKEND_IP_ADDRESS);
     ////
     // Build action tree
-    Action action = forEachOf(
-        "alexios", "nikephoros", "manuel", "constantine", "justinian"
-    ).concurrently(
+    Action action = forEach(
+        "hostName",
+        () -> Stream.of("alexios", "nikephoros", "manuel", "constantine", "justinian")
+    ).parallelly(
     ).perform(
-        hostName -> ($) -> sequential(
+        sequential(
             retry(
                 simple(
                     "Try to figure out physical ip address",
-                    () -> toBackendIpAddress.apply(hostName.get()))
+                    (c) -> toBackendIpAddress.apply(c.valueOf("hostName")))
             ).on(
                 UnluckyException.class
             ).times(
@@ -62,19 +67,21 @@ public class PracticalExample implements UtContext {
             sequential(
                 simple(
                     "Do something using retrieved IP address",
-                    () -> System.out.printf("%s:%s%n", hostName.get(), toBackendIpAddress.apply(hostName.get()))),
-                named(
+                    (c) -> System.out.printf("%s:%s%n", hostName(c), toBackendIpAddress.apply(hostName(c)))),
+                simple(
                     "Do something time consuming",
-                    sleep(10, MILLISECONDS)),
+                    c -> {
+                      sleep(10, MILLISECONDS);
+                    }),
                 simple(
                     "Get state of the server using IP address",
-                    () -> System.out.printf("%s:%s%n", hostName.get(), GET_SERVER_STATE.apply(toBackendIpAddress.apply(hostName.get())))),
+                    (c) -> System.out.printf("%s:%s%n", hostName(c), GET_SERVER_STATE.apply(toBackendIpAddress.apply(hostName(c))))),
                 simple("Do something else using retrieved IP address",
-                    () -> System.out.printf("%s:%s%n", hostName.get(), toBackendIpAddress.apply(hostName.get())))
+                    (c) -> System.out.printf("%s:%s%n", hostName(c), toBackendIpAddress.apply(hostName(c))))
             )));
     ////
     // Perform the action tree and report the result
-    new ReportingActionPerformer.Builder(action).to(Writer.Std.ERR).build().performAndReport();
+    ReportingActionPerformer.create(Writer.Std.ERR).performAndReport(action);
 
     ////
     // This will print out something like following to stdout
@@ -110,5 +117,9 @@ public class PracticalExample implements UtContext {
   }
 
   private static class UnluckyException extends RuntimeException {
+  }
+
+  private String hostName(Context c) {
+    return c.valueOf("hostName");
   }
 }
