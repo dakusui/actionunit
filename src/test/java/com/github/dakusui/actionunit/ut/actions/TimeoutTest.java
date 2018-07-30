@@ -1,16 +1,16 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.n.utils.InternalUtils;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.nop;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.timeout;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;

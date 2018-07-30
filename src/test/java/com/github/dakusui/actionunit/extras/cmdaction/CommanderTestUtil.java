@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 
 enum CommanderTestUtil {
   ;

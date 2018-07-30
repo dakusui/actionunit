@@ -1,18 +1,18 @@
 package com.github.dakusui.actionunit.extras.cmdaction.linux;
 
 import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.extras.linux.Ls;
-import com.github.dakusui.actionunit.n.extras.linux.Mkdir;
-import com.github.dakusui.actionunit.n.extras.linux.Rm;
-import com.github.dakusui.actionunit.n.extras.linux.Touch;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.linux.Ls;
+import com.github.dakusui.actionunit.linux.Mkdir;
+import com.github.dakusui.actionunit.linux.Rm;
+import com.github.dakusui.actionunit.linux.Touch;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;
 import static org.junit.Assume.assumeTrue;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 

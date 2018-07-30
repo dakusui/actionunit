@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.n.actions.Composite;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.Context;
-import com.github.dakusui.actionunit.n.core.ContextConsumer;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import org.junit.Test;
 
 import java.util.*;
@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.n.exceptions.ActionException.wrap;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

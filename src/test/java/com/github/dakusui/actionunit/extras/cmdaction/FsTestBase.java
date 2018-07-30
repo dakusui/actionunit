@@ -1,16 +1,16 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.n.actions.cmd.Commander;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.ActionSupport;
-import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBase<C> {
   protected final File dir;

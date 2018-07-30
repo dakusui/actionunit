@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.n.extras.linux.Echo;
+import com.github.dakusui.actionunit.linux.Echo;
 import org.junit.Test;
 
 import java.io.File;

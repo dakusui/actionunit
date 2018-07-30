@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.n.actions.cmd.Commander;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 

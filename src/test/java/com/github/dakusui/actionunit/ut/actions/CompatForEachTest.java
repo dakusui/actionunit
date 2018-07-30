@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.compat.utils.Matchers.allOf;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static org.junit.Assert.assertThat;
 
 public class CompatForEachTest extends TestUtils.TestBase {

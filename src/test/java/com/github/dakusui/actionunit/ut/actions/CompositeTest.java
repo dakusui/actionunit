@@ -1,13 +1,13 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.core.Action;
 import org.junit.Test;
 
 import java.util.Collections;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.nop;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.parallel;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.parallel;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static org.junit.Assert.assertFalse;
 
 public class CompositeTest {

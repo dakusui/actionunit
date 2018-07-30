@@ -1,16 +1,16 @@
 package com.github.dakusui.actionunit.extras.cmdaction.linux;
 
 import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.extras.linux.Mkdir;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.linux.Mkdir;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.sequential;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.crest.Crest.*;
 import static org.junit.Assume.assumeTrue;
 

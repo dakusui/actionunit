@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.n.exceptions.ExceptionMapping;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.exceptions.ExceptionMapping;
 import org.junit.Test;
 
 import java.io.EOFException;

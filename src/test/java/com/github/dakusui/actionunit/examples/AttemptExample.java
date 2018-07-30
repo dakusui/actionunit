@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.core.Action;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public class AttemptExample extends TestUtils.TestBase {
   @Test(expected = IllegalArgumentException.class)

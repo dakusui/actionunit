@@ -1,15 +1,15 @@
 package com.github.dakusui.actionunit.examples;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.Context;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public class Example extends TestUtils.TestBase {
   @Test

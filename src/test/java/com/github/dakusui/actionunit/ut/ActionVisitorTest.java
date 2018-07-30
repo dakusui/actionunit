@@ -1,15 +1,15 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.actions.Composite;
-import com.github.dakusui.actionunit.n.core.Action;
+import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.core.Action;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;

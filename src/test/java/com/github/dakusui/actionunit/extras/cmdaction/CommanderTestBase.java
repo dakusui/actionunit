@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.n.actions.cmd.Commander;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.Context;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.util.LinkedList;
 import java.util.List;

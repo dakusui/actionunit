@@ -1,22 +1,22 @@
 package com.github.dakusui.actionunit.n;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.Context;
-import com.github.dakusui.actionunit.n.core.ContextConsumer;
-import com.github.dakusui.actionunit.n.exceptions.ActionTimeOutException;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.utils.InternalUtils;
-import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
-import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 

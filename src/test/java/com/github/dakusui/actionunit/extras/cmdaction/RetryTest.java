@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
-import com.github.dakusui.actionunit.n.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
 import org.junit.Test;
 

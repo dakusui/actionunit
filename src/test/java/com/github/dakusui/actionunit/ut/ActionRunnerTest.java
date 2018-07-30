@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.sandbox;
 
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import java.util.Iterator;
 

@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.extras.cmdaction.linux;
 
 import com.github.dakusui.actionunit.extras.cmdaction.CommanderTestBase;
-import com.github.dakusui.actionunit.n.core.Context;
-import com.github.dakusui.actionunit.n.extras.linux.Echo;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.linux.Echo;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;

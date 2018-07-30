@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.compat.core;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.core.ActionSupport;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 @RunWith(Enclosed.class)
 public class ActionSupportTest {

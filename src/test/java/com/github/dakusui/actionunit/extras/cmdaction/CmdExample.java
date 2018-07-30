@@ -5,8 +5,8 @@ import org.junit.Test;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.extras.cmdaction.CommanderTestUtil.performAndReport;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.cmd;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 
 public class CmdExample {
 

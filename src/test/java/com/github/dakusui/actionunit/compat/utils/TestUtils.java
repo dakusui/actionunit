@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.compat.utils;
 
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.visitors.ActionPerformer;
-import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
-import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
-import com.github.dakusui.actionunit.n.visitors.SimpleActionPerformer;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import com.github.dakusui.actionunit.sandbox.Autocloseables;
 import org.hamcrest.BaseMatcher;
@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.n.utils.Checks.checkArgument;
-import static com.github.dakusui.actionunit.n.utils.Checks.checkNotNull;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 
 public class TestUtils {
   public static <T> List<T> toList(Iterable<T> iterable) {

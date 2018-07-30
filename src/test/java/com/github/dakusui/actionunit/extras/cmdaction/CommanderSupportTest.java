@@ -1,15 +1,15 @@
 package com.github.dakusui.actionunit.extras.cmdaction;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.core.Action;
-import com.github.dakusui.actionunit.n.io.Writer;
-import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.n.actions.cmd.Commander.commander;
-import static com.github.dakusui.actionunit.n.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.actions.cmd.Commander.commander;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public class CommanderSupportTest extends TestUtils.TestBase {
 

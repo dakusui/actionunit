@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.n.actions.Leaf;
+import com.github.dakusui.actionunit.actions.Leaf;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.n.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static org.junit.Assert.assertThat;
 
 public class LeafTest {
