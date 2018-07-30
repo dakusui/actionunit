@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 
 public class ActionPrinter extends ActionScanner {
-  private final Writer writer;
+  protected final Writer writer;
 
   public ActionPrinter(Writer writer) {
     this.writer = writer;

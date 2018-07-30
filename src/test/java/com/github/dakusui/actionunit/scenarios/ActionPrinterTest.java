@@ -118,6 +118,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
     }
   }
 
+  @RunWith(Enclosed.class)
   public static class StdOutErrTest extends ActionComposer {
     @Test
     public void givenStdout$whenTestActionAccepts$thenNoErrorWillBeGiven() {
@@ -166,15 +167,15 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         Action action = retry(nop()).times(1).withIntervalOf(1, TimeUnit.MINUTES).build();
         TestUtils.Out out = new TestUtils.Out();
         runAndReport(action, out);
-        assertThat(
+        Crest.assertThat(
             out.get(0),
-            allOf(
-                containsString("[.]"),
-                containsString("Retry(60[seconds]x1times)")
+            Crest.allOf(
+                asString().containsString("[o]").$(),
+                asString().containsString("retry once 60[seconds]").$()
             ));
       }
 
-      @Test(expected = IllegalStateException.class)
+      @Test(expected = IllegalStateException.class, timeout = 10_000)
       public void givenFailingRetryAction$whenPerformed$thenResultPrinted() {
         final TestUtils.Out out = new TestUtils.Out();
         Action action = retry(simple("AlwaysFail", new ContextConsumer() {
@@ -224,34 +225,14 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         retry.withIntervalOf(1, MILLISECONDS);
         Action action = retry.build();
         runAndReport(action, outForRun);
-        assertThat(
+        Crest.assertThat(
             outForRun,
-            Matchers.allOf(
-                TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                    "get(0)", (TestUtils.Out v) -> v.get(0)
-                ).check(
-                    "contains('PassAfterFail')", (String u) -> u.equals("PassAfterFail")
-                ),
-                TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                    "get(1)", (TestUtils.Out v) -> v.get(1)
-                ).check(
-                    "contains('[.]')", (String u) -> u.contains("[.]")
-                ),
-                TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                    "get(1)", (TestUtils.Out v) -> v.get(1)
-                ).check(
-                    "contains('Retry(1[milliseconds]x1times')", (String u) -> u.contains("Retry(1[milliseconds]x1times")
-                ),
-                TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                    "get(2)", (TestUtils.Out v) -> v.get(2)
-                ).check(
-                    "contains('[xo]')", (String u) -> u.contains("[E.]")
-                ),
-                TestUtils.<TestUtils.Out, String>matcherBuilder().transform(
-                    "get(2)", (TestUtils.Out v) -> v.get(2)
-                ).check(
-                    "contains('PassAfterFail')", (String u) -> u.contains("PassAfterFail")
-                )
+            Crest.allOf(
+                asString("get", 0).containsString("PassAfterFail").$(),
+                asString("get", 1).containsString("[o]").$(),
+                asString("get", 1).containsString("retry once 1[milliseconds]").$(),
+                asString("get", 2).containsString("[Eo]").$(),
+                asString("get", 2).containsString("PassAfterFail").$()
             )
         );
       }
@@ -269,7 +250,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             ));
       }
 
-      @Test(expected = UnsupportedOperationException.class)
+      @Test
       public void givenUnsupportedCompositeAction$whenPerformed$thenExceptionThrown() {
         Action action = new Composite.Impl(Collections.emptyList(), false) {
           @Override
