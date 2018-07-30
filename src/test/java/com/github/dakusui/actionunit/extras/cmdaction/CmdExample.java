@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.extras.cmdaction.CommanderTestUtil.perform;
+import static com.github.dakusui.actionunit.extras.cmdaction.CommanderTestUtil.performAndReport;
 import static com.github.dakusui.actionunit.n.core.ActionSupport.cmd;
 import static com.github.dakusui.actionunit.n.core.ActionSupport.forEach;
 
@@ -12,7 +12,7 @@ public class CmdExample {
 
   @Test
   public void example() {
-    perform(
+    performAndReport(
         forEach(
             "i",
             () -> Stream.of("a", "b", "c")

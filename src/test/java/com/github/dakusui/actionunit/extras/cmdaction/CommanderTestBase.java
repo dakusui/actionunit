@@ -44,6 +44,6 @@ public abstract class CommanderTestBase<C extends Commander<C>> {
   }
 
   protected void perform(Action action) {
-    CommanderTestUtil.perform(action);
+    CommanderTestUtil.performAndReport(action);
   }
 }

@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
-import com.github.dakusui.actionunit.n.exceptions.ActionException;
 import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
 import org.junit.Test;
 
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.*;
-import static com.sun.org.glassfish.gmbal.ManagedObjectManagerFactory.getMethod;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -242,10 +240,5 @@ public class UtilsTest {
       }
       return new Ret();
     };
-  }
-
-  @Test(expected = ActionException.class)
-  public void givenNonExistingMethodName$whenGetMethodIsPerformed$thenWrappedExceptionThrown() {
-    getMethod(Object.class, "notExistingMethod");
   }
 }

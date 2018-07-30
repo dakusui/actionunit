@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.n.core.Action;
 import com.github.dakusui.actionunit.n.core.Context;
 import com.github.dakusui.actionunit.n.core.ContextConsumer;
 import com.github.dakusui.actionunit.n.exceptions.ActionTimeOutException;
+import com.github.dakusui.actionunit.n.io.Writer;
 import com.github.dakusui.actionunit.n.utils.InternalUtils;
 import com.github.dakusui.actionunit.n.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.n.visitors.ReportingActionPerformer;
@@ -175,11 +176,11 @@ public class ActionSupportTest extends TestUtils.TestBase {
 
   @Test
   public void print() {
-    EXAMPLE_ACTION.accept(new ActionPrinter());
+    EXAMPLE_ACTION.accept(new ActionPrinter(Writer.Std.OUT));
   }
 
   @Test
   public void performAndReport() {
-    ReportingActionPerformer.create().perform(EXAMPLE_ACTION).report(EXAMPLE_ACTION);
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(EXAMPLE_ACTION);
   }
 }
