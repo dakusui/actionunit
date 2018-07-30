@@ -22,7 +22,7 @@ public interface ForEach<E> extends Action {
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("foreach of %s %s", data(), isParallel() ? "parallely" : "sequentially");
+    formatter.format("for each of %s %s", data(), isParallel() ? "parallely" : "sequentially");
   }
 
   class Builder<E> extends Action.Builder<ForEach<E>> {

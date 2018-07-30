@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.compat.utils.Matchers;
-import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Retry;
+import com.github.dakusui.actionunit.compat.utils.Matchers;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
@@ -11,6 +11,7 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.crest.Crest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -26,6 +27,7 @@ import java.util.stream.StreamSupport;
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.size;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.asString;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -95,16 +97,24 @@ public class ActionPrinterTest extends TestUtils.TestBase {
       StreamSupport.stream(writer.spliterator(), false).forEach(System.err::println);
 
       Iterator<String> i = writer.iterator();
-      assertThat(i.next(), containsString("Concurrent (top level)"));
-      assertThat(i.next(), containsString("Concurrent (1 actions)"));
-      assertThat(i.next(), containsString("Sequential (1st child)"));
-      assertThat(i.next(), containsString("Sequential (4 actions)"));
-      assertThat(i.next(), containsString("simple1"));
-      assertThat(i.next(), containsString("simple2"));
-      assertThat(i.next(), containsString("simple3"));
-      assertThat(i.next(), containsString("ForEach"));
-      assertThat(i.next(), containsString("(nop)"));
-      assertEquals(9, size(writer));
+      Crest.assertThat(
+          i,
+          Crest.allOf(
+              asString("next").containsString("Concurrent (top level)").$(),
+              asString("next").containsString("do parallelly").$(),
+              asString("next").containsString("Sequential (1st child)").$(),
+              asString("next").containsString("do sequentially").$(),
+              asString("next").containsString("simple1").$(),
+              asString("next").containsString("(noname)").$(),
+              asString("next").containsString("simple2").$(),
+              asString("next").containsString("(noname)").$(),
+              asString("next").containsString("simple3").$(),
+              asString("next").containsString("(noname)").$(),
+              asString("next").containsString("for each of data sequentially").$(),
+              asString("next").containsString("(nop)").$()
+          )
+      );
+      assertEquals(12, size(writer));
     }
   }
 
