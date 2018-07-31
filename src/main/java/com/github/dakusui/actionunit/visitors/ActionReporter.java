@@ -21,6 +21,13 @@ public class ActionReporter extends ActionPrinter {
 
   @Override
   protected void handleAction(Action action) {
-    this.writer.writeLine(String.format("%s[%s]%s", indent(), report.get(action), action));
+    this.writer.writeLine(String.format(
+        "%s[%s]%s",
+        indent(),
+        report.containsKey(action)
+            ? report.get(action)
+            : "",
+        action
+    ));
   }
 }

@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import java.util.Formatter;
@@ -39,7 +40,7 @@ public interface Attempt extends Action {
               }
             }));
     private       Action                     ensure               = Named.of("ensure",
-        Leaf.NOP
+        ActionSupport.nop()
     );
 
     public Builder(Action perform) {

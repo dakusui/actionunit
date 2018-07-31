@@ -8,12 +8,15 @@ import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.crest.Crest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.asInteger;
+import static com.github.dakusui.crest.Crest.asString;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -65,28 +68,25 @@ public class RetryTest extends TestUtils.TestBase {
           outForTree
       ).performAndReport(action);
     } finally {
-      assertThat(
+      Crest.assertThat(
           outForTree,
-          allOf(
-              hasItemAt(0, equalTo("[.]1-Retry(1[milliseconds]x2times)")),
-              hasItemAt(1, equalTo("  [EE.]0-Passes on third try"))
-          ));
-      assertThat(
-          outForTree,
-          hasSize(2));
-      assertThat(
+          Crest.allOf(
+              asString("get", 0).containsString("[o]").containsString("retry twice in 1[milliseconds] on NullPointerException").$(),
+              asString("get", 1).containsString("[EEo]").containsString("Passes on third try").$(),
+              asInteger("size").equalTo(3).$()
+          )
+      );
+      Crest.assertThat(
           outForRun,
-          allOf(
-              hasItemAt(0, equalTo("Throwing:HelloNpe")),
-              hasItemAt(1, equalTo("Tried:0")),
-              hasItemAt(2, equalTo("Throwing:HelloNpe")),
-              hasItemAt(3, equalTo("Tried:1")),
-              hasItemAt(4, equalTo("Passed")),
-              hasItemAt(5, equalTo("Tried:2"))
+          Crest.allOf(
+              asString("get", 0).equalTo("Throwing:HelloNpe").$(),
+              asString("get", 1).equalTo("Tried:0").$(),
+              asString("get", 2).equalTo("Throwing:HelloNpe").$(),
+              asString("get", 3).equalTo("Tried:1").$(),
+              asString("get", 4).equalTo("Passed").$(),
+              asString("get", 5).equalTo("Tried:2").$(),
+              asInteger("size").equalTo(6).$()
           ));
-      assertThat(
-          outForRun,
-          hasSize(6));
     }
   }
 
@@ -96,38 +96,27 @@ public class RetryTest extends TestUtils.TestBase {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
     try {
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+      ReportingActionPerformer.create(outForTree).performAndReport(action);
     } finally {
-      assertThat(
+      Crest.assertThat(
           outForTree,
-          allOf(
-              hasItemAt(0,
-                  allOf(
-                      containsString("[.]"),
-                      containsString("Retry(1[milliseconds]x2times)")
-                  )),
-              hasItemAt(1,
-                  allOf(
-                      containsString("[EE.]"),
-                      containsString("Passes on third try")
-                  ))
+          Crest.allOf(
+              asString("get", 0).containsString("[o]").containsString("retry twice in 1[milliseconds]").$(),
+              asString("get", 1).containsString("[EEo]").containsString("Passes on third try").$(),
+              asString("get", 2).containsString("[EEo]").containsString("(noname)").$(),
+              asInteger("size").equalTo(3).$()
           ));
-      assertThat(
-          outForTree,
-          hasSize(2));
-      assertThat(
+      Crest.assertThat(
           outForRun,
-          allOf(
-              hasItemAt(0, equalTo("Throwing:HelloException")),
-              hasItemAt(1, equalTo("Tried:0")),
-              hasItemAt(2, equalTo("Throwing:HelloException")),
-              hasItemAt(3, equalTo("Tried:1")),
-              hasItemAt(4, equalTo("Passed")),
-              hasItemAt(5, equalTo("Tried:2"))
+          Crest.allOf(
+              asString("get", 0).equalTo("Throwing:HelloException").$(),
+              asString("get", 1).equalTo("Tried:0").$(),
+              asString("get", 2).equalTo("Throwing:HelloException").$(),
+              asString("get", 3).equalTo("Tried:1").$(),
+              asString("get", 4).equalTo("Passed").$(),
+              asString("get", 5).equalTo("Tried:2").$(),
+              asInteger("size").equalTo(6).$()
           ));
-      assertThat(
-          outForRun,
-          hasSize(6));
     }
   }
 

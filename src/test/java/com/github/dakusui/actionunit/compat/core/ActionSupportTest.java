@@ -102,7 +102,7 @@ public class ActionSupportTest {
               attempt(
                   simple("Let's go", context -> print("GO!"))
               ).recover(
-                  Throwable.class,
+                  Exception.class,
                   simple("Fail", context -> {
                     throw new RuntimeException();
                   })
@@ -114,7 +114,7 @@ public class ActionSupportTest {
                   context -> print(
                       String.format(
                           ">>>>>%s",
-                          context.valueOf("X")
+                          context.<String>valueOf("X")
                       ))),
               forEach(
                   "i",

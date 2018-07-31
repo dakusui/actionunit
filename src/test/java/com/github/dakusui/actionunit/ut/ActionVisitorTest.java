@@ -1,30 +1,27 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
 
 /**
  * Tests for ActionVisitor.
  */
 public class ActionVisitorTest extends TestUtils.TestBase {
-  final   TestUtils.Out  out     = new TestUtils.Out();
-  private Action.Visitor visitor = new Action.Visitor() {
+  private final TestUtils.Out  out     = new TestUtils.Out();
+  private       Action.Visitor visitor = new Action.Visitor() {
     @Override
     public void visit(Action action) {
-      out.writeLine(action.toString());
+      out.writeLine(String.format("%s", action));
     }
   };
 
@@ -37,11 +34,10 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, equalTo("simpleAction"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        allOf(
+            asString("get", 0).equalTo("simpleAction").$(),
+            asInteger("size").equalTo(1).$()
+        )
     );
   }
 
@@ -59,11 +55,10 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, equalTo("named"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        allOf(
+            asString("get", 0).equalTo("named").$(),
+            asInteger("size").equalTo(1).$()
+        )
     );
   }
 
@@ -75,23 +70,16 @@ public class ActionVisitorTest extends TestUtils.TestBase {
       public void accept(Visitor visitor) {
         visitor.visit(this);
       }
-
-      @Override
-      public String toString() {
-        return "CompositeActionForTest";
-      }
     };
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
-        hasItemAt(0, equalTo("CompositeActionForTest"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).equalTo("do sequentially").$(),
+            asInteger("size").equalTo(1).$()
+        ));
   }
 
   @Test
@@ -107,11 +95,10 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("CompatForEach"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        allOf(
+            asString("get", 0).startsWith("for each").$(),
+            asInteger("size").equalTo(1).$()
+        )
     );
   }
 
@@ -124,12 +111,10 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("Retry"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).startsWith("retry").$(),
+            asInteger("size").equalTo(1).$()
+        ));
   }
 
   @Test
@@ -141,12 +126,10 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("TimeOut"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).startsWith("timeout in 1[nanoseconds]").$(),
+            Crest.asInteger("size").$()
+        ));
   }
 
   @Test
@@ -160,11 +143,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("Attempt"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
+        Crest.asString("get", 0).startsWith("attempt").$()
     );
   }
 
@@ -183,11 +162,9 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     // then visited
     assertThat(
         out,
-        hasItemAt(0, startsWith("When"))
-    );
-    assertThat(
-        out,
-        hasSize(1)
-    );
+        allOf(
+            asString("get", 0).startsWith("if [condition] is satisfied").$(),
+            asInteger("size").equalTo(1).$()
+        ));
   }
 }

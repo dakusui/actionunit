@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.ContextPredicate;
 
 import java.util.Formatter;
@@ -27,7 +28,7 @@ public interface When extends Action {
   class Builder extends Action.Builder<When> {
     private final ContextPredicate cond;
 
-    private Action otherwise = Named.of("else", Leaf.NOP);
+    private Action otherwise = Named.of("else", ActionSupport.nop());
     private Action perform;
 
     public Builder(ContextPredicate cond) {

@@ -27,7 +27,11 @@ public interface Retry extends Action {
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("retry %s %s", formatNumberOfTimes(times()), formatDuration(intervalInNanoseconds()));
+    formatter.format("retry %s in %s on %s",
+        formatNumberOfTimes(times()),
+        formatDuration(intervalInNanoseconds()),
+        targetExceptionClass().getSimpleName()
+    );
   }
 
   class Builder extends Action.Builder<Retry> {

@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.actions.Retry;
-import com.github.dakusui.actionunit.compat.utils.Matchers;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
@@ -12,7 +11,6 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.crest.Crest;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -24,14 +22,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.compat.utils.TestUtils.size;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
@@ -148,18 +144,17 @@ public class ActionPrinterTest extends TestUtils.TestBase {
 
         final TestUtils.Out out2 = new TestUtils.Out();
         runAndReport(action, out2);
-        assertThat(
+        Crest.assertThat(
             out2,
-            allOf(
-                hasItemAt(0, Matchers.allOf(containsString("[.]"), containsString("ForEach"))),
-                hasItemAt(1, Matchers.allOf(containsString("[..]"), containsString("Sequential"))),
-                hasItemAt(2, Matchers.allOf(containsString("[..]"), containsString("+0"))),
-                hasItemAt(3, Matchers.allOf(containsString("[..]"), containsString("+1")))
+            Crest.allOf(
+                asString("get", 0).containsString("[o]").containsString("for each").$(),
+                asString("get", 1).containsString("[oo]").containsString("sequential").$(),
+                asString("get", 2).containsString("[oo]").containsString("+0").$(),
+                asString("get", 3).containsString("[oo]").containsString("(noname)").$(),
+                asString("get", 4).containsString("[oo]").containsString("+1").$(),
+                asString("get", 5).containsString("[oo]").containsString("(noname)").$(),
+                asInteger("size").equalTo(6).$()
             ));
-        Assert.assertThat(
-            out2.size(),
-            equalTo(4)
-        );
       }
 
       @Test
@@ -171,7 +166,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             out.get(0),
             Crest.allOf(
                 asString().containsString("[o]").$(),
-                asString().containsString("retry once 60[seconds]").$()
+                asString().containsString("retry once in 60[seconds]").$()
             ));
       }
 
@@ -183,23 +178,22 @@ public class ActionPrinterTest extends TestUtils.TestBase {
           public void accept(Context context) {
             throw new IllegalStateException(this.toString());
           }
-        })).times(1).withIntervalOf(1, TimeUnit.MINUTES).build();
-        try {
-          runAndReport(action, out);
-        } finally {
-          assertThat(
-              out.get(0),
-              allOf(
-                  containsString("[E]"),
-                  containsString("Retry(60[seconds]x1times)")
-              ));
-          assertThat(
-              out.get(1),
-              allOf(
-                  containsString("[E]"),
-                  containsString("AlwaysFail")
-              ));
-        }
+        })).times(
+            1
+        ).withIntervalOf(
+            1, TimeUnit.MILLISECONDS
+        ).on(
+            IllegalStateException.class
+        ).$();
+        runAndReport(action, out);
+        Crest.assertThat(
+            out,
+            Crest.allOf(
+                asString("get", 0).containsString("[E]").$(),
+                asString("get", 0).containsString("retry once in 1[milliseconds] on IllegalStateException").$(),
+                asString("get", 1).containsString("[EE]").$(),
+                asString("get", 1).containsString("AlwaysFail").$()
+            ));
       }
 
       @Test
@@ -230,7 +224,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             Crest.allOf(
                 asString("get", 0).containsString("PassAfterFail").$(),
                 asString("get", 1).containsString("[o]").$(),
-                asString("get", 1).containsString("retry once 1[milliseconds]").$(),
+                asString("get", 1).containsString("retry once in 1[milliseconds]").$(),
                 asString("get", 2).containsString("[Eo]").$(),
                 asString("get", 2).containsString("PassAfterFail").$()
             )
@@ -242,11 +236,11 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         Action action = timeout(nop()).in(1, TimeUnit.MINUTES);
         final TestUtils.Out out = new TestUtils.Out();
         runAndReport(action, out);
-        assertThat(
+        Crest.assertThat(
             out.get(0),
-            allOf(
-                containsString("[.]"),
-                containsString("TimeOut(60[seconds])")
+            Crest.allOf(
+                Crest.asString().containsString("[o]").$(),
+                Crest.asString().containsString("timeout in 60[seconds]").$()
             ));
       }
 

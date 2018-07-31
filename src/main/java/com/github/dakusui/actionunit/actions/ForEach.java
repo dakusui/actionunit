@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.DataSupplier;
 
 import java.util.Formatter;
@@ -28,7 +29,7 @@ public interface ForEach<E> extends Action {
   class Builder<E> extends Action.Builder<ForEach<E>> {
     private final DataSupplier<E> dataSupplier;
     private final String          loopVariableName;
-    private       Action          perform = Leaf.NOP;
+    private       Action          perform = ActionSupport.nop();
     private       boolean         parallel;
 
     public Builder(String loopVariableName, DataSupplier<E> dataSupplier) {

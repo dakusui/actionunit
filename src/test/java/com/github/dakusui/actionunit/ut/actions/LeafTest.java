@@ -10,15 +10,15 @@ import static org.junit.Assert.assertThat;
 public class LeafTest {
   @Test
   public void givenAnonymousLeaf$whenToString$thenNoname() {
-    String s = simple("NameOfRunnable", (context) -> {
-    }).toString();
+    String s = String.format("%s", simple("NameOfRunnable", (context) -> {
+    }));
     assertThat(s, Matchers.equalTo("NameOfRunnable"));
   }
 
   @Test
   public void givenInheritedLeafWithoutName$whenToString$then() {
-    String s = Leaf.of(c -> {
-    }).toString();
-    assertThat(s, Matchers.startsWith("LeafTest$"));
+    String s = String.format("%s", Leaf.of(c -> {
+    }));
+    assertThat(s, Matchers.startsWith("(noname)"));
   }
 }

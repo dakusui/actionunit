@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
@@ -16,7 +15,6 @@ import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.synchronizedList;
 import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.Matchers.greaterThan;
@@ -124,9 +122,9 @@ public class CompatActionSupportTest {
 
   @Test
   public void givenTimeoutAction$whenDescribe$thenLooksNice() {
-    assertEquals("TimeOut(1[milliseconds])", String.format("%s", timeout(nop()).in(1, MILLISECONDS)));
-    assertEquals("TimeOut(10[seconds])", String.format("%s", timeout(nop()).in(10000, MILLISECONDS)));
-    assertEquals("TimeOut(1000[days])", String.format("%s", (timeout(nop()).in(1000, DAYS))));
+    assertEquals("timeout in 1[milliseconds]", String.format("%s", timeout(nop()).in(1, MILLISECONDS)));
+    assertEquals("timeout in 10[seconds]", String.format("%s", timeout(nop()).in(10000, MILLISECONDS)));
+    assertEquals("timeout in 1000[days]", String.format("%s", (timeout(nop()).in(1000, DAYS))));
   }
 
   @Test(expected = TimeoutException.class)
@@ -249,7 +247,7 @@ public class CompatActionSupportTest {
 
   @Test
   public void givenRetryAction$whenDescribe$thenLooksNice() {
-    assertEquals("Retry(2[seconds]x1times)", String.format("%s", retry(nop()).times(1).withIntervalOf(2, SECONDS).build()));
+    assertEquals("retry once in 2[seconds] on Exception", String.format("%s", retry(nop()).times(1).withIntervalOf(2, SECONDS).build()));
   }
 
   @Test
@@ -291,7 +289,12 @@ public class CompatActionSupportTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void unsupportedActionType$composite() {
-    new Composite.Impl(singletonList(nop()), false) {
+    new Action() {
+      @Override
+      public void formatTo(Formatter formatter, int flags, int width, int precision) {
+        formatter.format("%s", "dummy");
+      }
+
       @Override
       public void accept(Action.Visitor visitor) {
         visitor.visit(this);

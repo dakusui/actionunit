@@ -94,7 +94,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
             .describe("describing echo hello")
             .addq(context -> "hello")
             .build(),
-        asString("toString").equalTo("describing echo hello").$()
+        asString(action -> String.format("%s", action)).equalTo("describing echo hello").$()
     );
   }
 

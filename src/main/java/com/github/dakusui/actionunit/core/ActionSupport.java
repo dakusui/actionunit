@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 
+import java.util.Formatter;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -11,7 +12,18 @@ public enum ActionSupport {
   ;
 
   public static Action nop() {
-    return Leaf.NOP;
+    // Needs to be instantiated each time this method is called.
+    // Otherwise, multiple nops cannot be identified in an action tree.
+    return Leaf.of(new ContextConsumer() {
+      @Override
+      public void accept(Context context) {
+      }
+
+      @Override
+      public void formatTo(Formatter formatter, int flags, int width, int precision) {
+        formatter.format("(nop)");
+      }
+    });
   }
 
   public static Action leaf(ContextConsumer consumer) {

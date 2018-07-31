@@ -91,7 +91,7 @@ public abstract class ActionPerformer implements Action.Visitor {
       }
     }
     if (!succeeded)
-      throw new ActionException(lastException);
+      throw ActionException.wrap(lastException);
   }
 
   public void visit(TimeOut action) {

@@ -10,17 +10,6 @@ import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
 
 public interface Leaf extends Action, Function<Context, Runnable> {
-  Action NOP = Leaf.of(new ContextConsumer() {
-    @Override
-    public void accept(Context context) {
-    }
-
-    @Override
-    public void formatTo(Formatter formatter, int flags, int width, int precision) {
-      formatter.format("(nop)");
-    }
-  });
-
   Runnable runnable(Context context);
 
   default Runnable apply(Context context) {

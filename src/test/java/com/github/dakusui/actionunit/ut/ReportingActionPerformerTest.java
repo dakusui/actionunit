@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.compat.utils.Matchers;
 import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
@@ -9,18 +8,15 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.startsWith;
+import static com.github.dakusui.crest.Crest.*;
 
 @RunWith(Enclosed.class)
 public class ReportingActionPerformerTest extends TestUtils.TestBase {
@@ -52,10 +48,11 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       ////
       //Then printed correctly
       //noinspection unchecked
-      assertThat(getWriter(),
+      assertThat(
+          getWriter(),
           allOf(
-              hasItemAt(0, equalTo("[.]1-A passing action")),
-              hasItemAt(1, equalTo("  [.]0-This passes always"))
+              asString("get", 0).equalTo("[o]A passing action").$(),
+              asString("get", 1).equalTo("  [o]This passes always").$()
           )
       );
     }
@@ -77,8 +74,8 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("[F]1-A failing action")),
-                hasItemAt(1, equalTo("  [F]0-This fails always"))
+                asString("get", 0).startsWith("[F]A failing action").$(),
+                asString("get", 1).equalTo("  [F]This fails always").$()
             )
         );
       }
@@ -100,8 +97,9 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         //noinspection unchecked
         assertThat(getWriter(),
             allOf(
-                hasItemAt(0, startsWith("[E]1-An error action")),
-                hasItemAt(1, equalTo("  [E]0-This gives a runtime exception always"))
+                asString("get", 0).startsWith("[E]An error action").$(),
+                asString("get", 1).equalTo("  [E]This gives a runtime exception always").$(),
+                asInteger("size").equalTo(3).$()
             ));
       }
     }
@@ -123,15 +121,18 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       //Then printed correctly
       //noinspection unchecked
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("[.]6-Concurrent (3 actions)")),
-          hasItemAt(1, equalTo("  [.]1-A passing action-1")),
-          hasItemAt(2, equalTo("    [.]0-This passes always-1")),
-          hasItemAt(3, equalTo("  [.]3-A passing action-2")),
-          hasItemAt(4, equalTo("    [.]2-This passes always-2")),
-          hasItemAt(5, equalTo("  [.]5-A passing action-3")),
-          hasItemAt(6, equalTo("    [.]4-This passes always-3"))
+          asString("get", 0).equalTo("[o]do parallelly").$(),
+          asString("get", 1).equalTo("  [o]A passing action-1").$(),
+          asString("get", 2).equalTo("    [o]This passes always-1").$(),
+          asString("get", 3).equalTo("      [o](noname)").$(),
+          asString("get", 4).equalTo("  [o]A passing action-2").$(),
+          asString("get", 5).equalTo("    [o]This passes always-2").$(),
+          asString("get", 6).equalTo("      [o](noname)").$(),
+          asString("get", 7).equalTo("  [o]A passing action-3").$(),
+          asString("get", 8).equalTo("    [o]This passes always-3").$(),
+          asString("get", 9).equalTo("      [o](noname)").$(),
+          asInteger("size").equalTo(10).$()
       ));
-      assertThat(getWriter(), hasSize(7));
     }
   }
 
@@ -159,13 +160,15 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       //noinspection unchecked
       assertThat(
           getWriter(),
-          Matchers.allOf(
-              hasItemAt(0, startsWith("[.]0-CompatForEach (SEQUENTIALLY)")),
-              hasItemAt(1, equalTo("  [...]2-Sequential (2 actions)")),
-              hasItemAt(2, equalTo("    [...]0-Sink-1")),
-              hasItemAt(3, equalTo("    [...]1-Sink-2"))
+          Crest.allOf(
+              asString("get", 0).startsWith("[o]for each of data sequentially").$(),
+              asString("get", 1).equalTo("  [ooo]do sequentially").$(),
+              asString("get", 2).equalTo("    [ooo]Sink-1").$(),
+              asString("get", 3).equalTo("      [ooo](noname)").$(),
+              asString("get", 4).equalTo("    [ooo]Sink-2").$(),
+              asString("get", 5).equalTo("      [ooo](noname)").$(),
+              asInteger("size").equalTo(6).$()
           ));
-      assertThat(getWriter(), hasSize(4));
     }
 
     @Test(expected = RuntimeException.class)
@@ -191,12 +194,14 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         //Then printed correctly
         //noinspection unchecked
         assertThat(getWriter(), allOf(
-            hasItemAt(0, startsWith("[E]0-CompatForEach")),
-            hasItemAt(1, startsWith("  [E]2-Sequential (2 actions)")),
-            hasItemAt(2, startsWith("    [E]0-Sink-1")),
-            hasItemAt(3, startsWith("    []1-Sink-2"))
+            asString("get", 0).startsWith("[E]for each of data sequentially").$(),
+            asString("get", 1).startsWith("  [E]do sequentially").$(),
+            asString("get", 2).startsWith("    [E]Sink-1").$(),
+            asString("get", 3).startsWith("      [E](noname)").$(),
+            asString("get", 4).startsWith("    []Sink-2").$(),
+            asString("get", 5).startsWith("      [](noname)").$(),
+            asInteger("size").equalTo(6).$()
         ));
-        assertThat(getWriter(), hasSize(4));
       }
     }
   }
@@ -214,15 +219,14 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
-          hasItemAt(0, equalTo("[.]1-Attempt")),
-          hasItemAt(1, equalTo("  [.]0-Target")),
-          hasItemAt(2, equalTo("    [.]0-(nop)")),
-          hasItemAt(3, equalTo("  []1-Recover(Exception)")),
-          hasItemAt(4, equalTo("    []0-(nop)")),
-          hasItemAt(5, equalTo("  [.]2-Ensure")),
-          hasItemAt(6, equalTo("    [.]0-(nop)"))
+          asString("get", 0).equalTo("[o]attempt").$(),
+          asString("get", 1).equalTo("  [o](nop)").$(),
+          asString("get", 2).equalTo("  []recover").$(),
+          asString("get", 3).equalTo("    [](nop)").$(),
+          asString("get", 4).equalTo("  [o]ensure").$(),
+          asString("get", 5).equalTo("    [o](nop)").$(),
+          asInteger("size").equalTo(6).$()
       ));
-      assertThat(getWriter(), hasSize(7));
     }
 
     @Test
@@ -241,16 +245,16 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
           nop()
       );
       performAndPrintAction(action);
-      assertThat(getWriter(), Matchers.allOf(
-          hasItemAt(0, equalTo("[.]1-Attempt")),
-          hasItemAt(1, equalTo("  [E]0-Target")),
-          hasItemAt(2, equalTo("    [E]0-Howdy, NPE")),
-          hasItemAt(3, equalTo("  [.]1-Recover(NullPointerException)")),
-          hasItemAt(4, equalTo("    [.]0-(nop)")),
-          hasItemAt(5, equalTo("  [.]2-Ensure")),
-          hasItemAt(6, equalTo("    [.]0-(nop)"))
+      assertThat(getWriter(), Crest.allOf(
+          asString("get", 0).equalTo("[o]attempt").$(),
+          asString("get", 1).equalTo("  [E]Howdy, NPE").$(),
+          asString("get", 2).equalTo("    [E](noname)").$(),
+          asString("get", 3).equalTo("  [o]recover").$(),
+          asString("get", 4).equalTo("    [o](nop)").$(),
+          asString("get", 5).equalTo("  [o]ensure").$(),
+          asString("get", 6).equalTo("    [o](nop)").$(),
+          asInteger("size").equalTo(7).$()
       ));
-      assertThat(getWriter(), hasSize(7));
     }
   }
 }
