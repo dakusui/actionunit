@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  * @param <B> The class you implement by extending this class.
  */
 public abstract class Commander<B extends Commander<B>> extends Action.Builder<Action> implements Cloneable {
-  private final int            summaryLength;
+  private final int                  summaryLength;
   private       DataSupplier<String> stdin;
 
   private static final Consumer<String> DEFAULT_STDOUT_CONSUMER = System.out::println;
@@ -167,8 +167,12 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
    * And this does not create any action. This method is meant to reuse a
    * {@code Commander} object create for creating an action to other purposes
    * such as a source of data used in a {@code ForEach} action structure.
+   * {@code toStream(Context)} calls {@code composeCmd(Context)} to create a {@code Cmd}
+   * object that creates a stream to be returned.
    *
+   * @param context A context object from which a {@code cmd} object is created.
    * @return A stream for standard output of the command.
+   * @see Commander#composeCmd(Context)
    */
   public Stream<String> toStream(Context context) {
     return composeCmd(context).stream();
@@ -178,7 +182,8 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
    * This method returns an iterator for standard output of a command built by
    * this builder.
    *
-   * @return An iterator for standard output of the command.
+   * @param context A context object from which {@code cmd} object is created.
+   * @return An iterator for standard output of the command.n
    * @see Commander#toStream(Context)
    */
   public Iterable<String> toIterable(Context context) {
@@ -334,6 +339,8 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   /**
    * Creates a {@code Cmd} object based on properties this object holds.
    *
+   * @param context A context object from which {@code Cmd} object to be returned
+   *                is created.
    * @return A created {@code Cmd} object.
    */
   public Cmd toCmd(Context context) {

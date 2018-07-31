@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * An interface that abstracts various destinations to which {@link com.github.dakusui.actionunit.compat.visitors.PrintingActionScanner}'s
+ * An interface that abstracts various destinations to which {@link com.github.dakusui.actionunit.visitors.ActionPrinter}'s
  * output goes.
  */
 public interface Writer {
