@@ -24,10 +24,11 @@ Suppose that you want to define your tests in your own DSTL, domain specific tes
 language, and want to implement a test runner which performs the test cases defined 
 in it.
 
-How to define test cases, how to load them, and how to perform them are all independent
-concerns.
+How to define test cases, how to parse them, and how to structure and perform them
+are all independent concerns.
 
-```ActionUnit``` takes care of the last part among them, "how to perform them".
+```ActionUnit``` takes care of the last two parts among them "how to structure and
+perform them".
 
 # Usage
 
@@ -35,35 +36,29 @@ Following is an example of actionunit.
 
 ```java
 
-@RunWith(ActionUnit.class)
-@FixMethodOrder
 public class HelloActionUnit implements ActionFactory {
-  @ActionUnit.PerformWith(Test.class)
-  public Action helloActionUnit() {
-    return forEachOf(
-        "Hello", "world", "!"
-    ).concurrently(
-    ).perform(
-        ($, i) -> sequential(
-            $.simple(
-                "print {i}",
-                () -> System.out.println("<" + i.get() + ">")
-            )
-        )
-    );
-  }
-
   @Test
-  public void runAndReport(Action action) {
-    new ReportingActionPerformer.Builder(action)
-        .to(Writer.Std.ERR)
-        .build()
-        .performAndReport();
+  public Action helloActionUnit() {
+    List<String> out = new LinkedList<>();
+    Action action = forEach(
+        "i",
+        () -> Stream.of("Hello", "world", "!")
+    ).perform(
+        sequential(
+            simple(
+                "print {s}",
+                (c) -> System.out.println("<" + c.valueOf("i") + ">")
+            ),
+            simple(
+                "add {s} to 'out'",
+                (c) -> out.add("'" + c.valueOf("i") + "'")
+            )));
+
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
   }
 }
+
 ```
-```$``` is an object called "Context" from which you are supposed to create actions. ```i``` is a supplier which gives you a data to be processed in a lambda.
-When you nest multiple ```forEachOf``` structure, you should always use the inner most context.
 
 This will print out something like
 
@@ -87,7 +82,7 @@ This shows how actions are structured and whether each of them finished normally
 or not. ```o``` inside brackets represent how many times they are executed and 
 finished normally. As you see, an action ```print {i}``` was executed three times 
 successfully (```[ooo]```). If one a run of an action fails it will be shown as
-```x```.
+```E``` or ```F```(the latter is for ```AssertionError```).
 
 
 More examples are found here[[1]].
