@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.crest.Crest;
 import org.junit.Test;
@@ -12,9 +12,8 @@ import org.junit.runner.RunWith;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 @RunWith(Enclosed.class)
 public class ActionRunnerTest {
@@ -55,12 +54,9 @@ public class ActionRunnerTest {
                 asString("get", 4).equalTo("outer-B").$(),
                 asString("get", 5).equalTo("\\_inner-a").$(),
                 asString("get", 6).equalTo("\\_inner-b").$(),
-                asString("get", 7).equalTo("outer-B").$()
+                asString("get", 7).equalTo("outer-B").$(),
+                asInteger("size").equalTo(8).$()
             ));
-        assertThat(
-            getWriter(),
-            hasSize(8)
-        );
       }
     }
 

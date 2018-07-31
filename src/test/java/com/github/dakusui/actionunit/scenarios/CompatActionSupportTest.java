@@ -10,15 +10,17 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.crest.Crest.asLong;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedList;
 import static java.util.concurrent.TimeUnit.*;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class CompatActionSupportTest {
   @Test
@@ -49,6 +51,7 @@ public class CompatActionSupportTest {
     assertEquals(asList("Hello A", "Hello B"), arr);
   }
 
+  @SuppressWarnings({ "unchecked", "SuspiciousToArrayCall" })
   @Test(timeout = 3000000)
   public void concurrentTest$checkConcurrency() {
     final List<Map.Entry<Long, Long>> arr = synchronizedList(new ArrayList<>());
@@ -62,7 +65,10 @@ public class CompatActionSupportTest {
     ).accept(createActionPerformer());
     for (Map.Entry<Long, Long> i : arr) {
       for (Map.Entry<Long, Long> j : arr) {
-        assertThat(i.getValue(), greaterThan(j.getKey()));
+        assertThat(
+            i,
+            asLong("getValue").gt(j.getKey()).$()
+        );
       }
     }
   }

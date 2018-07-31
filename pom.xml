@@ -41,18 +41,12 @@
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>cmd</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>thincrest</artifactId>
             <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-junit</artifactId>
-            <version>2.0.0.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
