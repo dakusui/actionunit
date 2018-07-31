@@ -105,7 +105,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
     }
   }
 
-  public static class tyerm extends Base {
+  public static class ConcurrentAction extends Base {
     @Test
     public void givenConcurrentAction$whenPerformed$thenWorksFine() {
       ////

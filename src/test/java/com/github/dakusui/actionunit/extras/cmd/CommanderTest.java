@@ -88,7 +88,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
   public void describe() {
     assertThat(
         this.commander
-            .stdin(Stream.empty()) // to cover stdin() method
+            .stdin(Stream::empty) // to cover stdin() method
             .disconnectStdin() // to cover disconnectStdin() method
             .disableTimeout() // to cover disableTimeout() method()
             .describe("describing echo hello")

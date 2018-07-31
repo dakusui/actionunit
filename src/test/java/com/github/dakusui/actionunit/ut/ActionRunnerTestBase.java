@@ -37,8 +37,11 @@ public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends A
         String.format("A passing action-%d", index),
         simple(String.format("This passes always-%d", index), (c) -> {
           try {
+            if (Thread.currentThread().isInterrupted())
+              return;
             TimeUnit.MICROSECONDS.sleep(durationInMilliseconds);
           } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw ActionException.wrap(e);
           }
         }));
@@ -47,6 +50,8 @@ public abstract class ActionRunnerTestBase<R extends Action.Visitor, P extends A
   public Action createPassingAction(final int durationInMilliseconds) {
     return named("A passing action", simple("This passes always", c -> {
       try {
+        // Clear interruption state.
+        Thread.interrupted();
         TimeUnit.MICROSECONDS.sleep(durationInMilliseconds);
       } catch (InterruptedException e) {
         throw ActionException.wrap(e);

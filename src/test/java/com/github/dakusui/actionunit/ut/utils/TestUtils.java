@@ -188,8 +188,9 @@ public class TestUtils {
   }
 
   public static class TestBase {
-    PrintStream stdout = System.out;
-    PrintStream stderr = System.err;
+    PrintStream  stdout = System.out;
+    PrintStream  stderr = System.err;
+    final protected List<String> out = Collections.synchronizedList(new LinkedList<>());
 
     @Before
     public void suppressStdOutErr() {
@@ -211,6 +212,12 @@ public class TestUtils {
     public void restoreStdOutErr() {
       System.setOut(stdout);
       System.setOut(stderr);
+    }
+
+    protected void printf(String format, Object... args) {
+      String s = String.format(format, args);
+      System.out.println(s);
+      out.add(s);
     }
   }
 

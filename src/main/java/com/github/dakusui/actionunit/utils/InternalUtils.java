@@ -25,6 +25,7 @@ public enum InternalUtils {
     final Future<T> future = executor.submit(callable);
     executor.shutdown(); // This does not cancel the already-scheduled task.
     try {
+      Thread.interrupted();
       return future.get(timeout, timeUnit);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();

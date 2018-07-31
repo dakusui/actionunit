@@ -15,7 +15,7 @@ public class CatTest extends FsTestBase<Cat> {
 
   @Test
   public void number() {
-    perform(this.commander.stdin(Stream.of("a", "b", "c")).number().build());
+    perform(this.commander.stdin(() -> Stream.of("a", "b", "c")).number().build());
     assertThat(
         this.stdout,
         allOf(

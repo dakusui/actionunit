@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.DataSupplier;
 import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.cmd.Cmd;
 import com.github.dakusui.cmd.Shell;
@@ -29,7 +30,7 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class Commander<B extends Commander<B>> extends Action.Builder<Action> implements Cloneable {
   private final int            summaryLength;
-  private       Stream<String> stdin;
+  private       DataSupplier<String> stdin;
 
   private static final Consumer<String> DEFAULT_STDOUT_CONSUMER = System.out::println;
   private static final Consumer<String> DEFAULT_STDERR_CONSUMER = System.err::println;
@@ -94,13 +95,13 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   }
 
   @SuppressWarnings("unchecked")
-  public B stdin(Stream<String> stdin) {
+  public B stdin(DataSupplier<String> stdin) {
     this.stdin = requireNonNull(stdin);
     return (B) this;
   }
 
   public B disconnectStdin() {
-    return stdin(Stream.empty());
+    return stdin(Stream::empty);
   }
 
   /**
@@ -189,7 +190,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
     return Objects.toString(this.description);
   }
 
-  private Action readFrom(Stream<String> in) {
+  private Action readFrom(DataSupplier<String> in) {
     return numRetries > 0 ?
         retry(
             this.timeOutIfNecessary(composeAction(in))
@@ -352,11 +353,11 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
         : action;
   }
 
-  private Action composeAction(Stream<String> in) {
+  private Action composeAction(DataSupplier<String> in) {
     return named(
         description(),
         leaf(
-            context -> composeCmd(context).readFrom(in).stream().forEach(s -> {
+            context -> composeCmd(context).readFrom(requireNonNull(in.get())).stream().forEach(s -> {
             })
         )
     );
