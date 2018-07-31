@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.ut;
+package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static java.lang.System.currentTimeMillis;

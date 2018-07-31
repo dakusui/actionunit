@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;

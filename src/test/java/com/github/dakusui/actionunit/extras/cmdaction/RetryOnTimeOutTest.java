@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assume.assumeTrue;

@@ -1,10 +1,10 @@
-package com.github.dakusui.actionunit.compat.utils;
+package com.github.dakusui.actionunit.sandbox;
 
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.dakusui.actionunit.compat.utils.Matchers.allOf;
+import static com.github.dakusui.actionunit.sandbox.Matchers.allOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;

@@ -1,4 +1,5 @@
-package com.github.dakusui.actionunit.compat.utils;
+package com.github.dakusui.actionunit.sandbox;
+
 import java.util.function.Function;
 
 public interface MatcherFunction<I, O> extends Function<I, O>, Named {

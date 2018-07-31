@@ -1,4 +1,6 @@
-package com.github.dakusui.actionunit.compat.utils;
+package com.github.dakusui.actionunit.sandbox;
+
+import com.github.dakusui.actionunit.sandbox.Named;
 
 import java.util.function.Predicate;
 

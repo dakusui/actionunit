@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.linux.Echo;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;

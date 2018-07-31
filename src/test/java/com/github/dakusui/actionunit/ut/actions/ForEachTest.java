@@ -1,22 +1,26 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.compat.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.compat.utils.Matchers.allOf;
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static org.junit.Assert.assertThat;
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 
-public class CompatForEachTest extends TestUtils.TestBase {
+public class ForEachTest extends TestUtils.TestBase {
   @Test
   public void givenForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = new LinkedList<>();
@@ -40,21 +44,15 @@ public class CompatForEachTest extends TestUtils.TestBase {
     assertThat(
         out,
         allOf(
-            TestUtils.<List<String>, String>matcherBuilder()
-                .transform("0thElement", list -> list.get(0))
-                .check("=='Hello'", s -> Objects.equals(s, "'Hello'")),
-            TestUtils.<List<String>, String>matcherBuilder()
-                .transform("1stElement", list -> list.get(1))
-                .check("=='world'", s -> Objects.equals(s, "'world'")),
-            TestUtils.<List<String>, String>matcherBuilder()
-                .transform("2ndElement", list -> list.get(2))
-                .check("=='!'", s -> Objects.equals(s, "'!'"))
+                asString("get", 0).equalTo("'Hello'").$(),
+                asString("get", 1).equalTo("'world'").$(),
+                asString("get", 2).equalTo("'!'").$()
         ));
   }
 
 
   @Test
-  public void givenConcurrentForEachAction$whenPerformWithReporting$worksCorrectly() throws InterruptedException {
+  public void givenConcurrentForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = Collections.synchronizedList(new LinkedList<>());
     // Given
     Action action = forEach(
@@ -76,18 +74,12 @@ public class CompatForEachTest extends TestUtils.TestBase {
     // When3
     ReportingActionPerformer.create(Writer.Std.ERR).performAndReport(action);
     // Then
-    assertThat(
+    Crest.assertThat(
         out,
-        allOf(
-            TestUtils.<List<String>, List<String>>matcherBuilder()
-                .transform("passthrough", list -> list)
-                .check("contains:'Hello'", s -> s.contains("'Hello'")),
-            TestUtils.<List<String>, List<String>>matcherBuilder()
-                .transform("passthrough", list -> list)
-                .check("contains:'world'", s -> s.contains("'world'")),
-            TestUtils.<List<String>, List<String>>matcherBuilder()
-                .transform("passthrough", list -> list)
-                .check("contains:'!'", s -> s.contains("'!'"))
+        Crest.allOf(
+		        asListOf(String.class).contains("'Hello'").$(),
+		        asListOf(String.class).contains("'world'").$(),
+		        asListOf(String.class).contains("'!'").$()
         ));
   }
 }

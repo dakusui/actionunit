@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit.n;
+package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;

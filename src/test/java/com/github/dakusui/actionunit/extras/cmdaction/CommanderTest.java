@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.isRunUnderLinux;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunUnderLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assume.assumeTrue;

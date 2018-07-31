@@ -1,9 +1,8 @@
 package com.github.dakusui.actionunit.sandbox;
 
-import com.github.dakusui.actionunit.compat.utils.Helper;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.compat.utils.Helper.staticMethod;
+import static com.github.dakusui.actionunit.sandbox.Helper.staticMethod;
 
 public class HelperExample implements Helper {
   @Test

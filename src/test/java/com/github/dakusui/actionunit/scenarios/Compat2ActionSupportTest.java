@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit.compat.core;
+package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 @RunWith(Enclosed.class)
-public class ActionSupportTest {
+public class Compat2ActionSupportTest {
   public static class CmdTest {
     @Test
     public void echoTest() {
@@ -120,13 +120,13 @@ public class ActionSupportTest {
                   "i",
                   () -> Stream.of("hello", "world", "everyone", "!")
               ).perform(
-                  ActionSupport.parallel(
+                  parallel(
                       simple("step1", context -> print(context.valueOf("i"))),
                       simple("step2", context -> print(context.valueOf("i"))),
                       simple("step3", context -> print(context.valueOf("i"))),
-                      ActionSupport.<String>when(
+                      when(
                           context -> "world".equals(context.valueOf("i"))
-                      ).<String>perform(
+                      ).perform(
                           simple("MET", context -> print("Condition is met"))
                       ).otherwise(
                           simple("NOT MET", context -> print("Condition was not met"))

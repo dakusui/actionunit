@@ -1,7 +1,7 @@
-package com.github.dakusui.actionunit.ut;
+package com.github.dakusui.actionunit.sandbox;
 
-import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
-import com.github.dakusui.actionunit.compat.utils.TestUtils;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.sandbox.Autocloseables.autocloseable;
-import static com.github.dakusui.actionunit.compat.utils.TestUtils.hasItemAt;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -20,6 +19,34 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AutocloseablesTest {
+  public static <I, O> AutocloseableIterator<O> transform(final AutocloseableIterator<I> in, final Function<? super I, ? extends O> function) {
+    return new AutocloseableIterator<O>() {
+      @Override
+      public void close() {
+        in.close();
+      }
+
+      @Override
+      public boolean hasNext() {
+        return in.hasNext();
+      }
+
+      @Override
+      public O next() {
+        return function.apply(in.next());
+      }
+
+      @Override
+      public void remove() {
+        in.remove();
+      }
+    };
+  }
+
+  public static <T> Matcher<Iterable<? super T>> hasItemAt(int position, Matcher<? super T> itemMatcher) {
+    return new HasItemAt<>(position, itemMatcher);
+  }
+
   @Test(expected = Exception.class)
   public void givenErrorThrowingResource$whenClosed$thenWrappedExceptionThrown() {
     AutoCloseable autoCloseable = new AutoCloseable() {
@@ -58,7 +85,7 @@ public class AutocloseablesTest {
   @Test
   public void givenTransformedCollection$whenCleared$thenRemovedFromBackingList() {
     List<String> original = new LinkedList<>(asList("Hello", "World"));
-    Collection transformed = TestUtils.transformCollection(original, new Function<String, String>() {
+    Collection transformed = SandboxTest.transformCollection(original, new Function<String, String>() {
       @Override
       public String apply(String input) {
         return input + "!";
@@ -97,7 +124,7 @@ public class AutocloseablesTest {
         writer.writeLine("remove called");
       }
     };
-    try (AutocloseableIterator<String> out = TestUtils.transform(in, new Function<String, String>() {
+    try (AutocloseableIterator<String> out = transform(in, new Function<String, String>() {
       @Override
       public String apply(String input) {
         return input;

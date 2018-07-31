@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.compat.utils;
+package com.github.dakusui.actionunit.ut.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -7,8 +7,6 @@ import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
-import com.github.dakusui.actionunit.sandbox.AutocloseableIterator;
-import com.github.dakusui.actionunit.sandbox.Autocloseables;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -74,14 +72,6 @@ public class TestUtils {
     return getOperatingSystemType(System.getProperties()).equals(OSType.Linux);
   }
 
-  public static <T> Matcher<Iterable<? super T>> hasItemAt(int position, Matcher<? super T> itemMatcher) {
-    return new HasItemAt<>(position, itemMatcher);
-  }
-
-  public static <P extends Action.Visitor> P createPrintingActionScanner() {
-    return createPrintingActionScanner(Writer.Std.OUT);
-  }
-
   @SuppressWarnings("unchecked")
   public static <P extends Action.Visitor> P createPrintingActionScanner(Writer writer) {
     return (P) new ActionPrinter(writer);
@@ -104,78 +94,6 @@ public class TestUtils {
         throw ActionException.wrap(e);
       }
     });
-  }
-
-  public static <I, O> AutocloseableIterator<O> transform(final AutocloseableIterator<I> in, final Function<? super I, ? extends O> function) {
-    return new AutocloseableIterator<O>() {
-      @Override
-      public void close() {
-        in.close();
-      }
-
-      @Override
-      public boolean hasNext() {
-        return in.hasNext();
-      }
-
-      @Override
-      public O next() {
-        return function.apply(in.next());
-      }
-
-      @Override
-      public void remove() {
-        in.remove();
-      }
-    };
-  }
-
-  public static <I, O> Iterable<O> transform(final Iterable<I> in, final Function<? super I, ? extends O> func) {
-    if (in instanceof Collection) {
-      //noinspection unchecked,RedundantCast
-      return (Collection<O>) transformCollection((Collection<I>) in, (Function<? super I, O>) func);
-    }
-    return transformIterable(in, func);
-  }
-
-  public static <I, O> Iterable<O> transformIterable(final Iterable<I> in, final Function<? super I, ? extends O> func) {
-    checkNotNull(func);
-    return (AutocloseableIterator.Factory<O>) () -> {
-      Iterator<I> i = in.iterator();
-      Iterator<O> o = transform(i, func);
-      return Autocloseables.autocloseable(
-          o,
-          Autocloseables.toAutocloseable(i)
-      );
-    };
-  }
-
-  public static <I, O> Collection<O> transformCollection(final Collection<I> in, final Function<? super I, O> func) {
-    checkNotNull(func);
-    return new AbstractCollection<O>() {
-      @Override
-      public void clear() {
-        in.clear();
-      }
-
-      @Override
-      public boolean isEmpty() {
-        return in.isEmpty();
-      }
-
-      @Override
-      public Iterator<O> iterator() {
-        Iterator<I> i = in.iterator();
-        return Autocloseables.autocloseable(
-            transform(i, func),
-            Autocloseables.toAutocloseable(i));
-      }
-
-      @Override
-      public int size() {
-        return in.size();
-      }
-    };
   }
 
   /**

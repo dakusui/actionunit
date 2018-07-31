@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.compat.utils;
+package com.github.dakusui.actionunit.sandbox;
 
 public interface Helper {
   static void staticMethod() {
