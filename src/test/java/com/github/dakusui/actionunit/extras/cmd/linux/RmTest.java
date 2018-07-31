@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit.extras.cmdaction.linux;
+package com.github.dakusui.actionunit.extras.cmd.linux;
 
-import com.github.dakusui.actionunit.extras.cmdaction.FsTestBase;
+import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.linux.Ls;
 import com.github.dakusui.actionunit.linux.Mkdir;

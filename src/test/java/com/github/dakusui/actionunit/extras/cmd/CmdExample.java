@@ -1,10 +1,10 @@
-package com.github.dakusui.actionunit.extras.cmdaction;
+package com.github.dakusui.actionunit.extras.cmd;
 
 import org.junit.Test;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.extras.cmdaction.CommanderTestUtil.performAndReport;
+import static com.github.dakusui.actionunit.extras.cmd.CommanderTestUtil.performAndReport;
 import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 

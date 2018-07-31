@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit.extras.cmdaction.linux;
+package com.github.dakusui.actionunit.extras.cmd.linux;
 
-import com.github.dakusui.actionunit.extras.cmdaction.CommanderTestBase;
+import com.github.dakusui.actionunit.extras.cmd.CommanderTestBase;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.linux.Echo;
 import org.junit.Test;

@@ -7,24 +7,18 @@ import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
-import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 
 public class TestUtils {
   public static <T> List<T> toList(Iterable<T> iterable) {
@@ -156,23 +150,7 @@ public class TestUtils {
     return range(start, stop, 1);
   }
 
-  public static <T, U> Iterator<U> transform(Iterator<T> iterator, Function<? super T, ? extends U> func) {
-    checkNotNull(iterator);
-    checkNotNull(func);
-    return new Iterator<U>() {
-
-      @Override
-      public boolean hasNext() {
-        return iterator.hasNext();
-      }
-
-      @Override
-      public U next() {
-        return func.apply(iterator.next());
-      }
-    };
-  }
-
+  @SuppressWarnings("unchecked")
   public static <T> int size(Iterable<? super T> iterable) {
     if (iterable instanceof Collection)
       return ((Collection) iterable).size();
@@ -181,16 +159,6 @@ public class TestUtils {
         add((T) i);
       }
     }}.size();
-  }
-
-  public static <T, U> MatcherBuilder<T, U> matcherBuilder() {
-    return new MatcherBuilder<>();
-  }
-
-  public static Out performAndReportAction(Action action) {
-    final Out result = new Out();
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
-    return result;
   }
 
   public static class Out extends AbstractList<String> implements Writer {
@@ -228,12 +196,12 @@ public class TestUtils {
       if (TestUtils.isRunUnderSurefire()) {
         System.setOut(new PrintStream(new OutputStream() {
           @Override
-          public void write(int b) throws IOException {
+          public void write(int b) {
           }
         }));
         System.setErr(new PrintStream(new OutputStream() {
           @Override
-          public void write(int b) throws IOException {
+          public void write(int b) {
           }
         }));
       }
@@ -243,65 +211,6 @@ public class TestUtils {
     public void restoreStdOutErr() {
       System.setOut(stdout);
       System.setOut(stderr);
-    }
-  }
-
-  /**
-   * A base class for tests which writes to stdout/stderr.
-   */
-  public static class ContextTestBase extends TestBase {
-  }
-
-  public static class MatcherBuilder<V, U> {
-    String       predicateName = null;
-    Predicate<U> p             = null;
-    String       functionName  = "";
-    @SuppressWarnings("unchecked")
-    Function<V, U> f = v -> (U) v;
-
-    public MatcherBuilder<V, U> transform(String name, Function<V, U> f) {
-      this.functionName = Objects.requireNonNull(name);
-      this.f = Objects.requireNonNull(f);
-      return this;
-    }
-
-    public Matcher<V> check(String name, Predicate<U> p) {
-      this.predicateName = Objects.requireNonNull(name);
-      this.p = Objects.requireNonNull(p);
-      return this.build();
-    }
-
-    private Matcher<V> build() {
-      Objects.requireNonNull(p);
-      Objects.requireNonNull(f);
-      return new BaseMatcher<V>() {
-        @SuppressWarnings("unchecked")
-        @Override
-        public boolean matches(Object item) {
-          return p.test(f.apply((V) item));
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public void describeMismatch(Object item, Description description) {
-          description
-              .appendText("was false because " + functionName + "(x)=")
-              .appendValue(f.apply((V) item))
-              .appendText("; x=")
-              .appendValue(item)
-          ;
-        }
-
-        @Override
-        public void describeTo(Description description) {
-          description.appendText(String.format("%s(%s(x))", predicateName, functionName));
-        }
-      };
-    }
-
-    public static <T> MatcherBuilder<T, T> simple() {
-      return new MatcherBuilder<T, T>()
-          .transform("passthrough", t -> t);
     }
   }
 

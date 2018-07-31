@@ -3,19 +3,10 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertNotNull;
-
 public class ActionExceptionTest {
   @Test(expected = ActionException.class)
-  public void givenKnownCheckedException$whenWrap$thenActionExceptionThrown() {
-    throw ActionException.wrap(new IOException());
-  }
-
-  @Test(expected = Error.class)
-  public void givenUnknownCheckedException$whenWrap$thenRuntimeExceptionThrown() {
-    throw ActionException.wrap(new Exception());
+  public void givenCheckedException$whenWrap$thenActionExceptionThrown() {
+    throw ActionException.wrap(new UnknownCheckedExceptionForTest());
   }
 
   @Test(expected = OutOfMemoryError.class)
@@ -28,14 +19,14 @@ public class ActionExceptionTest {
     throw ActionException.wrap(new NullPointerException());
   }
 
-  @Test(expected = Error.class)
+  @Test(expected = ActionException.class)
   public void givenUnknownCheckedExceptioni$whenWrap$thenRuntimeException() {
     throw ActionException.wrap(new UnknownCheckedExceptionForTest());
   }
 
-  @Test
-  public void whenThrowableOnlyConstructorIsInvoked$thenInstantiatedProperly() {
-    assertNotNull(new ActionException(new Exception()));
+  @Test(expected = ActionException.class)
+  public void givenNull$whenWrap$thenActionExceptionIsThrown() {
+    throw ActionException.wrap(null);
   }
 
   public static class UnknownCheckedExceptionForTest extends Exception {

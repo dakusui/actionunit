@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.extras.cmdaction;
+package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.linux.Echo;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class CommanderTest extends CommanderTestBase<Echo> {
     // stdin (giving stream)
     // stdout, stderr (transforming output)
     // stdout, stderr (consuming output)
-    // cmdaction
+    // cmd
     commander.cmdBuilder().consumeStdout(System.err::println);
     perform(commander
         .noTrailingNewline().enableBackslashInterpretation().addq("hello\\nworld\\n")

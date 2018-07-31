@@ -126,7 +126,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
       composeAction().accept(new ActionPrinter(Writer.Std.ERR));
     }
 
-    public static class WithResultVariationTest extends TestUtils.ContextTestBase {
+    public static class WithResultVariationTest extends TestUtils.TestBase {
       @Test
       public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
         final TestUtils.Out out1 = new TestUtils.Out();

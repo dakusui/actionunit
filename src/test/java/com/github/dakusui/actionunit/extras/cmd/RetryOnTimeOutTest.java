@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.extras.cmdaction;
+package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.exceptions.ActionException;

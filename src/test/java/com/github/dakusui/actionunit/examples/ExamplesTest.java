@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class ExamplesTest {
-  public static class LoopWithRetryExampleTest extends TestUtils.ContextTestBase {
+  public static class LoopWithRetryExampleTest extends TestUtils.TestBase {
     @Test
     public void testExample() {
       Result result = JUnitCore.runClasses(PracticalExample.class);
@@ -20,5 +20,4 @@ public class ExamplesTest {
       assertEquals(1, result.getRunCount());
     }
   }
-
 }
