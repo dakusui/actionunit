@@ -63,7 +63,7 @@ public class ActionRunnerTest {
     private Action composeAction() {
       return forEach(
           "i",
-          () -> Stream.of("A", "B")
+          (c) -> Stream.of("A", "B")
       ).perform(
           sequential(
               simple(
@@ -72,11 +72,11 @@ public class ActionRunnerTest {
               ),
               forEach(
                   "j",
-                  () -> Stream.of("a", "b")
+                  (c) -> Stream.of("a", "b")
               ).perform(
                   simple(
                       "Prefix env '\\_inner-'",
-                      (cc) -> getWriter().writeLine("\\_inner-" + cc.valueOf("j"))
+                      (c) -> getWriter().writeLine("\\_inner-" + c.valueOf("j"))
                   )
               ),
               simple(

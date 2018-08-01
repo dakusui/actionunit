@@ -25,7 +25,7 @@ public class CommanderSupportTest extends TestUtils.TestBase {
     perform(
         forEach(
             "i",
-            () -> Stream.of(1, 2, 3)
+            (c) -> Stream.of(1, 2, 3)
         ).perform(
             leaf(context -> commander("echo hello:").add(c -> c.valueOf("i")).build())
         )

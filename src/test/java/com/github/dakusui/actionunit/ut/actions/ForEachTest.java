@@ -27,7 +27,7 @@ public class ForEachTest extends TestUtils.TestBase {
     // Given
     Action action = forEach(
         "i",
-        () -> Stream.of("Hello", "world", "!")
+        (c) -> Stream.of("Hello", "world", "!")
     ).perform(
         sequential(
             simple(
@@ -57,7 +57,7 @@ public class ForEachTest extends TestUtils.TestBase {
     // Given
     Action action = forEach(
         "i",
-        () -> Stream.of("Hello", "world", "!")
+        (c) -> Stream.of("Hello", "world", "!")
     ).parallelly(
     ).perform(
         sequential(

@@ -46,7 +46,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
                       }),
                       forEach(
                           "i",
-                          () -> Stream.of("hello1", "hello2", "hello3")
+                          (c) -> Stream.of("hello1", "hello2", "hello3")
                       ).perform(
                           nop()
                       )
@@ -132,7 +132,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         final TestUtils.Out out1 = new TestUtils.Out();
         Action action = forEach(
             "i",
-            () -> Stream.of("A", "B")
+            (c) -> Stream.of("A", "B")
         ).perform(
             sequential(
                 simple("+0", (c) -> out1.writeLine(c.valueOf("i") + "0")),

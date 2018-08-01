@@ -64,7 +64,7 @@ public class Compat2ActionSupportTest {
     @Test
     public void attemptTest3() {
       run(
-          forEach("i", () -> Stream.of("Hello", "World")).perform(
+          forEach("i", (c) -> Stream.of("Hello", "World")).perform(
               ActionSupport.<String>attempt(
                   leaf(context -> {
                     String i = context.valueOf("i");
@@ -118,7 +118,7 @@ public class Compat2ActionSupportTest {
                       ))),
               forEach(
                   "i",
-                  () -> Stream.of("hello", "world", "everyone", "!")
+                  (c) -> Stream.of("hello", "world", "everyone", "!")
               ).perform(
                   parallel(
                       simple("step1", context -> print(context.valueOf("i"))),
