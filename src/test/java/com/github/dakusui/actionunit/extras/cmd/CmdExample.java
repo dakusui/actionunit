@@ -15,7 +15,7 @@ public class CmdExample {
     performAndReport(
         forEach(
             "i",
-            () -> Stream.of("a", "b", "c")
+            (c) -> Stream.of("a", "b", "c")
         ).sequentially(
         ).perform(
             cmd("echo")

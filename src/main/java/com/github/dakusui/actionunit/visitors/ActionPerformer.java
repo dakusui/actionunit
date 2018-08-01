@@ -36,7 +36,7 @@ public abstract class ActionPerformer implements Action.Visitor {
   }
 
   public <E> void visit(ForEach<E> action) {
-    Stream<E> data = requireNonNull(action.data().get());
+    Stream<E> data = requireNonNull(action.data().apply(this.context));
     data = action.isParallel()
         ? data.parallel()
         : data;

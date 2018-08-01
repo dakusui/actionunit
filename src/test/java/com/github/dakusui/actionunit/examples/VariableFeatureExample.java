@@ -16,7 +16,7 @@ public class VariableFeatureExample extends TestUtils.TestBase {
     run(
         sequential(
             simple("init", (c) -> c.assignTo("x", 0)),
-            forEach("i", () -> Stream.of("a", "b", "c", "d", "e", "f"))
+            forEach("i", (c) -> Stream.of("a", "b", "c", "d", "e", "f"))
                 .perform(leaf(
                     ($) ->
                         sequential(

@@ -49,7 +49,7 @@ public class PracticalExample extends TestUtils.TestBase {
     // Build action tree
     Action action = forEach(
         "hostName",
-        () -> Stream.of("alexios", "nikephoros", "manuel", "constantine", "justinian")
+        (c) -> Stream.of("alexios", "nikephoros", "manuel", "constantine", "justinian")
     ).parallelly(
     ).perform(
         sequential(

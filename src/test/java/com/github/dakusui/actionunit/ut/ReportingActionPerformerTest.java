@@ -143,7 +143,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       // Given concurrent action
       Action action = forEach(
           "i",
-          () -> Stream.of("ItemA", "ItemB", "ItemC")
+          (c) -> Stream.of("ItemA", "ItemB", "ItemC")
       ).perform(
           sequential(
               simple("Sink-1", (c) -> {
@@ -177,7 +177,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       // Given concurrent action
       Action action = forEach(
           "i",
-          () -> Stream.of("ItemA", "ItemB", "ItemC")
+          (c) -> Stream.of("ItemA", "ItemB", "ItemC")
       ).perform(
           sequential(
               simple("Sink-1", (c) -> {

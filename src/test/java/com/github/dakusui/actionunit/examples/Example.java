@@ -16,7 +16,7 @@ public class Example extends TestUtils.TestBase {
   public void test() {
     Action action = forEach(
         "i",
-        () -> Stream.of("hello", "world")
+        (c) -> Stream.of("hello", "world")
     ).parallelly(
     ).perform(
         sequential(

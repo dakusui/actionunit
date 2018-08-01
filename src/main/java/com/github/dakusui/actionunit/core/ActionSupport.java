@@ -38,8 +38,8 @@ public enum ActionSupport {
     return new Attempt.Builder(action);
   }
 
-  public static <E> ForEach.Builder<E> forEach(String variableName, DataSupplier<E> dataSupplier) {
-    return new ForEach.Builder<>(variableName, dataSupplier);
+  public static <E> ForEach.Builder<E> forEach(String variableName, StreamGenerator<E> streamGenerator) {
+    return new ForEach.Builder<>(variableName, streamGenerator);
   }
 
   public static When.Builder when(ContextPredicate cond) {

@@ -21,7 +21,7 @@ public class WhenTest extends TestUtils.TestBase {
   public void test() {
     Action action = forEach(
         "v",
-        () -> Stream.of(1, 2, 3, 4)
+        (c) -> Stream.of(1, 2, 3, 4)
     ).perform(
         when(
             c -> v(c) > 2

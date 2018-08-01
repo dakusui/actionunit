@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.DataSupplier;
+import com.github.dakusui.actionunit.core.StreamGenerator;
 
 import java.util.Formatter;
 
@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 public interface ForEach<E> extends Action {
   String loopVariableName();
 
-  DataSupplier<E> data();
+  StreamGenerator<E> data();
 
   Action perform();
 
@@ -27,14 +27,14 @@ public interface ForEach<E> extends Action {
   }
 
   class Builder<E> extends Action.Builder<ForEach<E>> {
-    private final DataSupplier<E> dataSupplier;
-    private final String          loopVariableName;
-    private       Action          perform = ActionSupport.nop();
-    private       boolean         parallel;
+    private final StreamGenerator<E> streamGenerator;
+    private final String             loopVariableName;
+    private       Action             perform = ActionSupport.nop();
+    private       boolean            parallel;
 
-    public Builder(String loopVariableName, DataSupplier<E> dataSupplier) {
+    public Builder(String loopVariableName, StreamGenerator<E> streamGenerator) {
       this.loopVariableName = requireNonNull(loopVariableName);
-      this.dataSupplier = requireNonNull(dataSupplier);
+      this.streamGenerator = requireNonNull(streamGenerator);
       this.sequentially();
     }
 
@@ -61,8 +61,8 @@ public interface ForEach<E> extends Action {
         }
 
         @Override
-        public DataSupplier<E> data() {
-          return Builder.this.dataSupplier;
+        public StreamGenerator<E> data() {
+          return Builder.this.streamGenerator;
         }
 
         @Override

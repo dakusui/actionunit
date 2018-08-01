@@ -25,7 +25,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
 
   private static final Action EXAMPLE_ACTION = forEach(
       "i",
-      () -> Stream.of("a", "b", "c", "d", "e")
+      (c) -> Stream.of("a", "b", "c", "d", "e")
   ).parallelly(
   ).perform(
       attempt(
@@ -43,7 +43,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
                   500, MILLISECONDS
               ).$(),
               nop(),
-              forEach("i", () -> Stream.of(1, 2, 3)).perform(
+              forEach("i", (c) -> Stream.of(1, 2, 3)).perform(
                   leaf(
                       $ -> {
                         throw new IllegalStateException("err");
