@@ -62,8 +62,6 @@ public interface Context {
 
     @Override
     public Context assignTo(String variableName, Object value) {
-      if (this.variables.containsKey(requireNonNull(variableName)))
-        throw new RuntimeException();
       this.variables.put(variableName, value);
       return this;
     }

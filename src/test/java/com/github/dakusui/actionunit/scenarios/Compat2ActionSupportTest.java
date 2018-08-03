@@ -132,6 +132,12 @@ public class Compat2ActionSupportTest {
                           simple("NOT MET", context -> print("Condition was not met"))
                       )
                   )
+              ),
+              sequential(
+                  simple("Set", context -> context.assignTo("j", "set")),
+                  simple("Output", context -> print(context.valueOf("j"))),
+                  simple("Override", context -> context.assignTo("j", "override")),
+                  simple("Output", context -> print(context.valueOf("j")))
               )
           )
       );
