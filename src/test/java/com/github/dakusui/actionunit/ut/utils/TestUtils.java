@@ -66,6 +66,10 @@ public class TestUtils {
     return getOperatingSystemType(System.getProperties()).equals(OSType.Linux);
   }
 
+  public static boolean isRunByTravis() {
+    return Objects.equals(System.getProperty("user.name"), "travis");
+  }
+
   @SuppressWarnings("unchecked")
   public static <P extends Action.Visitor> P createPrintingActionScanner(Writer writer) {
     return (P) new ActionPrinter(writer);
@@ -188,8 +192,8 @@ public class TestUtils {
   }
 
   public static class TestBase {
-    PrintStream  stdout = System.out;
-    PrintStream  stderr = System.err;
+    PrintStream stdout = System.out;
+    PrintStream stderr = System.err;
     final protected List<String> out = Collections.synchronizedList(new LinkedList<>());
 
     @Before
