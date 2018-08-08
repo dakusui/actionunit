@@ -4,6 +4,8 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.*;
@@ -137,18 +139,19 @@ public class CompatActionSupportTest {
   public void timeoutTest$timeout() throws Throwable {
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(
-          simple("Add 'Hello' and sleep 30[msec]", (c) -> {
-            arr.add("Hello");
-            try {
-              TimeUnit.SECONDS.sleep(30);
-            } catch (InterruptedException e) {
-              throw wrap(e);
-            }
-          })
-      ).in(
-          1, MILLISECONDS
-      ).accept(createActionPerformer());
+      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+          timeout(
+              simple("Add 'Hello' and sleep 30[msec]", (c) -> {
+                arr.add("Hello");
+                try {
+                  TimeUnit.SECONDS.sleep(30);
+                } catch (InterruptedException e) {
+                  throw wrap(e);
+                }
+              })
+          ).in(
+              1, MILLISECONDS
+          ));
     } catch (ActionException e) {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
       throw e.getCause();

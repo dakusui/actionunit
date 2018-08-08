@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -62,6 +62,24 @@ public class ActionSupportTest extends TestUtils.TestBase {
           )
       )
   );
+
+  @Test(timeout = 10_000)
+  public void makeSureParallelActionFailsFast() {
+    parallel(
+        leaf($ -> {
+          System.out.println("ERROR");
+          throw new Error();
+        }),
+        leaf($ -> {
+          try {
+            Thread.sleep(SECONDS.toMillis(2));
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+        })
+
+    ).accept(SimpleActionPerformer.create());
+  }
 
   @Test
   public void giveExampleScenarioThatThrowsError$whenPerform$thenExceptionThrown() {
