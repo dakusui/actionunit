@@ -33,6 +33,7 @@ public class RetryOnTimeOutTest<R extends Commander<R>> extends FsTestBase<R> {
   @Test(expected = ActionException.class)
   public void whenRetryOnce$thenFail() {
     assumeTrue(isRunUnderLinux());
+    System.getProperties().forEach((k, v) -> System.out.println(String.format("%s=%s", k, v)));
     try {
       perform(this.commander
           .timeoutIn(1, SECONDS)
