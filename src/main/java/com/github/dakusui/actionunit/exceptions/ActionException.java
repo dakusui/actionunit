@@ -1,9 +1,6 @@
 package com.github.dakusui.actionunit.exceptions;
 
-import java.io.IOException;
 import java.util.concurrent.TimeoutException;
-
-import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 
 /**
  * Encapsulate a general Action error or warning.
@@ -45,18 +42,14 @@ public class ActionException extends RuntimeException {
     if (t == null) {
       throw new ActionException(t);
     }
-    if (t.getCause() == null) {
-      if (t instanceof Error) {
-        throw (Error) t;
-      }
-      if (t instanceof RuntimeException) {
-        throw (RuntimeException) t;
-      }
-      if (t instanceof TimeoutException)
-        throw new ActionTimeOutException(t.getMessage(), t);
-      throw new ActionException(t.getMessage(), t);
-    } else {
-      throw wrap(t.getCause());
+    if (t instanceof Error) {
+      throw (Error) t;
     }
+    if (t instanceof RuntimeException) {
+      throw (RuntimeException) t;
+    }
+    if (t instanceof TimeoutException)
+      throw new ActionTimeOutException(t.getMessage(), t);
+    throw new ActionException(t.getMessage(), t);
   }
 }
