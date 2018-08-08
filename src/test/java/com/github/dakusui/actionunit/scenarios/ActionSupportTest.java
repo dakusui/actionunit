@@ -10,6 +10,7 @@ import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -63,6 +64,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
       )
   );
 
+  @Ignore // This feature is not implemented yet.
   @Test(timeout = 10_000)
   public void makeSureParallelActionFailsFast() {
     parallel(
