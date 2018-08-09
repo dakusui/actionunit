@@ -53,9 +53,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
           Exception.class,
           simple(
               "let's recover",
-              context -> {
-                System.out.println("Exception was caught:" + context.thrownException().getMessage());
-              })
+              context -> System.out.println("Exception was caught:" + context.thrownException().getMessage()))
       ).ensure(
           simple(
               "a simple action",

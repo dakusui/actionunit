@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunByTravis;
 import static com.github.dakusui.crest.Crest.asLong;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static java.lang.System.currentTimeMillis;
@@ -23,6 +24,7 @@ import static java.util.Collections.synchronizedList;
 import static java.util.concurrent.TimeUnit.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class CompatActionSupportTest {
   @Test
@@ -137,6 +139,7 @@ public class CompatActionSupportTest {
 
   @Test(expected = TimeoutException.class)
   public void timeoutTest$timeout() throws Throwable {
+    assumeFalse(isRunByTravis());
     final List<String> arr = new ArrayList<>();
     try {
       ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
