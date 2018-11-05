@@ -1,15 +1,16 @@
 package com.github.dakusui.actionunit.scenarios;
 
-import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -52,9 +53,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
           Exception.class,
           simple(
               "let's recover",
-              context -> {
-                System.out.println("Exception was caught:" + context.thrownException().getMessage());
-              })
+              context -> System.out.println("Exception was caught:" + context.thrownException().getMessage()))
       ).ensure(
           simple(
               "a simple action",
@@ -62,6 +61,25 @@ public class ActionSupportTest extends TestUtils.TestBase {
           )
       )
   );
+
+  @Ignore // This feature is not implemented yet.
+  @Test(timeout = 10_000)
+  public void makeSureParallelActionFailsFast() {
+    parallel(
+        leaf($ -> {
+          System.out.println("ERROR");
+          throw new Error();
+        }),
+        leaf($ -> {
+          try {
+            Thread.sleep(SECONDS.toMillis(2));
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+        })
+
+    ).accept(SimpleActionPerformer.create());
+  }
 
   @Test
   public void giveExampleScenarioThatThrowsError$whenPerform$thenExceptionThrown() {

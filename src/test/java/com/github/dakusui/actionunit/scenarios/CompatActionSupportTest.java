@@ -4,6 +4,8 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.*;
@@ -13,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunByTravis;
 import static com.github.dakusui.crest.Crest.asLong;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static java.lang.System.currentTimeMillis;
@@ -21,6 +24,7 @@ import static java.util.Collections.synchronizedList;
 import static java.util.concurrent.TimeUnit.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class CompatActionSupportTest {
   @Test
@@ -135,20 +139,22 @@ public class CompatActionSupportTest {
 
   @Test(expected = TimeoutException.class)
   public void timeoutTest$timeout() throws Throwable {
+    assumeFalse(isRunByTravis());
     final List<String> arr = new ArrayList<>();
     try {
-      timeout(
-          simple("Add 'Hello' and sleep 30[msec]", (c) -> {
-            arr.add("Hello");
-            try {
-              TimeUnit.SECONDS.sleep(30);
-            } catch (InterruptedException e) {
-              throw wrap(e);
-            }
-          })
-      ).in(
-          1, MILLISECONDS
-      ).accept(createActionPerformer());
+      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+          timeout(
+              simple("Add 'Hello' and sleep 30[msec]", (c) -> {
+                arr.add("Hello");
+                try {
+                  TimeUnit.SECONDS.sleep(30);
+                } catch (InterruptedException e) {
+                  throw wrap(e);
+                }
+              })
+          ).in(
+              1, MILLISECONDS
+          ));
     } catch (ActionException e) {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
       throw e.getCause();

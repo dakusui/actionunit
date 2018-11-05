@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,8 +39,8 @@ public abstract class CommanderTestBase<C extends Commander<C>> {
 
   public CommanderTestBase() {
     this.context = Context.create();
-    this.stdout = new LinkedList<>();
-    this.stderr = new LinkedList<>();
+    this.stdout = Collections.synchronizedList(new LinkedList<>());
+    this.stderr = Collections.synchronizedList(new LinkedList<>());
     this.commander = this.configure(create());
   }
 
