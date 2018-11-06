@@ -250,7 +250,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
 
       @Override
       public String toString() {
-        return String.format("<%s>", option);
+        return quoteWithSingleQuotesForShell(Objects.toString(option));
       }
     });
     return (B) this;
@@ -370,7 +370,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
     );
   }
 
-  private Cmd composeCmd(Context context) {
+  protected Cmd composeCmd(Context context) {
     cmdBuilder.env(this.env);
     cmdBuilder.command(new Supplier<String>() {
       @Override

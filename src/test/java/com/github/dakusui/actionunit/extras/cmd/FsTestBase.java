@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.cmd.Cmd;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +63,12 @@ public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBa
       protected String program() {
         return "/bin/rm";
       }
-    }.add("-rf").add(dir.getAbsolutePath()).build();
+      @Override
+      protected Cmd composeCmd(Context context) {
+        this.add("-rf");
+        return super.composeCmd(context);
+      }
+    }.add(dir.getAbsolutePath()).build();
   }
 
 }
