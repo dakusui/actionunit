@@ -3,7 +3,7 @@
     <groupId>com.github.dakusui</groupId>
     <artifactId>actionunit</artifactId>
     <packaging>jar</packaging>
-    <version>5.1.3-SNAPSHOT</version>
+    <version>5.1.3</version>
     <description>A library to build 'action' structure for testing</description>
     <name>actionunit</name>
     <url>https://github.com/dakusui/actionunit</url>
@@ -21,7 +21,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/actionunit.git
         </developerConnection>
         <url>http://dakusui.github.io/actionuint</url>
-        <tag>actionunit-5.0.x</tag>
+        <tag>actionunit-5.1.3</tag>
     </scm>
 
     <developers>
