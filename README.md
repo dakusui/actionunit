@@ -36,9 +36,11 @@ Following is an example of actionunit.
 
 ```java
 
-public class HelloActionUnit implements ActionFactory {
+import static com.github.dakusui.actionunit.core.ActionSupport.*
+
+public class HelloActionUnit {
   @Test
-  public Action helloActionUnit() {
+  public void helloActionUnit() {
     List<String> out = new LinkedList<>();
     Action action = forEach(
         "i",
