@@ -1,22 +1,30 @@
 package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.InternalUtils;
-import com.github.dakusui.crest.Crest;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.parallel;
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asInteger;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class TimeoutTest extends TestUtils.TestBase {
@@ -77,6 +85,49 @@ public class TimeoutTest extends TestUtils.TestBase {
       );
       throw e;
     }
+  }
+
+  @Test(timeout = 2_000, expected = ActionTimeOutException.class)
+  public void givenNotEndingRetryActionInside$whenTimeoutOutside$thenTimeoutsAppropriately() {
+    Action action = timeout(
+        retry(
+            simple("throw an Exception", c -> {
+              throw new RuntimeException();
+            })
+        ).times(Integer.MAX_VALUE)
+            .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
+    ).in(1, SECONDS);
+    action.accept(createActionPerformer());
+  }
+
+  @Test(timeout = 2_000, expected = ActionTimeOutException.class)
+  public void givenLongerTimeoutActionWhichHoldsNotEndingRetryAction$whenTimeoutOutside$thenOuterTimeoutUsed() {
+    Action action = timeout(
+        timeout(
+        retry(
+            simple("throw an Exception", c -> {
+              throw new RuntimeException();
+            })
+        ).times(Integer.MAX_VALUE)
+            .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
+        ).in(60, MINUTES)
+    ).in(1, SECONDS);
+    action.accept(createActionPerformer());
+  }
+
+  @Test(timeout = 2_000, expected = ActionTimeOutException.class)
+  public void givenShorterTimeoutActionWhichHoldsNotEndingRetryAction$whenTimeoutOutside$thenInnerTimeoutUsed() {
+    Action action = timeout(
+        timeout(
+            retry(
+                simple("throw an Exception", c -> {
+                  throw new RuntimeException();
+                })
+            ).times(Integer.MAX_VALUE)
+                .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
+        ).in(100, MILLISECONDS)
+    ).in(1, MINUTES);
+    action.accept(createActionPerformer());
   }
 
   private Action sleepAction(long millis) {

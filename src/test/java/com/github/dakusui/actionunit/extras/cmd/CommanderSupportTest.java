@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
 import org.junit.Test;
 
 import java.util.stream.Stream;
@@ -28,6 +29,18 @@ public class CommanderSupportTest extends TestUtils.TestBase {
             (c) -> Stream.of(1, 2, 3)
         ).perform(
             leaf(context -> commander("echo hello:").add(c -> c.valueOf("i")).build())
+        )
+    );
+  }
+
+  @Test(expected = UnexpectedExitValueException.class)
+  public void test3() {
+    perform(
+        forEach(
+            "i",
+            (c) -> Stream.of(1, 2, 3)
+        ).perform(
+            leaf(context -> commander("unknwonEcho hello:").add(c -> c.valueOf("i").toString()).toStream(context).forEach(System.out::println))
         )
     );
   }

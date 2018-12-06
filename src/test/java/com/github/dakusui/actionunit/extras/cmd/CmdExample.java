@@ -32,4 +32,18 @@ public class CmdExample {
         cmd("echo hello world").build()
     );
   }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testCmdError() {
+    try {
+      performAndReport(
+          cmd("unknown").$()
+      );
+    } finally {
+      System.err.flush();
+      System.out.flush();
+    }
+  }
+
 }
