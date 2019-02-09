@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import junit.framework.AssertionFailedError;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -28,7 +29,7 @@ public class Compat2ActionSupportTest {
 
   public static class AttemptTest extends TestUtils.TestBase {
     @Test
-    public void attemptTest1() {
+    public void attemptTest1a() {
       run(
           attempt(
               simple("Fail", context -> {
@@ -36,6 +37,23 @@ public class Compat2ActionSupportTest {
               })
           ).recover(
               ActionException.class,
+              simple("Let's go", context -> print("GO!"))
+          ).ensure(
+              simple("Ensured", context ->
+                  print("bye...")
+              )
+          ));
+    }
+
+    @Test
+    public void attemptTest1b() {
+      run(
+          attempt(
+              simple("Fail", context -> {
+                throw new AssertionFailedError("hi");
+              })
+          ).recover(
+              Throwable.class,
               simple("Let's go", context -> print("GO!"))
           ).ensure(
               simple("Ensured", context ->
