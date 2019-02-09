@@ -7,7 +7,6 @@ import com.github.dakusui.actionunit.exceptions.ActionException;
 import java.util.Formatter;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
 public interface Attempt extends Action {
@@ -49,10 +48,7 @@ public interface Attempt extends Action {
 
     public Builder recover(Class<? extends Throwable> targetExceptionClass, Action recover) {
       this.recover = Named.of("recover", requireNonNull(recover));
-      this.targetExceptionClass = requireArgument(
-          Exception.class::isAssignableFrom,
-          requireNonNull(targetExceptionClass)
-      );
+      this.targetExceptionClass = requireNonNull(targetExceptionClass);
       return this;
     }
 
