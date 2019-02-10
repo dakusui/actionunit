@@ -10,13 +10,14 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static com.github.dakusui.actionunit.utils.InternalUtils.suppressObjectToString;
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface
 public interface ContextPredicate extends Predicate<Context>, Formattable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(toString());
+    formatter.format(suppressObjectToString(this.toString()));
   }
 
   @Override
@@ -75,7 +76,10 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
     private final BiFunction<Predicate, String, String> descriptionFormatter;
 
     Builder(String variableName) {
-      this(variableName, (p, v) -> String.format("%s:[%s]", v, MessageFormat.format(p.toString(), variableName)));
+      this(variableName,
+          (p, v) -> String.format("%s:[%s]",
+              v,
+              MessageFormat.format(suppressObjectToString(p.toString()), v)));
     }
 
     Builder(String variableName, BiFunction<Predicate, String, String> descriptionFormatter) {

@@ -10,6 +10,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static com.github.dakusui.actionunit.utils.InternalUtils.suppressObjectToString;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
@@ -17,7 +18,7 @@ import static java.util.Objects.requireNonNull;
 public interface ContextConsumer extends Consumer<Context>, Formattable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(this.toString());
+    formatter.format(suppressObjectToString(this.toString()));
   }
 
   @Override
@@ -61,7 +62,7 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
           (Consumer c, String v) -> format(
               "%s:[%s]",
               variableName,
-              MessageFormat.format(c.toString(), v)));
+              MessageFormat.format(suppressObjectToString(c.toString()), v)));
     }
 
     Builder(String variableName, BiFunction<Consumer, String, String> descriptionFormatter) {
