@@ -30,6 +30,26 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
     };
   }
 
+  static <T> ContextConsumer from(Runnable runnable) {
+    return from(() -> suppressObjectToString(runnable.toString()), runnable);
+  }
+
+  static ContextConsumer from(Supplier<String> description, Runnable runnable) {
+    requireNonNull(runnable);
+    requireNonNull(description);
+    return new ContextConsumer() {
+      @Override
+      public void accept(Context context) {
+        runnable.run();
+      }
+
+      @Override
+      public String toString() {
+        return description.get();
+      }
+    };
+  }
+
   static <T> ContextConsumer of(String variableName, Consumer<T> consumer) {
     return ContextFunctions.contextConsumerFor(variableName).with(consumer);
   }
@@ -60,8 +80,8 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
     Builder(String variableName) {
       this(variableName,
           (Consumer c, String v) -> format(
-              "%s:[%s]",
-              variableName,
+              "%s->[%s]",
+              String.join(",", variableName),
               MessageFormat.format(suppressObjectToString(c.toString()), v)));
     }
 

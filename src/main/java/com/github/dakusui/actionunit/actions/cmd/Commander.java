@@ -5,12 +5,16 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.StreamGenerator;
 import com.github.dakusui.actionunit.utils.Checks;
-import com.github.dakusui.cmd.Cmd;
-import com.github.dakusui.cmd.Shell;
+import com.github.dakusui.cmd.core.process.Shell;
 import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -19,8 +23,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.utils.Checks.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
+import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
+import static com.github.dakusui.actionunit.utils.Checks.impossibleLineReached;
+import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
 /**
