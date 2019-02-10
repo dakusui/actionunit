@@ -3,13 +3,24 @@ package com.github.dakusui.actionunit.utils;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 import static java.lang.String.format;
 
 public enum InternalUtils {
   ;
+
+  public static final Pattern OBJECT_TO_STRING_PATTERN = Pattern.compile(
+      "([a-zA-Z\\$_][a-zA-Z0-9\\$_]*\\.)*([a-zA-Z0-9\\$_]+)*(\\$[0-9a-f]+/[0-9a-f]+)?@[]0-9a-f]+"
+  );
 
   public static void sleep(long duration, TimeUnit timeUnit) {
     try {
@@ -92,5 +103,11 @@ public enum InternalUtils {
     return Objects.requireNonNull(s).length() > 40
         ? s.substring(0, 40) + "..."
         : s;
+  }
+
+  public static String suppressObjectToString(String s) {
+    if (OBJECT_TO_STRING_PATTERN.matcher(s).matches())
+      s = "(noname)";
+    return s;
   }
 }
