@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.actions.cmd.Admiral;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.core.StreamGenerator;
 import com.github.dakusui.actionunit.io.Writer;
@@ -8,6 +9,8 @@ import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.cmd.core.process.ProcessStreamer;
 import com.github.dakusui.cmd.core.process.Shell;
 import org.junit.Test;
+
+import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
@@ -115,6 +118,14 @@ public class AdmiralUnitTest {
         forEach("i", StreamGenerator.fromArray("A", "B", "C"))
             .perform(localCommander().command(() -> "echo hello {0}", "i").toAction())
     );
+  }
+
+  @Test
+  public void test12() {
+    localCommander()
+        .stdin(Stream.of("a", "b", "c"))
+        .command(() -> "cat -n")
+        .toStreamGenerator().apply(Context.create()).forEach(System.out::println);
   }
 
   private Admiral localCommander() {

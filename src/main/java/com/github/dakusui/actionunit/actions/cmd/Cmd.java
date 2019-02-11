@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.cmd.core.process.Shell;
 
 import java.io.File;
@@ -59,14 +60,20 @@ public interface Cmd {
 
     public Cmd build() {
       return new Cmd() {
+        Admiral admiral = new Admiral(shell);
+
         @Override
         public Stream<String> stream() {
-          return null;
+          if (cwd != null)
+            admiral.cwd(cwd);
+          env.forEach(admiral::env);
+          return admiral.command(commandLineSupplier.get()).toStreamGenerator().apply(Context.create()).peek(stdoutConsumer);
         }
 
         @Override
         public Cmd readFrom(Stream<String> stream) {
-          return null;
+          admiral.stdin(stream);
+          return this;
         }
       };
     }

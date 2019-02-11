@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 public interface StreamGenerator<T> extends Function<Context, Stream<T>>, Formattable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(objectToStringIfOverridden(this, "(data)"));
+    formatter.format(objectToStringIfOverridden(this, "data"));
   }
 
   @SafeVarargs

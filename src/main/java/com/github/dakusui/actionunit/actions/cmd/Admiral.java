@@ -12,9 +12,13 @@ import com.github.dakusui.printables.Printables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.Formattable;
 import java.util.Formatter;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -29,10 +33,14 @@ import static java.util.Objects.requireNonNull;
 
 public class Admiral {
 
-  private static final Logger              LOGGER = LoggerFactory.getLogger(Admiral.class);
+  private static final Logger              LOGGER             = LoggerFactory.getLogger(Admiral.class);
   private              Shell               shell;
   private              CommandLineComposer commandLineComposer;
   private              String[]            variableNames;
+  private              Stream<String>      stdin              = null;
+  private              Consumer<String>    downstreamConsumer = LOGGER::debug;
+  private              Map<String, String> envvars            = new LinkedHashMap<>();
+  private              File                cwd;
 
   public Admiral(Shell shell) {
     this.shell = shell;
@@ -45,6 +53,21 @@ public class Admiral {
   public Admiral command(CommandLineComposer commandLineComposer, String... variableNames) {
     this.commandLineComposer = requireNonNull(commandLineComposer);
     this.variableNames = variableNames;
+    return this;
+  }
+
+  public Admiral cwd(File cwd) {
+    this.cwd = requireNonNull(cwd);
+    return this;
+  }
+
+  public Admiral env(String varname, String varvalue) {
+    this.envvars.put(requireNonNull(varname), requireNonNull(varvalue));
+    return this;
+  }
+
+  public Admiral stdin(Stream<String> stream) {
+    this.stdin = requireNonNull(stream);
     return this;
   }
 
@@ -85,11 +108,11 @@ public class Admiral {
     requireNonNull(variableNames);
     return new ContextConsumer.Builder(variableNames)
         .with(consumer(
-            (Params params) -> createProcessStreamerBuilder(commandLineComposer, params)
+            (Params params) -> createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
                 .checker(checker)
                 .build()
                 .stream()
-                .forEach(LOGGER::debug))
+                .forEach(downstreamConsumer))
             .describe(commandLineComposer::commandLineString));
   }
 
@@ -98,7 +121,7 @@ public class Admiral {
         .with(Printables.predicate(
             (Params params) -> {
               try {
-                return exitCodeChecker.test(createProcessStreamerBuilder(commandLineComposer, params)
+                return exitCodeChecker.test(createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
                     .checker(createCheckerForExitCode(exitCode -> true))
                     .build()
                     .waitFor());
@@ -117,10 +140,11 @@ public class Admiral {
         new Function<Params, Stream<String>>() {
           @Override
           public Stream<String> apply(Params params) {
-            return createProcessStreamerBuilder(commandLineComposer, params)
+            return createProcessStreamerBuilder(commandLineComposer, params, Admiral.this.stdin)
                 .checker(checker)
                 .build()
-                .stream();
+                .stream()
+                .peek(downstreamConsumer);
           }
 
           @Override
@@ -132,16 +156,26 @@ public class Admiral {
     );
   }
 
-  private ProcessStreamer.Builder createProcessStreamerBuilder(CommandLineComposer commandLineComposer, Params params) {
+  private ProcessStreamer.Builder createProcessStreamerBuilder(CommandLineComposer commandLineComposer, Params params, Stream<String> stdin) {
     String commandLine = commandLineComposer.apply(
         params.paramNames()
             .stream()
             .map(params::valueOf)
             .toArray());
     LOGGER.info("Command Line:{}", commandLine);
-    return ProcessStreamer.source(shell).command(commandLine);
+    ProcessStreamer.Builder ret;
+    if (stdin == null)
+      ret = ProcessStreamer.source(shell);
+    else
+      ret = ProcessStreamer.pipe(stdin, shell);
+    envvars.forEach(ret::env);
+    return ret.command(commandLine).cwd(cwd);
   }
 
+  public Admiral stdoutConsumer(Consumer<String> stdoutConsumer) {
+    this.downstreamConsumer = requireNonNull(stdoutConsumer);
+    return this;
+  }
 
   @FunctionalInterface
   public interface CommandLineComposer extends Function<Object[], String>, Formattable {
