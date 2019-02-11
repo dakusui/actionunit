@@ -23,7 +23,7 @@ public enum Printables {
         .describe(() -> String.format("isKeyOf[%s]", summary(values.toString())));
   }
 
-  public static <T> Predicate<T> equalsTo(T value) {
+  public static <T> Predicate<T> isEqualTo(T value) {
     return predicate((Predicate<T>) v -> Objects.equals(v, value))
         .describe(() -> String.format("is[%s]", value));
   }

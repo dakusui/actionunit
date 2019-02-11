@@ -23,43 +23,77 @@ import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static com.github.dakusui.cmd.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static com.github.dakusui.printables.Printables.consumer;
+import static com.github.dakusui.printables.Printables.isEqualTo;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class Admiral {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Admiral.class);
-  private              Shell  shell;
+  private static final Logger              LOGGER = LoggerFactory.getLogger(Admiral.class);
+  private              Shell               shell;
+  private              CommandLineComposer commandLineComposer;
+  private              String[]            variableNames;
 
   public Admiral(Shell shell) {
     this.shell = shell;
   }
 
-  public Action toActionWith(CommandLineComposer commandLineComposer, String... variableNames) {
-    return toActionWith(commandLineComposer, Checker.createCheckerForExitCode(0), variableNames);
+  public Admiral command(String commandLineFormat, String... variableNames) {
+    return command(() -> commandLineFormat, variableNames);
   }
 
-  public Action toActionWith(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
+  public Admiral command(CommandLineComposer commandLineComposer, String... variableNames) {
+    this.commandLineComposer = requireNonNull(commandLineComposer);
+    this.variableNames = variableNames;
+    return this;
+  }
+
+  public Action toAction() {
+    return toActionWith(Checker.createCheckerForExitCode(0));
+  }
+
+  public Action toActionWith(Checker checker) {
+    return leaf(toContextConsumerWith(checker));
+  }
+
+  public ContextConsumer toContextConsumer() {
+    return toContextConsumerWith(Checker.createCheckerForExitCode(0));
+  }
+
+  public ContextConsumer toContextConsumerWith(Checker checker) {
+    return toContextConsumer(this.commandLineComposer, checker, this.variableNames);
+  }
+
+  public ContextPredicate toContextPredicate() {
+    return toContextPredicate(this.commandLineComposer, isEqualTo(0), this.variableNames);
+  }
+
+  public ContextPredicate toContextPredicateWith(Predicate<Integer> exitCodeChecker) {
+    return toContextPredicate(this.commandLineComposer, exitCodeChecker, this.variableNames);
+  }
+
+  public StreamGenerator<String> toStreamGenerator() {
+    return toStreamGeneratorWith(Checker.createCheckerForExitCode(0));
+  }
+
+  public StreamGenerator<String> toStreamGeneratorWith(Checker checker) {
+    return toStreamGenerator(this.commandLineComposer, checker, this.variableNames);
+  }
+
+  private ContextConsumer toContextConsumer(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
     requireNonNull(commandLineComposer);
-    return leaf(toContextConsumer(commandLineComposer, checker, variableNames));
-  }
-
-  public ContextConsumer toContextConsumer(CommandLineComposer commandLineComposer, String... variableNames) {
-    return toContextConsumer(commandLineComposer, Checker.createCheckerForExitCode(0), variableNames);
-  }
-
-  public ContextConsumer toContextConsumer(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
+    requireNonNull(variableNames);
     return new ContextConsumer.Builder(variableNames)
         .with(consumer(
             (Params params) -> createProcessStreamerBuilder(commandLineComposer, params)
                 .checker(checker)
                 .build()
                 .stream()
-                .forEach(LOGGER::trace))
+                .forEach(LOGGER::debug))
             .describe(commandLineComposer::commandLineString));
   }
 
-  public ContextPredicate toContextPredicate(CommandLineComposer commandLineComposer, Predicate<Integer> exitCodeChecker, String... variableNames) {
+  private ContextPredicate toContextPredicate(CommandLineComposer commandLineComposer, Predicate<Integer> exitCodeChecker, String... variableNames) {
     return new ContextPredicate.Builder(variableNames)
         .with(Printables.predicate(
             (Params params) -> {
@@ -78,11 +112,7 @@ public class Admiral {
                 objectToStringIfOverridden(exitCodeChecker, "(noname)"))));
   }
 
-  public StreamGenerator<String> toStreamGenerator(CommandLineComposer commandLineComposer, String... variableNames) {
-    return toStreamGenerator(commandLineComposer, Checker.createCheckerForExitCode(0), variableNames);
-  }
-
-  public StreamGenerator<String> toStreamGenerator(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
+  private StreamGenerator<String> toStreamGenerator(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
     return StreamGenerator.createFromContextWith(
         new Function<Params, Stream<String>>() {
           @Override
@@ -113,6 +143,7 @@ public class Admiral {
   }
 
 
+  @FunctionalInterface
   public interface CommandLineComposer extends Function<Object[], String>, Formattable {
     @Override
     default String apply(Object[] params) {
@@ -126,5 +157,4 @@ public class Admiral {
 
     String commandLineString();
   }
-
 }
