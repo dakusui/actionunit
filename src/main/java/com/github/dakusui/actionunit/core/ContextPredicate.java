@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.core;
 
+import com.github.dakusui.actionunit.core.ContextFunctions.Params;
 import com.github.dakusui.printables.PrintablePredicate;
 
 import java.text.MessageFormat;
@@ -11,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.suppressObjectToString;
+import static com.github.dakusui.printables.Printables.predicate;
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface
@@ -38,7 +40,11 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
   }
 
   static <T> ContextPredicate of(String variableName, Predicate<T> predicate) {
-    return ContextFunctions.contextPredicateFor(variableName).with(predicate);
+    return ContextFunctions.contextPredicateFor(variableName)
+        .with(
+            predicate((Params params) -> predicate.test(params.valueOf(variableName)))
+                .describe(predicate.toString())
+        );
   }
 
   class Impl extends PrintablePredicate<Context> implements ContextPredicate {
@@ -72,26 +78,26 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
   }
 
   class Builder {
-    private final String                                variableName;
-    private final BiFunction<Predicate, String, String> descriptionFormatter;
+    private final String[]                                variableNames;
+    private final BiFunction<Predicate, String[], String> descriptionFormatter;
 
-    Builder(String variableName) {
-      this(variableName,
-          (p, v) -> String.format("%s:[%s]",
-              v,
-              MessageFormat.format(suppressObjectToString(p.toString()), v)));
+    Builder(String... variableNames) {
+      this((p, v) -> String.format("(%s)->%s",
+          String.join(",", v),
+          MessageFormat.format(suppressObjectToString(p.toString()), (Object[]) v)), variableNames
+      );
     }
 
-    Builder(String variableName, BiFunction<Predicate, String, String> descriptionFormatter) {
-      this.variableName = requireNonNull(variableName);
+    Builder(BiFunction<Predicate, String[], String> descriptionFormatter, String... variableNames) {
+      this.variableNames = requireNonNull(variableNames);
       this.descriptionFormatter = requireNonNull(descriptionFormatter);
     }
 
-    public <T> ContextPredicate with(Predicate<T> predicate) {
+    public <T> ContextPredicate with(Predicate<Params> predicate) {
       requireNonNull(predicate);
       return new Impl(
-          () -> descriptionFormatter.apply(predicate, variableName),
-          c -> predicate.test(c.valueOf(variableName)));
+          () -> descriptionFormatter.apply(predicate, variableNames),
+          (Context c) -> predicate.test(Params.create(c, variableNames)));
     }
   }
 }

@@ -72,11 +72,11 @@ public class ContextFunctionsUnitTest {
   public static class GivenPrintablePredicate {
     Integer boundary = 100;
     private final ContextPredicate cp = ContextPredicate.of("j",
-        predicate(i -> Objects.equals(i, 0)).describe("==0")
+        predicate(i -> Objects.equals(i, 0)).describe("{0}==0")
     ).or(contextPredicateFor("j").with(
-        predicate((Integer i) -> i > 0).describe(">0")
+        predicate((Params params) -> params.<Integer>valueOf("i") > 0).describe("{0}>0")
     ).and(contextPredicateFor("j").with(
-        predicate((Integer i) -> i < boundary).describe(() -> "<" + boundary)
+        predicate((Params params) -> params.<Integer>valueOf("j") < boundary).describe(() -> "{0}<" + boundary)
     ))).negate();
 
     @Test
@@ -84,7 +84,7 @@ public class ContextFunctionsUnitTest {
       System.out.println(cp);
       assertThat(
           cp,
-          asString("toString").equalTo("!(j:[==0]||(j:[>0]&&j:[<100]))").$()
+          asString("toString").equalTo("!((j)->j==0||((j)->j>0&&(j)->j<100))").$()
       );
     }
   }

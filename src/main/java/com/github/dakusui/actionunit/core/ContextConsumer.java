@@ -66,7 +66,7 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
       this(
           (Consumer c, String[] v) -> format(
               "(%s)->%s",
-              String.join(",", variableNames),
+              String.join(",", v),
               MessageFormat.format(suppressObjectToString(c.toString()), (Object[]) v)),
           variableNames
       );

@@ -14,8 +14,8 @@ import static java.util.stream.Collectors.joining;
 public enum ContextFunctions {
   ;
 
-  public static ContextPredicate.Builder contextPredicateFor(String variableName) {
-    return new ContextPredicate.Builder(variableName);
+  public static ContextPredicate.Builder contextPredicateFor(String... variableNames) {
+    return new ContextPredicate.Builder(variableNames);
   }
 
   public static ContextConsumer.Builder contextConsumerFor(String... variableNames) {
