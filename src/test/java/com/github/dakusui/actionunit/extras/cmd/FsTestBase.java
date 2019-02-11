@@ -1,17 +1,19 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
+import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.cmd.Cmd;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.attempt;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 
 public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBase<C> {
   protected final File dir;

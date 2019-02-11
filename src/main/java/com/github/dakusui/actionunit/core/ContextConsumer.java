@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.core;
 
+import com.github.dakusui.actionunit.core.ContextFunctions.Params;
 import com.github.dakusui.printables.PrintableConsumer;
 
 import java.text.MessageFormat;
@@ -11,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.suppressObjectToString;
+import static com.github.dakusui.printables.Printables.consumer;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
@@ -30,34 +32,17 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
     };
   }
 
-  static <T> ContextConsumer from(Runnable runnable) {
-    return from(() -> suppressObjectToString(runnable.toString()), runnable);
-  }
-
-  static ContextConsumer from(Supplier<String> description, Runnable runnable) {
-    requireNonNull(runnable);
-    requireNonNull(description);
-    return new ContextConsumer() {
-      @Override
-      public void accept(Context context) {
-        runnable.run();
-      }
-
-      @Override
-      public String toString() {
-        return description.get();
-      }
-    };
-  }
-
   static <T> ContextConsumer of(String variableName, Consumer<T> consumer) {
-    return ContextFunctions.contextConsumerFor(variableName).with(consumer);
+    return ContextFunctions.contextConsumerFor(variableName)
+        .with(
+            consumer((Params params) -> consumer.accept(params.valueOf(variableName)))
+                .describe(consumer.toString()));
   }
 
   class Impl extends PrintableConsumer<Context> implements ContextConsumer {
 
-    Impl(Supplier<String> s, Consumer<Context> consumer) {
-      super(s, consumer);
+    Impl(Supplier<String> formatter, Consumer<Context> consumer) {
+      super(formatter, consumer);
     }
 
     @Override
@@ -74,27 +59,29 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
   }
 
   class Builder {
-    private final String                               variableName;
-    private final BiFunction<Consumer, String, String> descriptionFormatter;
+    private final String[]                               variableNames;
+    private final BiFunction<Consumer, String[], String> descriptionFormatter;
 
-    Builder(String variableName) {
-      this(variableName,
-          (Consumer c, String v) -> format(
-              "%s->[%s]",
-              String.join(",", variableName),
-              MessageFormat.format(suppressObjectToString(c.toString()), v)));
+    public Builder(String... variableNames) {
+      this(
+          (Consumer c, String[] v) -> format(
+              "(%s)->%s",
+              String.join(",", variableNames),
+              MessageFormat.format(suppressObjectToString(c.toString()), (Object[]) v)),
+          variableNames
+      );
     }
 
-    Builder(String variableName, BiFunction<Consumer, String, String> descriptionFormatter) {
-      this.variableName = requireNonNull(variableName);
+    Builder(BiFunction<Consumer, String[], String> descriptionFormatter, String... variableNames) {
+      this.variableNames = requireNonNull(variableNames);
       this.descriptionFormatter = requireNonNull(descriptionFormatter);
     }
 
-    public <T> ContextConsumer with(Consumer<T> consumer) {
+    public ContextConsumer with(Consumer<Params> consumer) {
       requireNonNull(consumer);
       return new Impl(
-          () -> descriptionFormatter.apply(consumer, variableName),
-          c -> consumer.accept(c.valueOf(variableName))
+          () -> descriptionFormatter.apply(consumer, variableNames),
+          (Context c) -> consumer.accept(Params.create(c, variableNames))
       );
     }
   }

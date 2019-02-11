@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.core.ContextFunctions.Params;
 import com.github.dakusui.actionunit.core.ContextPredicate;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -32,10 +33,10 @@ public class ContextFunctionsUnitTest {
     List<String>    out = new LinkedList<>();
     ContextConsumer cc  = ContextConsumer.of(
         "i",
-        consumer(each -> out.add(each.toString())).describe("out.add({0}.toString)")
+        consumer((String each) -> out.add(each)).describe("out.add({0}.toString())")
     ).andThen(ContextConsumer.of(
         "i",
-        consumer(System.out::println).describe("System.out::println")
+        consumer(System.out::println).describe("System.out.println({0})")
     ));
 
     @Test
@@ -62,7 +63,8 @@ public class ContextFunctionsUnitTest {
       System.out.println(cc.toString());
       assertThat(
           cc,
-          asString("toString").equalTo("i:[out.add(i.toString)];i:[System.out::println]").$()
+          asString("toString")
+              .equalTo("(i)->out.add(i.toString());(i)->System.out.println(i)").$()
       );
     }
   }
@@ -97,9 +99,9 @@ public class ContextFunctionsUnitTest {
             )).negate();
 
     ContextConsumer cc = contextConsumerFor("i").with(
-        consumer(each -> out.add(each.toString())).describe("out.add({0}.toString)")
+        consumer((Params params) -> out.add(params.valueOf("i"))).describe("out.add({0}.toString)")
     ).andThen(contextConsumerFor("j").with(
-        consumer(each -> out.add(each.toString())).describe("out.add({0}.toString)")
+        consumer((Params params) -> out.add(params.valueOf("j"))).describe("out.add({0}.toString)")
     ));
 
     @Test
@@ -117,13 +119,13 @@ public class ContextFunctionsUnitTest {
           out,
           allOf(
               asString("get", 0).equalTo("Hello").$(),
-              asString("get", 1).equalTo("-1").$(),
+              asInteger("get", 1).equalTo(-1).$(),
               asString("get", 2).equalTo("Hello").$(),
-              asString("get", 3).equalTo("100").$(),
+              asInteger("get", 3).equalTo(100).$(),
               asString("get", 4).equalTo("world").$(),
-              asString("get", 5).equalTo("-1").$(),
+              asInteger("get", 5).equalTo(-1).$(),
               asString("get", 6).equalTo("world").$(),
-              asString("get", 7).equalTo("100").$(),
+              asInteger("get", 7).equalTo(100).$(),
               asInteger("size").equalTo(8).$()
           )
       );
