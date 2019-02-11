@@ -113,7 +113,7 @@ public class Admiral {
   }
 
   private StreamGenerator<String> toStreamGenerator(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
-    return StreamGenerator.createFromContextWith(
+    return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {
           @Override
           public Stream<String> apply(Params params) {

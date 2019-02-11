@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
 public interface StreamGenerator<T> extends Function<Context, Stream<T>>, Formattable {
@@ -18,9 +19,14 @@ public interface StreamGenerator<T> extends Function<Context, Stream<T>>, Format
     formatter.format(objectToStringIfOverridden(this, "(data)"));
   }
 
-  static <T> StreamGenerator<T> createFrom(Collection<T> collection) {
+  @SafeVarargs
+  static <T> StreamGenerator<T> fromArray(T... elements) {
+    return fromCollection(asList(elements));
+  }
+
+  static <T> StreamGenerator<T> fromCollection(Collection<T> collection) {
     requireNonNull(collection);
-    return createFromContextWith(new Function<Params, Stream<T>>() {
+    return fromContextWith(new Function<Params, Stream<T>>() {
       @Override
       public Stream<T> apply(Params params) {
         return collection.stream();
@@ -32,7 +38,7 @@ public interface StreamGenerator<T> extends Function<Context, Stream<T>>, Format
     });
   }
 
-  static <T> StreamGenerator<T> createFromContextWith(Function<Params, Stream<T>> func, String... variableNames) {
+  static <T> StreamGenerator<T> fromContextWith(Function<Params, Stream<T>> func, String... variableNames) {
     requireNonNull(func);
     return new StreamGenerator<T>() {
       @Override

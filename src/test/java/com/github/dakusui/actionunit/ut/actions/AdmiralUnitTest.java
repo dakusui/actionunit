@@ -104,8 +104,16 @@ public class AdmiralUnitTest {
   @Test
   public void test10() {
     ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
-        forEach("i", StreamGenerator.createFrom(asList("A", "B", "C")))
+        forEach("i", StreamGenerator.fromCollection(asList("A", "B", "C")))
             .perform(localCommander().command("echo hello {0}", "i").toAction())
+    );
+  }
+
+  @Test
+  public void test11() {
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+        forEach("i", StreamGenerator.fromArray("A", "B", "C"))
+            .perform(localCommander().command(() -> "echo hello {0}", "i").toAction())
     );
   }
 
