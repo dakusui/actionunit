@@ -1,16 +1,18 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
+import com.github.dakusui.cmd.core.process.ProcessStreamer;
 import org.junit.Test;
 
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.actions.cmd.Commander.commander;
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 
 public class CommanderSupportTest extends TestUtils.TestBase {
 
@@ -33,7 +35,7 @@ public class CommanderSupportTest extends TestUtils.TestBase {
     );
   }
 
-  @Test(expected = UnexpectedExitValueException.class)
+  @Test(expected = ProcessStreamer.Failure.class)
   public void test3() {
     perform(
         forEach(

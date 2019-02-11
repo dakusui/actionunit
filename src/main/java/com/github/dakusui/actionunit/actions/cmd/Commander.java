@@ -5,8 +5,8 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.StreamGenerator;
 import com.github.dakusui.actionunit.utils.Checks;
+import com.github.dakusui.cmd.core.process.ProcessStreamer;
 import com.github.dakusui.cmd.core.process.Shell;
-import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   private       TimeUnit                   retryIntervalTimeUnit;
   private       TimeUnit                   timeOutTimeUnit;
   private       long                       timeOutDuration;
-  private       Class<? extends Throwable> retryOn = UnexpectedExitValueException.class;
+  private       Class<? extends Throwable> retryOn = ProcessStreamer.Failure.class;
   private       File                       cwd     = null;
   private final Map<String, String>        env     = new LinkedHashMap<>();
 

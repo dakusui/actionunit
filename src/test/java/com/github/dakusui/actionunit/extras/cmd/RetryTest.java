@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.cmd.exceptions.UnexpectedExitValueException;
+import com.github.dakusui.cmd.core.process.ProcessStreamer;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class RetryTest<R extends Commander<R>> extends FsTestBase<R> {
   }
 
 
-  @Test(expected = UnexpectedExitValueException.class)
+  @Test(expected = ProcessStreamer.Failure.class)
   public void whenRetryOnce$thenFail() {
     perform(this.commander.retries(1).interval(1, TimeUnit.SECONDS).build());
   }
