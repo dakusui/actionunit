@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.suppressObjectToString;
+import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static com.github.dakusui.printables.Printables.consumer;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 public interface ContextConsumer extends Consumer<Context>, Formattable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(suppressObjectToString(this.toString()));
+    formatter.format(objectToStringIfOverridden(this, "(noname)"));
   }
 
   @Override
@@ -30,6 +30,12 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
       accept(t);
       after.accept(t);
     };
+  }
+
+  static <T> ContextConsumer from(Runnable runnable) {
+    return ContextFunctions.contextConsumerFor().with(
+        consumer((Params params) -> runnable.run()).describe(runnable.toString())
+    );
   }
 
   static <T> ContextConsumer of(String variableName, Consumer<T> consumer) {
@@ -67,7 +73,7 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
           (Consumer c, String[] v) -> format(
               "(%s)->%s",
               String.join(",", v),
-              MessageFormat.format(suppressObjectToString(c.toString()), (Object[]) v)),
+              MessageFormat.format(objectToStringIfOverridden(c, "(noname)"), (Object[]) v)),
           variableNames
       );
     }

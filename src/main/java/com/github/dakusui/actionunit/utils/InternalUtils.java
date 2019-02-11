@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +13,7 @@ import java.util.regex.Pattern;
 
 import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 public enum InternalUtils {
   ;
@@ -100,14 +100,16 @@ public enum InternalUtils {
   }
 
   public static String summary(String s) {
-    return Objects.requireNonNull(s).length() > 40
+    return requireNonNull(s).length() > 40
         ? s.substring(0, 40) + "..."
         : s;
   }
 
-  public static String suppressObjectToString(String s) {
+  public static String objectToStringIfOverridden(Object o, String replacement) {
+    String s = o.toString();
+    requireNonNull(replacement);
     if (OBJECT_TO_STRING_PATTERN.matcher(s).matches())
-      s = "(noname)";
+      return replacement;
     return s;
   }
 }

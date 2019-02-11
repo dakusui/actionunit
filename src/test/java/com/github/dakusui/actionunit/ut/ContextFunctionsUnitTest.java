@@ -99,9 +99,11 @@ public class ContextFunctionsUnitTest {
             )).negate();
 
     ContextConsumer cc = contextConsumerFor("i").with(
-        consumer((Params params) -> out.add(params.valueOf("i"))).describe("out.add({0}.toString)")
+        consumer((Params params) -> out.add(params.valueOf("i")))
+            .describe("out.add({0}.toString)")
     ).andThen(contextConsumerFor("j").with(
-        consumer((Params params) -> out.add(params.valueOf("j"))).describe("out.add({0}.toString)")
+        consumer((Params params) -> out.add(params.valueOf("j")))
+            .describe("out.add({0}.toString)")
     ));
 
     @Test

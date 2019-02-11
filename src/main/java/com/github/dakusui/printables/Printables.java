@@ -1,6 +1,7 @@
 package com.github.dakusui.printables;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -20,5 +21,10 @@ public enum Printables {
   public static <T> Predicate<T> isKeyOf(Map<T, Object> values) {
     return predicate((Predicate<T>) values::containsKey)
         .describe(() -> String.format("isKeyOf[%s]", summary(values.toString())));
+  }
+
+  public static <T> Predicate<T> equalsTo(T value) {
+    return predicate((Predicate<T>) v -> Objects.equals(v, value))
+        .describe(() -> String.format("is[%s]", value));
   }
 }

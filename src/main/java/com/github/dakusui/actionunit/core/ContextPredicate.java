@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.suppressObjectToString;
+import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static com.github.dakusui.printables.Printables.predicate;
 import static java.util.Objects.requireNonNull;
 
@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 public interface ContextPredicate extends Predicate<Context>, Formattable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(suppressObjectToString(this.toString()));
+    formatter.format(objectToStringIfOverridden(this, "(noname)"));
   }
 
   @Override
@@ -49,8 +49,8 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
 
   class Impl extends PrintablePredicate<Context> implements ContextPredicate {
 
-    Impl(Supplier<String> s, Predicate<Context> predicate) {
-      super(s, predicate);
+    Impl(Supplier<String> formatter, Predicate<Context> predicate) {
+      super(formatter, predicate);
     }
 
     @Override
@@ -81,11 +81,8 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
     private final String[]                                variableNames;
     private final BiFunction<Predicate, String[], String> descriptionFormatter;
 
-    Builder(String... variableNames) {
-      this((p, v) -> String.format("(%s)->%s",
-          String.join(",", v),
-          MessageFormat.format(suppressObjectToString(p.toString()), (Object[]) v)), variableNames
-      );
+    public Builder(String... variableNames) {
+      this(Builder::defaultDescriptionFormatter, variableNames);
     }
 
     Builder(BiFunction<Predicate, String[], String> descriptionFormatter, String... variableNames) {
@@ -93,11 +90,17 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
       this.descriptionFormatter = requireNonNull(descriptionFormatter);
     }
 
-    public <T> ContextPredicate with(Predicate<Params> predicate) {
+    public ContextPredicate with(Predicate<Params> predicate) {
       requireNonNull(predicate);
       return new Impl(
           () -> descriptionFormatter.apply(predicate, variableNames),
           (Context c) -> predicate.test(Params.create(c, variableNames)));
+    }
+
+    private static String defaultDescriptionFormatter(Predicate p, String[] v) {
+      return String.format("(%s)->%s",
+          String.join(",", v),
+          MessageFormat.format(objectToStringIfOverridden(p, "(noname)"), (Object[]) v));
     }
   }
 }
