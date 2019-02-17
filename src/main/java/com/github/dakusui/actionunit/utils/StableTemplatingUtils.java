@@ -29,7 +29,7 @@ public enum StableTemplatingUtils {
 
     private PositionedPlaceHolder(String placeHolder, int position) {
       requireArgument(s -> s.length() > 0, requireNonNull(placeHolder));
-      requireArgument(i -> i > 0, position);
+      requireArgument(i -> i >= 0, position);
       this.placeHolder = placeHolder;
       this.position = position;
     }

@@ -1,23 +1,16 @@
-package com.github.dakusui.actionunit.core;
+package com.github.dakusui.actionunit.core.context;
 
-import com.github.dakusui.actionunit.core.ContextFunctions.Params;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Formattable;
-import java.util.Formatter;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
-public interface StreamGenerator<T> extends Function<Context, Stream<T>>, Formattable {
-  @Override
-  default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(objectToStringIfOverridden(this, "data"));
-  }
+public interface StreamGenerator<T> extends ContextFunction<Stream<T>> {
 
   @SafeVarargs
   static <T> StreamGenerator<T> fromArray(T... elements) {

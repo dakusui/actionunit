@@ -1,9 +1,9 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.cmd.Admiral;
+import com.github.dakusui.actionunit.actions.cmd.Commodore;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ContextConsumer;
-import com.github.dakusui.actionunit.core.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.cmd.core.process.ProcessStreamer;
@@ -20,7 +20,7 @@ import static com.github.dakusui.cmd.core.process.ProcessStreamer.Checker.create
 import static com.github.dakusui.printables.Printables.isEqualTo;
 import static java.util.Arrays.asList;
 
-public class AdmiralUnitTest {
+public class CommodoreUnitTest {
   @Test(expected = ProcessStreamer.Failure.class)
   public void test1() {
     ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
@@ -128,8 +128,8 @@ public class AdmiralUnitTest {
         .toStreamGenerator().apply(Context.create()).forEach(System.out::println);
   }
 
-  private Admiral localCommander() {
-    return new Admiral(Shell.local());
+  private Commodore localCommander() {
+    return new Commodore(Shell.local());
   }
 
 }

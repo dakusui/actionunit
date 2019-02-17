@@ -1,27 +1,20 @@
-package com.github.dakusui.actionunit.core;
+package com.github.dakusui.actionunit.core.context;
 
-import com.github.dakusui.actionunit.core.ContextFunctions.Params;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.printables.PrintablePredicate;
 
-import java.text.MessageFormat;
-import java.util.Formattable;
-import java.util.Formatter;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_HOLDER_FORMATTER;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static com.github.dakusui.printables.Printables.predicate;
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface
-public interface ContextPredicate extends Predicate<Context>, Formattable {
-  @Override
-  default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(objectToStringIfOverridden(this, "(noname)"));
-  }
-
+public interface ContextPredicate extends Predicate<Context>, Printable {
   @Override
   default ContextPredicate and(Predicate<? super Context> other) {
     Objects.requireNonNull(other);
@@ -55,7 +48,6 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
 
     @Override
     public ContextPredicate and(Predicate<? super Context> other) {
-      requireNonNull(other);
       return (ContextPredicate) super.and(other);
     }
 
@@ -66,7 +58,6 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
 
     @Override
     public ContextPredicate or(Predicate<? super Context> other) {
-      requireNonNull(other);
       return (ContextPredicate) super.or(other);
     }
 
@@ -82,7 +73,10 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
     private final BiFunction<Predicate, String[], String> descriptionFormatter;
 
     public Builder(String... variableNames) {
-      this(Builder::defaultDescriptionFormatter, variableNames);
+      this(
+          (Predicate f, String[] v) -> describeFunctionalObject(f, PLACE_HOLDER_FORMATTER, v),
+          variableNames
+      );
     }
 
     Builder(BiFunction<Predicate, String[], String> descriptionFormatter, String... variableNames) {
@@ -95,12 +89,6 @@ public interface ContextPredicate extends Predicate<Context>, Formattable {
       return new Impl(
           () -> descriptionFormatter.apply(predicate, variableNames),
           (Context c) -> predicate.test(Params.create(c, variableNames)));
-    }
-
-    private static String defaultDescriptionFormatter(Predicate p, String[] v) {
-      return String.format("(%s)->%s",
-          String.join(",", v),
-          MessageFormat.format(objectToStringIfOverridden(p, "(noname)"), (Object[]) v));
     }
   }
 }

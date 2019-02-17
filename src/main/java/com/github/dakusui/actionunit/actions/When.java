@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
 
 import java.util.Formatter;
 

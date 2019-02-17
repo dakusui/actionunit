@@ -64,20 +64,21 @@ public interface Cmd {
 
     public Cmd build() {
       return new Cmd() {
-        Admiral admiral = new Admiral(shell);
+        Commodore commodore = new Commodore(shell);
 
         @Override
         public Stream<String> stream() {
-          Admiral admiral = this.admiral;
+          Commodore commodore = this.commodore;
           if (cwd != null)
-            admiral = admiral.cwd(cwd);
-          env.forEach(admiral::env);
-          return admiral.command(commandLineSupplier.get()).toStreamGenerator().apply(Context.create()).peek(stdoutConsumer);
+            commodore = commodore.cwd(cwd);
+          for (String key : env.keySet())
+            commodore = commodore.env(key, env.get(key));
+          return commodore.command(commandLineSupplier.get()).toStreamGenerator().apply(Context.create()).peek(stdoutConsumer);
         }
 
         @Override
         public Cmd readFrom(Stream<String> stream) {
-          admiral.stdin(stream);
+          commodore.stdin(stream);
           return this;
         }
       };

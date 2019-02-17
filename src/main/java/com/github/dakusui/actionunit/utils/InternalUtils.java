@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
@@ -105,11 +106,11 @@ public enum InternalUtils {
         : s;
   }
 
-  public static String objectToStringIfOverridden(Object o, String replacement) {
+  public static String objectToStringIfOverridden(Object o, Supplier<String> formatter) {
     String s = o.toString();
-    requireNonNull(replacement);
+    requireNonNull(formatter);
     if (OBJECT_TO_STRING_PATTERN.matcher(s).matches())
-      return replacement;
+      return formatter.get();
     return s;
   }
 }

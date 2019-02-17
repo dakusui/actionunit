@@ -1,8 +1,10 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.ContextConsumer;
-import com.github.dakusui.actionunit.core.ContextFunctions.Params;
-import com.github.dakusui.actionunit.core.ContextPredicate;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.Params;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
@@ -18,13 +20,14 @@ import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.actionunit.core.ActionSupport.when;
-import static com.github.dakusui.actionunit.core.ContextFunctions.contextConsumerFor;
-import static com.github.dakusui.actionunit.core.ContextFunctions.contextPredicateFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextPredicateFor;
 import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.printables.Printables.consumer;
+import static com.github.dakusui.printables.Printables.function;
 import static com.github.dakusui.printables.Printables.predicate;
 
 @RunWith(Enclosed.class)
@@ -33,10 +36,10 @@ public class ContextFunctionsUnitTest {
     List<String>    out = new LinkedList<>();
     ContextConsumer cc  = ContextConsumer.of(
         "i",
-        consumer((String each) -> out.add(each)).describe("out.add({0}.toString())")
+        consumer((String each) -> out.add(each)).describe("out.add({{0}}.toString())")
     ).andThen(ContextConsumer.of(
         "i",
-        consumer(System.out::println).describe("System.out.println({0})")
+        consumer(System.out::println).describe("System.out.println({{0}})")
     ));
 
     @Test
@@ -72,11 +75,11 @@ public class ContextFunctionsUnitTest {
   public static class GivenPrintablePredicate {
     Integer boundary = 100;
     private final ContextPredicate cp = ContextPredicate.of("j",
-        predicate(i -> Objects.equals(i, 0)).describe("{0}==0")
+        predicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
     ).or(contextPredicateFor("j").with(
-        predicate((Params params) -> params.<Integer>valueOf("i") > 0).describe("{0}>0")
+        predicate((Params params) -> params.<Integer>valueOf("i") > 0).describe("{{0}}>0")
     ).and(contextPredicateFor("j").with(
-        predicate((Params params) -> params.<Integer>valueOf("j") < boundary).describe(() -> "{0}<" + boundary)
+        predicate((Params params) -> params.<Integer>valueOf("j") < boundary).describe(() -> "{{0}}<" + boundary)
     ))).negate();
 
     @Test
@@ -131,6 +134,37 @@ public class ContextFunctionsUnitTest {
               asInteger("size").equalTo(8).$()
           )
       );
+    }
+  }
+
+  public static class ContextFunctionUnitTest {
+    @Test
+    public void test() {
+      ContextFunction<Integer> function = new ContextFunction.Builder<Integer>("i")
+          .with((Params params) -> params.<Integer>valueOf("i") + 1);
+      System.out.println(function.toString());
+    }
+
+    @Test
+    public void test2() {
+      Context context = Context.create().assignTo("i", 0);
+      ContextFunction<Integer> function = ContextFunction.of(
+          "i",
+          function((Integer i) -> i + 1).describe("inc({{0}})"));
+      System.out.println(function);
+      System.out.println(function.apply(context));
+    }
+
+    @Test
+    public void test3() {
+      Context context = Context.create().assignTo("i", 0);
+      ContextFunction<Integer> function = ContextFunction.of("i",
+          function((Integer i) -> i + 1).describe("inc({{0}})")
+      ).andThen(
+          function((Integer j) -> j * 2).describe("double")
+      );
+      System.out.println(function);
+      System.out.println(function.apply(context));
     }
   }
 }
