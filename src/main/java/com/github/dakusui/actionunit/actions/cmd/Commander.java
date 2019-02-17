@@ -316,8 +316,7 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   @SuppressWarnings("unchecked")
   public B cwd(File cwd) {
     requireArgument(File::isDirectory, requireNonNull(cwd));
-    this.cwd = cwd;
-    this.cmdBuilder.cwd(cwd);
+    this.cwd = this.cmdBuilder.cwd(cwd).cwd();
     return (B) this;
   }
 
@@ -380,32 +379,32 @@ public abstract class Commander<B extends Commander<B>> extends Action.Builder<A
   }
 
   protected Cmd composeCmd(Context context) {
-    cmdBuilder.env(this.env);
-    cmdBuilder.command(new Supplier<String>() {
-      @Override
-      public String get() {
-        return String.format(
-            "%s %s",
-            Commander.this.program(),
-            Commander.this.formatOptions(option -> option.apply(context))
-        );
-      }
+    return cmdBuilder
+        .env(this.env)
+        .command(new Supplier<String>() {
+          @Override
+          public String get() {
+            return String.format(
+                "%s %s",
+                Commander.this.program(),
+                Commander.this.formatOptions(option -> option.apply(context))
+            );
+          }
 
-      @Override
-      public String toString() {
-        return String.format(
-            "%s %s",
-            Commander.this.program(),
-            Commander.this.formatOptions(stringSupplier -> {
-              String ret = Objects.toString(stringSupplier);
-              return ret.contains("$$Lambda") ?
-                  "(?)" :
-                  ret;
-            })
-        );
-      }
-    });
-    return cmdBuilder.build();
+          @Override
+          public String toString() {
+            return String.format(
+                "%s %s",
+                Commander.this.program(),
+                Commander.this.formatOptions(stringSupplier -> {
+                  String ret = Objects.toString(stringSupplier);
+                  return ret.contains("$$Lambda") ?
+                      "(?)" :
+                      ret;
+                })
+            );
+          }
+        }).build();
   }
 
   private String formatOptions(Function<Function<Context, String>, String> formatter) {

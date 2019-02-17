@@ -48,6 +48,10 @@ public interface Cmd {
       return this;
     }
 
+    public File cwd() {
+      return this.cwd;
+    }
+
     public Builder env(Map<String, String> env) {
       this.env = requireNonNull(env);
       return this;
@@ -64,8 +68,9 @@ public interface Cmd {
 
         @Override
         public Stream<String> stream() {
+          Admiral admiral = this.admiral;
           if (cwd != null)
-            admiral.cwd(cwd);
+            admiral = admiral.cwd(cwd);
           env.forEach(admiral::env);
           return admiral.command(commandLineSupplier.get()).toStreamGenerator().apply(Context.create()).peek(stdoutConsumer);
         }

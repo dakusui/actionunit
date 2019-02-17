@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -160,5 +161,9 @@ public class CommanderTest extends CommanderTestBase<Echo> {
             .message("hello'world")
             .build()
     );
+  }
+  @Test
+  public void testMessageFormat() {
+    System.out.println(MessageFormat.format("hello\\nworld\\n", new Object[0]));
   }
 }

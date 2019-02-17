@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.ContextConsumer;
 import com.github.dakusui.actionunit.core.ContextFunctions.Params;
 import com.github.dakusui.actionunit.core.ContextPredicate;
 import com.github.dakusui.actionunit.core.StreamGenerator;
+import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.cmd.core.process.ProcessStreamer;
 import com.github.dakusui.cmd.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.cmd.core.process.Shell;
@@ -13,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.LinkedHashMap;
@@ -180,13 +180,17 @@ public class Admiral {
   @FunctionalInterface
   public interface CommandLineComposer extends Function<Object[], String>, Formattable {
     @Override
-    default String apply(Object[] params) {
-      return MessageFormat.format(commandLineString(), (Object[]) params);
+    default String apply(Object[] argValues) {
+      return StableTemplatingUtils.template(commandLineString(), StableTemplatingUtils.toMapping(this::parameterPlaceHolderFor, argValues));
     }
 
     @Override
     default void formatTo(Formatter formatter, int flags, int width, int precision) {
       formatter.format(commandLineString());
+    }
+
+    default String parameterPlaceHolderFor(int parameterIndex) {
+      return "{{" + parameterIndex + "}}";
     }
 
     String commandLineString();
