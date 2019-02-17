@@ -161,7 +161,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       assertThat(
           getWriter(),
           Crest.allOf(
-              asString("get", 0).startsWith("[o]for each of data sequentially").$(),
+              asString("get", 0).startsWith("[o]for each of (noname) sequentially").$(),
               asString("get", 1).equalTo("  [ooo]do sequentially").$(),
               asString("get", 2).equalTo("    [ooo]Sink-1").$(),
               asString("get", 3).equalTo("      [ooo](noname)").$(),
@@ -194,7 +194,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         //Then printed correctly
         //noinspection unchecked
         assertThat(getWriter(), allOf(
-            asString("get", 0).startsWith("[E]for each of data sequentially").$(),
+            asString("get", 0).startsWith("[E]for each of (noname) sequentially").$(),
             asString("get", 1).startsWith("  [E]do sequentially").$(),
             asString("get", 2).startsWith("    [E]Sink-1").$(),
             asString("get", 3).startsWith("      [E](noname)").$(),

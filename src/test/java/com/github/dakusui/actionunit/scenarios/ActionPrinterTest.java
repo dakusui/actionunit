@@ -106,7 +106,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
               asString("next").containsString("(noname)").$(),
               asString("next").containsString("simple3").$(),
               asString("next").containsString("(noname)").$(),
-              asString("next").containsString("for each of data sequentially").$(),
+              asString("next").containsString("for each of (noname) sequentially").$(),
               asString("next").containsString("(nop)").$()
           )
       );
