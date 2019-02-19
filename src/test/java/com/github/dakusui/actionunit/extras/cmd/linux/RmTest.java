@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.linux.Ls;
 import com.github.dakusui.actionunit.linux.Mkdir;
 import com.github.dakusui.actionunit.linux.Rm;
 import com.github.dakusui.actionunit.linux.Touch;
-import com.github.dakusui.cmd.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Test;
 
 import java.io.IOException;

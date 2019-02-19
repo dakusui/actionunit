@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.cmd.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Test;
 
 import java.io.IOException;

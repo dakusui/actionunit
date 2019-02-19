@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.cmd.core.process.Shell;
+import com.github.dakusui.processstreamer.core.process.Shell;
 
 import java.io.File;
 import java.util.Map;

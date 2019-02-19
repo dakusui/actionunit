@@ -5,8 +5,8 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.utils.Checks;
-import com.github.dakusui.cmd.core.process.ProcessStreamer;
-import com.github.dakusui.cmd.core.process.Shell;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.Shell;
 
 import java.io.File;
 import java.util.ArrayList;

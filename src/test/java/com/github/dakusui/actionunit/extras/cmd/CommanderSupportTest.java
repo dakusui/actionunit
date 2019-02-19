@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.dakusui.cmd.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Test;
 
 import java.util.stream.Stream;
