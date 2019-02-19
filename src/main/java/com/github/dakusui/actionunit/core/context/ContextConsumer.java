@@ -76,7 +76,9 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
       );
     }
 
-    Builder(BiFunction<Consumer, String[], String> descriptionFormatter, String... variableNames) {
+    public Builder(
+        BiFunction<Consumer, String[], String> descriptionFormatter,
+        String... variableNames) {
       this.variableNames = requireNonNull(variableNames);
       this.descriptionFormatter = requireNonNull(descriptionFormatter);
     }

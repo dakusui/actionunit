@@ -1,14 +1,16 @@
 package com.github.dakusui.actionunit.core.context;
 
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
-import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toMap;
 
 public interface StreamGenerator<T> extends ContextFunction<Stream<T>> {
 
@@ -43,7 +45,12 @@ public interface StreamGenerator<T> extends ContextFunction<Stream<T>> {
       public String toString() {
         return String.format("(%s)->%s",
             String.join(",", variableNames),
-            MessageFormat.format(func.toString(), (Object[]) variableNames));
+            StableTemplatingUtils.template(
+                func.toString(),
+                Arrays.stream(variableNames)
+                    .collect(toMap(
+                        k -> k,
+                        k -> String.format("{{%s}}", k)))));
       }
     };
   }

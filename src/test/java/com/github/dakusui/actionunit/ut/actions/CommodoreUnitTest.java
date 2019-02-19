@@ -10,13 +10,21 @@ import com.github.dakusui.cmd.core.process.ProcessStreamer;
 import com.github.dakusui.cmd.core.process.Shell;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.core.ActionSupport.when;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
 import static com.github.dakusui.cmd.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asInteger;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.printables.Printables.isEqualTo;
 import static java.util.Arrays.asList;
 
@@ -121,11 +129,78 @@ public class CommodoreUnitTest {
   }
 
   @Test
+  public void test11b() {
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+        forEach("i", StreamGenerator.fromArray("A", "B", "C"))
+            .perform(localCommander().command(
+                Commodore.CommandLineComposer.create("echo hello {{i}}", "i"),
+                "i").toAction())
+    );
+  }
+
+
+  @Test
   public void test12() {
     localCommander()
         .stdin(Stream.of("a", "b", "c"))
         .command(() -> "cat -n")
         .toStreamGenerator().apply(Context.create()).forEach(System.out::println);
+  }
+
+  @Test
+  public void test13() {
+    List<String> out = new LinkedList<>();
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+        forEach("i", localCommander()
+            .cwd(new File(System.getProperty("user.home")))
+            .command(Commodore.CommandLineComposer.create("pwd")).toStreamGenerator())
+            .perform(
+                leaf(context -> out.add(context.valueOf("i")))));
+
+    assertThat(
+        out,
+        allOf(
+            asInteger("size").equalTo(1).$(),
+            asString("get", 0).equalTo(System.getProperty("user.home")).$())
+    );
+  }
+
+  @Test
+  public void test14() {
+    List<String> out = new LinkedList<>();
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+        forEach("i", localCommander()
+            .env("hello", "world")
+            .command(Commodore.CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .perform(
+                leaf(context -> out.add(context.valueOf("i")))));
+
+    assertThat(
+        out,
+        allOf(
+            asInteger("size").equalTo(1).$(),
+            asString("get", 0).equalTo("world").$())
+    );
+  }
+
+  @Test
+  public void test15() {
+    List<String> out = new LinkedList<>();
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+        forEach("i", localCommander()
+            .env("hello", "world")
+            .stdoutConsumer(out::add)
+            .command(Commodore.CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .perform(
+                leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))));
+
+    assertThat(
+        out,
+        allOf(
+            asInteger("size").equalTo(2).$(),
+            asString("get", 0).equalTo("world").$(),
+            asString("get", 1).equalTo("world").$())
+    );
   }
 
   private Commodore localCommander() {

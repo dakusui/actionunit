@@ -28,6 +28,8 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextPredicateFor;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static com.github.dakusui.cmd.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static com.github.dakusui.printables.Printables.consumer;
@@ -118,7 +120,10 @@ public class Commodore {
   public interface CommandLineComposer extends Function<Object[], String>, Formattable {
     @Override
     default String apply(Object[] argValues) {
-      return StableTemplatingUtils.template(commandLineString(), StableTemplatingUtils.toMapping(this::parameterPlaceHolderFor, argValues));
+      return StableTemplatingUtils.template(
+          commandLineString(),
+          StableTemplatingUtils.toMapping(this::parameterPlaceHolderFor, argValues)
+      );
     }
 
     @Override
@@ -131,6 +136,31 @@ public class Commodore {
     }
 
     String commandLineString();
+
+    static CommandLineComposer create(
+        String commandLineFormat,
+        Function<String, String> parameterPlaceHolderFactory,
+        String... variableNames) {
+      requireNonNull(commandLineFormat);
+      return new CommandLineComposer() {
+        @Override
+        public String commandLineString() {
+          return commandLineFormat;
+        }
+
+        @Override
+        public String parameterPlaceHolderFor(int parameterIndex) {
+          return parameterPlaceHolderFactory.apply(variableNames[parameterIndex]);
+        }
+      };
+    }
+
+    static CommandLineComposer create(
+        String commandLineFormat,
+        String... variableNames) {
+      requireNonNull(commandLineFormat);
+      return create(commandLineFormat, v -> String.format("{{%s}}", v), variableNames);
+    }
   }
 
   private ProcessStreamer.Builder createProcessStreamerBuilder(CommandLineComposer commandLineComposer, Params params, Stream<String> stdin) {
@@ -170,8 +200,11 @@ public class Commodore {
     );
   }
 
-  private ContextPredicate toContextPredicate(CommandLineComposer commandLineComposer, Predicate<Integer> exitCodeChecker, String... variableNames) {
-    return new ContextPredicate.Builder(variableNames)
+  private ContextPredicate toContextPredicate(
+      CommandLineComposer commandLineComposer,
+      Predicate<Integer> exitCodeChecker,
+      String... variableNames) {
+    return contextPredicateFor(variableNames)
         .with(Printables.predicate(
             (Params params) -> {
               try {
@@ -189,10 +222,13 @@ public class Commodore {
                 objectToStringIfOverridden(exitCodeChecker, () -> "(noname)"))));
   }
 
-  private ContextConsumer toContextConsumer(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
+  private ContextConsumer toContextConsumer(
+      CommandLineComposer commandLineComposer,
+      Checker checker,
+      String... variableNames) {
     requireNonNull(commandLineComposer);
     requireNonNull(variableNames);
-    return new ContextConsumer.Builder(variableNames)
+    return contextConsumerFor(variableNames)
         .with(consumer(
             (Params params) -> createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
                 .checker(checker)

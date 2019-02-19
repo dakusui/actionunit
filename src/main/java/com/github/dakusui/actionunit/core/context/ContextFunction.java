@@ -66,7 +66,10 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
     private final BiFunction<Function, String[], String> descriptionFormatter;
 
     public Builder(String... variableNames) {
-      this((f, v) -> describeFunctionalObject(f, PLACE_HOLDER_FORMATTER, v), variableNames);
+      this(
+          (f, v) -> describeFunctionalObject(f, PLACE_HOLDER_FORMATTER, v),
+          variableNames
+      );
     }
 
     public Builder(

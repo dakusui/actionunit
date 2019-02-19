@@ -79,7 +79,9 @@ public interface ContextPredicate extends Predicate<Context>, Printable {
       );
     }
 
-    Builder(BiFunction<Predicate, String[], String> descriptionFormatter, String... variableNames) {
+    public Builder(
+        BiFunction<Predicate, String[], String> descriptionFormatter,
+        String... variableNames) {
       this.variableNames = requireNonNull(variableNames);
       this.descriptionFormatter = requireNonNull(descriptionFormatter);
     }
