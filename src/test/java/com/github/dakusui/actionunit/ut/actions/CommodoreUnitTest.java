@@ -20,49 +20,53 @@ import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.core.ActionSupport.when;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
-import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.printables.Printables.isEqualTo;
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Arrays.asList;
 
 public class CommodoreUnitTest {
   @Test(expected = ProcessStreamer.Failure.class)
   public void test1() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         localCommander()
             .command("echo hello")
-            .toActionWith(createCheckerForExitCode(1))
+            .toActionWith(createCheckerForExitCode(1)),
+        Writer.Std.OUT
     );
   }
 
   @Test
   public void test2() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         localCommander()
             .command(() -> "echo hello")
-            .toAction()
+            .toAction(),
+        Writer.Std.OUT
     );
   }
 
   @Test
   public void test3() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         forEach("i",
             localCommander().command(() -> "echo \"Hello World\"").toStreamGenerator())
-            .perform(leaf(c -> System.out.println(c.<String>valueOf("i"))))
+            .perform(leaf(c -> System.out.println(c.<String>valueOf("i")))),
+        Writer.Std.OUT
     );
   }
 
   @Test(expected = ProcessStreamer.Failure.class)
   public void test4() {
     try {
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+      ReportingActionPerformer.create().performAndReport(
           forEach("i",
               localCommander().command(() -> "echo \"Hello World\"").toStreamGeneratorWith(ProcessStreamer.Checker.createCheckerForExitCode(1)))
-              .perform(leaf(c -> System.out.println(c.<String>valueOf("i"))))
+              .perform(leaf(c -> System.out.println(c.<String>valueOf("i")))),
+          Writer.Std.OUT
       );
     } catch (RuntimeException e) {
       e.printStackTrace();
@@ -72,69 +76,77 @@ public class CommodoreUnitTest {
 
   @Test
   public void test5() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicate())
             .perform(leaf(ContextConsumer.from(() -> System.out.println("bye"))))
-            .otherwise(leaf(c -> System.out.println("Not met")))
+            .otherwise(leaf(c -> System.out.println("Not met"))),
+        Writer.Std.OUT
     );
   }
 
   @Test
   public void test6() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicateWith(isEqualTo(1)))
             .perform(leaf(ContextConsumer.from(() -> System.out.println("bye"))))
-            .otherwise(leaf(c -> System.out.println("Not met")))
+            .otherwise(leaf(c -> System.out.println("Not met"))),
+        Writer.Std.OUT
     );
   }
 
   @Test
   public void test7() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         simple("try simple",
             localCommander().command(() -> "echo hello").toContextConsumerWith(createCheckerForExitCode(0))
-        ));
+        ),
+        Writer.Std.OUT);
   }
 
   @Test(expected = ProcessStreamer.Failure.class)
   public void test8() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         simple("try simple",
             localCommander().command(() -> "echo hello").toContextConsumerWith(createCheckerForExitCode(1))
-        ));
+        ),
+        Writer.Std.OUT);
   }
 
   @Test
   public void test9() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         simple("try simple",
             localCommander().command(() -> "echo hello").toContextConsumer()
-        ));
+        ),
+        Writer.Std.OUT);
   }
 
   @Test
   public void test10() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromCollection(asList("A", "B", "C")))
-            .perform(localCommander().command("echo hello {0}", "i").toAction())
+            .perform(localCommander().command("echo hello {0}", "i").toAction()),
+        Writer.Std.OUT
     );
   }
 
   @Test
   public void test11() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("A", "B", "C"))
-            .perform(localCommander().command(() -> "echo hello {0}", "i").toAction())
+            .perform(localCommander().command(() -> "echo hello {0}", "i").toAction()),
+        Writer.Std.OUT
     );
   }
 
   @Test
   public void test11b() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("A", "B", "C"))
             .perform(localCommander().command(
                 Commodore.CommandLineComposer.create("echo hello {{i}}", "i"),
-                "i").toAction())
+                "i").toAction()),
+        Writer.Std.OUT
     );
   }
 
@@ -150,12 +162,13 @@ public class CommodoreUnitTest {
   @Test
   public void test13() {
     List<String> out = new LinkedList<>();
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .cwd(new File(System.getProperty("user.home")))
             .command(Commodore.CommandLineComposer.create("pwd")).toStreamGenerator())
             .perform(
-                leaf(context -> out.add(context.valueOf("i")))));
+                leaf(context -> out.add(context.valueOf("i")))),
+        Writer.Std.OUT);
 
     assertThat(
         out,
@@ -168,12 +181,13 @@ public class CommodoreUnitTest {
   @Test
   public void test14() {
     List<String> out = new LinkedList<>();
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .env("hello", "world")
             .command(Commodore.CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
             .perform(
-                leaf(context -> out.add(context.valueOf("i")))));
+                leaf(context -> out.add(context.valueOf("i")))),
+        Writer.Std.OUT);
 
     assertThat(
         out,
@@ -186,13 +200,14 @@ public class CommodoreUnitTest {
   @Test
   public void test15() {
     List<String> out = new LinkedList<>();
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+    ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .env("hello", "world")
             .stdoutConsumer(out::add)
             .command(Commodore.CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
             .perform(
-                leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))));
+                leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))),
+        Writer.Std.OUT);
 
     assertThat(
         out,

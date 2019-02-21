@@ -8,6 +8,6 @@ enum CommanderTestUtil {
   ;
 
   static void performAndReport(Action action) {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 }

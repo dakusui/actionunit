@@ -32,7 +32,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
     }
 
     void performAndPrintAction(Action action) {
-      ReportingActionPerformer.create(getWriter()).performAndReport(action);
+      ReportingActionPerformer.create().performAndReport(action, getWriter());
     }
   }
 

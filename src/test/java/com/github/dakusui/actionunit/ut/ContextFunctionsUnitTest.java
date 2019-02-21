@@ -45,9 +45,10 @@ public class ContextFunctionsUnitTest {
     @Test
     public void whenPerformInsideLoop$thenConsumerIsPerformedCorrectly() {
 
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+      ReportingActionPerformer.create().performAndReport(
           forEach("i", c -> Stream.of("Hello", "world"))
-              .perform(leaf(cc))
+              .perform(leaf(cc)),
+          Writer.Std.OUT
       );
       out.forEach(System.out::println);
       assertThat(
@@ -59,9 +60,10 @@ public class ContextFunctionsUnitTest {
 
     @Test
     public void whenPerformInsideLoop$thenConsumerIsFormattedCorrectly() {
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+      ReportingActionPerformer.create().performAndReport(
           forEach("i", c -> Stream.of("Hello", "world"))
-              .perform(leaf(cc))
+              .perform(leaf(cc)),
+          Writer.Std.OUT
       );
       System.out.println(cc.toString());
       assertThat(
@@ -111,14 +113,14 @@ public class ContextFunctionsUnitTest {
 
     @Test
     public void whenPerformedNestedLoop$thenWorksCorrectly() {
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+      ReportingActionPerformer.create().performAndReport(
           forEach("i", c -> Stream.of("Hello", "world"))
               .perform(
                   forEach("j", c -> Stream.of(-1, 0, 1, 2, 100)).perform(
                       when(cp)
                           .perform(leaf(cc))
                           .otherwise(nop())
-                  )));
+                  )), Writer.Std.OUT);
 
       assertThat(
           out,

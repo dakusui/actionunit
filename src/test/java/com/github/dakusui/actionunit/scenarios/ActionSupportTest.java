@@ -199,6 +199,6 @@ public class ActionSupportTest extends TestUtils.TestBase {
 
   @Test
   public void performAndReport() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(EXAMPLE_ACTION);
+    ReportingActionPerformer.create().performAndReport(EXAMPLE_ACTION, Writer.Std.OUT);
   }
 }

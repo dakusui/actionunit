@@ -161,7 +161,7 @@ public class Compat2ActionSupportTest {
   }
 
   private static void run(Action action) {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 
   private static void print(String str) {

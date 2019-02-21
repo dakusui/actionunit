@@ -12,7 +12,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -57,9 +59,8 @@ public class RetryTest extends TestUtils.TestBase {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      ReportingActionPerformer.create(
-          outForTree
-      ).performAndReport(action);
+      ReportingActionPerformer.create()
+          .performAndReport(action, outForTree);
     } finally {
       Crest.assertThat(
           outForTree,
@@ -89,7 +90,7 @@ public class RetryTest extends TestUtils.TestBase {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
     try {
-      ReportingActionPerformer.create(outForTree).performAndReport(action);
+      ReportingActionPerformer.create().performAndReport(action, outForTree);
     } finally {
       Crest.assertThat(
           outForTree,

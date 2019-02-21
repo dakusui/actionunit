@@ -8,10 +8,10 @@ import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.printables.Printables;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
-import com.github.dakusui.printables.Printables;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -31,9 +33,11 @@ import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextPredicateFor;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
-import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.printables.Printables.consumer;
 import static com.github.dakusui.printables.Printables.isEqualTo;
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
@@ -47,6 +51,10 @@ public class Commodore {
   private              Consumer<String>    downstreamConsumer;
   private              Map<String, String> envvars = new LinkedHashMap<>();
   private              File                cwd;
+
+  public Commodore() {
+    this(Shell.local());
+  }
 
   public Commodore(Shell shell) {
     this.shell = requireNonNull(shell);
@@ -239,16 +247,40 @@ public class Commodore {
   }
 
   public static class CommodoreUnitTest {
+    List<String> out = new LinkedList<>();
+
     @Test
     public void test() {
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+      ReportingActionPerformer.create().performAndReport(
+          forEach("i", StreamGenerator.fromArray("Hello", "World"))
+              .perform(
+                  new Commodore()
+                      .command("echo '{{0}}'", "i")
+                      .stdoutConsumer(out::add)
+                      .toAction()
+              ),
+          Writer.Std.OUT);
+      assertThat(
+          out,
+          asString("get", 0).$()
+      );
+    }
+
+    @Test
+    public void test2() {
+      ReportingActionPerformer.create().performAndReport(
           forEach("i", StreamGenerator.fromArray("Hello", "World"))
               .perform(
                   new Commodore(Shell.local())
                       .command("echo '{{0}}'", "i")
-                      .stdoutConsumer(System.err::println)
+                      .stdoutConsumer(out::add)
                       .toAction()
-              ));
+              ),
+          Writer.Std.OUT);
+      assertThat(
+          out,
+          asString("get", 0).$()
+      );
     }
   }
 }

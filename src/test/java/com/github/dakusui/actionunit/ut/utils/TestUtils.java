@@ -80,7 +80,7 @@ public class TestUtils {
   }
 
   public static ReportingActionPerformer createReportingActionPerformer() {
-    return ReportingActionPerformer.create(Writer.Std.OUT);
+    return ReportingActionPerformer.create();
   }
 
   public static Action sleep(long duration, TimeUnit timeUnit) {

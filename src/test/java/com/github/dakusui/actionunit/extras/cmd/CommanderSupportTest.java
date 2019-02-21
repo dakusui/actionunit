@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
@@ -48,7 +47,7 @@ public class CommanderSupportTest extends TestUtils.TestBase {
   }
 
   private void perform(Action action) {
-    ReportingActionPerformer performer = ReportingActionPerformer.create(Writer.Std.OUT);
+    ReportingActionPerformer performer = ReportingActionPerformer.create();
     action.accept(performer);
   }
 }

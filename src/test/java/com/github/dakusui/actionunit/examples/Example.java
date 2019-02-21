@@ -29,7 +29,7 @@ public class Example extends TestUtils.TestBase {
         )
     );
 
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 
   static private String v(Context c) {

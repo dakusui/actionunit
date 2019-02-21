@@ -8,11 +8,23 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.parallel;
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
+import static com.github.dakusui.actionunit.core.ActionSupport.when;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunByTravis;
@@ -21,7 +33,9 @@ import static com.github.dakusui.crest.Crest.assertThat;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedList;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
@@ -142,7 +156,7 @@ public class CompatActionSupportTest {
     assumeFalse(isRunByTravis());
     final List<String> arr = new ArrayList<>();
     try {
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+      ReportingActionPerformer.create().performAndReport(
           timeout(
               simple("Add 'Hello' and sleep 30[msec]", (c) -> {
                 arr.add("Hello");
@@ -154,7 +168,8 @@ public class CompatActionSupportTest {
               })
           ).in(
               1, MILLISECONDS
-          ));
+          ),
+          Writer.Std.OUT);
     } catch (ActionException e) {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
       throw e.getCause();
