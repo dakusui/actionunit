@@ -31,7 +31,7 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
     };
   }
 
-  static <T> ContextConsumer from(Runnable runnable) {
+  static ContextConsumer from(Runnable runnable) {
     return ContextFunctions.contextConsumerFor().with(
         consumer((Params params) -> runnable.run()).describe(runnable.toString())
     );

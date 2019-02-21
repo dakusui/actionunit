@@ -1,8 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.Params;
 import com.github.dakusui.actionunit.io.Writer;
@@ -27,7 +25,6 @@ import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.printables.Printables.consumer;
-import static com.github.dakusui.printables.Printables.function;
 import static com.github.dakusui.printables.Printables.predicate;
 
 @RunWith(Enclosed.class)
@@ -136,37 +133,6 @@ public class ContextFunctionsUnitTest {
               asInteger("size").equalTo(8).$()
           )
       );
-    }
-  }
-
-  public static class ContextFunctionUnitTest {
-    @Test
-    public void test() {
-      ContextFunction<Integer> function = new ContextFunction.Builder<Integer>("i")
-          .with((Params params) -> params.<Integer>valueOf("i") + 1);
-      System.out.println(function.toString());
-    }
-
-    @Test
-    public void test2() {
-      Context context = Context.create().assignTo("i", 0);
-      ContextFunction<Integer> function = ContextFunction.of(
-          "i",
-          function((Integer i) -> i + 1).describe("inc({{0}})"));
-      System.out.println(function);
-      System.out.println(function.apply(context));
-    }
-
-    @Test
-    public void test3() {
-      Context context = Context.create().assignTo("i", 0);
-      ContextFunction<Integer> function = ContextFunction.of("i",
-          function((Integer i) -> i + 1).describe("inc({{0}})")
-      ).andThen(
-          function((Integer j) -> j * 2).describe("double")
-      );
-      System.out.println(function);
-      System.out.println(function.apply(context));
     }
   }
 }
