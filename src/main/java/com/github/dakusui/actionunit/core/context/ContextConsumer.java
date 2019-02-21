@@ -46,6 +46,10 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
         ));
   }
 
+  static ContextConsumer of(Supplier<String> formatter, Consumer<Context> consumer) {
+    return new Impl(formatter, consumer);
+  }
+
   class Impl extends PrintableConsumer<Context> implements ContextConsumer {
 
     Impl(Supplier<String> formatter, Consumer<Context> consumer) {

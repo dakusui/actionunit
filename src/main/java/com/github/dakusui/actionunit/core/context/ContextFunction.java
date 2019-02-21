@@ -34,6 +34,10 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
         ));
   }
 
+  static <R> ContextFunction<R> of(Supplier<String> formattter, Function<Context, R> function) {
+    return new ContextFunction.Impl<R>(formattter, function);
+  }
+
   class Impl<R> extends PrintableFunction<Context, R> implements ContextFunction<R> {
     Impl(Supplier<String> formatter, Function<Context, R> function) {
       super(formatter, function);
