@@ -31,28 +31,13 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
     };
   }
 
-  static ContextConsumer from(Runnable runnable) {
-    return ContextFunctions.contextConsumerFor().with(
-        consumer((Params params) -> runnable.run()).describe(runnable.toString())
-    );
-  }
-
-  static <T> ContextConsumer of(String variableName, Consumer<T> consumer) {
-    return ContextFunctions.contextConsumerFor(variableName)
-        .with(consumer(
-            (Params params) -> consumer.accept(params.valueOf(variableName))
-        ).describe(
-            consumer.toString()
-        ));
-  }
-
   static ContextConsumer of(Supplier<String> formatter, Consumer<Context> consumer) {
     return new Impl(formatter, consumer);
   }
 
   class Impl extends PrintableConsumer<Context> implements ContextConsumer {
 
-    Impl(Supplier<String> formatter, Consumer<Context> consumer) {
+    public Impl(Supplier<String> formatter, Consumer<Context> consumer) {
       super(formatter, consumer);
     }
 
@@ -69,30 +54,4 @@ public interface ContextConsumer extends Consumer<Context>, Formattable {
     }
   }
 
-  class Builder {
-    private final String[]                               variableNames;
-    private final BiFunction<Consumer, String[], String> descriptionFormatter;
-
-    public Builder(String... variableNames) {
-      this(
-          (f, v) -> describeFunctionalObject(f, ContextFunctions.PLACE_HOLDER_FORMATTER, v),
-          variableNames
-      );
-    }
-
-    public Builder(
-        BiFunction<Consumer, String[], String> descriptionFormatter,
-        String... variableNames) {
-      this.variableNames = requireNonNull(variableNames);
-      this.descriptionFormatter = requireNonNull(descriptionFormatter);
-    }
-
-    public ContextConsumer with(Consumer<Params> consumer) {
-      requireNonNull(consumer);
-      return new Impl(
-          () -> descriptionFormatter.apply(consumer, variableNames),
-          (Context c) -> consumer.accept(Params.create(c, variableNames))
-      );
-    }
-  }
 }

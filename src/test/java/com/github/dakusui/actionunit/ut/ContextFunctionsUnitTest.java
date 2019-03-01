@@ -2,7 +2,9 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
-import com.github.dakusui.actionunit.core.context.Params;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsPredicateBuilder;
+import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
@@ -31,10 +33,10 @@ import static com.github.dakusui.printables.Printables.predicate;
 public class ContextFunctionsUnitTest {
   public static class GivenPrintableContextConsumer {
     List<String>    out = new LinkedList<>();
-    ContextConsumer cc  = ContextConsumer.of(
+    ContextConsumer cc  = MultiParameters.Consumers.of(
         "i",
         consumer((String each) -> out.add(each)).describe("out.add({{0}}.toString())")
-    ).andThen(ContextConsumer.of(
+    ).andThen(MultiParameters.Consumers.of(
         "i",
         consumer(System.out::println).describe("System.out.println({{0}})")
     ));
@@ -73,7 +75,7 @@ public class ContextFunctionsUnitTest {
 
   public static class GivenPrintablePredicate {
     Integer boundary = 100;
-    private final ContextPredicate cp = ContextPredicate.of("j",
+    private final ContextPredicate cp = MultiParamsPredicateBuilder.of("j",
         predicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
     ).or(contextPredicateFor("j").with(
         predicate((Params params) -> params.<Integer>valueOf("i") > 0).describe("{{0}}>0")
@@ -94,7 +96,7 @@ public class ContextFunctionsUnitTest {
   public static class GivenPrintablePredicateAndConsumer {
     Integer          boundary = 100;
     List<String>     out      = new LinkedList<>();
-    ContextPredicate cp       = ContextPredicate.of("j",
+    ContextPredicate cp       = MultiParamsPredicateBuilder.of("j",
         predicate((Integer x) -> Objects.equals(x, 0)).describe("{0}==0")
             .or(predicate((Integer x) -> x > 0).describe("{0}>0"))
             .and(predicate((Integer x) -> x < boundary).describe(() -> "{0}<" + boundary)

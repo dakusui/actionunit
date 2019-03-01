@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 
-public class Touch extends Commander<Touch> {
+public class Touch extends CompatCommander<Touch> {
   public Touch() {
     super();
   }

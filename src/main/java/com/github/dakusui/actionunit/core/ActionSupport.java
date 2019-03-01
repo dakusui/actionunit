@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
@@ -65,8 +65,8 @@ public enum ActionSupport {
     return new Composite.Builder(actions).parallel().build();
   }
 
-  public static Commander cmd(String program) {
-    return new Commander() {
+  public static CompatCommander cmd(String program) {
+    return new CompatCommander() {
       @Override
       protected String program() {
         return program;

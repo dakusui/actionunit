@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.Cmd;
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
@@ -15,7 +15,7 @@ import static com.github.dakusui.actionunit.core.ActionSupport.attempt;
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 
-public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBase<C> {
+public abstract class FsTestBase<C extends CompatCommander<C>> extends CommanderTestBase<C> {
   protected final File dir;
 
   public FsTestBase() throws IOException {
@@ -60,7 +60,7 @@ public abstract class FsTestBase<C extends Commander<C>> extends CommanderTestBa
     ////
     // This is necessary because 'deleteOnExit' only requests to remove files
     // created inside JVM.
-    return new Commander() {
+    return new CompatCommander() {
       @Override
       protected String program() {
         return "/bin/rm";

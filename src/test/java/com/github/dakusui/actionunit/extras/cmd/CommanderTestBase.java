@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <C> A commander class under test.
  */
-public abstract class CommanderTestBase<C extends Commander<C>> {
+public abstract class CommanderTestBase<C extends CompatCommander<C>> {
   protected final Context      context;
   protected final C            commander;
   protected final List<String> stdout;
@@ -28,7 +28,7 @@ public abstract class CommanderTestBase<C extends Commander<C>> {
 
   protected abstract C create();
 
-  protected <D extends Commander<D>> D configure(D commander) {
+  protected <D extends CompatCommander<D>> D configure(D commander) {
     commander.cmdBuilder().consumeStdout(
         ((Consumer<String>) requireNonNull(stdout)::add).andThen(System.out::println)
     ).consumeStderr(

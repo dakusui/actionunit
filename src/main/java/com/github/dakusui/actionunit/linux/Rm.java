@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class Rm extends Commander<Rm> {
+public class Rm extends CompatCommander<Rm> {
   public Rm() {
     super();
   }
