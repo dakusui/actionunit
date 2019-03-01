@@ -4,10 +4,16 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.Params;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.function.Consumer;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.printables.Printables.function;
@@ -53,6 +59,16 @@ public class ContextFunctionsHelperUnitTest {
         function.toString(),
         asString().equalTo("double((i)->inc(i))").$()
     );
+  }
+
+  @Test
+  public void test3_fromBuilder() {
+    ReportingActionPerformer.create().perform(
+        forEach("i", StreamGenerator.fromArray("A", "B", "C"))
+            .perform(leaf(contextConsumerFor("i").with(
+                params -> ContextFunctions.printTo(
+                    System.out, contextValueOf("i"))))
+            ));
   }
 
   @Test
