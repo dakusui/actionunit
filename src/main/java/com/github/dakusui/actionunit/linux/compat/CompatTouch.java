@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit.linux;
+package com.github.dakusui.actionunit.linux.compat;
 
-import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
+import com.github.dakusui.actionunit.actions.cmd.compat.CompatCommander;
 
 public class CompatTouch extends CompatCommander<CompatTouch> {
   public CompatTouch() {

@@ -2,10 +2,10 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
-import com.github.dakusui.actionunit.linux.CompatLs;
-import com.github.dakusui.actionunit.linux.CompatMkdir;
-import com.github.dakusui.actionunit.linux.CompatRm;
-import com.github.dakusui.actionunit.linux.CompatTouch;
+import com.github.dakusui.actionunit.linux.compat.CompatLs;
+import com.github.dakusui.actionunit.linux.compat.CompatMkdir;
+import com.github.dakusui.actionunit.linux.compat.CompatRm;
+import com.github.dakusui.actionunit.linux.compat.CompatTouch;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Test;
 

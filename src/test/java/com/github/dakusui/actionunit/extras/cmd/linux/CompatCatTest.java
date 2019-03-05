@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
-import com.github.dakusui.actionunit.linux.CompatCat;
+import com.github.dakusui.actionunit.linux.compat.CompatCat;
 import org.junit.Test;
 
 import java.io.IOException;

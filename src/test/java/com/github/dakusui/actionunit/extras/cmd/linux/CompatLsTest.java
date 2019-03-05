@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.linux.CompatLs;
-import com.github.dakusui.actionunit.linux.CompatTouch;
+import com.github.dakusui.actionunit.linux.compat.CompatLs;
+import com.github.dakusui.actionunit.linux.compat.CompatTouch;
 import org.junit.Test;
 
 import java.io.IOException;

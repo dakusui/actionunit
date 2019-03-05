@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.CommanderTestBase;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.linux.CompatEcho;
+import com.github.dakusui.actionunit.linux.compat.CompatEcho;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunUnderLinux;

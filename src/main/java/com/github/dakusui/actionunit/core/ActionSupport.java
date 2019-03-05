@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
+import com.github.dakusui.actionunit.actions.cmd.compat.CompatCommander;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;

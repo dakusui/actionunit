@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.linux.CompatEcho;
+import com.github.dakusui.actionunit.linux.compat.CompatEcho;
 import org.junit.Test;
 
 import java.io.File;

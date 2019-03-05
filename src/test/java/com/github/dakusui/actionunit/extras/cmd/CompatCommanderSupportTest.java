@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.actions.cmd.CompatCommander.commander;
+import static com.github.dakusui.actionunit.actions.cmd.compat.CompatCommander.commander;
 import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;

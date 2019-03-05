@@ -1,5 +1,6 @@
-package com.github.dakusui.actionunit.actions.cmd;
+package com.github.dakusui.actionunit.actions.cmd.compat;
 
+import com.github.dakusui.actionunit.actions.cmd.BaseCommander;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.processstreamer.core.process.Shell;
 

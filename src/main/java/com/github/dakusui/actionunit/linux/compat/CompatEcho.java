@@ -1,7 +1,7 @@
-package com.github.dakusui.actionunit.linux;
+package com.github.dakusui.actionunit.linux.compat;
 
-import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderOption;
+import com.github.dakusui.actionunit.actions.cmd.compat.CommanderOption;
+import com.github.dakusui.actionunit.actions.cmd.compat.CompatCommander;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.function.Function;

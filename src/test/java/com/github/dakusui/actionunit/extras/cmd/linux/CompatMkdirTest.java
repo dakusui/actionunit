@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.linux.CompatMkdir;
+import com.github.dakusui.actionunit.linux.compat.CompatMkdir;
 import org.junit.Test;
 
 import java.io.File;
