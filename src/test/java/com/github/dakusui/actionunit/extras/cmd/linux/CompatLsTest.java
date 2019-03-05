@@ -2,8 +2,8 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.linux.Ls;
-import com.github.dakusui.actionunit.linux.Touch;
+import com.github.dakusui.actionunit.linux.CompatLs;
+import com.github.dakusui.actionunit.linux.CompatTouch;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -13,9 +13,9 @@ import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 
-public class LsTest extends FsTestBase<Ls> {
+public class CompatLsTest extends FsTestBase<CompatLs> {
 
-  public LsTest() throws IOException {
+  public CompatLsTest() throws IOException {
   }
 
   @Override
@@ -23,9 +23,9 @@ public class LsTest extends FsTestBase<Ls> {
     return named(
         "prepare test file",
         sequential(
-            new Touch().cwd(dir).add("a").build(),
-            new Touch().cwd(dir).add("b").build(),
-            new Touch().cwd(dir).add("c").build()
+            new CompatTouch().cwd(dir).add("a").build(),
+            new CompatTouch().cwd(dir).add("b").build(),
+            new CompatTouch().cwd(dir).add("c").build()
         ));
   }
 
@@ -104,7 +104,7 @@ public class LsTest extends FsTestBase<Ls> {
   }
 
   @Override
-  protected Ls create() {
-    return new Ls();
+  protected CompatLs create() {
+    return new CompatLs();
   }
 }

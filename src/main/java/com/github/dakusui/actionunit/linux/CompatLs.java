@@ -20,9 +20,9 @@ import static java.util.Objects.requireNonNull;
  *        Mandatory arguments to long options are mandatory for short options too.
  * </pre>
  */
-public class Ls extends CompatCommander<Ls> {
+public class CompatLs extends CompatCommander<CompatLs> {
 
-  public Ls() {
+  public CompatLs() {
     super();
   }
 
@@ -31,27 +31,27 @@ public class Ls extends CompatCommander<Ls> {
     return "/bin/ls";
   }
 
-  public Ls longListing() {
+  public CompatLs longListing() {
     return add(Option.LONG_LISTING);
   }
 
-  public Ls all() {
+  public CompatLs all() {
     return add(Option.ALL);
   }
 
-  public Ls humanReadable() {
+  public CompatLs humanReadable() {
     return add(Option.HUMAN_READABLE);
   }
 
-  public Ls classify() {
+  public CompatLs classify() {
     return add(Option.CLASSIFY);
   }
 
-  public Ls reverse() {
+  public CompatLs reverse() {
     return add(Option.REVERSE);
   }
 
-  public Ls sortByMtime() {
+  public CompatLs sortByMtime() {
     return add(Option.SORT_BY_MTIME);
   }
 

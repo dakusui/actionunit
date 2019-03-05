@@ -8,28 +8,28 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class Rm extends CompatCommander<Rm> {
-  public Rm() {
+public class CompatRm extends CompatCommander<CompatRm> {
+  public CompatRm() {
     super();
   }
 
-  public Rm recursive() {
+  public CompatRm recursive() {
     return this.add("-r");
   }
 
-  public Rm force() {
+  public CompatRm force() {
     return this.add("-f");
   }
 
-  public Rm file(File file) {
+  public CompatRm file(File file) {
     return this.file(requireNonNull(file).getAbsolutePath());
   }
 
-  public Rm file(String file) {
+  public CompatRm file(String file) {
     return this.addq(file);
   }
 
-  public Rm file(Function<Context, String> file) {
+  public CompatRm file(Function<Context, String> file) {
     return this.addq(file);
   }
 

@@ -43,12 +43,12 @@ public abstract class Commander<C extends Commander<C>> {
           0);
     }
 
-    final long                       timeoutDuration;
-    final TimeUnit                   timeoutTimeUnit;
+    final long timeoutDuration;
+    final TimeUnit timeoutTimeUnit;
     final Class<? extends Throwable> retryOn;
-    final long                       retryInterval;
-    final TimeUnit                   retryIntervalTimeUnit;
-    final int                        retries;
+    final long retryInterval;
+    final TimeUnit retryIntervalTimeUnit;
+    final int retries;
 
 
     RetryOption(
@@ -67,13 +67,13 @@ public abstract class Commander<C extends Commander<C>> {
     }
   }
 
-  private static final Logger              LOGGER  = LoggerFactory.getLogger(Commander.class);
-  private              Shell               shell;
-  private              Stream<String>      stdin   = null;
-  private              Consumer<String>    downstreamConsumer;
-  private              Map<String, String> envvars = new LinkedHashMap<>();
-  private              File                cwd;
-  private              RetryOption         retryOption;
+  private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
+  private Shell shell;
+  private Stream<String> stdin = null;
+  private Consumer<String> downstreamConsumer;
+  private Map<String, String> envvars = new LinkedHashMap<>();
+  private File cwd;
+  private RetryOption retryOption;
 
   public Commander() {
     this(Shell.local());
@@ -160,9 +160,10 @@ public abstract class Commander<C extends Commander<C>> {
     return toStreamGenerator(this.commandLineComposer(), checker, this.variableNames());
   }
 
-  public Commander stdoutConsumer(Consumer<String> stdoutConsumer) {
+  @SuppressWarnings("unchecked")
+  public C stdoutConsumer(Consumer<String> stdoutConsumer) {
     this.downstreamConsumer = requireNonNull(stdoutConsumer);
-    return this;
+    return (C) this;
   }
 
   private ProcessStreamer.Builder createProcessStreamerBuilder(CommandLineComposer commandLineComposer, Params params, Stream<String> stdin) {

@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.linux.Mkdir;
+import com.github.dakusui.actionunit.linux.CompatMkdir;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,9 +14,9 @@ import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.crest.Crest.*;
 import static org.junit.Assume.assumeTrue;
 
-public class MkdirTest extends FsTestBase<Mkdir> {
+public class CompatMkdirTest extends FsTestBase<CompatMkdir> {
 
-  public MkdirTest() throws IOException {
+  public CompatMkdirTest() throws IOException {
     super();
   }
 
@@ -66,8 +66,8 @@ public class MkdirTest extends FsTestBase<Mkdir> {
   }
 
   @Override
-  protected Mkdir create() {
-    return new Mkdir();
+  protected CompatMkdir create() {
+    return new CompatMkdir();
   }
 
 }

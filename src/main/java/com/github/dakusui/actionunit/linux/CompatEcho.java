@@ -16,11 +16,11 @@ import java.util.function.Function;
  *        echo LONG-OPTION
  * </pre>
  */
-public class Echo extends CompatCommander<Echo> {
+public class CompatEcho extends CompatCommander<CompatEcho> {
   /**
    * Creates an object of this class.
    */
-  public Echo() {
+  public CompatEcho() {
     super();
   }
 
@@ -34,7 +34,7 @@ public class Echo extends CompatCommander<Echo> {
    *
    * @return this object
    */
-  public Echo noTrailingNewline() {
+  public CompatEcho noTrailingNewline() {
     return this.add(Option.NO_TRAILING_NEWLINE);
   }
 
@@ -43,7 +43,7 @@ public class Echo extends CompatCommander<Echo> {
    *
    * @return this object
    */
-  public Echo enableBackslashInterpretation() {
+  public CompatEcho enableBackslashInterpretation() {
     return this.add(Option.ENABLE_BACKSLASH_INTERPRETATION);
   }
 
@@ -59,11 +59,11 @@ public class Echo extends CompatCommander<Echo> {
    * @see CompatCommander#add(String)
    * @see CompatCommander#addq(String)
    */
-  public Echo message(Function<Context, String> message) {
+  public CompatEcho message(Function<Context, String> message) {
     return this.addq(message);
   }
 
-  public Echo message(String message) {
+  public CompatEcho message(String message) {
     return this.addq(message);
   }
 
@@ -72,7 +72,7 @@ public class Echo extends CompatCommander<Echo> {
    *
    * @return this object
    */
-  public Echo disableBackslashInterpretation() {
+  public CompatEcho disableBackslashInterpretation() {
     return this.add(Option.DISABLE_BACKSLASH_INTERPRETATION);
   }
 

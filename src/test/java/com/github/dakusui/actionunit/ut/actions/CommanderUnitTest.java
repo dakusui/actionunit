@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.actions.cmd.BaseCommander;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
-import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
@@ -14,17 +14,12 @@ import org.junit.Test;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.core.ActionSupport.when;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.printables.Printables.isEqualTo;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Arrays.asList;
@@ -204,7 +199,12 @@ public class CommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .env("hello", "world")
-            .stdoutConsumer(out::add)
+            .stdoutConsumer(new Consumer<String>() {
+              @Override
+              public void accept(String s) {
+                out.add(s);
+              }
+            })
             .command(CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
             .perform(
                 leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))),
@@ -219,8 +219,7 @@ public class CommanderUnitTest {
     );
   }
 
-  private Commander localCommander() {
-    return new Commander(Shell.local());
+  private BaseCommander<?> localCommander() {
+    return new BaseCommander<>(Shell.local());
   }
-
 }

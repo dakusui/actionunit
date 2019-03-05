@@ -4,8 +4,8 @@ import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 
 import java.io.File;
 
-public class Mkdir extends CompatCommander<Mkdir> {
-  public Mkdir() {
+public class CompatMkdir extends CompatCommander<CompatMkdir> {
+  public CompatMkdir() {
     super();
   }
 
@@ -14,15 +14,15 @@ public class Mkdir extends CompatCommander<Mkdir> {
     return "/bin/mkdir";
   }
 
-  public Mkdir recursive() {
+  public CompatMkdir recursive() {
     return this.add("-p");
   }
 
-  public Mkdir dir(String path) {
+  public CompatMkdir dir(String path) {
     return dir(new File(path));
   }
 
-  public Mkdir dir(File path) {
+  public CompatMkdir dir(File path) {
     return this.add((path.isAbsolute() ?
         path.getAbsolutePath() :
         new File(this.cwd(), path.getPath()).getAbsolutePath()

@@ -2,10 +2,10 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
-import com.github.dakusui.actionunit.linux.Ls;
-import com.github.dakusui.actionunit.linux.Mkdir;
-import com.github.dakusui.actionunit.linux.Rm;
-import com.github.dakusui.actionunit.linux.Touch;
+import com.github.dakusui.actionunit.linux.CompatLs;
+import com.github.dakusui.actionunit.linux.CompatMkdir;
+import com.github.dakusui.actionunit.linux.CompatRm;
+import com.github.dakusui.actionunit.linux.CompatTouch;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Test;
 
@@ -19,8 +19,8 @@ import static com.github.dakusui.crest.Crest.assertThat;
 import static java.util.Collections.singletonList;
 import static org.junit.Assume.assumeTrue;
 
-public class RmTest extends FsTestBase<Rm> {
-  public RmTest() throws IOException {
+public class CompatRmTest extends FsTestBase<CompatRm> {
+  public CompatRmTest() throws IOException {
   }
 
   @Test
@@ -28,7 +28,7 @@ public class RmTest extends FsTestBase<Rm> {
     perform(
         sequential(
             this.commander.file((context) -> "f").build(),
-            this.configure(new Ls().cwd(dir).sortByMtime()).build()
+            this.configure(new CompatLs().cwd(dir).sortByMtime()).build()
         )
     );
     assertThat(
@@ -44,7 +44,7 @@ public class RmTest extends FsTestBase<Rm> {
     perform(
         sequential(
             this.commander.file("g").build(),
-            this.configure(new Ls().cwd(dir).sortByMtime()).build()
+            this.configure(new CompatLs().cwd(dir).sortByMtime()).build()
         )
     );
   }
@@ -55,7 +55,7 @@ public class RmTest extends FsTestBase<Rm> {
     perform(
         sequential(
             this.commander.file("g").force().recursive().build(),
-            this.configure(new Ls().cwd(dir).sortByMtime()).build()
+            this.configure(new CompatLs().cwd(dir).sortByMtime()).build()
         )
     );
     assertThat(
@@ -66,16 +66,16 @@ public class RmTest extends FsTestBase<Rm> {
   }
 
   @Override
-  protected Rm create() {
-    return new Rm();
+  protected CompatRm create() {
+    return new CompatRm();
   }
 
   @Override
   protected Action preparation() {
     return sequential(
-        new Touch().cwd(dir).file("f").build(),
-        new Mkdir().cwd(dir).dir("g").build(),
-        new Touch().cwd(dir).file("g/h").build()
+        new CompatTouch().cwd(dir).file("f").build(),
+        new CompatMkdir().cwd(dir).dir("g").build(),
+        new CompatTouch().cwd(dir).file("g/h").build()
     );
   }
 }

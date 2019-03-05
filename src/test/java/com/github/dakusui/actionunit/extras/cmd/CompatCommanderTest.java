@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.linux.Echo;
+import com.github.dakusui.actionunit.linux.CompatEcho;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,10 +15,10 @@ import static com.github.dakusui.crest.Crest.*;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assume.assumeTrue;
 
-public class CompatCommanderTest extends CommanderTestBase<Echo> {
+public class CompatCommanderTest extends CommanderTestBase<CompatEcho> {
   @Override
-  protected Echo create() {
-    return new Echo();
+  protected CompatEcho create() {
+    return new CompatEcho();
   }
 
   @Test

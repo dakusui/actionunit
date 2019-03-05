@@ -64,15 +64,15 @@ public interface Cmd {
 
     public Cmd build() {
       return new Cmd() {
-        BaseCommander<BaseCommander> commander = new BaseCommander(shell);
+        BaseCommander commander = new BaseCommander(shell);
 
         @Override
         public Stream<String> stream() {
-          BaseCommander<BaseCommander> commander = this.commander;
+          BaseCommander commander = this.commander;
           if (cwd != null)
-            commander = commander.cwd(cwd);
+            commander = (BaseCommander) commander.cwd(cwd);
           for (String key : env.keySet())
-            commander = commander.env(key, env.get(key));
+            commander = (BaseCommander) commander.env(key, env.get(key));
           return ((Stream<String>) commander.command(commandLineSupplier.get())
               .toStreamGenerator()
               .apply(Context.create()))

@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.actions.cmd.BaseCommander;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.io.Writer;
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.crest.Crest.asString;
@@ -22,9 +24,14 @@ public class Commander2UnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("Hello", "World"))
             .perform(
-                new Commander()
+                new BaseCommander(Shell.local())
                     .command("echo '{{0}}'", "i")
-                    .stdoutConsumer(out::add)
+                    .stdoutConsumer(new Consumer<String>() {
+                      @Override
+                      public void accept(String s) {
+                        out.add(s);
+                      }
+                    })
                     .toAction()
             ),
         Writer.Std.OUT);
@@ -39,9 +46,14 @@ public class Commander2UnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("Hello", "World"))
             .perform(
-                new Commander(Shell.local())
+                new BaseCommander(Shell.local())
                     .command("echo '{{0}}'", "i")
-                    .stdoutConsumer(out::add)
+                    .stdoutConsumer(new Consumer<String>() {
+                      @Override
+                      public void accept(String s) {
+                        out.add(s);
+                      }
+                    })
                     .toAction()
             ),
         Writer.Std.OUT);

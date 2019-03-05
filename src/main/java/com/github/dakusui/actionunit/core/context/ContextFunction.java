@@ -25,7 +25,7 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
   }
 
   class Impl<R> extends PrintableFunction<Context, R> implements ContextFunction<R> {
-    Impl(Supplier<String> formatter, Function<Context, R> function) {
+    public Impl(Supplier<String> formatter, Function<Context, R> function) {
       super(formatter, function);
     }
 
