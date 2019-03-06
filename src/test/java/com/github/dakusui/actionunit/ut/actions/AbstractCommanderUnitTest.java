@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.cmd.BaseCommander;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
@@ -24,7 +24,7 @@ import static com.github.dakusui.printables.Printables.isEqualTo;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Arrays.asList;
 
-public class CommanderUnitTest {
+public class AbstractCommanderUnitTest {
   @Test(expected = ProcessStreamer.Failure.class)
   public void test1() {
     ReportingActionPerformer.create().performAndReport(
@@ -219,7 +219,7 @@ public class CommanderUnitTest {
     );
   }
 
-  private BaseCommander<?> localCommander() {
-    return new BaseCommander<>(Shell.local());
+  private Commander<?> localCommander() {
+    return new Commander<>(Shell.local());
   }
 }

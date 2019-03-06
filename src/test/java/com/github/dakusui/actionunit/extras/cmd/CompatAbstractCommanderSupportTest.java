@@ -13,7 +13,7 @@ import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 
-public class CompatCommanderSupportTest extends TestUtils.TestBase {
+public class CompatAbstractCommanderSupportTest extends TestUtils.TestBase {
 
   @Test
   public void test() {

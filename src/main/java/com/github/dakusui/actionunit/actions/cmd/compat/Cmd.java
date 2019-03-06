@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd.compat;
 
-import com.github.dakusui.actionunit.actions.cmd.BaseCommander;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
@@ -65,15 +65,15 @@ public interface Cmd {
 
     public Cmd build() {
       return new Cmd() {
-        BaseCommander commander = new BaseCommander(shell);
+        Commander commander = new Commander(shell);
 
         @Override
         public Stream<String> stream() {
-          BaseCommander commander = this.commander;
+          Commander commander = this.commander;
           if (cwd != null)
-            commander = (BaseCommander) commander.cwd(cwd);
+            commander = (Commander) commander.cwd(cwd);
           for (String key : env.keySet())
-            commander = (BaseCommander) commander.env(key, env.get(key));
+            commander = (Commander) commander.env(key, env.get(key));
           return ((Stream<String>) commander.command(commandLineSupplier.get())
               .toStreamGenerator()
               .apply(Context.create()))
