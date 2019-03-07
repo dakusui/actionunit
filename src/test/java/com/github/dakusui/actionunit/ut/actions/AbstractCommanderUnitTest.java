@@ -140,7 +140,7 @@ public class AbstractCommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("A", "B", "C"))
             .perform(localCommander().command(
-                CommandLineComposer.create("echo hello {{i}}", "i"),
+                CommandLineComposer.byVariableName("echo hello {{i}}", "i"),
                 "i").toAction()),
         Writer.Std.OUT
     );
@@ -161,7 +161,7 @@ public class AbstractCommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .cwd(new File(System.getProperty("user.home")))
-            .command(CommandLineComposer.create("pwd")).toStreamGenerator())
+            .command(CommandLineComposer.byVariableName("pwd")).toStreamGenerator())
             .perform(
                 leaf(context -> out.add(context.valueOf("i")))),
         Writer.Std.OUT);
@@ -180,7 +180,7 @@ public class AbstractCommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .env("hello", "world")
-            .command(CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .command(CommandLineComposer.byVariableName("echo ${hello}")).toStreamGenerator())
             .perform(
                 leaf(context -> out.add(context.valueOf("i")))),
         Writer.Std.OUT);
@@ -205,7 +205,7 @@ public class AbstractCommanderUnitTest {
                 out.add(s);
               }
             })
-            .command(CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .command(CommandLineComposer.byVariableName("echo ${hello}")).toStreamGenerator())
             .perform(
                 leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))),
         Writer.Std.OUT);

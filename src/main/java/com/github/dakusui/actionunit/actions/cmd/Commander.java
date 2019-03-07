@@ -4,24 +4,28 @@ import com.github.dakusui.processstreamer.core.process.Shell;
 
 import static java.util.Objects.requireNonNull;
 
-public class Commander<C extends Commander<C>> extends AbstractCommander<C> {
+public class Commander extends AbstractCommander<Commander> {
   private CommandLineComposer commandLineComposer;
-  private String[] variableNames;
+  private String[]            variableNames;
 
   public Commander(Shell shell) {
     super(shell);
   }
 
-  public C command(String commandLineFormat, String... variableNames) {
+  public Commander command(String commandLineFormat, String... variableNames) {
     requireNonNull(commandLineFormat);
     return command(() -> commandLineFormat, variableNames);
   }
 
   @SuppressWarnings("unchecked")
-  public C command(CommandLineComposer commandLineComposer, String... variableNames) {
+  public Commander command(CommandLineComposer commandLineComposer, String... variableNames) {
     this.commandLineComposer = requireNonNull(commandLineComposer);
     this.variableNames = variableNames;
-    return (C) this;
+    return this;
+  }
+
+  public Commander cmd(String commandLineFormat, String... variableNames) {
+    return this;
   }
 
   @Override
