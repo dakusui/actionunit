@@ -1,41 +1,65 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import com.github.dakusui.processstreamer.core.process.Shell;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Objects.requireNonNull;
 
-public class Commander extends AbstractCommander<Commander> {
-  private CommandLineComposer commandLineComposer;
-  private String[]            variableNames;
+public interface Commander<C extends Commander<?>> {
+  class RetryOption {
+    public static RetryOption timeoutInSeconds(long timeoutInSeconds) {
+      return new RetryOption(
+          timeoutInSeconds,
+          TimeUnit.SECONDS,
+          Throwable.class,
+          0,
+          TimeUnit.SECONDS,
+          0);
+    }
 
-  public Commander(Shell shell) {
-    super(shell);
+    final long timeoutDuration;
+    final TimeUnit timeoutTimeUnit;
+    final Class<? extends Throwable> retryOn;
+    final long retryInterval;
+    final TimeUnit retryIntervalTimeUnit;
+    final int retries;
+
+
+    RetryOption(
+        long timeoutDuration,
+        TimeUnit timeoutTimeUnit,
+        Class<? extends Throwable> retryOn,
+        long retryInterval,
+        TimeUnit retryIntervalTimeUnit,
+        int retries) {
+      this.timeoutDuration = timeoutDuration;
+      this.timeoutTimeUnit = requireNonNull(timeoutTimeUnit);
+      this.retryOn = requireNonNull(retryOn);
+      this.retryInterval = retryInterval;
+      this.retryIntervalTimeUnit = requireNonNull(retryIntervalTimeUnit);
+      this.retries = retries;
+    }
   }
 
-  public Commander command(String commandLineFormat, String... variableNames) {
-    requireNonNull(commandLineFormat);
-    return command(() -> commandLineFormat, variableNames);
+  C env(String varname, String varvalue);
+
+  C stdin(Stream<String> stream);
+
+  default Action toAction() {
+    return toActionWith(createCheckerForExitCode(0));
   }
 
-  @SuppressWarnings("unchecked")
-  public Commander command(CommandLineComposer commandLineComposer, String... variableNames) {
-    this.commandLineComposer = requireNonNull(commandLineComposer);
-    this.variableNames = variableNames;
-    return this;
+  Action toActionWith(ProcessStreamer.Checker checker);
+
+  default ContextConsumer toContextConsumer() {
+    return toContextConsumerWith(createCheckerForExitCode(0));
   }
 
-  public Commander cmd(String commandLineFormat, String... variableNames) {
-    return this;
-  }
-
-  @Override
-  protected CommandLineComposer commandLineComposer() {
-    return this.commandLineComposer;
-  }
-
-  @Override
-  protected String[] variableNames() {
-    return this.variableNames;
-  }
+  ContextConsumer toContextConsumerWith(ProcessStreamer.Checker checker);
 
 }

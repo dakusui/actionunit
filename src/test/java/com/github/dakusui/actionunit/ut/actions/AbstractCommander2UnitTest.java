@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderImpl;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -23,7 +23,7 @@ public class AbstractCommander2UnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("Hello", "World"))
             .perform(
-                new Commander(Shell.local())
+                new CommanderImpl(Shell.local(), null)
                     .command("echo '{{0}}'", "i")
                     .stdoutConsumer(new Consumer<String>() {
                       @Override
@@ -45,7 +45,7 @@ public class AbstractCommander2UnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("Hello", "World"))
             .perform(
-                new Commander(Shell.local())
+                new CommanderImpl(Shell.local(), null)
                     .command("echo '{{0}}'", "i")
                     .stdoutConsumer(new Consumer<String>() {
                       @Override

@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderImpl;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
@@ -219,7 +219,7 @@ public class AbstractCommanderUnitTest {
     );
   }
 
-  private Commander<?> localCommander() {
-    return new Commander<>(Shell.local());
+  private CommanderImpl<?> localCommander() {
+    return new CommanderImpl<>(Shell.local());
   }
 }

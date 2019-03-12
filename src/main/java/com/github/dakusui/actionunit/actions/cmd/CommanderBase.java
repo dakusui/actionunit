@@ -13,8 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -31,43 +32,9 @@ import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Ch
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public abstract class AbstractCommander<C extends AbstractCommander<C>> {
-  public static class RetryOption {
-    public static RetryOption timeoutIn(long timeoutInSeconds) {
-      return new RetryOption(
-          timeoutInSeconds,
-          TimeUnit.SECONDS,
-          Throwable.class,
-          0,
-          TimeUnit.SECONDS,
-          0);
-    }
+public abstract class CommanderBase<C extends CommanderBase<C>> implements Commander<C> {
 
-    final long timeoutDuration;
-    final TimeUnit timeoutTimeUnit;
-    final Class<? extends Throwable> retryOn;
-    final long retryInterval;
-    final TimeUnit retryIntervalTimeUnit;
-    final int retries;
-
-
-    RetryOption(
-        long timeoutDuration,
-        TimeUnit timeoutTimeUnit,
-        Class<? extends Throwable> retryOn,
-        long retryInterval,
-        TimeUnit retryIntervalTimeUnit,
-        int retries) {
-      this.timeoutDuration = timeoutDuration;
-      this.timeoutTimeUnit = requireNonNull(timeoutTimeUnit);
-      this.retryOn = requireNonNull(retryOn);
-      this.retryInterval = retryInterval;
-      this.retryIntervalTimeUnit = requireNonNull(retryIntervalTimeUnit);
-      this.retries = retries;
-    }
-  }
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCommander.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CommanderBase.class);
   private Shell shell;
   private Stream<String> stdin = null;
   private Consumer<String> downstreamConsumer;
@@ -75,14 +42,10 @@ public abstract class AbstractCommander<C extends AbstractCommander<C>> {
   private File cwd;
   private RetryOption retryOption;
 
-  public AbstractCommander() {
-    this(Shell.local());
-  }
-
-  public AbstractCommander(Shell shell) {
+  protected CommanderBase(Shell shell) {
     this.shell = requireNonNull(shell);
     this.stdoutConsumer(LOGGER::debug);
-    this.retryOption = RetryOption.timeoutIn(60);
+    this.retryOption = RetryOption.timeoutInSeconds(60);
   }
 
   @SuppressWarnings("unchecked")
@@ -143,7 +106,6 @@ public abstract class AbstractCommander<C extends AbstractCommander<C>> {
     return toContextConsumer(this.commandLineComposer(), checker, this.variableNames());
   }
 
-
   public ContextPredicate toContextPredicate() {
     return toContextPredicate(this.commandLineComposer(), isEqualTo(0), this.variableNames());
   }
@@ -187,7 +149,7 @@ public abstract class AbstractCommander<C extends AbstractCommander<C>> {
         new Function<Params, Stream<String>>() {
           @Override
           public Stream<String> apply(Params params) {
-            return createProcessStreamerBuilder(commandLineComposer, params, AbstractCommander.this.stdin)
+            return createProcessStreamerBuilder(commandLineComposer, params, CommanderBase.this.stdin)
                 .checker(checker)
                 .build()
                 .stream()
@@ -245,37 +207,4 @@ public abstract class AbstractCommander<C extends AbstractCommander<C>> {
     return Optional.ofNullable(this.retryOption);
   }
 
-  interface Factory {
-    default AbstractCommander commodore(String host) {
-      return new Commander(shellFor(host));
-    }
-
-    Shell shellFor(String host);
-
-    class Builder {
-      Map<String, Shell> shells = new HashMap<>();
-
-      public Builder() {
-        this.addLocal("localhost").addLocal("localhost.localdomain");
-      }
-
-      public Builder addRemote(String user, String host, String identity) {
-        this.shells.put(host, Shell.ssh(user, host, identity));
-        return this;
-      }
-
-      public Builder addLocal(String host) {
-        this.shells.put(host, Shell.local());
-        return this;
-      }
-
-      public Factory build() {
-        return host -> {
-          if (shells.containsKey(requireNonNull(host)))
-            return shells.get(host);
-          throw new NoSuchElementException(host);
-        };
-      }
-    }
-  }
 }

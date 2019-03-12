@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderImpl;
 import com.github.dakusui.processstreamer.core.process.Shell;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class CommanderTest {
     );
   }
 
-  private static Commander commander() {
-    return new Commander(Shell.LOCAL_SHELL);
+  private static CommanderImpl commander() {
+    return new CommanderImpl(Shell.LOCAL_SHELL);
   }
 }
