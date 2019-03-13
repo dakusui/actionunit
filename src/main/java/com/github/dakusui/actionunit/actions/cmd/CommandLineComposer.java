@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
 
@@ -14,7 +15,7 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
   default String apply(Object[] argValues) {
     return StableTemplatingUtils.template(
         commandLineString(),
-        StableTemplatingUtils.toMapping(this::parameterPlaceHolderFor, argValues)
+        StableTemplatingUtils.toMapping(this.parameterPlaceHolder(), argValues)
     );
   }
 
@@ -23,16 +24,16 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
     formatter.format(commandLineString());
   }
 
-  default String parameterPlaceHolderFor(int parameterIndex) {
-    return "{{" + parameterIndex + "}}";
+  default IntFunction<String> parameterPlaceHolder() {
+    return parameterIndex -> "{{" + parameterIndex + "}}";
   }
 
   String commandLineString();
 
-  static CommandLineComposer create(
+  static CommandLineComposer byVariableName(
       String commandLineFormat,
       Function<String, String> parameterPlaceHolderFactory,
-      String... variableNames) {
+      String... knownVariableNames) {
     requireNonNull(commandLineFormat);
     return new CommandLineComposer() {
       @Override
@@ -41,16 +42,22 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
       }
 
       @Override
-      public String parameterPlaceHolderFor(int parameterIndex) {
-        return parameterPlaceHolderFactory.apply(variableNames[parameterIndex]);
+      public IntFunction<String> parameterPlaceHolder() {
+        return parameterIndex -> parameterPlaceHolderFactory.apply(knownVariableNames[parameterIndex]);
       }
     };
   }
 
-  static CommandLineComposer create(
+  static CommandLineComposer byVariableName(
       String commandLineFormat,
-      String... variableNames) {
+      String... knownVariableNames) {
     requireNonNull(commandLineFormat);
-    return create(commandLineFormat, v -> String.format("{{%s}}", v), variableNames);
+    return byVariableName(commandLineFormat, v -> String.format("{{%s}}", v), knownVariableNames);
+  }
+
+  static CommandLineComposer byIndex(
+      String commandLineFormat
+  ) {
+    return () -> commandLineFormat;
   }
 }

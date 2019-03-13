@@ -1,5 +1,6 @@
-package com.github.dakusui.actionunit.actions.cmd;
+package com.github.dakusui.actionunit.actions.cmd.compat;
 
+import com.github.dakusui.actionunit.actions.cmd.CommanderImpl;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
@@ -21,12 +22,12 @@ public interface Cmd {
   Cmd readFrom(Stream<String> stream);
 
   class Builder {
-    private Shell               shell;
-    private Consumer<String>    stdoutConsumer;
-    private Consumer<String>    stderrConsumer;
-    private File                cwd;
+    private Shell shell;
+    private Consumer<String> stdoutConsumer;
+    private Consumer<String> stderrConsumer;
+    private File cwd;
     private Map<String, String> env;
-    private Supplier<String>    commandLineSupplier;
+    private Supplier<String> commandLineSupplier;
 
     Builder with(Shell shell) {
       this.shell = requireNonNull(shell);
@@ -64,15 +65,23 @@ public interface Cmd {
 
     public Cmd build() {
       return new Cmd() {
+<<<<<<< HEAD:src/main/java/com/github/dakusui/actionunit/actions/cmd/Cmd.java
         BaseCommander<?> commander = new BaseCommander(shell);
 
         @Override
         public Stream<String> stream() {
           BaseCommander<?> commander = this.commander;
+=======
+        CommanderImpl commander = new CommanderImpl(shell, null /*TODO */);
+
+        @Override
+        public Stream<String> stream() {
+          CommanderImpl commander = this.commander;
+>>>>>>> 67303e8487dfcfb000538292ccd1142755bdaf4a:src/main/java/com/github/dakusui/actionunit/actions/cmd/compat/Cmd.java
           if (cwd != null)
-            commander = commander.cwd(cwd);
+            commander = (CommanderImpl) commander.cwd(cwd);
           for (String key : env.keySet())
-            commander = commander.env(key, env.get(key));
+            commander = (CommanderImpl) commander.env(key, env.get(key));
           return ((Stream<String>) commander.command(commandLineSupplier.get())
               .toStreamGenerator()
               .apply(Context.create()))

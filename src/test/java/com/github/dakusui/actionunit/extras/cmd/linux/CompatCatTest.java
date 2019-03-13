@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.FsTestBase;
-import com.github.dakusui.actionunit.linux.Cat;
+import com.github.dakusui.actionunit.linux.compat.CompatCat;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.*;
 
-public class CatTest extends FsTestBase<Cat> {
-  public CatTest() throws IOException {
+public class CompatCatTest extends FsTestBase<CompatCat> {
+  public CompatCatTest() throws IOException {
   }
 
   @Test
@@ -31,7 +31,7 @@ public class CatTest extends FsTestBase<Cat> {
   }
 
   @Override
-  protected Cat create() {
-    return new Cat(context);
+  protected CompatCat create() {
+    return new CompatCat(context);
   }
 }

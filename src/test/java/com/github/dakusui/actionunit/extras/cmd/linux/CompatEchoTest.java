@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.extras.cmd.linux;
 
 import com.github.dakusui.actionunit.extras.cmd.CommanderTestBase;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.linux.Echo;
+import com.github.dakusui.actionunit.linux.compat.CompatEcho;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunUnderLinux;
@@ -12,7 +12,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assume.assumeTrue;
 
-public class EchoTest extends CommanderTestBase<Echo> {
+public class CompatEchoTest extends CommanderTestBase<CompatEcho> {
   @Test
   public void noTrailingNewline() {
     perform(this.commander.noTrailingNewline().addq(helloWorld(context)).build());
@@ -73,8 +73,8 @@ public class EchoTest extends CommanderTestBase<Echo> {
   }
 
   @Override
-  protected Echo create() {
-    return new Echo();
+  protected CompatEcho create() {
+    return new CompatEcho();
   }
 
   private String helloWorld(Context context) {

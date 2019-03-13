@@ -1,6 +1,6 @@
-package com.github.dakusui.actionunit.actions.cmd;
+package com.github.dakusui.actionunit.actions.cmd.compat;
 
-
+import com.github.dakusui.actionunit.actions.cmd.CommanderUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
@@ -9,12 +9,7 @@ import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -23,13 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.actionunit.core.ActionSupport.retry;
-import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
-import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
-import static com.github.dakusui.actionunit.utils.Checks.impossibleLineReached;
-import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.utils.Checks.*;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -39,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class CompatCommander<B extends CompatCommander<B>> extends Action.Builder<Action> implements Cloneable {
   private final int                     summaryLength;
-  private       StreamGenerator<String> stdin;
+  private StreamGenerator<String> stdin;
 
   private static final Consumer<String> DEFAULT_STDOUT_CONSUMER = System.out::println;
   private static final Consumer<String> DEFAULT_STDERR_CONSUMER = System.err::println;
@@ -48,12 +38,12 @@ public abstract class CompatCommander<B extends CompatCommander<B>> extends Acti
   private       int                        numRetries;
   private       String                     description;
   private       long                       retryIntervalDuration;
-  private       TimeUnit                   retryIntervalTimeUnit;
+  private TimeUnit retryIntervalTimeUnit;
   private       TimeUnit                   timeOutTimeUnit;
   private       long                       timeOutDuration;
   private       Class<? extends Throwable> retryOn = ProcessStreamer.Failure.class;
-  private       File                       cwd     = null;
-  private final Map<String, String>        env     = new LinkedHashMap<>();
+  private File cwd     = null;
+  private final Map<String, String> env     = new LinkedHashMap<>();
 
 
   /**

@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
+import com.github.dakusui.actionunit.actions.cmd.compat.CompatCommander;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Test;
 

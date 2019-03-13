@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.Cmd;
-import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
+import com.github.dakusui.actionunit.actions.cmd.compat.CompatCommander;
+import com.github.dakusui.actionunit.actions.cmd.compat.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;

@@ -1,8 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.cmd.BaseCommander;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderImpl;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
@@ -15,6 +14,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
@@ -30,7 +30,7 @@ import static com.github.dakusui.printables.Printables.isEqualTo;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Arrays.asList;
 
-public class CommanderUnitTest {
+public class AbstractCommanderUnitTest {
   @Test(expected = ProcessStreamer.Failure.class)
   public void test1() {
     ReportingActionPerformer.create().performAndReport(
@@ -146,7 +146,7 @@ public class CommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("A", "B", "C"))
             .perform(localCommander().command(
-                CommandLineComposer.create("echo hello {{i}}", "i"),
+                CommandLineComposer.byVariableName("echo hello {{i}}", "i"),
                 "i").toAction()),
         Writer.Std.OUT
     );
@@ -167,7 +167,7 @@ public class CommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .cwd(new File(System.getProperty("user.home")))
-            .command(CommandLineComposer.create("pwd")).toStreamGenerator())
+            .command(CommandLineComposer.byVariableName("pwd")).toStreamGenerator())
             .perform(
                 leaf(context -> out.add(context.valueOf("i")))),
         Writer.Std.OUT);
@@ -186,7 +186,7 @@ public class CommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .env("hello", "world")
-            .command(CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .command(CommandLineComposer.byVariableName("echo ${hello}")).toStreamGenerator())
             .perform(
                 leaf(context -> out.add(context.valueOf("i")))),
         Writer.Std.OUT);
@@ -205,8 +205,13 @@ public class CommanderUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .env("hello", "world")
-            .stdoutConsumer(out::add)
-            .command(CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .stdoutConsumer(new Consumer<String>() {
+              @Override
+              public void accept(String s) {
+                out.add(s);
+              }
+            })
+            .command(CommandLineComposer.byVariableName("echo ${hello}")).toStreamGenerator())
             .perform(
                 leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))),
         Writer.Std.OUT);
@@ -220,8 +225,7 @@ public class CommanderUnitTest {
     );
   }
 
-  private Commander localCommander() {
-    return new BaseCommander(Shell.local());
+  private CommanderImpl localCommander() {
+    return new CommanderImpl(Shell.local(), null);
   }
-
 }
