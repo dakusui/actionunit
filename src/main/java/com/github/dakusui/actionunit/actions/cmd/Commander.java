@@ -1,449 +1,280 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
-import com.github.dakusui.actionunit.utils.Checks;
+import com.github.dakusui.actionunit.core.context.multiparams.Params;
+import com.github.dakusui.printables.Printables;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.actions.cmd.CommanderUtils.quoteWithSingleQuotesForShell;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.actionunit.core.ActionSupport.retry;
-import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
-import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
-import static com.github.dakusui.actionunit.utils.Checks.impossibleLineReached;
-import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextPredicateFor;
+import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.printables.Printables.consumer;
+import static com.github.dakusui.printables.Printables.isEqualTo;
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-/**
- * COMMAND action buildER class for ActionUnit style.
- *
- * @param <B> The class you implement by extending this class.
- */
-public abstract class Commander<B extends Commander<B>> extends Action.Builder<Action> implements Cloneable {
-  private final int                     summaryLength;
-  private       StreamGenerator<String> stdin;
+public abstract class Commander<C extends Commander<C>> {
+  public static class RetryOption {
+    public static RetryOption timeoutIn(long timeoutInSeconds) {
+      return new RetryOption(
+          timeoutInSeconds,
+          TimeUnit.SECONDS,
+          Throwable.class,
+          0,
+          TimeUnit.SECONDS,
+          0);
+    }
 
-  private static final Consumer<String> DEFAULT_STDOUT_CONSUMER = System.out::println;
-  private static final Consumer<String> DEFAULT_STDERR_CONSUMER = System.err::println;
-  List<Function<Context, String>> options;
-  private       Cmd.Builder                cmdBuilder;
-  private       int                        numRetries;
-  private       String                     description;
-  private       long                       retryIntervalDuration;
-  private       TimeUnit                   retryIntervalTimeUnit;
-  private       TimeUnit                   timeOutTimeUnit;
-  private       long                       timeOutDuration;
-  private       Class<? extends Throwable> retryOn = ProcessStreamer.Failure.class;
-  private       File                       cwd     = null;
-  private final Map<String, String>        env     = new LinkedHashMap<>();
+    final long                       timeoutDuration;
+    final TimeUnit                   timeoutTimeUnit;
+    final Class<? extends Throwable> retryOn;
+    final long                       retryInterval;
+    final TimeUnit                   retryIntervalTimeUnit;
+    final int                        retries;
 
 
-  /**
-   * This is a helper method to create a {@code Commander} object for a given
-   * {@code command} without defining a custom class.
-   *
-   * @param command A command for which the returned builder works.
-   * @return A new {@code Commander} object.
-   */
-  @SuppressWarnings("unchecked")
-  public static Commander<?> commander(String command) {
-    return new Commander() {
-      @Override
-      protected String program() {
-        return command;
-      }
-    };
-  }
-
-  /**
-   * Creates an instance of this class.
-   */
-  public Commander() {
-    this.summaryLength = 60;
-    this.options = new LinkedList<>();
-    this.cmdBuilder = Cmd.builder()
-        .with(new Bash())
-        .consumeStdout(DEFAULT_STDOUT_CONSUMER)
-        .consumeStderr(DEFAULT_STDERR_CONSUMER);
-    this.disconnectStdin().disableTimeout();
-  }
-
-  @SuppressWarnings("unchecked")
-  public B clone() {
-    try {
-      B ret = ((B) super.clone());
-      ret.options = new LinkedList<>(ret.options);
-      return ret;
-    } catch (CloneNotSupportedException e) {
-      throw impossibleLineReached(e.getMessage(), e);
+    RetryOption(
+        long timeoutDuration,
+        TimeUnit timeoutTimeUnit,
+        Class<? extends Throwable> retryOn,
+        long retryInterval,
+        TimeUnit retryIntervalTimeUnit,
+        int retries) {
+      this.timeoutDuration = timeoutDuration;
+      this.timeoutTimeUnit = requireNonNull(timeoutTimeUnit);
+      this.retryOn = requireNonNull(retryOn);
+      this.retryInterval = retryInterval;
+      this.retryIntervalTimeUnit = requireNonNull(retryIntervalTimeUnit);
+      this.retries = retries;
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public B describe(String description) {
-    this.description = requireNonNull(description);
-    return (B) this;
+  private static final Logger              LOGGER  = LoggerFactory.getLogger(Commander.class);
+  private              Shell               shell;
+  private              Stream<String>      stdin   = null;
+  private              Consumer<String>    downstreamConsumer;
+  private              Map<String, String> envvars = new LinkedHashMap<>();
+  private              File                cwd;
+  private              RetryOption         retryOption;
+
+  public Commander() {
+    this(Shell.local());
+  }
+
+  public Commander(Shell shell) {
+    this.shell = requireNonNull(shell);
+    this.stdoutConsumer(LOGGER::debug);
+    this.retryOption = RetryOption.timeoutIn(60);
   }
 
   @SuppressWarnings("unchecked")
-  public B stdin(StreamGenerator<String> stdin) {
-    this.stdin = requireNonNull(stdin);
-    return (B) this;
-  }
-
-  public B disconnectStdin() {
-    return stdin(c -> Stream.empty());
-  }
-
-  /**
-   * Exposes a builder of {@code Cmd} object.
-   *
-   * @return An internal builder for {@code Cmd} object.
-   */
-  public Cmd.Builder cmdBuilder() {
-    return this.cmdBuilder;
+  public C cwd(File cwd) {
+    this.cwd = requireNonNull(cwd);
+    return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  public B cmd(Consumer<? super Cmd.Builder> b) {
-    requireNonNull(b).accept(this.cmdBuilder);
-    return (B) this;
-  }
-
-
-  @SuppressWarnings("unchecked")
-  public B retries(int times) {
-    this.numRetries = Checks.requireArgument(v -> v >= 0, times);
-    return (B) this;
+  public C env(String varname, String varvalue) {
+    this.envvars.put(requireNonNull(varname), requireNonNull(varvalue));
+    return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  public B retryOn(Class<? extends Throwable> retryOn) {
-    this.retryOn = requireNonNull(retryOn);
-    return (B) this;
+  public C stdin(Stream<String> stream) {
+    this.stdin = requireNonNull(stream);
+    return (C) this;
   }
 
-  @SuppressWarnings("unchecked")
-  public B interval(long duration, TimeUnit timeUnit) {
-    checkArgument(duration > 0);
-    requireNonNull(timeUnit);
-    this.retryIntervalDuration = duration;
-    this.retryIntervalTimeUnit = timeUnit;
-    return (B) this;
+  public Action toAction() {
+    return toActionWith(createCheckerForExitCode(0));
   }
 
-  @SuppressWarnings("unchecked")
-  public B timeoutIn(long duration, TimeUnit timeUnit) {
-    checkArgument(duration > 0);
-    requireNonNull(timeUnit);
-    this.timeOutDuration = duration;
-    this.timeOutTimeUnit = timeUnit;
-    return (B) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public B disableTimeout() {
-    this.timeOutDuration = 0;
-    return (B) this;
-  }
-
-  public Action build() {
-    return readFrom(this.stdin);
-  }
-
-  /**
-   * This method returns a stream for standard output of a command built by
-   * this builder.
-   * <p>
-   * And this does not create any action. This method is meant to reuse a
-   * {@code Commander} object create for creating an action to other purposes
-   * such as a source of data used in a {@code ForEach} action structure.
-   * {@code toStream(Context)} calls {@code composeCmd(Context)} to create a {@code Cmd}
-   * object that creates a stream to be returned.
-   *
-   * @param context A context object from which a {@code cmd} object is created.
-   * @return A stream for standard output of the command.
-   * @see Commander#composeCmd(Context)
-   */
-  public Stream<String> toStream(Context context) {
-    return composeCmd(context).stream();
-  }
-
-  /**
-   * This method returns an iterator for standard output of a command built by
-   * this builder.
-   *
-   * @param context A context object from which {@code cmd} object is created.
-   * @return An iterator for standard output of the command.n
-   * @see Commander#toStream(Context)
-   */
-  public Iterable<String> toIterable(Context context) {
-    return () -> toStream(context).iterator();
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toString(this.description);
-  }
-
-  private Action readFrom(StreamGenerator<String> in) {
-    return numRetries > 0 ?
-        retry(
-            this.timeOutIfNecessary(composeAction(in))
-        ).on(
-            this.retryOn
-        ).times(
-            this.numRetries
-        ).withIntervalOf(
-            this.retryIntervalDuration, this.retryIntervalTimeUnit
-        ).build() :
-        timeOutIfNecessary(composeAction(in));
-  }
-
-  private String description() {
-    return CommanderUtils.summarize(
-        this.description != null
-            ? this.description
-            : "(commander)",
-        this.summaryLength
-    );
-  }
-
-  /**
-   * Add {@code option} quoting with single quotes "'".
-   *
-   * @param option an option to be added with quotes.
-   * @return This object
-   */
-  public B addq(String option) {
-    requireNonNull(option);
-    return this.addq(new Function<Context, String>() {
-      @Override
-      public String apply(Context context) {
-        return option;
-      }
-
-      @Override
-      public String toString() {
-        return option;
-      }
-    });
-  }
-
-  @SuppressWarnings("unchecked")
-  public B addq(Function<Context, String> option) {
-    requireNonNull(option);
-    options.add(new Function<Context, String>() {
-      @Override
-      public String apply(Context context) {
-        return quoteWithSingleQuotesForShell(option.apply(context));
-      }
-
-      @Override
-      public String toString() {
-        return quoteWithSingleQuotesForShell(Objects.toString(option));
-      }
-    });
-    return (B) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public B add(Function<Context, String> option) {
-    options.add(requireNonNull(option));
-    return (B) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public B add(String option) {
-    requireNonNull(option);
-    options.add(new Function<Context, String>() {
-      @Override
-      public String apply(Context context) {
-        return option;
-      }
-
-      @Override
-      public String toString() {
-        return option;
-      }
-    });
-    return (B) this;
-  }
-
-  public B add(CommanderOption option) {
-    return add(option, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  public B add(CommanderOption option, boolean longFormat) {
-    return (B) requireNonNull(option).addTo(this, longFormat);
-  }
-
-  public B add(CommanderOption option, String value) {
-    return add(option, value, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  public B add(CommanderOption option, String value, boolean longFormat) {
-    return (B) requireNonNull(option).addTo(this, value, longFormat);
-  }
-
-  /**
-   * Sets current working directory of a command built by this object to a
-   * given value.
-   *
-   * @param cwd Current working directory for a command built by this object.
-   * @return this object
-   */
-  @SuppressWarnings("unchecked")
-  public B cwd(File cwd) {
-    requireArgument(File::isDirectory, requireNonNull(cwd));
-    this.cwd = this.cmdBuilder.cwd(cwd).cwd();
-    return (B) this;
-  }
-
-  /**
-   * Returns a current working directory set to this object
-   *
-   * @return A current working directory set to this object.
-   */
-  public File cwd() {
-    if (this.cwd == null)
-      return new File(System.getProperty("user.dir"));
-    return this.cwd;
-  }
-
-  /**
-   * Sets an environment variable used by a command created by this object.
-   *
-   * @param envvar A name of environment variable.
-   * @param value  A value for an environment variable {@code envvar}.
-   * @return This object.
-   */
-  @SuppressWarnings("unchecked")
-  public B env(String envvar, String value) {
-    this.env.put(requireNonNull(envvar), requireNonNull(value));
-    return (B) this;
-  }
-
-  /**
-   * Creates a {@code Cmd} object based on properties this object holds.
-   *
-   * @param context A context object from which {@code Cmd} object to be returned
-   *                is created.
-   * @return A created {@code Cmd} object.
-   */
-  public Cmd toCmd(Context context) {
-    return composeCmd(context);
-  }
-
-  /**
-   * Get full path to a command for which this builder object works.
-   *
-   * @return full path of command
-   */
-  protected abstract String program();
-
-  private Action timeOutIfNecessary(Action action) {
-    return this.timeOutDuration > 0
-        ? timeout(action).in(this.timeOutDuration, this.timeOutTimeUnit)
-        : action;
-  }
-
-  private Action composeAction(StreamGenerator<String> in) {
-    return named(
-        description(),
-        leaf(
-            context -> composeCmd(context).readFrom(requireNonNull(in.apply(context))).stream().forEach(s -> {
-            })
-        )
-    );
-  }
-
-  protected Cmd composeCmd(Context context) {
-    return cmdBuilder
-        .env(this.env)
-        .command(new Supplier<String>() {
-          @Override
-          public String get() {
-            return String.format(
-                "%s %s",
-                Commander.this.program(),
-                Commander.this.formatOptions(option -> option.apply(context))
+  public Action toActionWith(Checker checker) {
+    Action action = leaf(toContextConsumerWith(checker));
+    AtomicReference<Action> work = new AtomicReference<>(action);
+    return retryOption()
+        .filter(retryOption -> {
+          if (retryOption.retries > 0)
+            work.set(
+                retry(work.get())
+                    .on(retryOption.retryOn)
+                    .times(retryOption.retries)
+                    .withIntervalOf(retryOption.retryInterval, retryOption.retryIntervalTimeUnit)
+                    .build()
             );
+          return true;
+        })
+        .filter(retryOption -> {
+          if (retryOption.timeoutDuration >= 0)
+            work.set(timeout(work.get()).in(retryOption.timeoutDuration, retryOption.timeoutTimeUnit));
+          return true;
+        })
+        .map(retryOption -> work.get())
+        .orElse(action);
+  }
+
+  public ContextConsumer toContextConsumer() {
+    return toContextConsumerWith(createCheckerForExitCode(0));
+  }
+
+  abstract protected CommandLineComposer commandLineComposer();
+
+  abstract protected String[] variableNames();
+
+  public ContextConsumer toContextConsumerWith(Checker checker) {
+    return toContextConsumer(this.commandLineComposer(), checker, this.variableNames());
+  }
+
+
+  public ContextPredicate toContextPredicate() {
+    return toContextPredicate(this.commandLineComposer(), isEqualTo(0), this.variableNames());
+  }
+
+  public ContextPredicate toContextPredicateWith(Predicate<Integer> exitCodeChecker) {
+    return toContextPredicate(this.commandLineComposer(), exitCodeChecker, this.variableNames());
+  }
+
+  public StreamGenerator<String> toStreamGenerator() {
+    return toStreamGeneratorWith(createCheckerForExitCode(0));
+  }
+
+  public StreamGenerator<String> toStreamGeneratorWith(Checker checker) {
+    return toStreamGenerator(this.commandLineComposer(), checker, this.variableNames());
+  }
+
+  public Commander stdoutConsumer(Consumer<String> stdoutConsumer) {
+    this.downstreamConsumer = requireNonNull(stdoutConsumer);
+    return this;
+  }
+
+  private ProcessStreamer.Builder createProcessStreamerBuilder(CommandLineComposer commandLineComposer, Params params, Stream<String> stdin) {
+    String commandLine = commandLineComposer.apply(
+        params.paramNames()
+            .stream()
+            .map(params::valueOf)
+            .toArray());
+    LOGGER.info("Command Line:{}", commandLine);
+    ProcessStreamer.Builder ret;
+    if (stdin == null)
+      ret = ProcessStreamer.source(shell);
+    else
+      ret = ProcessStreamer.pipe(stdin, shell);
+    envvars.forEach(ret::env);
+    return ret.command(commandLine).cwd(cwd);
+  }
+
+  private StreamGenerator<String> toStreamGenerator(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
+    return StreamGenerator.fromContextWith(
+        new Function<Params, Stream<String>>() {
+          @Override
+          public Stream<String> apply(Params params) {
+            return createProcessStreamerBuilder(commandLineComposer, params, Commander.this.stdin)
+                .checker(checker)
+                .build()
+                .stream()
+                .peek(downstreamConsumer);
           }
 
           @Override
           public String toString() {
-            return String.format(
-                "%s %s",
-                Commander.this.program(),
-                Commander.this.formatOptions(stringSupplier -> {
-                  String ret = Objects.toString(stringSupplier);
-                  return ret.contains("$$Lambda") ?
-                      "(?)" :
-                      ret;
-                })
-            );
+            return format("(%s)", commandLineComposer.apply(variableNames));
           }
-        }).build();
+        },
+        variableNames
+    );
   }
 
-  private String formatOptions(Function<Function<Context, String>, String> formatter) {
-    return this.options.stream()
-        .map(formatter)
-        .collect(Collectors.joining(" "));
+  private ContextPredicate toContextPredicate(
+      CommandLineComposer commandLineComposer,
+      Predicate<Integer> exitCodeChecker,
+      String... variableNames) {
+    return contextPredicateFor(variableNames)
+        .with(Printables.predicate(
+            (Params params) -> {
+              try {
+                return exitCodeChecker.test(createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
+                    .checker(createCheckerForExitCode(exitCode -> true))
+                    .build()
+                    .waitFor());
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+              }
+            })
+            .describe(() -> format(
+                "Exit code of '%s': %s",
+                commandLineComposer.commandLineString(),
+                objectToStringIfOverridden(exitCodeChecker, () -> "(noname)"))));
   }
 
-  /**
-   * A shell with which a command built by {@code Commander} object is executed
-   * by default.
-   */
-  public static class Bash implements Shell {
-    /**
-     * Returns a path to a bash program.
-     *
-     * @return A path to a bash program.
-     */
-    @Override
-    public String program() {
-      return "/bin/bash";
+  private ContextConsumer toContextConsumer(
+      CommandLineComposer commandLineComposer,
+      Checker checker,
+      String... variableNames) {
+    requireNonNull(commandLineComposer);
+    requireNonNull(variableNames);
+    return contextConsumerFor(variableNames)
+        .with(consumer(
+            (Params params) -> createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
+                .checker(checker)
+                .build()
+                .stream()
+                .forEach(downstreamConsumer))
+            .describe(commandLineComposer::commandLineString));
+  }
+
+  private Optional<RetryOption> retryOption() {
+    return Optional.ofNullable(this.retryOption);
+  }
+
+  interface Factory {
+    default Commander commodore(String host) {
+      return new BaseCommander(shellFor(host));
     }
 
-    /**
-     * Returns an option used to execute target command. For this class, it
-     * is defined {@code ["-c"]} based on bash's behaviour.
-     *
-     * @return Returns a command line option passed to shell.
-     */
-    @Override
-    public List<String> options() {
-      return new ArrayList<String>() {{
-        add("-c");
-      }};
-    }
+    Shell shellFor(String host);
 
-    @Override
-    public String toString() {
-      return format();
+    class Builder {
+      Map<String, Shell> shells = new HashMap<>();
+
+      public Builder() {
+        this.addLocal("localhost").addLocal("localhost.localdomain");
+      }
+
+      public Builder addRemote(String user, String host, String identity) {
+        this.shells.put(host, Shell.ssh(user, host, identity));
+        return this;
+      }
+
+      public Builder addLocal(String host) {
+        this.shells.put(host, Shell.local());
+        return this;
+      }
+
+      public Factory build() {
+        return host -> {
+          if (shells.containsKey(requireNonNull(host)))
+            return shells.get(host);
+          throw new NoSuchElementException(host);
+        };
+      }
     }
   }
 }

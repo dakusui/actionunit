@@ -1,13 +1,13 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class RetryTest<R extends Commander<R>> extends FsTestBase<R> {
+public class RetryTest<R extends CompatCommander<R>> extends FsTestBase<R> {
   public RetryTest() throws IOException {
   }
 
@@ -15,7 +15,7 @@ public class RetryTest<R extends Commander<R>> extends FsTestBase<R> {
   @Override
   protected R create() {
     long start = System.currentTimeMillis() / 1000;
-    return (R) new Commander<R>() {
+    return (R) new CompatCommander<R>() {
       @Override
       protected String program() {
         return "if [[ $(($(date +'%s') - " + start + ")) -ge 3 ]]; then echo success; else echo fail && exit 1;fi";

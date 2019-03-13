@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 
 import java.io.File;
 
-public class Mkdir extends Commander<Mkdir> {
+public class Mkdir extends CompatCommander<Mkdir> {
   public Mkdir() {
     super();
   }

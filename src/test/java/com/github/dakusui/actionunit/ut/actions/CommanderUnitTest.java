@@ -1,9 +1,11 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.cmd.Commodore;
+import com.github.dakusui.actionunit.actions.cmd.BaseCommander;
+import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
@@ -28,7 +30,7 @@ import static com.github.dakusui.printables.Printables.isEqualTo;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Arrays.asList;
 
-public class CommodoreUnitTest {
+public class CommanderUnitTest {
   @Test(expected = ProcessStreamer.Failure.class)
   public void test1() {
     ReportingActionPerformer.create().performAndReport(
@@ -78,7 +80,7 @@ public class CommodoreUnitTest {
   public void test5() {
     ReportingActionPerformer.create().performAndReport(
         when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicate())
-            .perform(leaf(ContextConsumer.from(() -> System.out.println("bye"))))
+            .perform(leaf(MultiParameters.Consumers.from(() -> System.out.println("bye"))))
             .otherwise(leaf(c -> System.out.println("Not met"))),
         Writer.Std.OUT
     );
@@ -88,7 +90,7 @@ public class CommodoreUnitTest {
   public void test6() {
     ReportingActionPerformer.create().performAndReport(
         when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicateWith(isEqualTo(1)))
-            .perform(leaf(ContextConsumer.from(() -> System.out.println("bye"))))
+            .perform(leaf(MultiParameters.Consumers.from(() -> System.out.println("bye"))))
             .otherwise(leaf(c -> System.out.println("Not met"))),
         Writer.Std.OUT
     );
@@ -144,7 +146,7 @@ public class CommodoreUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("A", "B", "C"))
             .perform(localCommander().command(
-                Commodore.CommandLineComposer.create("echo hello {{i}}", "i"),
+                CommandLineComposer.create("echo hello {{i}}", "i"),
                 "i").toAction()),
         Writer.Std.OUT
     );
@@ -165,7 +167,7 @@ public class CommodoreUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .cwd(new File(System.getProperty("user.home")))
-            .command(Commodore.CommandLineComposer.create("pwd")).toStreamGenerator())
+            .command(CommandLineComposer.create("pwd")).toStreamGenerator())
             .perform(
                 leaf(context -> out.add(context.valueOf("i")))),
         Writer.Std.OUT);
@@ -184,7 +186,7 @@ public class CommodoreUnitTest {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", localCommander()
             .env("hello", "world")
-            .command(Commodore.CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .command(CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
             .perform(
                 leaf(context -> out.add(context.valueOf("i")))),
         Writer.Std.OUT);
@@ -204,7 +206,7 @@ public class CommodoreUnitTest {
         forEach("i", localCommander()
             .env("hello", "world")
             .stdoutConsumer(out::add)
-            .command(Commodore.CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
+            .command(CommandLineComposer.create("echo ${hello}")).toStreamGenerator())
             .perform(
                 leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))),
         Writer.Std.OUT);
@@ -218,8 +220,8 @@ public class CommodoreUnitTest {
     );
   }
 
-  private Commodore localCommander() {
-    return new Commodore(Shell.local());
+  private Commander localCommander() {
+    return new BaseCommander(Shell.local());
   }
 
 }

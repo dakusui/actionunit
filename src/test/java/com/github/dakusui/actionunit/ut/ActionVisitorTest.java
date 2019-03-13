@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsPredicateBuilder;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.crest.Crest;
@@ -152,7 +152,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
   public void givenWhenAction$whenAccept$thenVisited() {
     // given while action
     Action action = when(
-        ContextPredicate.of("i", context -> false)
+        MultiParamsPredicateBuilder.of("i", context -> false)
     ).perform(
         createSimpleAction()
     ).otherwise(

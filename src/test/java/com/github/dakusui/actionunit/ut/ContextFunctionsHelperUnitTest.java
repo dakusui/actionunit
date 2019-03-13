@@ -3,9 +3,11 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
-import com.github.dakusui.actionunit.core.context.Params;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsFunctionBuilder;
+import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import org.junit.Test;
 
 import java.util.function.Consumer;
@@ -21,7 +23,7 @@ import static com.github.dakusui.printables.Printables.function;
 public class ContextFunctionsHelperUnitTest {
   @Test
   public void test() {
-    ContextFunction<Integer> function = new ContextFunction.Builder<Integer>("i")
+    ContextFunction<Integer> function = new MultiParamsFunctionBuilder<Integer>("i")
         .with((Params params) -> params.<Integer>valueOf("i") + 1);
     System.out.println(function.toString());
 
@@ -34,7 +36,7 @@ public class ContextFunctionsHelperUnitTest {
   @Test
   public void test2() {
     Context context = Context.create().assignTo("i", 0);
-    ContextFunction<Integer> function = ContextFunction.of(
+    ContextFunction<Integer> function = MultiParameters.Functions.of(
         "i",
         function((Integer i) -> i + 1).describe("inc({{0}})"));
     System.out.println(function);
@@ -48,7 +50,7 @@ public class ContextFunctionsHelperUnitTest {
   @Test
   public void test3() {
     Context context = Context.create().assignTo("i", 0);
-    ContextFunction<Integer> function = ContextFunction.of("i",
+    ContextFunction<Integer> function = MultiParameters.Functions.of("i",
         function((Integer i) -> i + 1).describe("inc({{0}})")
     ).andThen(
         function((Integer j) -> j * 2).describe("double")

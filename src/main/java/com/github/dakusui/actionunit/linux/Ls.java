@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderOption;
 
 import static java.util.Objects.requireNonNull;
@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
  *        Mandatory arguments to long options are mandatory for short options too.
  * </pre>
  */
-public class Ls extends Commander<Ls> {
+public class Ls extends CompatCommander<Ls> {
 
   public Ls() {
     super();

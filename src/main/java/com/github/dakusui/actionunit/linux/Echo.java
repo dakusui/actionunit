@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderOption;
 import com.github.dakusui.actionunit.core.Context;
 
@@ -16,7 +16,7 @@ import java.util.function.Function;
  *        echo LONG-OPTION
  * </pre>
  */
-public class Echo extends Commander<Echo> {
+public class Echo extends CompatCommander<Echo> {
   /**
    * Creates an object of this class.
    */
@@ -56,8 +56,8 @@ public class Echo extends Commander<Echo> {
    *
    * @param message A message to be added.
    * @return this object
-   * @see Commander#add(String)
-   * @see Commander#addq(String)
+   * @see CompatCommander#add(String)
+   * @see CompatCommander#addq(String)
    */
   public Echo message(Function<Context, String> message) {
     return this.addq(message);

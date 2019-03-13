@@ -15,7 +15,7 @@ import static com.github.dakusui.crest.Crest.*;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assume.assumeTrue;
 
-public class CommanderTest extends CommanderTestBase<Echo> {
+public class CompatCommanderTest extends CommanderTestBase<Echo> {
   @Override
   protected Echo create() {
     return new Echo();

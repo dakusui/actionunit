@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.extras.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CompatCommander;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.crest.Crest;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
-public class RetryOnTimeOutTest<R extends Commander<R>> extends FsTestBase<R> {
+public class RetryOnTimeOutTest<R extends CompatCommander<R>> extends FsTestBase<R> {
   public RetryOnTimeOutTest() throws IOException {
   }
 
@@ -23,7 +23,7 @@ public class RetryOnTimeOutTest<R extends Commander<R>> extends FsTestBase<R> {
   @Override
   protected R create() {
     long start = System.currentTimeMillis() / 1000;
-    return (R) new Commander<R>() {
+    return (R) new CompatCommander<R>() {
       @Override
       protected String program() {
         return "if [[ $(($(date +'%s') - " + start + ")) -ge 3 ]]; then echo success; else echo fail && sleep 3;fi";

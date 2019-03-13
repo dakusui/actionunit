@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.core.context;
 
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
 import java.util.Arrays;
