@@ -34,18 +34,18 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class CommanderBase<C extends CommanderBase<C>> implements Commander<C> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CommanderBase.class);
-  private Shell shell;
-  private Stream<String> stdin = null;
-  private Consumer<String> downstreamConsumer;
-  private Map<String, String> envvars = new LinkedHashMap<>();
-  private File cwd;
-  private RetryOption retryOption;
+  private static final Logger                LOGGER  = LoggerFactory.getLogger(CommanderBase.class);
+  private              Shell                 shell;
+  private              Stream<String>        stdin   = null;
+  private              Consumer<String>      downstreamConsumer;
+  private              Map<String, String>   envvars = new LinkedHashMap<>();
+  private              File                  cwd;
+  private              Commodore.RetryOption retryOption;
 
   protected CommanderBase(Shell shell) {
     this.shell = requireNonNull(shell);
     this.stdoutConsumer(LOGGER::debug);
-    this.retryOption = RetryOption.timeoutInSeconds(60);
+    this.retryOption = Commodore.RetryOption.timeoutInSeconds(60);
   }
 
   @SuppressWarnings("unchecked")
@@ -103,7 +103,7 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
   abstract protected String[] variableNames();
 
   public ContextConsumer toContextConsumerWith(Checker checker) {
-    return toContextConsumer(this.commandLineComposer(), checker, this.variableNames());
+    return toContextConsumerWith(this.commandLineComposer(), checker, this.variableNames());
   }
 
   public ContextPredicate toContextPredicate() {
@@ -173,10 +173,11 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
         .with(Printables.predicate(
             (Params params) -> {
               try {
-                return exitCodeChecker.test(createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
-                    .checker(createCheckerForExitCode(exitCode -> true))
-                    .build()
-                    .waitFor());
+                return exitCodeChecker.test(
+                    createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
+                        .checker(createCheckerForExitCode(exitCode -> true))
+                        .build()
+                        .waitFor());
               } catch (InterruptedException e) {
                 throw new RuntimeException(e);
               }
@@ -187,7 +188,7 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
                 objectToStringIfOverridden(exitCodeChecker, () -> "(noname)"))));
   }
 
-  private ContextConsumer toContextConsumer(
+  private ContextConsumer toContextConsumerWith(
       CommandLineComposer commandLineComposer,
       Checker checker,
       String... variableNames) {
@@ -203,7 +204,7 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
             .describe(commandLineComposer::commandLineString));
   }
 
-  private Optional<RetryOption> retryOption() {
+  private Optional<Commodore.RetryOption> retryOption() {
     return Optional.ofNullable(this.retryOption);
   }
 
