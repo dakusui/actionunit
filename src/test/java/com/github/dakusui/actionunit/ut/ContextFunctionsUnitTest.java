@@ -2,8 +2,6 @@ package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
-import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
-import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsPredicateBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -14,31 +12,40 @@ import org.junit.runner.RunWith;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.actionunit.core.ActionSupport.when;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextPredicateFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
 import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.printables.Printables.consumer;
-import static com.github.dakusui.printables.Printables.predicate;
+import static com.github.dakusui.printables.Printables.printableConsumer;
+import static com.github.dakusui.printables.Printables.printablePredicate;
 
 @RunWith(Enclosed.class)
 public class ContextFunctionsUnitTest {
+  public static <T> ContextPredicate createContextPredicate(String variableName, Predicate<T> predicate) {
+    return multiParamsPredicateFor(variableName)
+        .toContextPredicate(
+            printablePredicate((Params params) -> predicate.test(params.valueOf(variableName)))
+                .describe(predicate.toString())
+        );
+  }
+
   public static class GivenPrintableContextConsumer {
     List<String>    out = new LinkedList<>();
-    ContextConsumer cc  = MultiParameters.Consumers.of(
+    ContextConsumer cc  = ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
         "i",
-        consumer((String each) -> out.add(each)).describe("out.add({{0}}.toString())")
-    ).andThen(MultiParameters.Consumers.of(
+        printableConsumer((String each) -> out.add(each)).describe("out.add({{0}}.toString())")
+    ).andThen(ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
         "i",
-        consumer(System.out::println).describe("System.out.println({{0}})")
+        printableConsumer(System.out::println).describe("System.out.println({{0}})")
     ));
 
     @Test
@@ -75,12 +82,12 @@ public class ContextFunctionsUnitTest {
 
   public static class GivenPrintablePredicate {
     Integer boundary = 100;
-    private final ContextPredicate cp = MultiParamsPredicateBuilder.of("j",
-        predicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
-    ).or(contextPredicateFor("j").with(
-        predicate((Params params) -> params.<Integer>valueOf("i") > 0).describe("{{0}}>0")
-    ).and(contextPredicateFor("j").with(
-        predicate((Params params) -> params.<Integer>valueOf("j") < boundary).describe(() -> "{{0}}<" + boundary)
+    private final ContextPredicate cp = createContextPredicate("j",
+        printablePredicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
+    ).or(multiParamsPredicateFor("j").toContextPredicate(
+        printablePredicate((Params params) -> params.<Integer>valueOf("i") > 0).describe("{{0}}>0")
+    ).and(multiParamsPredicateFor("j").toContextPredicate(
+        printablePredicate((Params params) -> params.<Integer>valueOf("j") < boundary).describe(() -> "{{0}}<" + boundary)
     ))).negate();
 
     @Test
@@ -96,17 +103,17 @@ public class ContextFunctionsUnitTest {
   public static class GivenPrintablePredicateAndConsumer {
     Integer          boundary = 100;
     List<String>     out      = new LinkedList<>();
-    ContextPredicate cp       = MultiParamsPredicateBuilder.of("j",
-        predicate((Integer x) -> Objects.equals(x, 0)).describe("{0}==0")
-            .or(predicate((Integer x) -> x > 0).describe("{0}>0"))
-            .and(predicate((Integer x) -> x < boundary).describe(() -> "{0}<" + boundary)
+    ContextPredicate cp       = createContextPredicate("j",
+        printablePredicate((Integer x) -> Objects.equals(x, 0)).describe("{0}==0")
+            .or(printablePredicate((Integer x) -> x > 0).describe("{0}>0"))
+            .and(printablePredicate((Integer x) -> x < boundary).describe(() -> "{0}<" + boundary)
             )).negate();
 
-    ContextConsumer cc = contextConsumerFor("i").with(
-        consumer((Params params) -> out.add(params.valueOf("i")))
+    ContextConsumer cc = multiParamsConsumerFor("i").toContextConsumer(
+        printableConsumer((Params params) -> out.add(params.valueOf("i")))
             .describe("out.add({0}.toString)")
-    ).andThen(contextConsumerFor("j").with(
-        consumer((Params params) -> out.add(params.valueOf("j")))
+    ).andThen(multiParamsConsumerFor("j").toContextConsumer(
+        printableConsumer((Params params) -> out.add(params.valueOf("j")))
             .describe("out.add({0}.toString)")
     ));
 

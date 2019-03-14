@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.core.context;
 
-import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsConsumerBuilder;
-import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsFunctionBuilder;
-import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsPredicateBuilder;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextConsumerBuilder;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextPredicateBuilder;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
 import java.io.PrintStream;
@@ -22,16 +22,16 @@ public enum ContextFunctions {
 
   public static final IntFunction<String> PLACE_HOLDER_FORMATTER = i -> String.format("{{%s}}", i);
 
-  public static MultiParamsPredicateBuilder contextPredicateFor(String... variableNames) {
-    return new MultiParamsPredicateBuilder(variableNames);
+  public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(String... variableNames) {
+    return new MultiParamsContextPredicateBuilder(variableNames);
   }
 
-  public static MultiParamsConsumerBuilder contextConsumerFor(String... variableNames) {
-    return new MultiParamsConsumerBuilder(variableNames);
+  public static MultiParamsContextConsumerBuilder multiParamsConsumerFor(String... variableNames) {
+    return new MultiParamsContextConsumerBuilder(variableNames);
   }
 
-  public static <R> MultiParamsFunctionBuilder<R> contextFunctionFor(String... variableNames) {
-    return new MultiParamsFunctionBuilder<>(variableNames);
+  public static <R> MultiParamsContextFunctionBuilder<R> multiParamsFunctionFor(String... variableNames) {
+    return new MultiParamsContextFunctionBuilder<>(variableNames);
   }
 
   public static String describeFunctionalObject(Object f, final IntFunction<String> placeHolderFormatter, String... v) {

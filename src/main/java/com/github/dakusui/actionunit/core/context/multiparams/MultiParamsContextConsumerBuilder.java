@@ -10,25 +10,25 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static java.util.Objects.requireNonNull;
 
-public class MultiParamsConsumerBuilder {
+public class MultiParamsContextConsumerBuilder {
   private final String[]                               variableNames;
   private final BiFunction<Consumer, String[], String> descriptionFormatter;
 
-  public MultiParamsConsumerBuilder(String... variableNames) {
+  public MultiParamsContextConsumerBuilder(String... variableNames) {
     this(
         (f, v) -> describeFunctionalObject(f, PLACE_HOLDER_FORMATTER, v),
         variableNames
     );
   }
 
-  private MultiParamsConsumerBuilder(
+  private MultiParamsContextConsumerBuilder(
       BiFunction<Consumer, String[], String> descriptionFormatter,
       String... variableNames) {
     this.variableNames = requireNonNull(variableNames);
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
   }
 
-  public ContextConsumer with(Consumer<Params> consumer) {
+  public ContextConsumer toContextConsumer(Consumer<Params> consumer) {
     requireNonNull(consumer);
     return new ContextConsumer.Impl(
         () -> descriptionFormatter.apply(consumer, variableNames),

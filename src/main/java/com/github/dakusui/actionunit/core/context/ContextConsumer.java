@@ -6,13 +6,10 @@ import com.github.dakusui.printables.PrintableConsumer;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
-import static com.github.dakusui.printables.Printables.consumer;
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface

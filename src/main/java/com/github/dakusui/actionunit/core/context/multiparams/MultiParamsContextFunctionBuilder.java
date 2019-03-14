@@ -10,25 +10,25 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static java.util.Objects.requireNonNull;
 
-public class MultiParamsFunctionBuilder<R> {
+public class MultiParamsContextFunctionBuilder<R> {
   private final String[]                               variableNames;
   private final BiFunction<Function, String[], String> descriptionFormatter;
 
-  public MultiParamsFunctionBuilder(String... variableNames) {
+  public MultiParamsContextFunctionBuilder(String... variableNames) {
     this(
         (f, v) -> describeFunctionalObject(f, PLACE_HOLDER_FORMATTER, v),
         variableNames
     );
   }
 
-  private MultiParamsFunctionBuilder(
+  private MultiParamsContextFunctionBuilder(
       BiFunction<Function, String[], String> descriptionFormatter,
       String... variableNames) {
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
     this.variableNames = requireNonNull(variableNames);
   }
 
-  public ContextFunction<R> with(Function<Params, R> function) {
+  public ContextFunction<R> toContextFunction(Function<Params, R> function) {
     requireNonNull(function);
     return new ContextFunction.Impl<>(
         () -> descriptionFormatter.apply(function, variableNames),

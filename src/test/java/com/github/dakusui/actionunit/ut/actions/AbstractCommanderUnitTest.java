@@ -3,8 +3,9 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.CommanderImpl;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
-import com.github.dakusui.actionunit.core.context.multiparams.MultiParameters;
+import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
@@ -21,16 +22,23 @@ import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.core.ActionSupport.when;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.printables.Printables.printableConsumer;
 import static com.github.dakusui.printables.Printables.isEqualTo;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Arrays.asList;
 
 public class AbstractCommanderUnitTest {
+  private static ContextConsumer createContextConsumerFromRunnable(Runnable runnable) {
+    return multiParamsConsumerFor().toContextConsumer(
+        printableConsumer((Params params) -> runnable.run()).describe(runnable::toString)
+    );
+  }
+
   @Test(expected = ProcessStreamer.Failure.class)
   public void test1() {
     ReportingActionPerformer.create().performAndReport(
@@ -80,7 +88,7 @@ public class AbstractCommanderUnitTest {
   public void test5() {
     ReportingActionPerformer.create().performAndReport(
         when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicate())
-            .perform(leaf(MultiParameters.Consumers.from(() -> System.out.println("bye"))))
+            .perform(leaf(createContextConsumerFromRunnable(() -> System.out.println("bye"))))
             .otherwise(leaf(c -> System.out.println("Not met"))),
         Writer.Std.OUT
     );
@@ -90,7 +98,7 @@ public class AbstractCommanderUnitTest {
   public void test6() {
     ReportingActionPerformer.create().performAndReport(
         when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicateWith(isEqualTo(1)))
-            .perform(leaf(MultiParameters.Consumers.from(() -> System.out.println("bye"))))
+            .perform(leaf(createContextConsumerFromRunnable(() -> System.out.println("bye"))))
             .otherwise(leaf(c -> System.out.println("Not met"))),
         Writer.Std.OUT
     );
@@ -213,7 +221,7 @@ public class AbstractCommanderUnitTest {
             })
             .command(CommandLineComposer.byVariableName("echo ${hello}")).toStreamGenerator())
             .perform(
-                leaf(contextConsumerFor("i").with(context -> out.add(context.valueOf("i"))))),
+                leaf(multiParamsConsumerFor("i").toContextConsumer(context -> out.add(context.valueOf("i"))))),
         Writer.Std.OUT);
 
     assertThat(

@@ -65,33 +65,100 @@ public interface Commodore {
     }
   }
 
-  default Optional<Shell> shell() {
-    return Optional.empty();
+  default CommandLineComposerFactory commandLineComposerFactory() {
+    return CommandLineComposerFactory.BY_INDEX;
   }
 
-  default Action toAction() {
-    return toActionWith(checker(), retryOption());
+  default Optional<Shell> shell() {
+    return Optional.empty();
   }
 
   RetryOption retryOption();
 
   Checker checker();
 
-  CommandLineComposer commandLineComposer();
+  ContextConsumer toContextConsumer(String commandLineFormat, String... varnames);
 
-  ContextConsumer toContextConsumer();
+  ContextPredicate toContextPredicate(String commandLineFormat, String... varnames);
 
-  ContextPredicate toContextPredicate();
+  StreamGenerator<String> toStreamGenerator(String commandLineFormat, String... varnames);
 
-  StreamGenerator<String> toStreamGenerator();
-
-  Action toActionWith(Checker checker, RetryOption retryOption);
+  Action toAction(Checker checker, RetryOption retryOption);
 
   ContextConsumer toContextConsumerWith(Checker checker, RetryOption retryOption);
 
-  class Builder {
-    public Commodore build() {
+  abstract class Base implements Commodore {
+    private final Shell       shell;
+    private final RetryOption retryOption;
+    private final Checker     checker;
+
+    @Override
+    public Optional<Shell> shell() {
+      return Optional.ofNullable(shell);
+    }
+
+    @Override
+    public RetryOption retryOption() {
+      return this.retryOption;
+    }
+
+    @Override
+    public Checker checker() {
+      return this.checker;
+    }
+
+    public Base(Shell shell, RetryOption retryOption, Checker checker) {
+      this.shell = shell;
+      this.retryOption = retryOption;
+      this.checker = checker;
+    }
+  }
+
+  class Simple extends Base {
+    public Simple(Shell shell, RetryOption retryOption, Checker checker) {
+      super(shell, retryOption, checker);
+    }
+
+    @Override
+    public ContextConsumer toContextConsumer(String commandLineFormat, String... varnames) {
       return null;
+    }
+
+
+    @Override
+    public ContextPredicate toContextPredicate(String commandLineFormat, String... varnames) {
+      return null;
+    }
+
+    @Override
+    public StreamGenerator<String> toStreamGenerator(String commandLineFormat, String... varnames) {
+      return null;
+    }
+
+    @Override
+    public Action toAction(Checker checker, RetryOption retryOption) {
+      return null;
+    }
+
+    @Override
+    public ContextConsumer toContextConsumerWith(Checker checker, RetryOption retryOption) {
+      return null;
+    }
+  }
+
+  class Builder {
+    private Shell       shell;
+    private RetryOption retryOption;
+    private Checker     checker;
+
+    public Builder() {
+      this.checker = Checker.createCheckerForExitCode(0);
+      this.retryOption = RetryOption.timeoutInSeconds(60);
+      this.shell = null;
+    }
+
+    public Commodore build() {
+      return new Simple(shell, retryOption, checker);
     }
   }
 

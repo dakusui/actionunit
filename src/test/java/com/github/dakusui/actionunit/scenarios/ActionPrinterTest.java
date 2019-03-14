@@ -54,7 +54,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
     }
   }
 
-  public static class ImplTest extends ActionComposer {
+  public static class SimpleTest extends ActionComposer {
 
     @Test
     public void givenTrace() {

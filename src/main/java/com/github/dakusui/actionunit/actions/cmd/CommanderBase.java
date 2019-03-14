@@ -23,10 +23,10 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextConsumerFor;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextPredicateFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
-import static com.github.dakusui.printables.Printables.consumer;
+import static com.github.dakusui.printables.Printables.printableConsumer;
 import static com.github.dakusui.printables.Printables.isEqualTo;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.lang.String.format;
@@ -169,8 +169,8 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
       CommandLineComposer commandLineComposer,
       Predicate<Integer> exitCodeChecker,
       String... variableNames) {
-    return contextPredicateFor(variableNames)
-        .with(Printables.predicate(
+    return multiParamsPredicateFor(variableNames)
+        .toContextPredicate(Printables.printablePredicate(
             (Params params) -> {
               try {
                 return exitCodeChecker.test(
@@ -194,8 +194,8 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
       String... variableNames) {
     requireNonNull(commandLineComposer);
     requireNonNull(variableNames);
-    return contextConsumerFor(variableNames)
-        .with(consumer(
+    return multiParamsConsumerFor(variableNames)
+        .toContextConsumer(printableConsumer(
             (Params params) -> createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
                 .checker(checker)
                 .build()
