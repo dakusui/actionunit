@@ -1,12 +1,12 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.printables.Printables;
-import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
 import org.slf4j.Logger;
@@ -26,26 +26,26 @@ import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
-import static com.github.dakusui.printables.Printables.printableConsumer;
 import static com.github.dakusui.printables.Printables.isEqualTo;
+import static com.github.dakusui.printables.Printables.printableConsumer;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public abstract class CommanderBase<C extends CommanderBase<C>> implements Commander<C> {
 
-  private static final Logger                LOGGER  = LoggerFactory.getLogger(CommanderBase.class);
-  private              Shell                 shell;
-  private              Stream<String>        stdin   = null;
-  private              Consumer<String>      downstreamConsumer;
-  private              Map<String, String>   envvars = new LinkedHashMap<>();
-  private              File                  cwd;
-  private              Commodore.RetryOption retryOption;
+  private static final Logger              LOGGER  = LoggerFactory.getLogger(CommanderBase.class);
+  private              Shell               shell;
+  private              Stream<String>      stdin   = null;
+  private              Consumer<String>    downstreamConsumer;
+  private              Map<String, String> envvars = new LinkedHashMap<>();
+  private              File                cwd;
+  private              RetryOption         retryOption;
 
   protected CommanderBase(Shell shell) {
     this.shell = requireNonNull(shell);
     this.stdoutConsumer(LOGGER::debug);
-    this.retryOption = Commodore.RetryOption.timeoutInSeconds(60);
+    this.retryOption = RetryOption.timeoutInSeconds(60);
   }
 
   @SuppressWarnings("unchecked")
@@ -128,28 +128,12 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
     return (C) this;
   }
 
-  private ProcessStreamer.Builder createProcessStreamerBuilder(CommandLineComposer commandLineComposer, Params params, Stream<String> stdin) {
-    String commandLine = commandLineComposer.apply(
-        params.paramNames()
-            .stream()
-            .map(params::valueOf)
-            .toArray());
-    LOGGER.info("Command Line:{}", commandLine);
-    ProcessStreamer.Builder ret;
-    if (stdin == null)
-      ret = ProcessStreamer.source(shell);
-    else
-      ret = ProcessStreamer.pipe(stdin, shell);
-    envvars.forEach(ret::env);
-    return ret.command(commandLine).cwd(cwd);
-  }
-
   private StreamGenerator<String> toStreamGenerator(CommandLineComposer commandLineComposer, Checker checker, String... variableNames) {
     return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {
           @Override
           public Stream<String> apply(Params params) {
-            return createProcessStreamerBuilder(commandLineComposer, params, CommanderBase.this.stdin)
+            return CommodoreUtils.createProcessStreamerBuilder(CommanderBase.this.stdin, CommanderBase.this.shell, CommanderBase.this.cwd, CommanderBase.this.envvars, commandLineComposer, params)
                 .checker(checker)
                 .build()
                 .stream()
@@ -174,7 +158,7 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
             (Params params) -> {
               try {
                 return exitCodeChecker.test(
-                    createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
+                    CommodoreUtils.createProcessStreamerBuilder(this.stdin, shell, cwd, envvars, commandLineComposer, params)
                         .checker(createCheckerForExitCode(exitCode -> true))
                         .build()
                         .waitFor());
@@ -196,7 +180,7 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
     requireNonNull(variableNames);
     return multiParamsConsumerFor(variableNames)
         .toContextConsumer(printableConsumer(
-            (Params params) -> createProcessStreamerBuilder(commandLineComposer, params, this.stdin)
+            (Params params) -> CommodoreUtils.createProcessStreamerBuilder(this.stdin, shell, cwd, envvars, commandLineComposer, params)
                 .checker(checker)
                 .build()
                 .stream()
@@ -204,7 +188,7 @@ public abstract class CommanderBase<C extends CommanderBase<C>> implements Comma
             .describe(commandLineComposer::commandLineString));
   }
 
-  private Optional<Commodore.RetryOption> retryOption() {
+  private Optional<RetryOption> retryOption() {
     return Optional.ofNullable(this.retryOption);
   }
 }

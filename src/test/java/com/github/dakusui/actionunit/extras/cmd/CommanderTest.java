@@ -15,7 +15,7 @@ public class CommanderTest {
   public void test() {
     performAndReport(
         forEach("i", c -> Stream.of("hello", "world")).perform(
-            commander().command(() -> "echo {{0}}", "i").toAction()
+            commander().command(CommandLineComposer.byIndex("echo {{0}}"), "i").toAction()
         )
     );
   }
@@ -45,6 +45,6 @@ public class CommanderTest {
   }
 
   private static CommanderImpl commander() {
-    return new CommanderImpl(Shell.LOCAL_SHELL);
+    return new CommanderImpl(Shell.LOCAL_SHELL, null);
   }
 }

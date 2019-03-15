@@ -9,7 +9,6 @@ import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
 
-@FunctionalInterface
 public interface CommandLineComposer extends Function<Object[], String>, Formattable {
   @Override
   default String apply(Object[] argValues) {
@@ -24,9 +23,7 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
     formatter.format(commandLineString());
   }
 
-  default IntFunction<String> parameterPlaceHolder() {
-    return parameterIndex -> "{{" + parameterIndex + "}}";
-  }
+  IntFunction<String> parameterPlaceHolder();
 
   String commandLineString();
 
@@ -58,6 +55,16 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
   static CommandLineComposer byIndex(
       String commandLineFormat
   ) {
-    return () -> commandLineFormat;
+    return new CommandLineComposer() {
+      @Override
+      public String commandLineString() {
+        return commandLineFormat;
+      }
+
+      @Override
+      public IntFunction<String> parameterPlaceHolder() {
+        return parameterIndex -> "{{" + parameterIndex + "}}";
+      }
+    };
   }
 }

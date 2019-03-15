@@ -6,11 +6,11 @@ import static java.util.Objects.requireNonNull;
 
 public class CommanderImpl extends CommanderBase<CommanderImpl> {
 
-  private final Commodore.CommandLineComposerFactory commandLineComposerFactory;
-  private       CommandLineComposer                  commandLineComposer;
-  private       String[]                             variableNames;
+  private final CommandLineComposerFactory commandLineComposerFactory;
+  private       CommandLineComposer        commandLineComposer;
+  private       String[]                   variableNames;
 
-  public CommanderImpl(Shell shell, Commodore.CommandLineComposerFactory commandLineComposerFactory) {
+  public CommanderImpl(Shell shell, CommandLineComposerFactory commandLineComposerFactory) {
     super(shell);
     this.commandLineComposerFactory = requireNonNull(commandLineComposerFactory);
   }

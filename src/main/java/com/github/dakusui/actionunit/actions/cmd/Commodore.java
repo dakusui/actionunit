@@ -1,222 +1,167 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-public interface Commodore {
-  enum CommandLineComposerFactory implements BiFunction<String, String[], CommandLineComposer> {
-    BY_INDEX {
-      public CommandLineComposer apply(String commandLineFormat, String[] variableNames) {
-        return CommandLineComposer.byVariableName(commandLineFormat);
-      }
-    },
-    BY_KNOWN_VARIABLE_NAME {
-      public CommandLineComposer apply(String commandLineFormat, String[] variableNames) {
-        return CommandLineComposer.byIndex(commandLineFormat);
-      }
-    };
+public abstract class Commodore<C extends Commodore<C>> {
+  private static final Logger                     LOGGER = LoggerFactory.getLogger(Commodore.class);
+  private final        CommandLineComposerFactory commandLineComposerFactory;
+
+  private       CommandLineComposer commandLineComposer;
+  private       RetryOption         retryOption;
+  private       Consumer<String>    downstreamConsumer;
+  private       Checker             checker;
+  private       Stream<String>      stdin;
+  private       Shell               shell;
+  private       File                cwd;
+  private final Map<String, String> envvars;
+  private       String[]            variableNames;
+
+
+  protected Commodore(CommandLineComposerFactory commandLineComposerFactory) {
+    this.commandLineComposerFactory = commandLineComposerFactory;
+    this.envvars = new LinkedHashMap<>();
+    this.stdin(Stream.empty())
+        .retryOption(RetryOption.none())
+        .cwd(new File(System.getProperty("user.dir")))
+        .shell(Shell.local())
+        .checker(Checker.createCheckerForExitCode(0))
+        .downstreamConsumer(LOGGER::trace);
   }
 
-  class RetryOption {
-    public static RetryOption timeoutInSeconds(long timeoutInSeconds) {
-      return new RetryOption(
-          timeoutInSeconds,
-          TimeUnit.SECONDS,
-          Throwable.class,
-          0,
-          TimeUnit.SECONDS,
-          0);
-    }
-
-    final long                       timeoutDuration;
-    final TimeUnit                   timeoutTimeUnit;
-    final Class<? extends Throwable> retryOn;
-    final long                       retryInterval;
-    final TimeUnit                   retryIntervalTimeUnit;
-    final int                        retries;
-
-
-    RetryOption(
-        long timeoutDuration,
-        TimeUnit timeoutTimeUnit,
-        Class<? extends Throwable> retryOn,
-        long retryInterval,
-        TimeUnit retryIntervalTimeUnit,
-        int retries) {
-      this.timeoutDuration = timeoutDuration;
-      this.timeoutTimeUnit = requireNonNull(timeoutTimeUnit);
-      this.retryOn = requireNonNull(retryOn);
-      this.retryInterval = retryInterval;
-      this.retryIntervalTimeUnit = requireNonNull(retryIntervalTimeUnit);
-      this.retries = retries;
-    }
+  @SuppressWarnings("unchecked")
+  public C retryOption(RetryOption retryOption) {
+    this.retryOption = retryOption;
+    return (C) this;
   }
 
-  default CommandLineComposerFactory commandLineComposerFactory() {
-    return CommandLineComposerFactory.BY_INDEX;
+  @SuppressWarnings("unchecked")
+  public C downstreamConsumer(Consumer<String> downstreamConsumer) {
+    this.downstreamConsumer = requireNonNull(downstreamConsumer);
+    return (C) this;
   }
 
-  default Optional<Shell> shell() {
-    return Optional.empty();
+  @SuppressWarnings("unchecked")
+  public C checker(Checker checker) {
+    this.checker = requireNonNull(checker);
+    return (C) this;
   }
 
-  RetryOption retryOption();
-
-  Checker checker();
-
-  ContextConsumer toContextConsumer(String commandLineFormat, String... varnames);
-
-  ContextPredicate toContextPredicate(String commandLineFormat, String... varnames);
-
-  StreamGenerator<String> toStreamGenerator(String commandLineFormat, String... varnames);
-
-  Action toAction(Checker checker, RetryOption retryOption);
-
-  ContextConsumer toContextConsumerWith(Checker checker, RetryOption retryOption);
-
-  abstract class Base implements Commodore {
-    private final Shell       shell;
-    private final RetryOption retryOption;
-    private final Checker     checker;
-
-    @Override
-    public Optional<Shell> shell() {
-      return Optional.ofNullable(shell);
-    }
-
-    @Override
-    public RetryOption retryOption() {
-      return this.retryOption;
-    }
-
-    @Override
-    public Checker checker() {
-      return this.checker;
-    }
-
-    public Base(Shell shell, RetryOption retryOption, Checker checker) {
-      this.shell = shell;
-      this.retryOption = retryOption;
-      this.checker = checker;
-    }
+  @SuppressWarnings("unchecked")
+  public C stdin(Stream<String> stdin) {
+    this.stdin = requireNonNull(stdin);
+    return (C) this;
   }
 
-  class Simple extends Base {
-    public Simple(Shell shell, RetryOption retryOption, Checker checker) {
-      super(shell, retryOption, checker);
-    }
-
-    @Override
-    public ContextConsumer toContextConsumer(String commandLineFormat, String... varnames) {
-      return null;
-    }
-
-
-    @Override
-    public ContextPredicate toContextPredicate(String commandLineFormat, String... varnames) {
-      return null;
-    }
-
-    @Override
-    public StreamGenerator<String> toStreamGenerator(String commandLineFormat, String... varnames) {
-      return null;
-    }
-
-    @Override
-    public Action toAction(Checker checker, RetryOption retryOption) {
-      return null;
-    }
-
-    @Override
-    public ContextConsumer toContextConsumerWith(Checker checker, RetryOption retryOption) {
-      return null;
-    }
+  @SuppressWarnings("unchecked")
+  public C shell(Shell shell) {
+    this.shell = requireNonNull(shell);
+    return (C) this;
   }
 
-  class Builder {
-    private Shell       shell;
-    private RetryOption retryOption;
-    private Checker     checker;
-
-    public Builder() {
-      this.checker = Checker.createCheckerForExitCode(0);
-      this.retryOption = RetryOption.timeoutInSeconds(60);
-      this.shell = null;
-    }
-
-    public Commodore build() {
-      return new Simple(shell, retryOption, checker);
-    }
+  @SuppressWarnings("unchecked")
+  public C cwd(File cwd) {
+    this.cwd = requireNonNull(cwd);
+    return (C) this;
   }
 
-  interface Factory {
-    default CommanderImpl commander(String host) {
-      return new CommanderImpl(shellFor(host), commandLineComposerFactory());
-    }
+  @SuppressWarnings("unchecked")
+  public C setenv(String varname, String varvalue) {
+    this.envvars.put(requireNonNull(varname), requireNonNull(varvalue));
+    return (C) this;
+  }
 
-    Shell shellFor(String host);
+  public Action toAction() {
+    return CommodoreUtils.createAction(this, this.commandLineComposer(), this.variableNames());
+  }
 
-    CommandLineComposerFactory commandLineComposerFactory();
+  public StreamGenerator<String> toStreamGenerator() {
+    return CommodoreUtils.createStreamGenerator(this, this.commandLineComposer(), this.variableNames());
+  }
 
-    class Builder {
-      Map<String, Shell> shells = new HashMap<>();
-      private CommandLineComposerFactory commandLineComposerFactory;
+  public ContextConsumer toContextConsumer() {
+    return CommodoreUtils.createContextConsumer(this, this.commandLineComposer(), this.variableNames());
+  }
 
-      public Builder() {
-        this.commandLineComposerFactory(CommandLineComposerFactory.BY_INDEX)
-            .addLocal("localhost")
-            .addLocal("localhost.localdomain");
-      }
+  public ContextPredicate toContextPredicate() {
+    return CommodoreUtils.createContextPredicate(this, this.commandLineComposer(), this.variableNames());
+  }
 
-      public Builder addRemote(String user, String host, String identity) {
-        this.shells.put(
-            host,
-            new Shell.Builder.ForSsh(host)
-                .addOption("-A")
-                .userName(user)
-                .identity(identity)
-                .build());
-        return this;
-      }
+  public ContextFunction<String> toContextFunction() {
+    return CommodoreUtils.createContextFunction(this, this.commandLineComposer(), this.variableNames());
+  }
 
-      public Builder addLocal(String host) {
-        this.shells.put(host, Shell.local());
-        return this;
-      }
+  private CommandLineComposerFactory commandLineComposerFactory() {
+    return this.commandLineComposerFactory;
+  }
 
-      public Builder commandLineComposerFactory(CommandLineComposerFactory commandLineComposerFactory) {
-        this.commandLineComposerFactory = requireNonNull(commandLineComposerFactory);
-        return this;
-      }
+  @SuppressWarnings("unchecked")
+  public C commandLineComposer(CommandLineComposer commandLineComposer) {
+    this.commandLineComposer = requireNonNull(commandLineComposer);
+    return (C) this;
+  }
 
-      public Factory build() {
-        return new Factory() {
-          @Override
-          public Shell shellFor(String host) {
-            if (shells.containsKey(requireNonNull(host)))
-              return shells.get(host);
-            throw new NoSuchElementException("Unknown host:" + host);
-          }
+  protected String[] variableNames() {
+    return this.variableNames;
+  }
 
-          @Override
-          public CommandLineComposerFactory commandLineComposerFactory() {
-            return commandLineComposerFactory;
-          }
-        };
-      }
-    }
+  protected C command(String commandLineString, String... variableNames) {
+    this.variableNames = variableNames;
+    return this.commandLineComposer(
+        this.commandLineComposerFactory().apply(
+            requireNonNull(commandLineString),
+            variableNames));
+  }
+
+  RetryOption retryOption() {
+    return this.retryOption;
+  }
+
+  Consumer<String> downstreamConsumer() {
+    return this.downstreamConsumer;
+  }
+
+  Checker checker() {
+    return this.checker;
+  }
+
+  Stream<String> stdin() {
+    return this.stdin;
+  }
+
+  Shell shell() {
+    return this.shell;
+  }
+
+  File cwd() {
+    return this.cwd;
+  }
+
+  Map<String, String> envvars() {
+    return this.envvars;
+  }
+
+  CommandLineComposer commandLineComposer() {
+    return requireNonNull(this.commandLineComposer);
+  }
+
+  public interface Factory {
+    <C extends Commodore<C>> C commodore(Class<C> klass);
   }
 }

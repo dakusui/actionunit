@@ -18,17 +18,11 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.core.ActionSupport.when;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.printables.Printables.printableConsumer;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.printables.Printables.isEqualTo;
+import static com.github.dakusui.printables.Printables.printableConsumer;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Arrays.asList;
 
@@ -53,7 +47,7 @@ public class AbstractCommanderUnitTest {
   public void test2() {
     ReportingActionPerformer.create().performAndReport(
         localCommander()
-            .command(() -> "echo hello")
+            .command(CommandLineComposer.byIndex("echo hello"))
             .toAction(),
         Writer.Std.OUT
     );
@@ -63,7 +57,8 @@ public class AbstractCommanderUnitTest {
   public void test3() {
     ReportingActionPerformer.create().performAndReport(
         forEach("i",
-            localCommander().command(() -> "echo \"Hello World\"").toStreamGenerator())
+            localCommander().command(CommandLineComposer.byIndex("echo \"Hello World\""))
+                .toStreamGenerator())
             .perform(leaf(c -> System.out.println(c.<String>valueOf("i")))),
         Writer.Std.OUT
     );
@@ -74,7 +69,8 @@ public class AbstractCommanderUnitTest {
     try {
       ReportingActionPerformer.create().performAndReport(
           forEach("i",
-              localCommander().command(() -> "echo \"Hello World\"").toStreamGeneratorWith(ProcessStreamer.Checker.createCheckerForExitCode(1)))
+              localCommander().command(CommandLineComposer.byIndex("echo \"Hello World\""))
+                  .toStreamGeneratorWith(ProcessStreamer.Checker.createCheckerForExitCode(1)))
               .perform(leaf(c -> System.out.println(c.<String>valueOf("i")))),
           Writer.Std.OUT
       );
@@ -87,7 +83,7 @@ public class AbstractCommanderUnitTest {
   @Test
   public void test5() {
     ReportingActionPerformer.create().performAndReport(
-        when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicate())
+        when(localCommander().command(CommandLineComposer.byIndex("echo \"Hello World\"")).toContextPredicate())
             .perform(leaf(createContextConsumerFromRunnable(() -> System.out.println("bye"))))
             .otherwise(leaf(c -> System.out.println("Not met"))),
         Writer.Std.OUT
@@ -97,7 +93,7 @@ public class AbstractCommanderUnitTest {
   @Test
   public void test6() {
     ReportingActionPerformer.create().performAndReport(
-        when(localCommander().command(() -> "echo \"Hello World\"").toContextPredicateWith(isEqualTo(1)))
+        when(localCommander().command(CommandLineComposer.byIndex("echo \"Hello World\"")).toContextPredicateWith(isEqualTo(1)))
             .perform(leaf(createContextConsumerFromRunnable(() -> System.out.println("bye"))))
             .otherwise(leaf(c -> System.out.println("Not met"))),
         Writer.Std.OUT
@@ -108,7 +104,7 @@ public class AbstractCommanderUnitTest {
   public void test7() {
     ReportingActionPerformer.create().performAndReport(
         simple("try simple",
-            localCommander().command(() -> "echo hello").toContextConsumerWith(createCheckerForExitCode(0))
+            localCommander().command(CommandLineComposer.byIndex("echo hello")).toContextConsumerWith(createCheckerForExitCode(0))
         ),
         Writer.Std.OUT);
   }
@@ -117,7 +113,7 @@ public class AbstractCommanderUnitTest {
   public void test8() {
     ReportingActionPerformer.create().performAndReport(
         simple("try simple",
-            localCommander().command(() -> "echo hello").toContextConsumerWith(createCheckerForExitCode(1))
+            localCommander().command(CommandLineComposer.byIndex("echo hello")).toContextConsumerWith(createCheckerForExitCode(1))
         ),
         Writer.Std.OUT);
   }
@@ -126,7 +122,7 @@ public class AbstractCommanderUnitTest {
   public void test9() {
     ReportingActionPerformer.create().performAndReport(
         simple("try simple",
-            localCommander().command(() -> "echo hello").toContextConsumer()
+            localCommander().command(CommandLineComposer.byIndex("echo hello")).toContextConsumer()
         ),
         Writer.Std.OUT);
   }
@@ -144,7 +140,7 @@ public class AbstractCommanderUnitTest {
   public void test11() {
     ReportingActionPerformer.create().performAndReport(
         forEach("i", StreamGenerator.fromArray("A", "B", "C"))
-            .perform(localCommander().command(() -> "echo hello {0}", "i").toAction()),
+            .perform(localCommander().command(CommandLineComposer.byIndex("echo hello {0}"), "i").toAction()),
         Writer.Std.OUT
     );
   }
@@ -165,7 +161,7 @@ public class AbstractCommanderUnitTest {
   public void test12() {
     localCommander()
         .stdin(Stream.of("a", "b", "c"))
-        .command(() -> "cat -n")
+        .command(CommandLineComposer.byIndex("cat -n"))
         .toStreamGenerator().apply(Context.create()).forEach(System.out::println);
   }
 
