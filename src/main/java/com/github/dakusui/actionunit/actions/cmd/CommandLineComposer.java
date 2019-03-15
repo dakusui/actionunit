@@ -4,9 +4,13 @@ import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
 import java.util.Formattable;
 import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
 public interface CommandLineComposer extends Function<Object[], String>, Formattable {
@@ -66,5 +70,47 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
         return parameterIndex -> "{{" + parameterIndex + "}}";
       }
     };
+  }
+
+  class Builder {
+    private IntFunction<String> parameterPlaceHolder;
+    private List<String>        knownVariableNames;
+    private List<String>        commandLine;
+
+    public Builder(IntFunction<String> parameterPlaceHolder) {
+      this.parameterPlaceHolder = requireNonNull(parameterPlaceHolder);
+      this.knownVariableNames()
+          .commandLine = new LinkedList<>();
+    }
+
+    public Builder knownVariableNames(String... knownVariableNames) {
+      this.knownVariableNames = asList(knownVariableNames);
+      return this;
+    }
+
+    public Builder add(String commandLine) {
+      this.commandLine.add(requireNonNull(commandLine));
+      return this;
+    }
+
+    public Builder addParameter(String variableName) {
+      requireNonNull(variableName);
+      this.commandLine.add(this.parameterPlaceHolder.apply(knownVariableNames.indexOf(variableName)));
+      return this;
+    }
+
+    public CommandLineComposer build() {
+      return new CommandLineComposer() {
+        @Override
+        public IntFunction<String> parameterPlaceHolder() {
+          return parameterPlaceHolder;
+        }
+
+        @Override
+        public String commandLineString() {
+          return commandLine.stream().collect(Collectors.joining(" "));
+        }
+      };
+    }
   }
 }
