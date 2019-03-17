@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
@@ -93,7 +92,7 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
       return this;
     }
 
-    public Builder addParameter(String variableName) {
+    public Builder addVariable(String variableName) {
       requireNonNull(variableName);
       this.commandLine.add(this.parameterPlaceHolder.apply(knownVariableNames.indexOf(variableName)));
       return this;
@@ -108,7 +107,7 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
 
         @Override
         public String commandLineString() {
-          return commandLine.stream().collect(Collectors.joining(" "));
+          return String.join(" ", commandLine);
         }
       };
     }
