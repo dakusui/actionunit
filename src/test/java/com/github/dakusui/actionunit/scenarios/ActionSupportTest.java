@@ -186,13 +186,6 @@ public class ActionSupportTest extends TestUtils.TestBase {
   }
 
   @Test
-  public void givenCmd$when$then() {
-    Action action = cmd("/bin/echo").addq("hello").$();
-
-    action.accept(SimpleActionPerformer.create());
-  }
-
-  @Test
   public void print() {
     EXAMPLE_ACTION.accept(new ActionPrinter(Writer.Std.OUT));
   }

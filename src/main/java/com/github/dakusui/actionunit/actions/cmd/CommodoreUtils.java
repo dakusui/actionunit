@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -53,7 +52,7 @@ enum CommodoreUtils {
 
           @Override
           public String toString() {
-            return format("(%s)", commodore.commandLineComposer().apply(variableNames));
+            return format("(%s)", commodore.buildCommandLineComposer().apply(variableNames));
           }
         },
         variableNames
@@ -68,7 +67,7 @@ enum CommodoreUtils {
         .toContextConsumer(printableConsumer(
             (Params params) -> createProcessStreamerBuilder(
                 commodore,
-                params, commodore.commandLineComposer())
+                params, commodore.buildCommandLineComposer())
                 .checker(commodore.checker())
                 .build()
                 .stream()
@@ -103,7 +102,7 @@ enum CommodoreUtils {
             })
             .describe(() -> format(
                 "Exit code of '%s': %s",
-                commodore.commandLineComposer().commandLineString(),
+                commodore.buildCommandLineComposer().commandLineString(),
                 objectToStringIfOverridden(commodore.checker(), () -> "(noname)"))));
   }
 
@@ -122,7 +121,7 @@ enum CommodoreUtils {
     return createProcessStreamerBuilder(
         commodore.stdin(),
         commodore.shell(),
-        commodore.cwd(),
+        commodore.cwd().orElse(null),
         commodore.envvars(),
         commandLineComposer,
         params
@@ -145,6 +144,8 @@ enum CommodoreUtils {
     else
       ret = ProcessStreamer.pipe(stdin, shell);
     envvars.forEach(ret::env);
-    return ret.command(commandLine).cwd(cwd);
+    if (cwd != null)
+      ret.cwd(cwd);
+    return ret.command(commandLine);
   }
 }

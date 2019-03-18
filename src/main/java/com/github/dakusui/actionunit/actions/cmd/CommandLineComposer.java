@@ -2,7 +2,9 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
-import java.util.*;
+import java.util.Formattable;
+import java.util.Formatter;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -28,110 +30,46 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
 
   String commandLineString();
 
-  static CommandLineComposer byVariableName(
-      String commandLineFormat,
-      Function<String, String> parameterPlaceHolderFactory,
-      String... knownVariableNames) {
-    requireNonNull(commandLineFormat);
-    return new CommandLineComposer() {
-      @Override
-      public String commandLineString() {
-        return commandLineFormat;
-      }
+  class Builder {
+    private IntFunction<String> parameterPlaceHolderFactory;
+    private List<String>        knownVariableNames;
+    private StringBuilder       builder;
 
-      @Override
-      public IntFunction<String> parameterPlaceHolder() {
-        return parameterIndex -> parameterPlaceHolderFactory.apply(knownVariableNames[parameterIndex]);
-      }
-    };
-  }
-
-  static CommandLineComposer byVariableName(
-      String commandLineFormat,
-      String... knownVariableNames) {
-    requireNonNull(commandLineFormat);
-    return byVariableName(commandLineFormat, v -> String.format("{{%s}}", v), knownVariableNames);
-  }
-
-  static CommandLineComposer byIndex(
-      String commandLineFormat
-  ) {
-    return new CommandLineComposer() {
-      @Override
-      public String commandLineString() {
-        return commandLineFormat;
-      }
-
-      @Override
-      public IntFunction<String> parameterPlaceHolder() {
-        return parameterIndex -> "{{" + parameterIndex + "}}";
-      }
-    };
-  }
-
-  class TokenBuilder {
-    private final IntFunction<String> parameterPlaceHolderFactory;
-    private final StringBuilder builder = new StringBuilder();
-    private final List<String> knownVariableNames;
-
-    TokenBuilder(IntFunction<String> parameterPlaceHolderFactory, String... knownVariableNames) {
-      this.knownVariableNames = Arrays.asList(knownVariableNames);
-      this.parameterPlaceHolderFactory = parameterPlaceHolderFactory;
+    public Builder(IntFunction<String> parameterPlaceHolderFactory, String... knownVariableNames) {
+      this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
+      this.builder = new StringBuilder();
+      this.knownVariableNames = asList(knownVariableNames);
     }
 
-    TokenBuilder addText(String text) {
-      builder.append(text);
+    public Builder append(String text) {
+      this.builder.append(requireNonNull(text));
       return this;
     }
 
-    TokenBuilder addVariable(String variableName) {
-      return this.addText(
+    public Builder appendVariable(String variableName) {
+      return this.append(
           this.parameterPlaceHolderFactory.apply(
               requireArgument(
-                  i -> i >=0,
-                  this.knownVariableNames.indexOf(requireNonNull(variableName)))));
-    }
-  }
-
-  class Builder {
-    private IntFunction<String> parameterPlaceHolder;
-    private List<String> knownVariableNames;
-    private List<String> commandLine;
-
-    public Builder(IntFunction<String> parameterPlaceHolder) {
-      this.parameterPlaceHolder = requireNonNull(parameterPlaceHolder);
-      this.knownVariableNames()
-          .commandLine = new LinkedList<>();
-    }
-
-    public Builder knownVariableNames(String... knownVariableNames) {
-      this.knownVariableNames = asList(knownVariableNames);
-      return this;
-    }
-
-    public Builder add(String commandLine) {
-      this.commandLine.add(requireNonNull(commandLine));
-      return this;
-    }
-
-    public Builder addVariable(String variableName) {
-      requireNonNull(variableName);
-      this.commandLine.add(this.parameterPlaceHolder.apply(knownVariableNames.indexOf(variableName)));
-      return this;
+                  i -> i >= 0,
+                  knownVariableNames.indexOf(requireNonNull(variableName)))));
     }
 
     public CommandLineComposer build() {
       return new CommandLineComposer() {
         @Override
         public IntFunction<String> parameterPlaceHolder() {
-          return parameterPlaceHolder;
+          return parameterPlaceHolderFactory;
         }
 
         @Override
         public String commandLineString() {
-          return String.join(" ", commandLine);
+          return builder.toString();
         }
       };
+    }
+
+    public String[] knownVariables() {
+      return knownVariableNames.toArray(new String[0]);
     }
   }
 }

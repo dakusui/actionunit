@@ -9,6 +9,16 @@ import static java.lang.String.format;
 public enum Checks {
   ;
 
+  public static <T> T requireState(Predicate<T> condition, T value) {
+    return requireState(condition, value, c -> v -> format("'%s' did not not satisfy '%s'", v, c));
+  }
+
+  public static <T> T requireState(Predicate<T> condition, T value, Function<Predicate<T>, Function<T, String>> messageComposer) {
+    if (condition.test(value))
+      return value;
+    throw exceptionForIllegaState(messageComposer.apply(condition).apply(value));
+  }
+
   public static <T> T requireArgument(Predicate<T> condition, T value) {
     return requireArgument(condition, value, c -> v -> format("'%s' did not not satisfy '%s'", v, c));
   }
@@ -17,6 +27,10 @@ public enum Checks {
     if (condition.test(value))
       return value;
     throw exceptionForIllegalValue(messageComposer.apply(condition).apply(value));
+  }
+
+  private static RuntimeException exceptionForIllegaState(String message) {
+    throw new IllegalStateException(message);
   }
 
   private static RuntimeException exceptionForIllegalValue(String message) {

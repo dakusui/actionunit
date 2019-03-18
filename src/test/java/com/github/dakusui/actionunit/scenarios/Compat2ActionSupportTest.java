@@ -18,15 +18,6 @@ import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 @RunWith(Enclosed.class)
 public class Compat2ActionSupportTest {
-  public static class CmdTest {
-    @Test
-    public void echoTest() {
-      run(
-          cmd("echo").add("hello").$()
-      );
-    }
-  }
-
   public static class AttemptTest extends TestUtils.TestBase {
     @Test
     public void attemptTest1a() {

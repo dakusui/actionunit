@@ -14,32 +14,34 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static java.util.Objects.requireNonNull;
 
 public abstract class Commodore<C extends Commodore<C>> {
-  private static final Logger                     LOGGER = LoggerFactory.getLogger(Commodore.class);
-  private final        CommandLineComposerFactory commandLineComposerFactory;
+  private static final Logger              LOGGER = LoggerFactory.getLogger(Commodore.class);
+  private final        IntFunction<String> parameterPlaceHolderFactory;
 
-  private       CommandLineComposer commandLineComposer;
-  private       RetryOption         retryOption;
-  private       Consumer<String>    downstreamConsumer;
-  private       Checker             checker;
-  private       Stream<String>      stdin;
-  private       Shell               shell;
-  private       File                cwd;
-  private final Map<String, String> envvars;
-  private       String[]            variableNames;
+  private       RetryOption                 retryOption;
+  private       Consumer<String>            downstreamConsumer;
+  private       Checker                     checker;
+  private       Stream<String>              stdin;
+  private       Shell                       shell;
+  private       File                        cwd = null;
+  private final Map<String, String>         envvars;
+  private       CommandLineComposer.Builder commandLineComposerBuilder;
 
 
-  protected Commodore(CommandLineComposerFactory commandLineComposerFactory) {
-    this.commandLineComposerFactory = commandLineComposerFactory;
+  protected Commodore(IntFunction<String> parameterPlaceHolderFactory) {
+    this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(RetryOption.none())
-        .cwd(new File(System.getProperty("user.dir")))
         .shell(Shell.local())
         .checker(Checker.createCheckerForExitCode(0))
         .downstreamConsumer(LOGGER::trace);
@@ -88,46 +90,59 @@ public abstract class Commodore<C extends Commodore<C>> {
   }
 
   public Action toAction() {
-    return CommodoreUtils.createAction(this, this.commandLineComposer(), this.variableNames());
+    return CommodoreUtils.createAction(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
   public StreamGenerator<String> toStreamGenerator() {
-    return CommodoreUtils.createStreamGenerator(this, this.commandLineComposer(), this.variableNames());
+    return CommodoreUtils.createStreamGenerator(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
   public ContextConsumer toContextConsumer() {
-    return CommodoreUtils.createContextConsumer(this, this.commandLineComposer(), this.variableNames());
+    return CommodoreUtils.createContextConsumer(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
   public ContextPredicate toContextPredicate() {
-    return CommodoreUtils.createContextPredicate(this, this.commandLineComposer(), this.variableNames());
+    return CommodoreUtils.createContextPredicate(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
   public ContextFunction<String> toContextFunction() {
-    return CommodoreUtils.createContextFunction(this, this.commandLineComposer(), this.variableNames());
+    return CommodoreUtils.createContextFunction(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
-  private CommandLineComposerFactory commandLineComposerFactory() {
-    return this.commandLineComposerFactory;
-  }
-
-  @SuppressWarnings("unchecked")
-  public C commandLineComposer(CommandLineComposer commandLineComposer) {
-    this.commandLineComposer = requireNonNull(commandLineComposer);
+  public C command(String command, String... variableNames) {
+    this.knownVariables(variableNames).append(command);
     return (C) this;
   }
 
-  protected String[] variableNames() {
-    return this.variableNames;
+  public C knownVariables(String... variableNames) {
+    requireState(Objects::isNull, this.commandLineComposerBuilder);
+    this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory(), variableNames);
+    return (C) this;
   }
 
-  protected C command(String commandLineString, String... variableNames) {
-    this.variableNames = variableNames;
-    return this.commandLineComposer(
-        this.commandLineComposerFactory().apply(
-            requireNonNull(commandLineString),
-            variableNames));
+  public C append(String text) {
+    this.commandLineComposerBuilder.append(text);
+    return (C) this;
   }
+
+
+  public C appendVariable(String variableName) {
+    this.commandLineComposerBuilder.appendVariable(variableName);
+    return (C) this;
+  }
+
+  protected CommandLineComposer buildCommandLineComposer() {
+    return requireNonNull(this.commandLineComposerBuilder).build();
+  }
+
+  protected String[] variableNames() {
+    return requireNonNull(this.commandLineComposerBuilder).knownVariables();
+  }
+
+  protected IntFunction<String> parameterPlaceHolderFactory() {
+    return this.parameterPlaceHolderFactory;
+  }
+
 
   RetryOption retryOption() {
     return this.retryOption;
@@ -149,19 +164,21 @@ public abstract class Commodore<C extends Commodore<C>> {
     return this.shell;
   }
 
-  File cwd() {
-    return this.cwd;
+  Optional<File> cwd() {
+    return Optional.ofNullable(this.cwd);
   }
 
   Map<String, String> envvars() {
     return this.envvars;
   }
 
-  CommandLineComposer commandLineComposer() {
-    return requireNonNull(this.commandLineComposer);
+  public static class Simple extends Commodore<Simple> {
+    protected Simple(IntFunction<String> parameterPlaceHolderFactory) {
+      super(parameterPlaceHolderFactory);
+    }
   }
 
   public interface Factory {
-    <C extends Commodore<C>> C commodore(Class<C> klass);
+    Simple simple();
   }
 }
