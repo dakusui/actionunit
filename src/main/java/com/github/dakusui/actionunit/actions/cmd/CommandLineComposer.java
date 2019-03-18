@@ -2,13 +2,11 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
-import java.util.Formattable;
-import java.util.Formatter;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
+import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
@@ -71,10 +69,34 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
     };
   }
 
+  class TokenBuilder {
+    private final IntFunction<String> parameterPlaceHolderFactory;
+    private final StringBuilder builder = new StringBuilder();
+    private final List<String> knownVariableNames;
+
+    TokenBuilder(IntFunction<String> parameterPlaceHolderFactory, String... knownVariableNames) {
+      this.knownVariableNames = Arrays.asList(knownVariableNames);
+      this.parameterPlaceHolderFactory = parameterPlaceHolderFactory;
+    }
+
+    TokenBuilder addText(String text) {
+      builder.append(text);
+      return this;
+    }
+
+    TokenBuilder addVariable(String variableName) {
+      return this.addText(
+          this.parameterPlaceHolderFactory.apply(
+              requireArgument(
+                  i -> i >=0,
+                  this.knownVariableNames.indexOf(requireNonNull(variableName)))));
+    }
+  }
+
   class Builder {
     private IntFunction<String> parameterPlaceHolder;
-    private List<String>        knownVariableNames;
-    private List<String>        commandLine;
+    private List<String> knownVariableNames;
+    private List<String> commandLine;
 
     public Builder(IntFunction<String> parameterPlaceHolder) {
       this.parameterPlaceHolder = requireNonNull(parameterPlaceHolder);
