@@ -17,7 +17,7 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
   default String apply(Object[] argValues) {
     return StableTemplatingUtils.template(
         commandLineString(),
-        StableTemplatingUtils.toMapping(this.parameterPlaceHolder(), argValues)
+        StableTemplatingUtils.toMapping(this.parameterPlaceHolderFactory(), argValues)
     );
   }
 
@@ -26,7 +26,7 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
     formatter.format(commandLineString());
   }
 
-  IntFunction<String> parameterPlaceHolder();
+  IntFunction<String> parameterPlaceHolderFactory();
 
   String commandLineString();
 
@@ -57,7 +57,7 @@ public interface CommandLineComposer extends Function<Object[], String>, Formatt
     public CommandLineComposer build() {
       return new CommandLineComposer() {
         @Override
-        public IntFunction<String> parameterPlaceHolder() {
+        public IntFunction<String> parameterPlaceHolderFactory() {
           return parameterPlaceHolderFactory;
         }
 

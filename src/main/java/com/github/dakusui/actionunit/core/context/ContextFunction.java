@@ -36,7 +36,7 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V> ContextFunction.Impl<V> andThen(Function<? super R, ? extends V> after) {
+    public <V> ContextFunction<V> andThen(Function<? super R, ? extends V> after) {
       return new ContextFunction.Impl<>(
           () -> String.format("%s(%s)", after, getFormatter().get()),
           toContextFunction(getFunction().andThen(after))
@@ -50,5 +50,4 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
       return new ContextFunction.Impl<>(function::toString, (Function<Context, R>) function);
     }
   }
-
 }

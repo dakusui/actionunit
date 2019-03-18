@@ -29,7 +29,7 @@ public enum CommanderTestUtil {
       }
 
       @Override
-      public IntFunction<String> parameterPlaceHolder() {
+      public IntFunction<String> parameterPlaceHolderFactory() {
         return parameterIndex -> parameterPlaceHolderFactory.apply(knownVariableNames[parameterIndex]);
       }
     };
@@ -52,7 +52,7 @@ public enum CommanderTestUtil {
       }
 
       @Override
-      public IntFunction<String> parameterPlaceHolder() {
+      public IntFunction<String> parameterPlaceHolderFactory() {
         return parameterIndex -> "{{" + parameterIndex + "}}";
       }
     };
