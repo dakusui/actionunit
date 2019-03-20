@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.core.context;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.printables.PrintableFunction;
+import com.github.dakusui.printables.Printables;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -11,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 @FunctionalInterface
 public interface ContextFunction<R> extends Function<Context, R>, Printable {
   default <V> Function<V, R> compose(Function<? super V, ? extends Context> before) {
-    throw new UnsupportedOperationException();
+    return v -> ContextFunction.this.apply(before.apply(v));
   }
 
   default <V> ContextFunction<V> andThen(Function<? super R, ? extends V> after) {
@@ -19,9 +20,8 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
     return (Context r) -> after.apply(apply(r));
   }
 
-
   static <R> ContextFunction<R> of(Supplier<String> formatter, Function<Context, R> function) {
-    return new ContextFunction.Impl<R>(formatter, function);
+    return new ContextFunction.Impl<>(formatter, function);
   }
 
   class Impl<R> extends PrintableFunction<Context, R> implements ContextFunction<R> {
@@ -31,10 +31,10 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
 
     @Override
     public <V> Function<V, R> compose(Function<? super V, ? extends Context> before) {
-      return ContextFunction.super.compose(before);
+      return Printables.<V, R>printableFunction(ContextFunction.super.compose(before))
+          .describe(() -> String.format("%s(%s)", getFormatter().get(), before));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <V> ContextFunction<V> andThen(Function<? super R, ? extends V> after) {
       return new ContextFunction.Impl<>(

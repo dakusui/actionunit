@@ -14,6 +14,14 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 public interface Params {
+
+  /**
+   * Returns a {@link Context} object from which this object is created.
+   *
+   * @return A context.
+   */
+  Context context();
+
   List<String> paramNames();
 
   <T> T valueOf(String parameterName);
@@ -25,6 +33,11 @@ public interface Params {
           put(each, context.valueOf(each));
         }
       }};
+
+      @Override
+      public Context context() {
+        return context;
+      }
 
       @Override
       public List<String> paramNames() {

@@ -73,7 +73,7 @@ public enum CommanderUtils {
 
           @Override
           public String toString() {
-            return format("(%s)", commander.buildCommandLineComposer().apply(variableNames));
+            return format("(%s)", commandLineComposer.commandLineString());
           }
         },
         variableNames
@@ -154,6 +154,7 @@ public enum CommanderUtils {
       CommandLineComposer commandLineComposer,
       Params params) {
     String commandLine = commandLineComposer.apply(
+        params.context(),
         params.paramNames()
             .stream()
             .map(params::valueOf)
