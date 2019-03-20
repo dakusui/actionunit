@@ -21,10 +21,11 @@ import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Objects.requireNonNull;
 
-public abstract class Commodore<C extends Commodore<C>> {
-  private static final Logger              LOGGER = LoggerFactory.getLogger(Commodore.class);
+public abstract class Commander<C extends Commander<C>> {
+  private static final Logger              LOGGER = LoggerFactory.getLogger(Commander.class);
   private final        IntFunction<String> parameterPlaceHolderFactory;
 
   private       RetryOption                 retryOption;
@@ -37,13 +38,13 @@ public abstract class Commodore<C extends Commodore<C>> {
   private       CommandLineComposer.Builder commandLineComposerBuilder;
 
 
-  protected Commodore(IntFunction<String> parameterPlaceHolderFactory) {
-    this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
+  protected Commander(IntFunction<String> parameterPlaceHolderFormatter) {
+    this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFormatter);
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(RetryOption.none())
         .shell(Shell.local())
-        .checker(Checker.createCheckerForExitCode(0))
+        .checker(createCheckerForExitCode(0))
         .downstreamConsumer(LOGGER::trace);
   }
 
@@ -89,57 +90,78 @@ public abstract class Commodore<C extends Commodore<C>> {
     return (C) this;
   }
 
+  /**
+   * A building method that returns an {@link Action} object.
+   *
+   * @return An action object.
+   */
   public Action toAction() {
-    return CommodoreUtils.createAction(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createAction(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
+  /**
+   * A building method that returns {@link StreamGenerator} object.
+   *
+   * @return A stream generator object.
+   */
   public StreamGenerator<String> toStreamGenerator() {
-    return CommodoreUtils.createStreamGenerator(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createStreamGenerator(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
   public ContextConsumer toContextConsumer() {
-    return CommodoreUtils.createContextConsumer(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createContextConsumer(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
   public ContextPredicate toContextPredicate() {
-    return CommodoreUtils.createContextPredicate(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createContextPredicate(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
   public ContextFunction<String> toContextFunction() {
-    return CommodoreUtils.createContextFunction(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createContextFunction(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
-  public C command(String command, String... variableNames) {
-    this.knownVariables(variableNames).append(command);
-    return (C) this;
+  protected C command(String command, String... variableNames) {
+    return this.knownVariables(variableNames).append(command);
   }
 
-  public C knownVariables(String... variableNames) {
+  /**
+   * Declare variables that can be used to build a command line.
+   * This method must be called once and only once before {@code buildCommandLineComposer}
+   * method, which is internally called by building methods such as {@link this#toAction()}
+   * method,  is called.
+   *
+   * @param variableNames Available variable names.
+   * @return This object.
+   */
+  @SuppressWarnings("unchecked")
+  protected C knownVariables(String... variableNames) {
     requireState(Objects::isNull, this.commandLineComposerBuilder);
     this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory(), variableNames);
     return (C) this;
   }
 
-  public C append(String text) {
-    this.commandLineComposerBuilder.append(text);
+  @SuppressWarnings("unchecked")
+  protected C append(String text) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text);
     return (C) this;
   }
 
 
-  public C appendVariable(String variableName) {
-    this.commandLineComposerBuilder.appendVariable(variableName);
+  @SuppressWarnings("unchecked")
+  protected C appendVariable(String variableName) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName);
     return (C) this;
   }
 
   protected CommandLineComposer buildCommandLineComposer() {
-    return requireNonNull(this.commandLineComposerBuilder).build();
+    return requireState(Objects::nonNull, this.commandLineComposerBuilder).build();
   }
 
   protected String[] variableNames() {
-    return requireNonNull(this.commandLineComposerBuilder).knownVariables();
+    return requireState(Objects::nonNull, this.commandLineComposerBuilder).knownVariables();
   }
 
-  protected IntFunction<String> parameterPlaceHolderFactory() {
+  public IntFunction<String> parameterPlaceHolderFactory() {
     return this.parameterPlaceHolderFactory;
   }
 
@@ -170,15 +192,5 @@ public abstract class Commodore<C extends Commodore<C>> {
 
   Map<String, String> envvars() {
     return this.envvars;
-  }
-
-  public static class Simple extends Commodore<Simple> {
-    protected Simple(IntFunction<String> parameterPlaceHolderFactory) {
-      super(parameterPlaceHolderFactory);
-    }
-  }
-
-  public interface Factory {
-    Simple simple();
   }
 }
