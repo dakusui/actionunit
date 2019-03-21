@@ -2,7 +2,11 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.*;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.printables.Printables;
@@ -85,15 +89,16 @@ public enum CommanderUtils {
       CommandLineComposer commandLineComposer, String[] variableNames) {
     requireNonNull(commander);
     return multiParamsConsumerFor(variableNames)
-        .toContextConsumer(printableConsumer(
-            (Params params) -> createProcessStreamerBuilder(
-                commander,
-                params, commander.buildCommandLineComposer())
-                .checker(commander.checker())
-                .build()
-                .stream()
-                .forEach(commander.downstreamConsumer()))
-            .describe(commandLineComposer::commandLineString));
+        .toContextConsumer(
+            printableConsumer(
+                (Params params) -> createProcessStreamerBuilder(
+                    commander,
+                    params, commander.buildCommandLineComposer())
+                    .checker(commander.checker())
+                    .build()
+                    .stream()
+                    .forEach(commander.downstreamConsumer()))
+                .describe(commandLineComposer::commandLineString));
   }
 
   static ContextPredicate createContextPredicate(

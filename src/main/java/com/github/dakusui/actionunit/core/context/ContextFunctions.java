@@ -46,7 +46,7 @@ public enum ContextFunctions {
                         .collect(joining(", ", "(", ")"))),
             new TreeMap<String, Object>() {{
               IntStream.range(0, v.length).forEach(
-                  i -> put(placeHolderFormatter.apply(i), v[i])
+                  i -> put(placeHolderFormatter.apply(i), String.format("${%s}", v[i]))
               );
             }}
         ));

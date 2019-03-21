@@ -20,11 +20,10 @@
         <level value="debug"/>
         <appender-ref ref="stdout"/>
     </logger>
-    <logger name="com.github.dakusui.cmd">
+    <logger name="com.github.dakusui.processstreamer">
         <level value="info"/>
         <appender-ref ref="stdout"/>
     </logger>
-
     <!--root>
         <level value="DEBUG"/>
         <appender-ref ref="stdout"/>

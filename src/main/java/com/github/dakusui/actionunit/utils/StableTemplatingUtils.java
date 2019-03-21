@@ -23,23 +23,6 @@ import static java.util.stream.Collectors.toList;
 
 public enum StableTemplatingUtils {
   ;
-
-  private static class PositionedPlaceHolder {
-    final String placeHolder;
-    final int    position;
-
-    private PositionedPlaceHolder(String placeHolder, int position) {
-      requireArgument(s -> s.length() > 0, requireNonNull(placeHolder));
-      requireArgument(i -> i >= 0, position);
-      this.placeHolder = placeHolder;
-      this.position = position;
-    }
-
-    static PositionedPlaceHolder of(String placeHolder, int position) {
-      return new PositionedPlaceHolder(placeHolder, position);
-    }
-  }
-
   public static String template(String template, Map<String, Object> mapping) {
     AtomicInteger lastPosition = new AtomicInteger(0);
     StringBuilder b = new StringBuilder();
@@ -59,12 +42,17 @@ public enum StableTemplatingUtils {
     return b.toString();
   }
 
-  @SafeVarargs
-  private static <T, U> BiConsumer<T, U> chainBiConsumers(BiConsumer<T, U> c1, BiConsumer<T, U>... c2) {
-    BiConsumer<T, U> ret = c1;
-    for (BiConsumer<T, U> each : c2)
-      ret = ret.andThen(each);
-    return ret;
+  public static SortedMap<String, Object> toMapping(IntFunction<String> placeHolderComposer, Object[] argValues) {
+    AtomicInteger i = new AtomicInteger();
+    return parameterPlaceHolders(placeHolderComposer, argValues.length)
+        .stream()
+        .collect(toLinkedHashMap(placeHolder -> placeHolder, placeHolder -> argValues[i.getAndIncrement()]));
+  }
+
+  static List<String> parameterPlaceHolders(IntFunction<String> placeHolderComposer, int numParameters) {
+    return IntStream.range(0, numParameters)
+        .mapToObj(placeHolderComposer)
+        .collect(toList());
   }
 
   static SortedMap<Integer, String> positionToPlaceHolder(String formatString, Collection<String> placeHolders) {
@@ -108,19 +96,6 @@ public enum StableTemplatingUtils {
   }
 
 
-  public static SortedMap<String, Object> toMapping(IntFunction<String> placeHolderComposer, Object[] argValues) {
-    AtomicInteger i = new AtomicInteger();
-    return parameterPlaceHolders(placeHolderComposer, argValues.length)
-        .stream()
-        .collect(toLinkedHashMap(placeHolder -> placeHolder, placeHolder -> argValues[i.getAndIncrement()]));
-  }
-
-  static List<String> parameterPlaceHolders(IntFunction<String> placeHolderComposer, int numParameters) {
-    return IntStream.range(0, numParameters)
-        .mapToObj(placeHolderComposer)
-        .collect(toList());
-  }
-
   private static <T, K, U> Collector<T, ?, SortedMap<K, U>> toLinkedHashMap(Function<? super T, ? extends K> keyMapper,
       Function<? super T, ? extends U> valueMapper) {
     return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), TreeMap::new);
@@ -130,5 +105,29 @@ public enum StableTemplatingUtils {
     return (u, v) -> {
       throw new IllegalStateException(String.format("Duplicate key %s", u));
     };
+  }
+
+  @SafeVarargs
+  private static <T, U> BiConsumer<T, U> chainBiConsumers(BiConsumer<T, U> c1, BiConsumer<T, U>... c2) {
+    BiConsumer<T, U> ret = c1;
+    for (BiConsumer<T, U> each : c2)
+      ret = ret.andThen(each);
+    return ret;
+  }
+
+  private static class PositionedPlaceHolder {
+    final String placeHolder;
+    final int    position;
+
+    private PositionedPlaceHolder(String placeHolder, int position) {
+      requireArgument(s -> s.length() > 0, requireNonNull(placeHolder));
+      requireArgument(i -> i >= 0, position);
+      this.placeHolder = placeHolder;
+      this.position = position;
+    }
+
+    static PositionedPlaceHolder of(String placeHolder, int position) {
+      return new PositionedPlaceHolder(placeHolder, position);
+    }
   }
 }
