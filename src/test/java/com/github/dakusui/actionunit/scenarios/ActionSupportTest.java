@@ -168,7 +168,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
     Action action = timeout(
         leaf($ -> System.out.println("hello"))
     ).in(
-        1, MILLISECONDS
+        5, MILLISECONDS
     );
 
     action.accept(SimpleActionPerformer.create());

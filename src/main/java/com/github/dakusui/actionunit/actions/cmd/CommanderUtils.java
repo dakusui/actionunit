@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.*;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
-import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
 import org.slf4j.Logger;
