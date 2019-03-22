@@ -30,20 +30,8 @@ public enum CommanderUtils {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CommanderUtils.class);
 
-  public static String summarize(String commandLine, int length) {
-    Checks.requireArgument(l -> l > 3, length);
-    return requireNonNull(commandLine).length() < length ?
-        replaceNewLines(commandLine) :
-        replaceNewLines(commandLine).substring(0, length - 3) + "...";
-  }
-
   public static String quoteWithApostropheForShell(String s) {
     return String.format("'%s'", escapeSingleQuotesForShell(s));
-  }
-
-
-  private static String replaceNewLines(String s) {
-    return s.replaceAll("\n", " ");
   }
 
   private static String escapeSingleQuotesForShell(String s) {

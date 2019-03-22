@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.core.context;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextConsumerBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextPredicateBuilder;
+import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
 import java.io.PrintStream;
@@ -37,7 +38,7 @@ public enum ContextFunctions {
   public static String describeFunctionalObject(Object f, final IntFunction<String> placeHolderFormatter, String... v) {
     return String.format("(%s)->%s",
         String.join(",", v),
-        StableTemplatingUtils.template(
+        summarize(StableTemplatingUtils.template(
             objectToStringIfOverridden(
                 f,
                 () -> "(noname)" +
@@ -48,8 +49,7 @@ public enum ContextFunctions {
               IntStream.range(0, v.length).forEach(
                   i -> put(placeHolderFormatter.apply(i), String.format("${%s}", v[i]))
               );
-            }}
-        ));
+            }}), 60));
   }
 
   public static <R> ContextConsumer assignTo(String variableName, ContextFunction<R> value) {
@@ -115,5 +115,16 @@ public enum ContextFunctions {
     if ("".equals(c.getSimpleName()))
       return mostRecentNamedSuperOf(c.getSuperclass());
     return c;
+  }
+
+  public static String summarize(String commandLine, int length) {
+    Checks.requireArgument(l -> l > 3, length);
+    return requireNonNull(commandLine).length() < length ?
+        replaceNewLines(commandLine) :
+        replaceNewLines(commandLine).substring(0, length - 3) + "...";
+  }
+
+  private static String replaceNewLines(String s) {
+    return s.replaceAll("\n", " ");
   }
 }
