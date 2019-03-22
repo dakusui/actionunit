@@ -49,7 +49,7 @@ public class ContextFunctionsHelperUnitTest {
 
     assertThat(
         function.toString(),
-        asString().equalTo("(i)->(noname)(i)").$()
+        asString().equalTo("(i)->(noname)(${i})").$()
     );
   }
 
@@ -63,7 +63,7 @@ public class ContextFunctionsHelperUnitTest {
     System.out.println(function.apply(context));
     assertThat(
         function.toString(),
-        asString().equalTo("(i)->inc(i)").$()
+        asString().equalTo("(i)->inc(${i})").$()
     );
   }
 
@@ -79,7 +79,7 @@ public class ContextFunctionsHelperUnitTest {
     System.out.println(function.apply(context));
     assertThat(
         function.toString(),
-        asString().equalTo("double((i)->inc(i))").$()
+        asString().equalTo("double((i)->inc(${i}))").$()
     );
   }
 

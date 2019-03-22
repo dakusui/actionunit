@@ -75,7 +75,7 @@ public class ContextFunctionsUnitTest {
       assertThat(
           cc,
           asString("toString")
-              .equalTo("(i)->out.add(i.toString());(i)->System.out.println(i)").$()
+              .equalTo("(i)->out.add(${i}.toString());(i)->System.out.println(${i})").$()
       );
     }
   }
@@ -95,7 +95,7 @@ public class ContextFunctionsUnitTest {
       System.out.println(cp);
       assertThat(
           cp,
-          asString("toString").equalTo("!((j)->j==0||((j)->j>0&&(j)->j<100))").$()
+          asString("toString").equalTo("!((j)->${j}==0||((j)->${j}>0&&(j)->${j}<100))").$()
       );
     }
   }

@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.core.context.ContextFunction;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_HOLDER_FORMATTER;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static java.util.Objects.requireNonNull;
 
@@ -16,7 +16,7 @@ public class MultiParamsContextFunctionBuilder<R> {
 
   public MultiParamsContextFunctionBuilder(String... variableNames) {
     this(
-        (f, v) -> describeFunctionalObject(f, PLACE_HOLDER_FORMATTER, v),
+        (f, v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER, v),
         variableNames
     );
   }

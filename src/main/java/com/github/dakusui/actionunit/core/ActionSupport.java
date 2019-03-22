@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
@@ -66,12 +67,15 @@ public enum ActionSupport {
     return new Composite.Builder(actions).parallel().build();
   }
 
-  public static Cmd cmd(String program, String... variableNames) {
-    return cmd(value -> String.format("{{%s}}", value), program, variableNames);
+  public static Cmd cmd(String program, String... knownVariables) {
+    return cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER, program, knownVariables);
   }
 
-  public static Cmd cmd(IntFunction<String> placeHolderFormatter, String program, String... variableNames) {
-    return new Cmd(placeHolderFormatter).command(program, variableNames);
+  public static Cmd cmd(IntFunction<String> placeHolderFormatter, String program, String... knownVariables) {
+    Cmd ret = new Cmd(placeHolderFormatter).command(program);
+    for (String each : knownVariables)
+      ret.declareVariable(each);
+    return ret;
   }
 
   public static Action simple(String name, ContextConsumer consumer) {

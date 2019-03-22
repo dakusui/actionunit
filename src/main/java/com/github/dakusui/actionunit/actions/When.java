@@ -22,7 +22,7 @@ public interface When extends Action {
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("if [%s] is satisfied", cond());
+    formatter.format("if [%s]", cond());
   }
 
   class Builder extends Action.Builder<When> {

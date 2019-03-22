@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_HOLDER_FORMATTER;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static java.util.Objects.requireNonNull;
 
@@ -16,7 +16,7 @@ public class MultiParamsContextPredicateBuilder {
 
   public MultiParamsContextPredicateBuilder(String... variableNames) {
     this(
-        (Predicate f, String[] v) -> describeFunctionalObject(f, PLACE_HOLDER_FORMATTER, v),
+        (Predicate f, String[] v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER, v),
         variableNames
     );
   }

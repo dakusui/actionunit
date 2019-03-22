@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
@@ -29,8 +30,8 @@ public abstract class Commander<C extends Commander<C>> {
   private final        IntFunction<String> parameterPlaceHolderFactory;
 
   private       RetryOption                 retryOption;
-  private       Consumer<String>            downstreamConsumer;
-  private       Checker                     checker;
+  private       Supplier<Consumer<String>>  downstreamConsumerFactory;
+  private       Supplier<Checker>           checkerFactory;
   private       Stream<String>              stdin;
   private       Shell                       shell;
   private       File                        cwd = null;
@@ -54,15 +55,49 @@ public abstract class Commander<C extends Commander<C>> {
     return (C) this;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets a down-stream consumer to this builder object.
+   * In case the down-stream consumer is stateful, use {@link Commander#downstreamConsumerFactory(Supplier)}
+   * method instead and give a supplier that returns a new consumer object every time
+   * when its {@code get()} method is called.
+   *
+   * @param downstreamConsumer A down-stream consumer.
+   * @return This object
+   */
   public C downstreamConsumer(Consumer<String> downstreamConsumer) {
-    this.downstreamConsumer = requireNonNull(downstreamConsumer);
+    requireNonNull(downstreamConsumer);
+    return this.downstreamConsumerFactory(() -> downstreamConsumer);
+  }
+
+  /**
+   * Sets a downstream consumer's factory to this builder object.
+   *
+   * @param downstreamConsumerFactory A supplier of a down-stream consumer.
+   * @return This object
+   */
+  @SuppressWarnings("unchecked")
+  public C downstreamConsumerFactory(Supplier<Consumer<String>> downstreamConsumerFactory) {
+    this.downstreamConsumerFactory = requireNonNull(downstreamConsumerFactory);
     return (C) this;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets a checker to this builder object.
+   * In case the checker is stateful, use {@link Commander#checkerFactory(Supplier)}
+   * method instead and give a suuplier that returns a new checker object every
+   * time when its {@code get()} method is called.
+   *
+   * @param checker A checker object
+   * @return This object
+   */
   public C checker(Checker checker) {
-    this.checker = requireNonNull(checker);
+    requireNonNull(checker);
+    return this.checkerFactory(() -> checker);
+  }
+
+  @SuppressWarnings("unchecked")
+  public C checkerFactory(Supplier<Checker> checkerFactory) {
+    this.checkerFactory = requireNonNull(checkerFactory);
     return (C) this;
   }
 
@@ -120,62 +155,68 @@ public abstract class Commander<C extends Commander<C>> {
     return CommanderUtils.createContextFunction(this, this.buildCommandLineComposer(), this.variableNames());
   }
 
-  protected C command(String command, String... variableNames) {
-    return this.knownVariables(variableNames).append(command);
+  @SuppressWarnings("unchecked")
+  protected C command(String command) {
+    this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory())
+        .append(command, false);
+    return (C) this;
   }
 
-  /**
-   * Declare variables that can be used to build a command line.
-   * This method must be called once and only once before {@code buildCommandLineComposer}
-   * method, which is internally called by building methods such as {@link this#toAction()}
-   * method,  is called.
-   *
-   * @param variableNames Available variable names.
-   * @return This object.
-   */
+
   @SuppressWarnings("unchecked")
-  protected C knownVariables(String... variableNames) {
-    requireState(Objects::isNull, this.commandLineComposerBuilder);
-    this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory(), variableNames);
+  protected C append(String text) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, false);
     return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  protected C append(String text) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text);
+  protected C appendq(String text) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, true);
     return (C) this;
   }
 
 
   @SuppressWarnings("unchecked")
   protected C appendVariable(String variableName) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName);
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, false);
     return (C) this;
   }
 
-  protected CommandLineComposer buildCommandLineComposer() {
+
+  @SuppressWarnings("unchecked")
+  protected C appendQuotedVariable(String variableName) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, true);
+    return (C) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected C declareVariable(String variableName) {
+    this.commandLineComposerBuilder.declareVariable(variableName);
+    return (C) this;
+  }
+
+  CommandLineComposer buildCommandLineComposer() {
     return requireState(Objects::nonNull, this.commandLineComposerBuilder).build();
   }
 
-  protected String[] variableNames() {
+  private String[] variableNames() {
     return requireState(Objects::nonNull, this.commandLineComposerBuilder).knownVariables();
   }
 
-  public IntFunction<String> parameterPlaceHolderFactory() {
+  private IntFunction<String> parameterPlaceHolderFactory() {
     return this.parameterPlaceHolderFactory;
   }
-
 
   RetryOption retryOption() {
     return this.retryOption;
   }
 
   Consumer<String> downstreamConsumer() {
-    return this.downstreamConsumer;
+    return this.downstreamConsumerFactory.get();
   }
 
   Checker checker() {
-    return this.checker;
+    return this.checkerFactory.get();
   }
 
   Stream<String> stdin() {

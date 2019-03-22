@@ -20,7 +20,7 @@ import static java.util.stream.Collectors.joining;
 public enum ContextFunctions {
   ;
 
-  public static final IntFunction<String> PLACE_HOLDER_FORMATTER = i -> String.format("{{%s}}", i);
+  public static final IntFunction<String> DEFAULT_PLACE_HOLDER_FORMATTER = i -> String.format("{{%s}}", i);
 
   public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(String... variableNames) {
     return new MultiParamsContextPredicateBuilder(variableNames);

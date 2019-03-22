@@ -2,14 +2,9 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.*;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.utils.Checks;
-import com.github.dakusui.printables.Printables;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
 import org.slf4j.Logger;
@@ -25,6 +20,7 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiP
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static com.github.dakusui.printables.Printables.printableConsumer;
+import static com.github.dakusui.printables.Printables.printablePredicate;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -41,7 +37,7 @@ public enum CommanderUtils {
         replaceNewLines(commandLine).substring(0, length - 3) + "...";
   }
 
-  public static String quoteWithSingleQuotesForShell(String s) {
+  public static String quoteWithApostropheForShell(String s) {
     return String.format("'%s'", escapeSingleQuotesForShell(s));
   }
 
@@ -106,28 +102,25 @@ public enum CommanderUtils {
       CommandLineComposer commandLineComposer,
       String[] variableNames) {
     return multiParamsPredicateFor(variableNames)
-        .toContextPredicate(Printables.printablePredicate(
+        .toContextPredicate(printablePredicate(
             (Params params) -> {
+              ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params, commandLineComposer);
               try {
-                int exitCode = createProcessStreamerBuilder(commander, params, commandLineComposer)
+                processStreamerBuilder
                     .checker(commander.checker())
                     .build()
-                    .waitFor();
-                LOGGER.debug("Exit code was: {}", exitCode);
+                    .stream()
+                    .forEach(commander.downstreamConsumer());
                 return true;
               } catch (ProcessStreamer.Failure failure) {
-                String msg = format("Condition '%s' was not satisfied: %s",
-                    commander.checker(),
-                    failure.getMessage());
+                String msg = format("Condition '%s' was not satisfied: %s", commander.checker(), failure.getMessage());
                 LOGGER.debug(msg);
                 LOGGER.trace(msg, failure);
                 return false;
-              } catch (InterruptedException e) {
-                throw new RuntimeException(e);
               }
             })
             .describe(() -> format(
-                "Exit code of '%s': %s",
+                "outputOf[command:'%s'].matches[%s]",
                 commander.buildCommandLineComposer().commandLineString(),
                 objectToStringIfOverridden(commander.checker(), () -> "(noname)"))));
   }

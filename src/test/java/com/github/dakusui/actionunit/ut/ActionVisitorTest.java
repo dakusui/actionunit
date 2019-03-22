@@ -163,7 +163,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     assertThat(
         out,
         allOf(
-            asString("get", 0).startsWith("if [(i)->(noname)(i)] is satisfied").$(),
+            asString("get", 0).startsWith("if [(i)->(noname)(${i})]").$(),
             asInteger("size").equalTo(1).$()
         ));
   }

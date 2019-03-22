@@ -9,10 +9,9 @@ import java.util.Formatter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
-import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
@@ -41,24 +40,37 @@ public interface CommandLineComposer extends BiFunction<Context, Object[], Strin
     private List<String>                  knownVariableNames;
     private List<ContextFunction<String>> builder;
 
-    public Builder(IntFunction<String> parameterPlaceHolderFactory, String... knownVariableNames) {
+    public Builder(IntFunction<String> parameterPlaceHolderFactory) {
       this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
       this.builder = new LinkedList<>();
-      this.knownVariableNames = asList(knownVariableNames);
+      this.knownVariableNames = new LinkedList<>();
     }
 
-    public Builder append(String text) {
+    public Builder append(String text, boolean quoted) {
       requireNonNull(text);
-      this.builder.add(ContextFunction.of(() -> text, c -> text));
+      ContextFunction<String> func = ContextFunction.of(() -> text, c -> text);
+      if (quoted)
+        func = quoteWithApostrophe(func);
+      this.builder.add(func);
       return this;
     }
 
-    public Builder appendVariable(String variableName) {
-      return this.append(
-          this.parameterPlaceHolderFactory.apply(
-              requireArgument(
-                  i -> i >= 0,
-                  knownVariableNames.indexOf(requireNonNull(variableName)))));
+    public Builder appendVariable(String variableName, boolean quoted) {
+      ContextFunction<String> func = ContextFunction.of(
+          () -> "${" + variableName + "}",
+          c -> c.valueOf(variableName)
+      );
+      if (quoted) {
+        func = quoteWithApostrophe(func);
+      }
+      this.builder.add(func);
+      return this.declareVariable(variableName);
+    }
+
+    public Builder declareVariable(String variableName) {
+      if (!knownVariableNames.contains(variableName))
+        this.knownVariableNames.add(variableName);
+      return this;
     }
 
     public CommandLineComposer build() {
@@ -82,6 +94,19 @@ public interface CommandLineComposer extends BiFunction<Context, Object[], Strin
 
     public String[] knownVariables() {
       return knownVariableNames.toArray(new String[0]);
+    }
+
+    private static ContextFunction<String> quoteWithApostrophe(ContextFunction<String> func) {
+      return func.andThen(new Function<String, String>() {
+        @Override
+        public String apply(String s) {
+          return CommanderUtils.quoteWithApostropheForShell(s);
+        }
+        @Override
+        public String toString() {
+          return "quoteWith[']";
+        }
+      });
     }
   }
 }
