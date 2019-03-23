@@ -166,7 +166,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             out.get(0),
             Crest.allOf(
                 asString().containsString("[o]").$(),
-                asString().containsString("retry once in 60[seconds]").$()
+                asString().containsString("retry once in 60 [seconds]").$()
             ));
       }
 
@@ -224,7 +224,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             Crest.allOf(
                 asString("get", 0).containsString("PassAfterFail").$(),
                 asString("get", 1).containsString("[o]").$(),
-                asString("get", 1).containsString("retry once in 1[milliseconds]").$(),
+                asString("get", 1).containsString("retry once in 1 [milliseconds]").$(),
                 asString("get", 2).containsString("[Eo]").$(),
                 asString("get", 2).containsString("PassAfterFail").$()
             )
@@ -240,7 +240,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             out.get(0),
             Crest.allOf(
                 Crest.asString().containsString("[o]").$(),
-                Crest.asString().containsString("timeout in 60[seconds]").$()
+                Crest.asString().containsString("timeout in 60 [seconds]").$()
             ));
       }
 

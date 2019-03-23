@@ -78,7 +78,7 @@ public enum InternalUtils {
 
   public static String formatDuration(long durationInNanos) {
     TimeUnit timeUnit = chooseTimeUnit(durationInNanos);
-    return format("%d[%s]", timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
+    return format("%d [%s]", timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());
   }
 
   private static TimeUnit chooseTimeUnit(long intervalInNanos) {

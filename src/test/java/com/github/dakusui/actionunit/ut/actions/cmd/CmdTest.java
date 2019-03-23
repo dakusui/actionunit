@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
@@ -8,17 +9,32 @@ import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.Shell;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.dakusui.actionunit.core.ActionSupport.when;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.sublistAfterElement;
+import static com.github.dakusui.crest.Crest.substringAfterRegex;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @RunWith(Enclosed.class)
 public class CmdTest {
@@ -69,6 +85,109 @@ public class CmdTest {
                   when(cmd.toContextPredicate())
                       .perform(leaf(c -> out.add("MET")))
                       .otherwise(leaf(c -> out.add("NOTMET")))));
+    }
+  }
+
+  public static class AsCommander extends Base {
+    @Test
+    public void givenEchoEnvVar$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world"))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("world")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloWithSh$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo hello").shell(sh()))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenCatStreamOfHelloWorld$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("cat").stdin(Stream.of("hello", "world")))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(asList("hello", "world")).$()
+      );
+    }
+
+    @Test
+    public void givenPwd$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("pwd").cwd(getCwd()))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList(getCwd().getAbsolutePath())).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloWithDownstreamConsumerFactory$whenPerformAsAction$thenPrintedBySpecifiedDownstreamConsumer() {
+      List<String> downstream = new LinkedList<>();
+      performAction(
+          initCmd(cmd("echo hello")).downstreamConsumerFactory(() -> downstream::add)
+              .toAction());
+      assertThat(
+          downstream,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloWithTimeoutInOneSecond$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo hello").retryOption(RetryOption.timeoutInSeconds(1))).toAction()
+      );
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloWithTimeoutInOneMinutesAndRetryingTwice$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo hello").retryOption(
+              RetryOption.builder()
+                  .timeoutIn(1, MINUTES)
+                  .retries(2)
+                  .retryOn(Exception.class)
+                  .retryInterval(1, SECONDS).build())).toAction()
+      );
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    private static File getCwd() {
+      return new File(System.getProperty("user.dir"));
+    }
+
+    private static Shell sh() {
+      return new Shell() {
+        @Override
+        public String program() {
+          return "sh";
+        }
+
+        @Override
+        public List<String> options() {
+          return singletonList("-c");
+        }
+      };
     }
   }
 

@@ -127,7 +127,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     assertThat(
         out,
         allOf(
-            asString("get", 0).startsWith("timeout in 1[nanoseconds]").$(),
+            asString("get", 0).startsWith("timeout in 1 [nanoseconds]").$(),
             Crest.asInteger("size").$()
         ));
   }

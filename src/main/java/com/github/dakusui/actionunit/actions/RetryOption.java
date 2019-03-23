@@ -7,27 +7,69 @@ import java.util.concurrent.TimeUnit;
 import static com.github.dakusui.actionunit.core.ActionSupport.retry;
 import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class RetryOption {
+  public static class Builder {
+    long                       timeoutDuration       = -1;
+    TimeUnit                   timeoutTimeUnit       = SECONDS;
+    Class<? extends Throwable> retryOn               = Throwable.class;
+    long                       retryInterval         = -1;
+    TimeUnit                   retryIntervalTimeUnit = SECONDS;
+    int                        retries               = -1;
+
+    public Builder timeoutIn(long timeoutDuration, TimeUnit timeoutTimeUnit) {
+      this.timeoutDuration = timeoutDuration;
+      this.timeoutTimeUnit = timeoutTimeUnit;
+      return this;
+    }
+
+    public Builder retryOn(Class<? extends Throwable> retryOn) {
+      this.retryOn = requireNonNull(retryOn);
+      return this;
+    }
+
+    public Builder retries(int retries) {
+      this.retries = retries;
+      return this;
+    }
+
+    public Builder retryInterval(long retryInterval, TimeUnit retryIntervalTimeUnit) {
+      this.retryInterval = retryInterval;
+      this.retryIntervalTimeUnit = retryIntervalTimeUnit;
+      return this;
+    }
+
+    public RetryOption build() {
+      return new RetryOption(
+          timeoutDuration,
+          timeoutTimeUnit,
+          retryOn,
+          retryInterval,
+          retryIntervalTimeUnit,
+          retries);
+    }
+  }
+
+  public static RetryOption.Builder builder() {
+    return new RetryOption.Builder();
+  }
+
   public static RetryOption timeoutInSeconds(long timeoutInSeconds) {
-    return new RetryOption(
-        timeoutInSeconds,
-        TimeUnit.SECONDS,
-        Throwable.class,
-        0,
-        TimeUnit.SECONDS,
-        0);
+    return new RetryOption.Builder()
+        .timeoutIn(timeoutInSeconds, SECONDS)
+        .retries(0)
+        .retryOn(Throwable.class)
+        .retryInterval(0, SECONDS)
+        .build();
   }
 
   public static RetryOption none() {
-    return new RetryOption(
-        -1,
-        TimeUnit.SECONDS,
-        Throwable.class,
-        -1,
-        TimeUnit.SECONDS,
-        -1
-    );
+    return new Builder()
+        .timeoutIn(-1, SECONDS)
+        .retryOn(Throwable.class)
+        .timeoutIn(-1, SECONDS)
+        .retries(-1).build();
   }
 
   public final long                       timeoutDuration;
