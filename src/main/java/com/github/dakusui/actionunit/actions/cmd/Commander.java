@@ -164,6 +164,18 @@ public abstract class Commander<C extends Commander<C>> {
 
 
   @SuppressWarnings("unchecked")
+  protected C append(ContextFunction<String> func) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, false);
+    return (C) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected C appendq(ContextFunction<String> func) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, true);
+    return (C) this;
+  }
+
+  @SuppressWarnings("unchecked")
   protected C append(String text) {
     requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, false);
     return (C) this;
@@ -175,6 +187,9 @@ public abstract class Commander<C extends Commander<C>> {
     return (C) this;
   }
 
+  protected C addOption(String option) {
+    return this.append(" ").append(option);
+  }
 
   @SuppressWarnings("unchecked")
   protected C appendVariable(String variableName) {
@@ -227,11 +242,11 @@ public abstract class Commander<C extends Commander<C>> {
     return this.shell;
   }
 
-  Optional<File> cwd() {
-    return Optional.ofNullable(this.cwd);
-  }
-
   Map<String, String> envvars() {
     return this.envvars;
+  }
+
+  protected Optional<File> cwd() {
+    return Optional.ofNullable(this.cwd);
   }
 }

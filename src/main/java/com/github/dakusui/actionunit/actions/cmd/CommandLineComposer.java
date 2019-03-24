@@ -49,6 +49,10 @@ public interface CommandLineComposer extends BiFunction<Context, Object[], Strin
     public Builder append(String text, boolean quoted) {
       requireNonNull(text);
       ContextFunction<String> func = ContextFunction.of(() -> text, c -> text);
+      return append(func, quoted);
+    }
+
+    public Builder append(ContextFunction<String> func, boolean quoted) {
       if (quoted)
         func = quoteWithApostrophe(func);
       this.builder.add(func);
@@ -102,6 +106,7 @@ public interface CommandLineComposer extends BiFunction<Context, Object[], Strin
         public String apply(String s) {
           return CommanderUtils.quoteWithApostropheForShell(s);
         }
+
         @Override
         public String toString() {
           return "quoteWith[']";
