@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
 
 import java.util.Formatter;
 
@@ -22,7 +22,7 @@ public interface When extends Action {
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("if [%s] is satisfied", cond());
+    formatter.format("if [%s]", cond());
   }
 
   class Builder extends Action.Builder<When> {

@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -32,7 +32,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
     }
 
     void performAndPrintAction(Action action) {
-      ReportingActionPerformer.create(getWriter()).performAndReport(action);
+      ReportingActionPerformer.create().performAndReport(action, getWriter());
     }
   }
 
@@ -161,7 +161,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       assertThat(
           getWriter(),
           Crest.allOf(
-              asString("get", 0).startsWith("[o]for each of data sequentially").$(),
+              asString("get", 0).startsWith("[o]for each of (noname) sequentially").$(),
               asString("get", 1).equalTo("  [ooo]do sequentially").$(),
               asString("get", 2).equalTo("    [ooo]Sink-1").$(),
               asString("get", 3).equalTo("      [ooo](noname)").$(),
@@ -194,7 +194,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         //Then printed correctly
         //noinspection unchecked
         assertThat(getWriter(), allOf(
-            asString("get", 0).startsWith("[E]for each of data sequentially").$(),
+            asString("get", 0).startsWith("[E]for each of (noname) sequentially").$(),
             asString("get", 1).startsWith("  [E]do sequentially").$(),
             asString("get", 2).startsWith("    [E]Sink-1").$(),
             asString("get", 3).startsWith("      [E](noname)").$(),

@@ -32,7 +32,7 @@ public class WhenTest extends TestUtils.TestBase {
             )
         ).build()
     );
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 
   @Test
@@ -45,7 +45,7 @@ public class WhenTest extends TestUtils.TestBase {
     ).otherwise(
         simple("not meets", (c) -> out.add("Condition not met"))
     );
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
     assertThat(
         out,
         asListOf(String.class).containsExactly(
@@ -64,7 +64,7 @@ public class WhenTest extends TestUtils.TestBase {
     ).otherwise(
         simple("not meets", (c) -> out.add("Condition not met"))
     );
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
 
     assertThat(
         out,

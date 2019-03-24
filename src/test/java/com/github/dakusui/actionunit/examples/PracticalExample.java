@@ -1,16 +1,19 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.utils.InternalUtils.sleep;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -81,7 +84,7 @@ public class PracticalExample extends TestUtils.TestBase {
             )));
     ////
     // Perform the action tree and report the result
-    ReportingActionPerformer.create(Writer.Std.ERR).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(action, Writer.Std.ERR);
 
     ////
     // This will print out something like following to stdout

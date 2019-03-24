@@ -2,17 +2,29 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.parallel;
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
+import static com.github.dakusui.actionunit.core.ActionSupport.when;
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.isRunByTravis;
@@ -21,7 +33,9 @@ import static com.github.dakusui.crest.Crest.assertThat;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedList;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
@@ -132,9 +146,9 @@ public class CompatActionSupportTest {
 
   @Test
   public void givenTimeoutAction$whenDescribe$thenLooksNice() {
-    assertEquals("timeout in 1[milliseconds]", String.format("%s", timeout(nop()).in(1, MILLISECONDS)));
-    assertEquals("timeout in 10[seconds]", String.format("%s", timeout(nop()).in(10000, MILLISECONDS)));
-    assertEquals("timeout in 1000[days]", String.format("%s", (timeout(nop()).in(1000, DAYS))));
+    assertEquals("timeout in 1 [milliseconds]", String.format("%s", timeout(nop()).in(1, MILLISECONDS)));
+    assertEquals("timeout in 10 [seconds]", String.format("%s", timeout(nop()).in(10000, MILLISECONDS)));
+    assertEquals("timeout in 1000 [days]", String.format("%s", (timeout(nop()).in(1000, DAYS))));
   }
 
   @Test(expected = TimeoutException.class)
@@ -142,7 +156,7 @@ public class CompatActionSupportTest {
     assumeFalse(isRunByTravis());
     final List<String> arr = new ArrayList<>();
     try {
-      ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(
+      ReportingActionPerformer.create().performAndReport(
           timeout(
               simple("Add 'Hello' and sleep 30[msec]", (c) -> {
                 arr.add("Hello");
@@ -154,7 +168,8 @@ public class CompatActionSupportTest {
               })
           ).in(
               1, MILLISECONDS
-          ));
+          ),
+          Writer.Std.OUT);
     } catch (ActionException e) {
       assertArrayEquals(new Object[] { "Hello" }, arr.toArray());
       throw e.getCause();
@@ -259,7 +274,7 @@ public class CompatActionSupportTest {
 
   @Test
   public void givenRetryAction$whenDescribe$thenLooksNice() {
-    assertEquals("retry once in 2[seconds] on Exception", String.format("%s", retry(nop()).times(1).withIntervalOf(2, SECONDS).build()));
+    assertEquals("retry once in 2 [seconds] on Exception", String.format("%s", retry(nop()).times(1).withIntervalOf(2, SECONDS).build()));
   }
 
   @Test

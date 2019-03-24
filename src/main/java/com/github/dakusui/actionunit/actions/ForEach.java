@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.Formatter;
 

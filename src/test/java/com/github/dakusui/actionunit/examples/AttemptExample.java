@@ -1,10 +1,13 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.attempt;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 
 public class AttemptExample extends TestUtils.TestBase {
   @Test(expected = IllegalArgumentException.class)
@@ -14,7 +17,7 @@ public class AttemptExample extends TestUtils.TestBase {
 
   @Test(expected = IllegalArgumentException.class)
   public void givenAttemptAction$whenPerformAndReport$thenWorksFine() {
-    TestUtils.createReportingActionPerformer().performAndReport(buildAttemptAction());
+    TestUtils.createReportingActionPerformer().performAndReport(buildAttemptAction(), Writer.Std.OUT);
   }
 
 

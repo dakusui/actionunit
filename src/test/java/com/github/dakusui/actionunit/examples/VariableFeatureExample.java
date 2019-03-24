@@ -32,7 +32,7 @@ public class VariableFeatureExample extends TestUtils.TestBase {
   }
 
   private void run(Action action) {
-    ReportingActionPerformer performer = ReportingActionPerformer.create(Writer.Std.OUT);
-    performer.performAndReport(action);
+    ReportingActionPerformer performer = ReportingActionPerformer.create();
+    performer.performAndReport(action, Writer.Std.OUT);
   }
 }

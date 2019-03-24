@@ -11,29 +11,28 @@ import static java.util.Objects.requireNonNull;
 
 public class ReportingActionPerformer extends ActionPerformer {
   private final Map<Action, Record> report;
-  private final Writer              writer;
 
-  private ReportingActionPerformer(Writer writer) {
-    this(writer, Context.create(), new LinkedHashMap<>());
+  private ReportingActionPerformer() {
+    this(Context.create(), new LinkedHashMap<>());
   }
 
-  private ReportingActionPerformer(Writer writer, Context context, Map<Action, Record> report) {
+  private ReportingActionPerformer(Context context, Map<Action, Record> report) {
     super(context);
     this.report = report;
-    this.writer = writer;
   }
 
   @Override
   protected Action.Visitor newInstance(Context context) {
-    return new ReportingActionPerformer(this.writer, context, this.report);
+    return new ReportingActionPerformer(context, this.report);
   }
 
   @Override
   protected void callAccept(Action action, Action.Visitor visitor) {
     synchronized (report) {
-      report.computeIfAbsent(action, a -> new Record());
+      report.computeIfAbsent(action, a -> createRecord());
     }
     Record record = requireNonNull(report.get(action));
+    record.started();
     try {
       action.accept(visitor);
       record.succeeded();
@@ -47,15 +46,23 @@ public class ReportingActionPerformer extends ActionPerformer {
     callAccept(requireNonNull(action), this);
   }
 
-  public void performAndReport(Action action) {
+  public void performAndReport(Action action, Writer writer) {
     try {
       perform(action);
     } finally {
-      new ActionReporter(this.writer, this.report).report(action);
+      new ActionReporter(writer, this.getReport()).report(action);
     }
   }
 
-  public static ReportingActionPerformer create(Writer writer) {
-    return new ReportingActionPerformer(writer);
+  public Map<Action, Record> getReport() {
+    return this.report;
+  }
+
+  protected Record createRecord() {
+    return new Record();
+  }
+
+  public static ReportingActionPerformer create() {
+    return new ReportingActionPerformer();
   }
 }

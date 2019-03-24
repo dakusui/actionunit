@@ -39,14 +39,14 @@ public class ForEachTest extends TestUtils.TestBase {
                 (c) -> out.add("'" + c.valueOf("i") + "'")
             )));
     // When
-    TestUtils.createReportingActionPerformer().performAndReport(action);
+    TestUtils.createReportingActionPerformer().performAndReport(action, Writer.Std.OUT);
     // Then
     assertThat(
         out,
         allOf(
-                asString("get", 0).equalTo("'Hello'").$(),
-                asString("get", 1).equalTo("'world'").$(),
-                asString("get", 2).equalTo("'!'").$()
+            asString("get", 0).equalTo("'Hello'").$(),
+            asString("get", 1).equalTo("'world'").$(),
+            asString("get", 2).equalTo("'!'").$()
         ));
   }
 
@@ -72,14 +72,17 @@ public class ForEachTest extends TestUtils.TestBase {
         )
     );
     // When3
-    ReportingActionPerformer.create(Writer.Std.ERR).performAndReport(action);
+    ReportingActionPerformer.create().performAndReport(
+        action,
+        Writer.Std.ERR
+    );
     // Then
     Crest.assertThat(
         out,
         Crest.allOf(
-		        asListOf(String.class).contains("'Hello'").$(),
-		        asListOf(String.class).contains("'world'").$(),
-		        asListOf(String.class).contains("'!'").$()
+            asListOf(String.class).contains("'Hello'").$(),
+            asListOf(String.class).contains("'world'").$(),
+            asListOf(String.class).contains("'!'").$()
         ));
   }
 }
