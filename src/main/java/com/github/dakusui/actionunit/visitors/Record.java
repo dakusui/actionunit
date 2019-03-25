@@ -8,6 +8,9 @@ public class Record implements Iterable<Record.Run> {
 
   private final List<Run> runs = Collections.synchronizedList(new LinkedList<>());
 
+  public void started() {
+  }
+
   public void succeeded() {
     runs.add(Run.SUCCEEDED);
   }
@@ -26,7 +29,7 @@ public class Record implements Iterable<Record.Run> {
     return formatRecord(this);
   }
 
-  private String formatRecord(Record runs) {
+  private static String formatRecord(Record runs) {
     StringBuilder b = new StringBuilder();
     if (runs != null)
       runs.forEach(run -> b.append(run.toString()));

@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -54,7 +54,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
     }
   }
 
-  public static class ImplTest extends ActionComposer {
+  public static class SimpleTest extends ActionComposer {
 
     @Test
     public void givenTrace() {
@@ -106,7 +106,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
               asString("next").containsString("(noname)").$(),
               asString("next").containsString("simple3").$(),
               asString("next").containsString("(noname)").$(),
-              asString("next").containsString("for each of data sequentially").$(),
+              asString("next").containsString("for each of (noname) sequentially").$(),
               asString("next").containsString("(nop)").$()
           )
       );
@@ -166,7 +166,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             out.get(0),
             Crest.allOf(
                 asString().containsString("[o]").$(),
-                asString().containsString("retry once in 60[seconds]").$()
+                asString().containsString("retry once in 60 [seconds]").$()
             ));
       }
 
@@ -224,7 +224,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             Crest.allOf(
                 asString("get", 0).containsString("PassAfterFail").$(),
                 asString("get", 1).containsString("[o]").$(),
-                asString("get", 1).containsString("retry once in 1[milliseconds]").$(),
+                asString("get", 1).containsString("retry once in 1 [milliseconds]").$(),
                 asString("get", 2).containsString("[Eo]").$(),
                 asString("get", 2).containsString("PassAfterFail").$()
             )
@@ -240,7 +240,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             out.get(0),
             Crest.allOf(
                 Crest.asString().containsString("[o]").$(),
-                Crest.asString().containsString("timeout in 60[seconds]").$()
+                Crest.asString().containsString("timeout in 60 [seconds]").$()
             ));
       }
 
@@ -252,7 +252,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             visitor.visit(this);
           }
         };
-        TestUtils.createReportingActionPerformer().performAndReport(action);
+        TestUtils.createReportingActionPerformer().performAndReport(action, Writer.Std.OUT);
       }
 
       @Test(expected = UnsupportedOperationException.class)
@@ -268,13 +268,13 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             visitor.visit(this);
           }
         };
-        TestUtils.createReportingActionPerformer().performAndReport(action);
+        TestUtils.createReportingActionPerformer().performAndReport(action, Writer.Std.OUT);
       }
 
     }
 
     private static void runAndReport(Action action, TestUtils.Out out) {
-      ReportingActionPerformer.create(out).performAndReport(action);
+      ReportingActionPerformer.create().performAndReport(action, out);
     }
   }
 }

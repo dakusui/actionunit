@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -12,7 +12,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -57,14 +59,13 @@ public class RetryTest extends TestUtils.TestBase {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, NullPointerException.class, new NullPointerException("HelloNpe"));
     try {
-      ReportingActionPerformer.create(
-          outForTree
-      ).performAndReport(action);
+      ReportingActionPerformer.create()
+          .performAndReport(action, outForTree);
     } finally {
       Crest.assertThat(
           outForTree,
           Crest.allOf(
-              asString("get", 0).containsString("[o]").containsString("retry twice in 1[milliseconds] on NullPointerException").$(),
+              asString("get", 0).containsString("[o]").containsString("retry twice in 1 [milliseconds] on NullPointerException").$(),
               asString("get", 1).containsString("[EEo]").containsString("Passes on third try").$(),
               asInteger("size").equalTo(3).$()
           )
@@ -89,12 +90,12 @@ public class RetryTest extends TestUtils.TestBase {
     TestUtils.Out outForTree = new TestUtils.Out();
     Action action = composeRetryAction(outForRun, ActionException.class, new ActionException("HelloException"));
     try {
-      ReportingActionPerformer.create(outForTree).performAndReport(action);
+      ReportingActionPerformer.create().performAndReport(action, outForTree);
     } finally {
       Crest.assertThat(
           outForTree,
           Crest.allOf(
-              asString("get", 0).containsString("[o]").containsString("retry twice in 1[milliseconds]").$(),
+              asString("get", 0).containsString("[o]").containsString("retry twice in 1 [milliseconds]").$(),
               asString("get", 1).containsString("[EEo]").containsString("Passes on third try").$(),
               asString("get", 2).containsString("[EEo]").containsString("(noname)").$(),
               asInteger("size").equalTo(3).$()

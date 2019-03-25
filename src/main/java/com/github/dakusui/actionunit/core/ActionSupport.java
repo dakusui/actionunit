@@ -1,10 +1,15 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.Cmd;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.Formatter;
 import java.util.List;
+import java.util.function.IntFunction;
 
 import static java.util.Arrays.asList;
 
@@ -62,13 +67,15 @@ public enum ActionSupport {
     return new Composite.Builder(actions).parallel().build();
   }
 
-  public static Commander cmd(String program) {
-    return new Commander() {
-      @Override
-      protected String program() {
-        return program;
-      }
-    };
+  public static Cmd cmd(String program, String... knownVariables) {
+    return cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER, program, knownVariables);
+  }
+
+  public static Cmd cmd(IntFunction<String> placeHolderFormatter, String program, String... knownVariables) {
+    Cmd ret = new Cmd(placeHolderFormatter).command(program);
+    for (String each : knownVariables)
+      ret = ret.declareVariable(each);
+    return ret;
   }
 
   public static Action simple(String name, ContextConsumer consumer) {

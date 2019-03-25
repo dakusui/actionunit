@@ -1,6 +1,13 @@
 package com.github.dakusui.actionunit.visitors;
 
-import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.actions.Attempt;
+import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.actions.ForEach;
+import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.actions.Named;
+import com.github.dakusui.actionunit.actions.Retry;
+import com.github.dakusui.actionunit.actions.TimeOut;
+import com.github.dakusui.actionunit.actions.When;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -59,17 +66,20 @@ public abstract class ActionPerformer implements Action.Visitor {
   }
 
   public void visit(Attempt action) {
+    Context originalContext = this.context;
     try {
       callAccept(action.perform(), this);
     } catch (Throwable t) {
-      if (action.targetExceptionClass().isAssignableFrom(t.getClass()))
+      if (action.targetExceptionClass().isAssignableFrom(t.getClass())) {
+        this.context = this.context.createChild();
         callAccept(action.recover(), newInstance(
-            this.context.createChild().assignTo(Context.Impl.ONGOING_EXCEPTION, t)
+            originalContext.assignTo(Context.Impl.ONGOING_EXCEPTION, t)
         ));
-      else
+      } else
         throw ActionException.wrap(t);
     } finally {
       callAccept(action.ensure(), this);
+      this.context = originalContext;
     }
   }
 

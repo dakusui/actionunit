@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.scenarios;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
@@ -168,7 +168,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
     Action action = timeout(
         leaf($ -> System.out.println("hello"))
     ).in(
-        1, MILLISECONDS
+        5, MILLISECONDS
     );
 
     action.accept(SimpleActionPerformer.create());
@@ -186,19 +186,12 @@ public class ActionSupportTest extends TestUtils.TestBase {
   }
 
   @Test
-  public void givenCmd$when$then() {
-    Action action = cmd("/bin/echo").addq("hello").$();
-
-    action.accept(SimpleActionPerformer.create());
-  }
-
-  @Test
   public void print() {
     EXAMPLE_ACTION.accept(new ActionPrinter(Writer.Std.OUT));
   }
 
   @Test
   public void performAndReport() {
-    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(EXAMPLE_ACTION);
+    ReportingActionPerformer.create().performAndReport(EXAMPLE_ACTION, Writer.Std.OUT);
   }
 }

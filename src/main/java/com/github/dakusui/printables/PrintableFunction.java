@@ -1,16 +1,17 @@
 package com.github.dakusui.printables;
 
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class PrintableFunction<T, R> implements Function<T, R> {
-  private final Supplier<String>                 s;
-  private final Function<? super T, ? extends R> function;
+import static java.util.Objects.requireNonNull;
 
-  PrintableFunction(Supplier<String> s, Function<? super T, ? extends R> function) {
-    this.s = Objects.requireNonNull(s);
-    this.function = Objects.requireNonNull(function);
+public class PrintableFunction<T, R> implements Function<T, R> {
+  private final Function<? super T, ? extends R> function;
+  private final Supplier<String>                 formatter;
+
+  public PrintableFunction(Supplier<String> formatter, Function<? super T, ? extends R> function) {
+    this.formatter = requireNonNull(formatter);
+    this.function = requireNonNull(function);
   }
 
   @Override
@@ -19,17 +20,42 @@ public class PrintableFunction<T, R> implements Function<T, R> {
   }
 
   public <V> Function<V, R> compose(Function<? super V, ? extends T> before) {
-    Objects.requireNonNull(before);
-    return new PrintableFunction<V, R>(() -> String.format("%s%s", before, s), this.function.compose(before));
+    requireNonNull(before);
+    return new PrintableFunction<>(() -> String.format("%s(%s)", formatter.get(), before), this.function.compose(before));
   }
 
   public <V> Function<T, V> andThen(Function<? super R, ? extends V> after) {
-    Objects.requireNonNull(after);
-    return new PrintableFunction<T, V>(() -> String.format("%s%s", s, after), this.function.andThen(after));
+    requireNonNull(after);
+    return new PrintableFunction<>(() -> String.format("%s(%s)", after, formatter.get()), this.function.andThen(after));
+  }
+
+  protected Supplier<String> getFormatter() {
+    return formatter;
+  }
+
+  protected Function<? super T, ? extends R> getFunction() {
+    return this.function;
   }
 
   @Override
   public String toString() {
-    return s.get();
+    return formatter.get();
+  }
+
+  public static class Builder<T, R> {
+
+    private final Function<T, R> function;
+
+    public Builder(Function<T, R> function) {
+      this.function = requireNonNull(function);
+    }
+
+    public Function<T, R> describe(Supplier<String> formatter) {
+      return new PrintableFunction<>(requireNonNull(formatter), function);
+    }
+
+    public Function<T, R> describe(String description) {
+      return describe(() -> description);
+    }
   }
 }
