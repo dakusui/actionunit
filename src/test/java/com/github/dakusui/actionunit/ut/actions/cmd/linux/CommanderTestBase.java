@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.After;
 import org.junit.Before;
@@ -23,7 +24,7 @@ import static com.github.dakusui.crest.Crest.asBoolean;
 import static com.github.dakusui.crest.Crest.requireThat;
 import static java.lang.String.format;
 
-public abstract class CommanderTestBase implements CommanderFactory {
+public abstract class CommanderTestBase extends TestUtils.TestBase implements CommanderFactory {
   private       File         baseDir;
   private final List<String> out = new LinkedList<>();
 

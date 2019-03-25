@@ -131,7 +131,7 @@ public abstract class Commander<C extends Commander<C>> {
    * @return An action object.
    */
   public Action toAction() {
-    return CommanderUtils.createAction(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createAction(this, this.variableNames());
   }
 
   /**
@@ -140,19 +140,19 @@ public abstract class Commander<C extends Commander<C>> {
    * @return A stream generator object.
    */
   public StreamGenerator<String> toStreamGenerator() {
-    return CommanderUtils.createStreamGenerator(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createStreamGenerator(this, this.variableNames());
   }
 
   public ContextConsumer toContextConsumer() {
-    return CommanderUtils.createContextConsumer(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createContextConsumer(this, this.variableNames());
   }
 
   public ContextPredicate toContextPredicate() {
-    return CommanderUtils.createContextPredicate(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createContextPredicate(this, this.variableNames());
   }
 
   public ContextFunction<String> toContextFunction() {
-    return CommanderUtils.createContextFunction(this, this.buildCommandLineComposer(), this.variableNames());
+    return CommanderUtils.createContextFunction(this, this.variableNames());
   }
 
   @SuppressWarnings("unchecked")
@@ -162,28 +162,59 @@ public abstract class Commander<C extends Commander<C>> {
     return (C) this;
   }
 
+  /**
+   * Adds a {@code target} to this object. A target may be a file, directory, or a
+   * message. For instance, for a {@code cat} command, which usually processes
+   * a file or files, this method will be used to add a file to be processed by
+   * the command.
+   * The value of the {@code target} parameter will be quoted.
+   *
+   * @param target A target string
+   * @return This object
+   */
+  public C add(ContextFunction<String> target) {
+    return this.append(" ").appendq(requireNonNull(target));
+  }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Adds a {@code target} to this object. A target may be a file, directory, or a
+   * message. For instance, for a {@code cat} command, which usually processes
+   * a file or files, this method will be used to add a file to be processed by
+   * the command.
+   * The value of the {@code target} parameter will be quoted.
+   *
+   * @param target A target string
+   * @return This object
+   */
+  public C add(String target) {
+    return this.append(" ").appendq(requireNonNull(target));
+  }
+
   public C append(ContextFunction<String> func) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, false);
-    return (C) this;
+    return append(func, false);
   }
 
-  @SuppressWarnings("unchecked")
   public C appendq(ContextFunction<String> func) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, true);
-    return (C) this;
+    return append(func, true);
   }
 
   @SuppressWarnings("unchecked")
+  public C append(ContextFunction<String> func, boolean b) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, b);
+    return (C) this;
+  }
+
   public C append(String text) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, false);
-    return (C) this;
+    return append(text, false);
+  }
+
+  public C appendq(String text) {
+    return append(text, true);
   }
 
   @SuppressWarnings("unchecked")
-  public C appendq(String text) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, true);
+  public C append(String text, boolean b) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, b);
     return (C) this;
   }
 
@@ -191,15 +222,17 @@ public abstract class Commander<C extends Commander<C>> {
     return this.append(" ").append(option);
   }
 
-  @SuppressWarnings("unchecked")
   public C appendVariable(String variableName) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, false);
-    return (C) this;
+    return appendVariable(variableName, false);
+  }
+
+  public C appendQuotedVariable(String variableName) {
+    return appendVariable(variableName, true);
   }
 
   @SuppressWarnings("unchecked")
-  public C appendQuotedVariable(String variableName) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, true);
+  public C appendVariable(String variableName, boolean b) {
+    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, b);
     return (C) this;
   }
 

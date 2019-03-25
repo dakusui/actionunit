@@ -48,11 +48,11 @@ public class Ls extends Commander<Ls> {
   }
 
   public Ls file(ContextFunction<String> path) {
-    return this.append(" ").appendq(path);
+    return this.add(path);
   }
 
   public Ls file(String path) {
-    return this.append(" ").appendq(path);
+    return this.add(path);
   }
 
   public Ls file(File path) {

@@ -1,18 +1,19 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.linux.Echo;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.sublistAfterElement;
 import static java.util.Collections.singletonList;
 
 public class EchoTest extends CommanderTestBase {
   @Test
-  public void givenEchoHelloWorld_notQuoted$whenPerformAsAction$thenHelloWorldIsPrinted() {
+  public void givenEchoHelloWorld$whenPerformAsAction$thenHelloWorldIsPrinted() {
     performAsAction(newEcho().message("hello world"));
     assertThat(
         out(),
@@ -21,18 +22,9 @@ public class EchoTest extends CommanderTestBase {
   }
 
   @Test
-  public void givenEchoHelloWorld_quoted$whenPerformAsAction$thenHelloWorldIsPrinted() {
-    performAsAction(newEcho().message("hello world", true));
-    assertThat(
-        out(),
-        asListOf(String.class).equalTo(singletonList("hello world")).$()
-    );
-  }
-
-  @Test
-  public void givenSingleQuoteContainingMessage_quoted$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+  public void givenSingleQuoteContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted() {
     String message = "hello, world's best message";
-    performAsAction(newEcho().message(message, true));
+    performAsAction(newEcho().message(message));
     assertThat(
         out(),
         asListOf(String.class).equalTo(singletonList(message)).$()
@@ -40,10 +32,10 @@ public class EchoTest extends CommanderTestBase {
   }
 
   @Test
-  public void givenSingleQuoteAndNewLineContainingMessage_quoted$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+  public void givenSingleQuoteAndNewLineContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted() {
     performAsAction(newEcho()
         .disableBackslashInterpretation()
-        .message("hello, world's\nbest message", true));
+        .message("hello, world's\nbest message"));
     assertThat(
         out(),
         asListOf(
@@ -54,10 +46,10 @@ public class EchoTest extends CommanderTestBase {
   }
 
   @Test
-  public void givenSingleQuoteAndEscapedNewLineContainingMessage_quoted_enablingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+  public void givenSingleQuoteAndEscapedNewLineContainingMessage_enablingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
     performAsAction(newEcho()
         .enableBackslashInterpretation()
-        .message("hello, world's\\nbest message", true));
+        .message("hello, world's\\nbest message"));
     assertThat(
         out(),
         asListOf(
@@ -68,10 +60,10 @@ public class EchoTest extends CommanderTestBase {
   }
 
   @Test
-  public void givenHello_EscapedNewLine_World_quoted_disblingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+  public void givenHello_EscapedNewLine_World_disblingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
     performAsAction(newEcho()
         .disableBackslashInterpretation()
-        .message("hello\\nworld", true));
+        .message("hello\\nworld"));
     assertThat(
         out(),
         asListOf(String.class).equalTo(singletonList("hello\\nworld")).$()
@@ -80,7 +72,7 @@ public class EchoTest extends CommanderTestBase {
 
   @Test
   public void givenEchoHelloWorld$whenPerformAsAction$thenOnlyHello_World_AndNewLineAreWritten() {
-    performAsAction(newEcho().message("hello\nworld\n", true));
+    performAsAction(newEcho().message("hello\nworld\n"));
     assertThat(
         out(),
         asListOf(String.class, sublistAfterElement("hello").afterElement("world").afterElement("").$()).isEmpty().$()
@@ -91,7 +83,7 @@ public class EchoTest extends CommanderTestBase {
   public void givenEchoHelloWorldAndNewLineWithNoTrailingNewLine$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
     performAsAction(newEcho()
         .noTrailingNewLine()
-        .message("hello\nworld\n", true));
+        .message("hello\nworld\n"));
     assertThat(
         out(),
         asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
@@ -119,7 +111,7 @@ public class EchoTest extends CommanderTestBase {
         forEach("i", StreamGenerator.fromArray("hello", "'world'")).perform(
             initCommander(newEcho())
                 .noTrailingNewLine()
-                .message(contextValueOf("i"), true).toAction()
+                .message(contextValueOf("i")).toAction()
         )
     );
     assertThat(

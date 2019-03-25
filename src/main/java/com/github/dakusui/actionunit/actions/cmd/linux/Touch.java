@@ -19,7 +19,7 @@ public class Touch extends Commander<Touch> {
   }
 
   public Touch file(String file) {
-    return this.append(" ").appendq(requireNonNull(file));
+    return this.add(file);
   }
 
   public Touch file(File file) {
@@ -27,6 +27,6 @@ public class Touch extends Commander<Touch> {
   }
 
   public Touch file(ContextFunction<String> file) {
-    return this.append(" ").appendq(requireNonNull(file));
+    return this.add(requireNonNull(file));
   }
 }

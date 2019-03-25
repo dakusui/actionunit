@@ -2,7 +2,11 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.*;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
@@ -37,21 +41,21 @@ public enum CommanderUtils {
     return requireNonNull(s).replaceAll("('+)", "'\"$1\"'");
   }
 
-  static Action createAction(Commander commander, CommandLineComposer commandLineComposer, String[] variableNames) {
+  static Action createAction(Commander commander, String[] variableNames) {
     return RetryOption.retryAndTimeOut(
-        leaf(createContextConsumer(commander, commandLineComposer, variableNames)),
+        leaf(createContextConsumer(commander, variableNames)),
         commander.retryOption());
   }
 
   static StreamGenerator<String> createStreamGenerator(
       Commander<?> commander,
-      final CommandLineComposer commandLineComposer,
       final String[] variableNames) {
+    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {
           @Override
           public Stream<String> apply(Params params) {
-            return createProcessStreamerBuilder(commander, params, commandLineComposer)
+            return createProcessStreamerBuilder(commander, params)
                 .checker(commander.checker())
                 .build()
                 .stream()
@@ -67,16 +71,13 @@ public enum CommanderUtils {
     );
   }
 
-  static ContextConsumer createContextConsumer(
-      Commander<?> commander,
-      CommandLineComposer commandLineComposer, String[] variableNames) {
+  static ContextConsumer createContextConsumer(Commander<?> commander, String[] variableNames) {
     requireNonNull(commander);
+    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return multiParamsConsumerFor(variableNames)
         .toContextConsumer(
             printableConsumer(
-                (Params params) -> createProcessStreamerBuilder(
-                    commander,
-                    params, commander.buildCommandLineComposer())
+                (Params params) -> createProcessStreamerBuilder(commander, params)
                     .checker(commander.checker())
                     .build()
                     .stream()
@@ -86,12 +87,12 @@ public enum CommanderUtils {
 
   static ContextPredicate createContextPredicate(
       Commander<?> commander,
-      CommandLineComposer commandLineComposer,
       String[] variableNames) {
+    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return multiParamsPredicateFor(variableNames)
         .toContextPredicate(printablePredicate(
             (Params params) -> {
-              ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params, commandLineComposer);
+              ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);
               try {
                 processStreamerBuilder
                     .checker(commander.checker())
@@ -112,10 +113,11 @@ public enum CommanderUtils {
                 objectToStringIfOverridden(commander.checker(), () -> "(noname)"))));
   }
 
-  static ContextFunction<String> createContextFunction(Commander<?> commander, CommandLineComposer commandLineComposer, String[] variableNames) {
+  static ContextFunction<String> createContextFunction(Commander<?> commander, String[] variableNames) {
+    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return ContextFunctions.<String>multiParamsFunctionFor(variableNames)
         .toContextFunction(params ->
-            createProcessStreamerBuilder(commander, params, commandLineComposer)
+            createProcessStreamerBuilder(commander, params)
                 .checker(commander.checker())
                 .build()
                 .stream()
@@ -123,13 +125,13 @@ public enum CommanderUtils {
                 .collect(joining(format("%n"))));
   }
 
-  static ProcessStreamer.Builder createProcessStreamerBuilder(Commander<?> commander, Params params, CommandLineComposer commandLineComposer) {
+  static ProcessStreamer.Builder createProcessStreamerBuilder(Commander<?> commander, Params params) {
     return createProcessStreamerBuilder(
         commander.stdin(),
         commander.shell(),
         commander.cwd().orElse(null),
         commander.envvars(),
-        commandLineComposer,
+        commander.buildCommandLineComposer(),
         params
     );
   }
