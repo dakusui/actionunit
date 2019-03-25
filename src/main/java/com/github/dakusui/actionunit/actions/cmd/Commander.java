@@ -164,48 +164,47 @@ public abstract class Commander<C extends Commander<C>> {
 
 
   @SuppressWarnings("unchecked")
-  protected C append(ContextFunction<String> func) {
+  public C append(ContextFunction<String> func) {
     requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, false);
     return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  protected C appendq(ContextFunction<String> func) {
+  public C appendq(ContextFunction<String> func) {
     requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, true);
     return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  protected C append(String text) {
+  public C append(String text) {
     requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, false);
     return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  protected C appendq(String text) {
+  public C appendq(String text) {
     requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, true);
     return (C) this;
   }
 
-  protected C addOption(String option) {
+  public C addOption(String option) {
     return this.append(" ").append(option);
   }
 
   @SuppressWarnings("unchecked")
-  protected C appendVariable(String variableName) {
+  public C appendVariable(String variableName) {
     requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, false);
     return (C) this;
   }
 
-
   @SuppressWarnings("unchecked")
-  protected C appendQuotedVariable(String variableName) {
+  public C appendQuotedVariable(String variableName) {
     requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, true);
     return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  protected C declareVariable(String variableName) {
+  public C declareVariable(String variableName) {
     this.commandLineComposerBuilder.declareVariable(variableName);
     return (C) this;
   }
@@ -246,7 +245,7 @@ public abstract class Commander<C extends Commander<C>> {
     return this.envvars;
   }
 
-  protected Optional<File> cwd() {
+  Optional<File> cwd() {
     return Optional.ofNullable(this.cwd);
   }
 }

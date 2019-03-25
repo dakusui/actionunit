@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
 import java.util.function.IntFunction;
@@ -21,17 +22,21 @@ public class Ls extends Commander<Ls> {
     return addOption("-a");
   }
 
+  public Ls size() {
+    return addOption("-s");
+  }
+
   public Ls humanReadable() {
     return addOption("-h");
   }
 
   /**
-   * Add an indicator to each entry
+   * Add an indicator to each entry.
    *
    * @return This object
    */
   public Ls classify() {
-    return addOption("-h");
+    return addOption("-F");
   }
 
   public Ls reverse() {
@@ -40,6 +45,10 @@ public class Ls extends Commander<Ls> {
 
   public Ls sortByMtime() {
     return addOption("-t");
+  }
+
+  public Ls file(ContextFunction<String> path) {
+    return this.append(" ").appendq(path);
   }
 
   public Ls file(String path) {

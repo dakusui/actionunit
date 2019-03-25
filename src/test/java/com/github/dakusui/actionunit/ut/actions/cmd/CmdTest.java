@@ -21,16 +21,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.when;
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asListOf;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.Crest.sublistAfterElement;
-import static com.github.dakusui.crest.Crest.substringAfterRegex;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -266,7 +258,7 @@ public class CmdTest {
 
     @Test
     public void givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(cmd("echo").append(" ").appendVariable("i"));
+      performAsActionInsideHelloWorldLoop(cmd("echo").append(" ").appendQuotedVariable("i"));
     }
   }
 
