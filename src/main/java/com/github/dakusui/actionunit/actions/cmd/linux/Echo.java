@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.util.function.IntFunction;
 
@@ -23,13 +24,10 @@ public class Echo extends Commander<Echo> {
   }
 
   public Echo message(String message) {
-    return this.message(message, false);
+    return this.add(message);
   }
 
-  public Echo message(String message, boolean quoted) {
-    this.append(" ");
-    return quoted ?
-        this.appendq(message) :
-        this.append(message);
+  public Echo message(ContextFunction<String> message) {
+    return this.add(message);
   }
 }

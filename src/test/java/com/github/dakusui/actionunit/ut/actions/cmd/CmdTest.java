@@ -25,6 +25,7 @@ import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.when;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asListOf;
 import static com.github.dakusui.crest.Crest.asString;
@@ -62,7 +63,6 @@ public class CmdTest {
               leaf(initCmd(cmd).toContextConsumer())
           ));
     }
-
 
     void performAsActionInsideHelloWorldLoop(Cmd cmd) {
       performAction(
@@ -108,6 +108,71 @@ public class CmdTest {
       assertThat(
           out,
           asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloUsingAddMethod$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo").add("hello"))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloUsingAppendqMethod$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo").append(" ").appendq(immediateOf("hello")))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloUsingAppendContextFunctionMethod$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo").append(" ").append(immediateOf("hello")))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo").append(" ").append(immediateOf("hello"), false))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloUsingAppendStringMethod$whenPerformAsAction$thenPrinted() {
+      performAction(
+          initCmd(cmd("echo").append(" ").append("hello", false))
+              .toAction());
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(singletonList("hello")).$()
+      );
+    }
+
+    @Test
+    public void givenEchoHelloUsingAppendVariableMethod$whenPerformAsAction$thenPrinted() {
+      performAsActionInsideHelloWorldLoop(
+          initCmd(cmd("echo").append(" ").appendVariable("i", false)));
+      assertThat(
+          out,
+          asListOf(String.class).equalTo(asList("hello", "world")).$()
       );
     }
 
@@ -266,7 +331,7 @@ public class CmdTest {
 
     @Test
     public void givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(cmd("echo").append(" ").appendVariable("i"));
+      performAsActionInsideHelloWorldLoop(cmd("echo").append(" ").appendQuotedVariable("i"));
     }
   }
 

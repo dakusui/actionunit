@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
 import java.util.Objects;
@@ -25,7 +26,7 @@ public class Cat extends Commander<Cat> {
   public Cat beginHereDocument(String tag) {
     requireState(Objects::isNull, this.tag);
     this.tag = requireNonNull(tag);
-    return this.append(" ").append("<<").append(tag).append(format("%n"));
+    return this.append(" ").append("<<").append(tag).newLine();
   }
 
   /**
@@ -62,6 +63,10 @@ public class Cat extends Commander<Cat> {
   }
 
   public Cat file(String fileName) {
-    return this.append(" ").append(requireNonNull(fileName));
+    return add(fileName);
+  }
+
+  public Cat file(ContextFunction<String> fileName) {
+    return add(fileName);
   }
 }

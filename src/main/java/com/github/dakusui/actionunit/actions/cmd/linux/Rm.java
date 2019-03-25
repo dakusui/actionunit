@@ -27,10 +27,10 @@ public class Rm extends Commander<Rm> {
   }
 
   public Rm file(String file) {
-    return this.append(" ").append(file);
+    return this.add(file);
   }
 
   public Rm file(ContextFunction<String> file) {
-    return this.append(" ").append(file);
+    return this.add(file);
   }
 }

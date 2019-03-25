@@ -1,56 +1,43 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.linux.Echo;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
-import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Consumer;
-
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.sublistAfterElement;
 import static java.util.Collections.singletonList;
 
-public class EchoTest {
-  private final List<String> out = new LinkedList<>();
-
+public class EchoTest extends CommanderTestBase {
   @Test
-  public void givenEchoHelloWorld_notQuoted$whenPerformAsAction$thenHelloWorldIsPrinted() {
-    performEchoAsAction(newEcho().message("hello world"));
+  public void givenEchoHelloWorld$whenPerformAsAction$thenHelloWorldIsPrinted() {
+    performAsAction(newEcho().message("hello world"));
     assertThat(
-        out,
+        out(),
         asListOf(String.class).equalTo(singletonList("hello world")).$()
     );
   }
 
   @Test
-  public void givenEchoHelloWorld_quoted$whenPerformAsAction$thenHelloWorldIsPrinted() {
-    performEchoAsAction(newEcho().message("hello world", true));
-    assertThat(
-        out,
-        asListOf(String.class).equalTo(singletonList("hello world")).$()
-    );
-  }
-
-  @Test
-  public void givenSingleQuoteContainingMessage_quoted$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+  public void givenSingleQuoteContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted() {
     String message = "hello, world's best message";
-    performEchoAsAction(newEcho().message(message, true));
+    performAsAction(newEcho().message(message));
     assertThat(
-        out,
+        out(),
         asListOf(String.class).equalTo(singletonList(message)).$()
     );
   }
 
   @Test
-  public void givenSingleQuoteAndNewLineContainingMessage_quoted$whenPerformAsAction$thenCorrectMessageIsPrinted() {
-    performEchoAsAction(newEcho()
+  public void givenSingleQuoteAndNewLineContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+    performAsAction(newEcho()
         .disableBackslashInterpretation()
-        .message("hello, world's\nbest message", true));
+        .message("hello, world's\nbest message"));
     assertThat(
-        out,
+        out(),
         asListOf(
             String.class,
             sublistAfterElement("hello, world's").afterElement("best message").$())
@@ -59,12 +46,12 @@ public class EchoTest {
   }
 
   @Test
-  public void givenSingleQuoteAndEscapedNewLineContainingMessage_quoted_enablingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
-    performEchoAsAction(newEcho()
+  public void givenSingleQuoteAndEscapedNewLineContainingMessage_enablingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+    performAsAction(newEcho()
         .enableBackslashInterpretation()
-        .message("hello, world's\\nbest message", true));
+        .message("hello, world's\\nbest message"));
     assertThat(
-        out,
+        out(),
         asListOf(
             String.class,
             sublistAfterElement("hello, world's").afterElement("best message").$())
@@ -73,49 +60,67 @@ public class EchoTest {
   }
 
   @Test
-  public void givenHello_EscapedNewLine_World_quoted_disblingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
-    performEchoAsAction(newEcho()
+  public void givenHello_EscapedNewLine_World_disblingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+    performAsAction(newEcho()
         .disableBackslashInterpretation()
-        .message("hello\\nworld", true));
+        .message("hello\\nworld"));
     assertThat(
-        out,
+        out(),
         asListOf(String.class).equalTo(singletonList("hello\\nworld")).$()
     );
   }
 
   @Test
   public void givenEchoHelloWorld$whenPerformAsAction$thenOnlyHello_World_AndNewLineAreWritten() {
-    performEchoAsAction(newEcho().message("hello\nworld\n", true));
+    performAsAction(newEcho().message("hello\nworld\n"));
     assertThat(
-        out,
+        out(),
         asListOf(String.class, sublistAfterElement("hello").afterElement("world").afterElement("").$()).isEmpty().$()
     );
   }
 
   @Test
   public void givenEchoHelloWorldAndNewLineWithNoTrailingNewLine$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
-    performEchoAsAction(newEcho()
+    performAsAction(newEcho()
         .noTrailingNewLine()
-        .message("hello\nworld\n", true));
+        .message("hello\nworld\n"));
     assertThat(
-        out,
+        out(),
         asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
     );
   }
 
-  private void performEchoAsAction(Echo echo) {
-    ReportingActionPerformer.create().performAndReport(
-        echo.downstreamConsumer(downstreamConsumer())
-            .toAction(),
-        Writer.Std.OUT
+  @Test
+  public void givenEchoHelloWorldWithContextFunction$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
+    performAction(
+        forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+            initCommander(newEcho())
+                .noTrailingNewLine()
+                .message(contextValueOf("i")).toAction()
+        )
+    );
+    assertThat(
+        out(),
+        asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
     );
   }
 
-  private Consumer<String> downstreamConsumer() {
-    return ((Consumer<String>) System.out::println).andThen(out::add);
+  @Test
+  public void givenEchoHelloWorldWithContextFunctionQuoted$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
+    performAction(
+        forEach("i", StreamGenerator.fromArray("hello", "'world'")).perform(
+            initCommander(newEcho())
+                .noTrailingNewLine()
+                .message(contextValueOf("i")).toAction()
+        )
+    );
+    assertThat(
+        out(),
+        asListOf(String.class, sublistAfterElement("hello").afterElement("'world'").$()).isEmpty().$()
+    );
   }
 
   private Echo newEcho() {
-    return new Echo(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER);
+    return echo();
   }
 }

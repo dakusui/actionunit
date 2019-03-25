@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
 import java.util.function.IntFunction;
@@ -18,10 +19,14 @@ public class Touch extends Commander<Touch> {
   }
 
   public Touch file(String file) {
-    return this.append(" ").appendq(requireNonNull(file));
+    return this.add(file);
   }
 
   public Touch file(File file) {
     return this.file(requireNonNull(file).getAbsolutePath());
+  }
+
+  public Touch file(ContextFunction<String> file) {
+    return this.add(requireNonNull(file));
   }
 }

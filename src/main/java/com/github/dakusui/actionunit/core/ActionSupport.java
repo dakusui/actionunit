@@ -74,7 +74,7 @@ public enum ActionSupport {
   public static Cmd cmd(IntFunction<String> placeHolderFormatter, String program, String... knownVariables) {
     Cmd ret = new Cmd(placeHolderFormatter).command(program);
     for (String each : knownVariables)
-      ret.declareVariable(each);
+      ret = ret.declareVariable(each);
     return ret;
   }
 
