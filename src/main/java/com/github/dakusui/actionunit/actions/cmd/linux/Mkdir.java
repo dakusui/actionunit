@@ -4,12 +4,13 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
 
 public class Mkdir extends Commander<Mkdir> {
-  public Mkdir(IntFunction<String> parameterPlaceHolderFormatter) {
+  public Mkdir(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
     super(parameterPlaceHolderFormatter);
     this.command("mkdir");
   }

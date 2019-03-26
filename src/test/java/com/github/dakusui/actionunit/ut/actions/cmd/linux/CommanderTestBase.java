@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import static com.github.dakusui.crest.Crest.asBoolean;
 import static com.github.dakusui.crest.Crest.requireThat;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 public abstract class CommanderTestBase extends TestUtils.TestBase implements CommanderFactory {
   private       File         baseDir;
@@ -100,7 +101,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Co
   }
 
   private Action cleanUp() {
-    return new Cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER)
+    return new Cmd(requireNonNull(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER))
         .command("/bin/rm")
         .addOption("-rf")
         .append(" ")

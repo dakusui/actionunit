@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -21,7 +22,9 @@ import static java.util.stream.Collectors.joining;
 public enum ContextFunctions {
   ;
 
-  public static final IntFunction<String> DEFAULT_PLACE_HOLDER_FORMATTER = i -> String.format("{{%s}}", i);
+  public static final Function<String[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = varnames -> i -> String.format("{{%s}}", i);
+
+  public static final Function<String[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = varnames -> i -> String.format("{{%s}}", varnames[i]);
 
   public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(String... variableNames) {
     return new MultiParamsContextPredicateBuilder(variableNames);

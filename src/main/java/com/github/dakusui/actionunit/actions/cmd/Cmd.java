@@ -1,9 +1,10 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 public class Cmd extends Commander<Cmd> {
-  public Cmd(IntFunction<String> parameterPlaceHolderFormatter) {
+  public Cmd(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
     super(parameterPlaceHolderFormatter);
   }
 

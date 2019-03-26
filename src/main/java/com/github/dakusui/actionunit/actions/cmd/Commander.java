@@ -6,17 +6,20 @@ import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -25,9 +28,9 @@ import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Objects.requireNonNull;
 
-public abstract class Commander<C extends Commander<C>> {
-  private static final Logger              LOGGER = LoggerFactory.getLogger(Commander.class);
-  private final        IntFunction<String> parameterPlaceHolderFactory;
+public abstract class Commander<C extends Commander<C>> implements Cloneable {
+  private static final Logger                                  LOGGER = LoggerFactory.getLogger(Commander.class);
+  private final        Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
 
   private       RetryOption                 retryOption;
   private       Supplier<Consumer<String>>  downstreamConsumerFactory;
@@ -39,14 +42,23 @@ public abstract class Commander<C extends Commander<C>> {
   private       CommandLineComposer.Builder commandLineComposerBuilder;
 
 
-  protected Commander(IntFunction<String> parameterPlaceHolderFormatter) {
-    this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFormatter);
+  protected Commander(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
+    this.parameterPlaceHolderFactory = parameterPlaceHolderFormatter;
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(RetryOption.none())
         .shell(Shell.local())
         .checker(createCheckerForExitCode(0))
         .downstreamConsumer(LOGGER::trace);
+  }
+
+  @SuppressWarnings("unchecked")
+  public C clone() {
+    try {
+      return (C) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw ActionException.wrap(e);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -242,43 +254,51 @@ public abstract class Commander<C extends Commander<C>> {
     return (C) this;
   }
 
-  CommandLineComposer buildCommandLineComposer() {
-    return requireState(Objects::nonNull, this.commandLineComposerBuilder).build();
-  }
-
-  private String[] variableNames() {
-    return requireState(Objects::nonNull, this.commandLineComposerBuilder).knownVariables();
-  }
-
-  private IntFunction<String> parameterPlaceHolderFactory() {
-    return this.parameterPlaceHolderFactory;
-  }
-
-  RetryOption retryOption() {
+  public RetryOption retryOption() {
     return this.retryOption;
   }
 
-  Consumer<String> downstreamConsumer() {
-    return this.downstreamConsumerFactory.get();
+  public Supplier<Checker> checkerFactory() {
+    return this.checkerFactory;
+  }
+
+  public Supplier<Consumer<String>> downstreamConsumerFactory() {
+    return this.downstreamConsumerFactory;
+  }
+
+  public Stream<String> stdin() {
+    return this.stdin;
+  }
+
+  public Shell shell() {
+    return this.shell;
+  }
+
+  public Map<String, String> envvars() {
+    return Collections.unmodifiableMap(this.envvars);
+  }
+
+  public Optional<File> cwd() {
+    return Optional.ofNullable(this.cwd);
+  }
+
+  protected CommandLineComposer buildCommandLineComposer() {
+    return requireState(Objects::nonNull, this.commandLineComposerBuilder).build();
   }
 
   Checker checker() {
     return this.checkerFactory.get();
   }
 
-  Stream<String> stdin() {
-    return this.stdin;
+  Consumer<String> downstreamConsumer() {
+    return this.downstreamConsumerFactory.get();
   }
 
-  Shell shell() {
-    return this.shell;
+  private String[] variableNames() {
+    return requireState(Objects::nonNull, this.commandLineComposerBuilder).knownVariables();
   }
 
-  Map<String, String> envvars() {
-    return this.envvars;
-  }
-
-  Optional<File> cwd() {
-    return Optional.ofNullable(this.cwd);
+  private Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
+    return this.parameterPlaceHolderFactory;
   }
 }
