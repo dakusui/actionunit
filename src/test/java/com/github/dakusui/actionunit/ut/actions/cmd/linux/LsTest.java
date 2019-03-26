@@ -4,9 +4,13 @@ import com.github.dakusui.actionunit.actions.cmd.linux.Ls;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.sublistAfter;
+import static com.github.dakusui.crest.Crest.sublistAfterElement;
 import static com.github.dakusui.crest.utils.printable.Predicates.matchesRegex;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -80,10 +84,19 @@ public class LsTest extends CommanderTestBase {
     );
   }
 
+  /**
+   * This test is flaky. Even giving a sleep in between file creations, sometimes
+   * the output is not ordered correctly. (annoying)
+   *
+   * @throws IOException          Failed to create file(s)
+   * @throws InterruptedException Interrupted
+   */
   @Test
   public void givenTwoFiles$whenLsWithReverseOrderSortingByMtime$thenFilesPrintedInExpectedOrder()
-      throws IOException {
+      throws IOException, InterruptedException {
     createNewDir("hello");
+    // Make sure the result is stably ordered.
+    TimeUnit.SECONDS.sleep(1);
     createNewFile("world");
     performAsAction(
         newLs().reverse().sortByMtime().file(baseDir())
@@ -94,10 +107,19 @@ public class LsTest extends CommanderTestBase {
     );
   }
 
+  /**
+   * This test is flaky. Even giving a sleep in between file creations, sometimes
+   * the output is not ordered correctly. (annoying)
+   *
+   * @throws IOException          Failed to create file(s)
+   * @throws InterruptedException Interrupted
+   */
   @Test
   public void givenTwoFiles$whenLsSortingByMtimeWithClassifier$thenFilesPrintedInExpectedOrderWithClassifier()
-      throws IOException {
+      throws IOException, InterruptedException {
     createNewDir("hello");
+    // Make sure the result is stably ordered.
+    TimeUnit.SECONDS.sleep(1);
     createNewFile("world");
     performAsAction(
         newLs().classify().sortByMtime().file(baseDir())
