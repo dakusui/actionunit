@@ -11,4 +11,5 @@ buildNumber.properties
 .idea
 *.iml
 actionunit.iml
+Project_Default.xml
 *~
