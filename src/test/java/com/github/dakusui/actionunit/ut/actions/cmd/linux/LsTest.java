@@ -103,7 +103,7 @@ public class LsTest extends CommanderTestBase {
     );
     assertThat(
         out(),
-        asListOf(String.class).equalTo(asList("world", "hello")).$()
+        asListOf(String.class).equalTo(asList("hello", "world")).$()
     );
   }
 
