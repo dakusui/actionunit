@@ -84,13 +84,6 @@ public class LsTest extends CommanderTestBase {
     );
   }
 
-  /**
-   * This test is flaky. Even giving a sleep in between file creations, sometimes
-   * the output is not ordered correctly. (annoying)
-   *
-   * @throws IOException          Failed to create file(s)
-   * @throws InterruptedException Interrupted
-   */
   @Test
   public void givenTwoFiles$whenLsWithReverseOrderSortingByMtime$thenFilesPrintedInExpectedOrder()
       throws IOException, InterruptedException {
@@ -106,14 +99,7 @@ public class LsTest extends CommanderTestBase {
         asListOf(String.class).equalTo(asList("hello", "world")).$()
     );
   }
-
-  /**
-   * This test is flaky. Even giving a sleep in between file creations, sometimes
-   * the output is not ordered correctly. (annoying)
-   *
-   * @throws IOException          Failed to create file(s)
-   * @throws InterruptedException Interrupted
-   */
+  
   @Test
   public void givenTwoFiles$whenLsSortingByMtimeWithClassifier$thenFilesPrintedInExpectedOrderWithClassifier()
       throws IOException, InterruptedException {
