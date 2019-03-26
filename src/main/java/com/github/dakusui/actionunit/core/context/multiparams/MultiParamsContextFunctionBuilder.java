@@ -16,7 +16,7 @@ public class MultiParamsContextFunctionBuilder<R> {
 
   public MultiParamsContextFunctionBuilder(String... variableNames) {
     this(
-        (f, v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER, v),
+        (f, v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
         variableNames
     );
   }

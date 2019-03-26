@@ -16,7 +16,7 @@ public class MultiParamsContextPredicateBuilder {
 
   public MultiParamsContextPredicateBuilder(String... variableNames) {
     this(
-        (Predicate f, String[] v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER, v),
+        (Predicate f, String[] v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
         variableNames
     );
   }

@@ -2,8 +2,11 @@ package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.actions.cmd.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -28,8 +31,10 @@ import static com.github.dakusui.actionunit.core.ActionSupport.when;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.asObject;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.requireThat;
 import static com.github.dakusui.crest.Crest.sublistAfterElement;
 import static com.github.dakusui.crest.Crest.substringAfterRegex;
 import static java.util.Arrays.asList;
@@ -89,6 +94,31 @@ public class CmdTest {
   }
 
   public static class AsCommander extends Base {
+    @Test
+    public void givenCommanderObject$whenExcerciseGetters$thenNoExceptionThrown() {
+      Commander commander = initCmd(cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world"));
+      requireThat(commander.retryOption(), asObject().isNotNull().$());
+      requireThat(commander.checkerFactory(), asObject().isNotNull().$());
+      requireThat(commander.downstreamConsumerFactory(), asObject().isNotNull().$());
+      requireThat(commander.stdin(), asObject().isNotNull().$());
+      requireThat(commander.shell(), asObject().isNotNull().$());
+      requireThat(commander.envvars(), asObject().isNotNull().$());
+      requireThat(commander.cwd(), asObject().isNotNull().$());
+    }
+
+    @Test
+    public void whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles() {
+      // This test only makes sure buildCommandLineComposer can be overridden.
+      requireThat(
+          new Cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER) {
+            @Test
+            protected CommandLineComposer buildCommandLineComposer() {
+              return super.buildCommandLineComposer();
+            }
+          },
+          asObject().isNotNull().$());
+    }
+
     @Test
     public void givenEchoEnvVar$whenPerformAsAction$thenPrinted() {
       performAction(
@@ -323,6 +353,15 @@ public class CmdTest {
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
       performAsActionInsideHelloWorldLoop(initCmd(cmd("echo {{0}}", "i")));
+      assertThat(
+          out,
+          asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
+      );
+    }
+
+    @Test
+    public void givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
+      performAsActionInsideHelloWorldLoop(initCmd(cmd(ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME, "echo {{i}}", "i")));
       assertThat(
           out,
           asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()

@@ -13,8 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -24,8 +29,8 @@ import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Ch
 import static java.util.Objects.requireNonNull;
 
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
-  private static final Logger              LOGGER = LoggerFactory.getLogger(Commander.class);
-  private final        IntFunction<String> parameterPlaceHolderFactory;
+  private static final Logger                                  LOGGER = LoggerFactory.getLogger(Commander.class);
+  private final        Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
 
   private       RetryOption                 retryOption;
   private       Supplier<Consumer<String>>  downstreamConsumerFactory;
@@ -37,8 +42,8 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   private       CommandLineComposer.Builder commandLineComposerBuilder;
 
 
-  protected Commander(IntFunction<String> parameterPlaceHolderFormatter) {
-    this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFormatter);
+  protected Commander(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
+    this.parameterPlaceHolderFactory = parameterPlaceHolderFormatter;
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(RetryOption.none())
@@ -293,7 +298,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return requireState(Objects::nonNull, this.commandLineComposerBuilder).knownVariables();
   }
 
-  private IntFunction<String> parameterPlaceHolderFactory() {
+  private Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
     return this.parameterPlaceHolderFactory;
   }
 }

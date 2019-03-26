@@ -138,12 +138,14 @@ public enum CommanderUtils {
       Stream<String> stdin, Shell shell, File cwd, Map<String, String> envvars,
       CommandLineComposer commandLineComposer,
       Params params) {
-    String commandLine = commandLineComposer.apply(
-        params.context(),
-        params.paramNames()
-            .stream()
-            .map(params::valueOf)
-            .toArray());
+    String[] variableNames = params.paramNames().toArray(new String[0]);
+    Object[] variableValues = params.paramNames()
+        .stream()
+        .map(params::valueOf)
+        .toArray();
+    String commandLine = commandLineComposer
+        .apply(variableNames)
+        .apply(params.context(), variableValues);
     LOGGER.info("Command Line:{}", commandLine);
     ProcessStreamer.Builder ret;
     if (stdin == null)

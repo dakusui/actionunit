@@ -15,12 +15,12 @@ import java.util.function.IntFunction;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
-public interface CommandLineComposer extends BiFunction<Context, Object[], String>, Formattable {
+public interface CommandLineComposer extends Function<String[], BiFunction<Context, Object[], String>>, Formattable {
   @Override
-  default String apply(Context context, Object[] argValues) {
-    return StableTemplatingUtils.template(
+  default BiFunction<Context, Object[], String> apply(String[] variableNames) {
+    return (context, argValues) -> StableTemplatingUtils.template(
         compose(context),
-        StableTemplatingUtils.toMapping(this.parameterPlaceHolderFactory(), argValues)
+        StableTemplatingUtils.toMapping(this.parameterPlaceHolderFactory().apply(variableNames), argValues)
     );
   }
 
@@ -29,18 +29,18 @@ public interface CommandLineComposer extends BiFunction<Context, Object[], Strin
     formatter.format(commandLineString());
   }
 
-  IntFunction<String> parameterPlaceHolderFactory();
+  Function<String[], IntFunction<String>> parameterPlaceHolderFactory();
 
   String commandLineString();
 
   String compose(Context context);
 
   class Builder {
-    private IntFunction<String>           parameterPlaceHolderFactory;
-    private List<String>                  knownVariableNames;
-    private List<ContextFunction<String>> builder;
+    private Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
+    private List<String>                            knownVariableNames;
+    private List<ContextFunction<String>>           builder;
 
-    public Builder(IntFunction<String> parameterPlaceHolderFactory) {
+    public Builder(Function<String[], IntFunction<String>> parameterPlaceHolderFactory) {
       this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
       this.builder = new LinkedList<>();
       this.knownVariableNames = new LinkedList<>();
@@ -80,7 +80,7 @@ public interface CommandLineComposer extends BiFunction<Context, Object[], Strin
     public CommandLineComposer build() {
       return new CommandLineComposer() {
         @Override
-        public IntFunction<String> parameterPlaceHolderFactory() {
+        public Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
           return parameterPlaceHolderFactory;
         }
 

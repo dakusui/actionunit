@@ -1,9 +1,15 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.*;
+import com.github.dakusui.actionunit.actions.cmd.linux.Cat;
+import com.github.dakusui.actionunit.actions.cmd.linux.Echo;
+import com.github.dakusui.actionunit.actions.cmd.linux.Ls;
+import com.github.dakusui.actionunit.actions.cmd.linux.Mkdir;
+import com.github.dakusui.actionunit.actions.cmd.linux.Rm;
+import com.github.dakusui.actionunit.actions.cmd.linux.Touch;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 public interface CommanderFactory {
@@ -44,7 +50,7 @@ public interface CommanderFactory {
     return Shell.LOCAL_SHELL;
   }
 
-  default IntFunction<String> variablePlaceHolderFormatter() {
+  default Function<String[], IntFunction<String>> variablePlaceHolderFormatter() {
     return ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
   }
 }

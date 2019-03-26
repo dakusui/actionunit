@@ -1,6 +1,13 @@
 package com.github.dakusui.actionunit.core;
 
-import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.actions.Attempt;
+import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.actions.ForEach;
+import com.github.dakusui.actionunit.actions.Leaf;
+import com.github.dakusui.actionunit.actions.Named;
+import com.github.dakusui.actionunit.actions.Retry;
+import com.github.dakusui.actionunit.actions.TimeOut;
+import com.github.dakusui.actionunit.actions.When;
 import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
@@ -9,9 +16,11 @@ import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.Formatter;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 
 public enum ActionSupport {
   ;
@@ -71,8 +80,8 @@ public enum ActionSupport {
     return cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER, program, knownVariables);
   }
 
-  public static Cmd cmd(IntFunction<String> placeHolderFormatter, String program, String... knownVariables) {
-    Cmd ret = new Cmd(placeHolderFormatter).command(program);
+  public static Cmd cmd(Function<String[], IntFunction<String>> placeHolderFormatter, String program, String... knownVariables) {
+    Cmd ret = new Cmd(requireNonNull(placeHolderFormatter)).command(program);
     for (String each : knownVariables)
       ret = ret.declareVariable(each);
     return ret;

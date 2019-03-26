@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
@@ -17,7 +18,7 @@ public class Cat extends Commander<Cat> {
    */
   private String tag;
 
-  public Cat(IntFunction<String> parameterPlaceHolderFormatter) {
+  public Cat(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
     super(parameterPlaceHolderFormatter);
     this.tag = null;
     this.command("cat");
