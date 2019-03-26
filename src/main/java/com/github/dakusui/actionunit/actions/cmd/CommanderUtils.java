@@ -88,7 +88,6 @@ public enum CommanderUtils {
   static ContextPredicate createContextPredicate(
       Commander<?> commander,
       String[] variableNames) {
-    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return multiParamsPredicateFor(variableNames)
         .toContextPredicate(printablePredicate(
             (Params params) -> {
@@ -114,7 +113,6 @@ public enum CommanderUtils {
   }
 
   static ContextFunction<String> createContextFunction(Commander<?> commander, String[] variableNames) {
-    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return ContextFunctions.<String>multiParamsFunctionFor(variableNames)
         .toContextFunction(params ->
             createProcessStreamerBuilder(commander, params)
