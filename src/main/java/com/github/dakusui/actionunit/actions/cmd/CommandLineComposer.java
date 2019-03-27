@@ -98,6 +98,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
       return knownVariableNames.toArray(new String[0]);
     }
 
+    @Override
     public CommandLineComposer.Builder clone() {
       try {
         CommandLineComposer.Builder ret = (Builder) super.clone();

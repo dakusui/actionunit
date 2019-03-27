@@ -73,7 +73,6 @@ public enum CommanderUtils {
 
   static ContextConsumer createContextConsumer(Commander<?> commander, String[] variableNames) {
     requireNonNull(commander);
-    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return multiParamsConsumerFor(variableNames)
         .toContextConsumer(
             printableConsumer(
@@ -82,7 +81,7 @@ public enum CommanderUtils {
                     .build()
                     .stream()
                     .forEach(commander.downstreamConsumer()))
-                .describe(commandLineComposer::commandLineString));
+                .describe(() -> commander.buildCommandLineComposer().commandLineString()));
   }
 
   static ContextPredicate createContextPredicate(

@@ -16,14 +16,15 @@ import static java.util.Objects.requireNonNull;
 
 public class Scp extends Commander<Scp> {
   private ContextFunction<Target> destination;
+  private SshOptions sshOptions;
 
   public Scp(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
     super(parameterPlaceHolderFormatter);
     this.command("scp");
   }
 
-  public Scp options(SshOptions options) {
-    requireNonNull(options).options().forEach(this::addOption);
+  public Scp options(SshOptions sshOptions) {
+    this.sshOptions = requireNonNull(sshOptions);
     return this;
   }
 
@@ -42,15 +43,70 @@ public class Scp extends Commander<Scp> {
 
   @Override
   protected CommandLineComposer buildCommandLineComposer() {
+    CommandLineComposer.Builder commandLineComposerBuilder = commandLineComposerBuilderIfSet().clone();
+    requireNonNull(sshOptions).options(SshOptions.Formatter.forScp()).forEach(this::addOption);
     Function<Target, String> formatTarget = PrintableFunction.of(Target::format).describe("Target::format");
-    return commandLineComposerBuilderIfSet().clone()
+    return commandLineComposerBuilder
         .append(" ", false)
         .append(requireState(Objects::nonNull, this.destination).andThen(formatTarget), true)
         .build();
   }
 
   public interface Target {
-    Optional<SshOptions.Account> account();
+    interface Account {
+      Optional<String> user();
+
+      String host();
+
+      default String format() {
+        return user()
+            .map(v -> String.format("%s@%s", v, host()))
+            .orElseGet(this::host);
+      }
+
+      static Account create(String user, String host) {
+        requireNonNull(user);
+        requireNonNull(host);
+        return new Account() {
+          @Override
+          public Optional<String> user() {
+            return Optional.of(user);
+          }
+
+          @Override
+          public String host() {
+            return host;
+          }
+
+          @Override
+          public String toString() {
+            return format();
+          }
+        };
+      }
+
+      static Account create(String host) {
+        requireNonNull(host);
+        return new Account() {
+          @Override
+          public Optional<String> user() {
+            return Optional.empty();
+          }
+
+          @Override
+          public String host() {
+            return host;
+          }
+
+          @Override
+          public String toString() {
+            return format();
+          }
+        };
+      }
+    }
+
+    Optional<Account> account();
 
     String path();
 
@@ -64,7 +120,7 @@ public class Scp extends Commander<Scp> {
       requireNonNull(path);
       return new Target() {
         @Override
-        public Optional<SshOptions.Account> account() {
+        public Optional<Account> account() {
           return Optional.empty();
         }
 
@@ -85,8 +141,8 @@ public class Scp extends Commander<Scp> {
       requireNonNull(path);
       return new Target() {
         @Override
-        public Optional<SshOptions.Account> account() {
-          return Optional.of(SshOptions.Account.create(host));
+        public Optional<Account> account() {
+          return Optional.of(Account.create(host));
         }
 
         @Override
@@ -107,8 +163,8 @@ public class Scp extends Commander<Scp> {
       requireNonNull(path);
       return new Target() {
         @Override
-        public Optional<SshOptions.Account> account() {
-          return Optional.of(SshOptions.Account.create(user, host));
+        public Optional<Account> account() {
+          return Optional.of(Account.create(user, host));
         }
 
         @Override
