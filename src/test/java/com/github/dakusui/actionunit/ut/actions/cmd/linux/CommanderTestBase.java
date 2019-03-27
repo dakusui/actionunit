@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.linux.LinuxCommanderFactory;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.io.Writer;
@@ -25,7 +25,7 @@ import static com.github.dakusui.crest.Crest.requireThat;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public abstract class CommanderTestBase extends TestUtils.TestBase implements CommanderFactory {
+public abstract class CommanderTestBase extends TestUtils.TestBase implements LinuxCommanderFactory {
   private       File         baseDir;
   private final List<String> out = new LinkedList<>();
 
@@ -73,7 +73,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Co
 
   @SuppressWarnings("UnusedReturnValue")
   File createNewFile(String name, String... content) throws IOException {
-    File file = new File(this.baseDir, name);
+    File file = fileOf(name);
     requireThat(file.createNewFile(), asBoolean().isTrue().$());
     file.deleteOnExit();
     try (FileWriter writer = new FileWriter(file)) {
@@ -87,13 +87,21 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Co
 
   @SuppressWarnings("UnusedReturnValue")
   File createNewDir(@SuppressWarnings("SameParameterValue") String name) {
-    File ret = new File(this.baseDir, name);
+    File ret = fileOf(name);
     requireThat(ret.mkdirs(), asBoolean().isTrue().$());
     return ret;
   }
 
   File baseDir() {
     return this.baseDir;
+  }
+
+  File fileOf(String name) {
+    return new File(this.baseDir, name);
+  }
+
+  String absolutePathOf(String name) {
+    return fileOf(name).getAbsolutePath();
   }
 
   void performAction(Action action) {

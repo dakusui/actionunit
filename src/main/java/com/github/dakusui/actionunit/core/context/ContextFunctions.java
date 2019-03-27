@@ -63,7 +63,7 @@ public enum ContextFunctions {
 
   public static <R> ContextFunction<R> immediateOf(R value) {
     return ContextFunction.of(
-        () -> format("immediateOf[%s]", value),
+        () -> format("%s", value),
         c -> value
     );
   }
