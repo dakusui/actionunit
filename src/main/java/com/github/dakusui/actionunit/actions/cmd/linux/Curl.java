@@ -99,4 +99,12 @@ public class Curl extends Commander<Curl> {
   public Curl data(DataFormat format, ContextFunction<String> content) {
     return this.addOption(format.getFormat()).add(requireNonNull(content));
   }
+
+  public Curl includeHeader() {
+    return this.addOption("-i");
+  }
+
+  public Curl headerOnly() {
+    return this.addOption("-I");
+  }
 }
