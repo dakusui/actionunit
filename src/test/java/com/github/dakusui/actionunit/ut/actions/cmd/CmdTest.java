@@ -112,7 +112,7 @@ public class CmdTest {
       requireThat(
           new Cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER) {
             @Test
-            protected CommandLineComposer buildCommandLineComposer() {
+            public CommandLineComposer buildCommandLineComposer() {
               return super.buildCommandLineComposer();
             }
           },

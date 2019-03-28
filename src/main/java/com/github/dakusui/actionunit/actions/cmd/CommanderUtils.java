@@ -50,7 +50,6 @@ public enum CommanderUtils {
   static StreamGenerator<String> createStreamGenerator(
       Commander<?> commander,
       final String[] variableNames) {
-    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
     return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {
           @Override
@@ -64,7 +63,7 @@ public enum CommanderUtils {
 
           @Override
           public String toString() {
-            return format("(%s)", commandLineComposer.commandLineString());
+            return format("(%s)", commander.buildCommandLineComposer().commandLineString());
           }
         },
         variableNames

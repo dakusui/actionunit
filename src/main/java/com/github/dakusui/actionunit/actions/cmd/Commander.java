@@ -28,18 +28,18 @@ import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Ch
 import static java.util.Objects.requireNonNull;
 
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
-  private static final Logger                                  LOGGER = LoggerFactory.getLogger(Commander.class);
-  private final        Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
+  private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
+  CommandLineComposer.Builder commandLineComposerBuilder;
+  private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
 
-  private       RetryOption                 retryOption;
-  private       Supplier<Consumer<String>>  downstreamConsumerFactory;
-  private       Supplier<Checker>           checkerFactory;
-  private       Stream<String>              stdin;
-  private       Shell                       shell;
-  private       File                        cwd         = null;
-  private final Map<String, String>         envvars;
-  private       CommandLineComposer.Builder commandLineComposerBuilder;
-  private       String                      description = null;
+  private       RetryOption                retryOption;
+  private       Supplier<Consumer<String>> downstreamConsumerFactory;
+  private       Supplier<Checker>          checkerFactory;
+  private       Stream<String>             stdin;
+  private       Shell                      shell;
+  private       File                       cwd         = null;
+  private final Map<String, String>        envvars;
+  private       String                     description = null;
 
 
   protected Commander(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
@@ -61,7 +61,10 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   @SuppressWarnings("unchecked")
   public C clone() {
     try {
-      return (C) super.clone();
+      C ret = (C) super.clone();
+      if (ret.commandLineComposerBuilder().isPresent())
+        ret.commandLineComposerBuilder = ret.commandLineComposerBuilderIfSet().clone();
+      return ret;
     } catch (CloneNotSupportedException e) {
       throw ActionException.wrap(e);
     }
@@ -299,7 +302,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return this.commandLineComposerBuilder().orElseThrow(IllegalStateException::new);
   }
 
-  protected CommandLineComposer buildCommandLineComposer() {
+  public CommandLineComposer buildCommandLineComposer() {
     return commandLineComposerBuilderIfSet().clone().build();
   }
 
@@ -315,7 +318,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return commandLineComposerBuilderIfSet().knownVariables();
   }
 
-  private Optional<CommandLineComposer.Builder> commandLineComposerBuilder() {
+  Optional<CommandLineComposer.Builder> commandLineComposerBuilder() {
     return Optional.ofNullable(commandLineComposerBuilder);
   }
 }

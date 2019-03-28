@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 
 public class Scp extends Commander<Scp> {
   private ContextFunction<Target> destination;
-  private SshOptions sshOptions;
+  private SshOptions              sshOptions;
 
   public Scp(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
     super(parameterPlaceHolderFormatter);
@@ -42,9 +42,11 @@ public class Scp extends Commander<Scp> {
   }
 
   @Override
-  protected CommandLineComposer buildCommandLineComposer() {
-    CommandLineComposer.Builder commandLineComposerBuilder = commandLineComposerBuilderIfSet().clone();
-    requireNonNull(sshOptions).options(SshOptions.Formatter.forScp()).forEach(this::addOption);
+  public CommandLineComposer buildCommandLineComposer() {
+    Scp cloned = this.clone();
+    if (sshOptions != null)
+      sshOptions.options(SshOptions.Formatter.forScp()).forEach(cloned::addOption);
+    CommandLineComposer.Builder commandLineComposerBuilder = cloned.commandLineComposerBuilderIfSet();
     Function<Target, String> formatTarget = PrintableFunction.of(Target::format).describe("Target::format");
     return commandLineComposerBuilder
         .append(" ", false)
