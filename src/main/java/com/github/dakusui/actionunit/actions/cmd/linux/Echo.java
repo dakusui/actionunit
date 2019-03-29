@@ -15,11 +15,11 @@ public class Echo extends Commander<Echo> {
   }
 
   public Echo enableBackslashInterpretation() {
-    return this.append(" ").append("-e");
+    return this.addOption("-e");
   }
 
   public Echo disableBackslashInterpretation() {
-    return this.append(" ").append("-E");
+    return this.addOption("-E");
   }
 
   public Echo message(String message) {

@@ -27,7 +27,7 @@ public interface CommanderInitializer {
   }
 
   default void init(Echo echo) {
-    echo.command("echo");
+    echo.command("/bin/echo");
     initialize(echo);
   }
 
