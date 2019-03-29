@@ -30,6 +30,7 @@ public class Curl extends Commander<Curl> {
 
   public Curl(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
     super(parameterPlaceHolderFormatter);
+    this.command("curl");
   }
 
   public Curl post() {

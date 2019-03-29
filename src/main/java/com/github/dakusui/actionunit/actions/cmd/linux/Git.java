@@ -2,10 +2,15 @@ package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
 import java.util.function.Function;
 import java.util.function.IntFunction;
+
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
+import static java.util.Objects.requireNonNull;
 
 public interface Git extends CommanderFactory {
   default LsRemote lsRemote() {
@@ -24,6 +29,10 @@ public interface Git extends CommanderFactory {
     return new Push(variablePlaceHolderFormatter());
   }
 
+  default GitBase<Plain> plain() {
+    return new Plain(variablePlaceHolderFormatter());
+  }
+
   default Function<String[], IntFunction<String>> variablePlaceHolderFormatter() {
     return parent().variablePlaceHolderFormatter();
   }
@@ -37,18 +46,61 @@ public interface Git extends CommanderFactory {
   class Clone extends GitBase<Clone> {
     public Clone(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
       super(parameterPlaceHolderFormatter);
+      this.addOption("clone");
+    }
+
+    public Clone branch(String branchName) {
+      return this.addOption("-b").addOption(branchName);
+    }
+
+    public Clone repo(String repo) {
+      return this.add(repo);
+    }
+
+    public Clone repo(ContextFunction<String> repo) {
+      return this.add(repo);
     }
   }
 
   class LsRemote extends GitBase<LsRemote> {
     public LsRemote(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
       super(parameterPlaceHolderFormatter);
+      this.addOption("ls-remote");
+    }
+
+    public LsRemote repo(String repo) {
+      return this.add(repo);
+    }
+
+    public LsRemote repo(ContextFunction<String> repo) {
+      return this.add(requireNonNull(repo));
+    }
+
+    public StreamGenerator<String> remoteBranchNames() {
+      return c -> toStreamGenerator().apply(c).map(line -> line.trim().split("\\s+")[1]);
     }
   }
 
   class Checkout extends GitBase<Checkout> {
     public Checkout(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
       super(parameterPlaceHolderFormatter);
+      this.addOption("checkout");
+    }
+
+    public Checkout branch(String branch) {
+      return this.add(branch);
+    }
+
+    public Checkout branch(ContextFunction<String> branch) {
+      return this.add(branch);
+    }
+
+    public Checkout newBranch(String branch) {
+      return this.newBranch(immediateOf(branch));
+    }
+
+    public Checkout newBranch(ContextFunction<String> branch) {
+      return this.addOption("-b").add(branch);
     }
   }
 
@@ -67,6 +119,7 @@ public interface Git extends CommanderFactory {
   abstract class GitBase<C extends GitBase<C>> extends Commander<C> {
     public GitBase(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
       super(parameterPlaceHolderFormatter);
+      this.command("git");
     }
 
     /*
@@ -84,90 +137,6 @@ public interface Git extends CommanderFactory {
       }
     }
 
-    public static class LsRemote extends Git<LsRemote> {
-
-      public LsRemote() {
-        super();
-        super.add("ls-remote");
-        cmdBuilder().transformStdout(stream -> stream.map(line -> line.trim().split("\\s+")[1]));
-      }
-    }
-
-    public static class Clone extends Git<Clone> {
-
-      public Clone() {
-        super();
-        super.add("clone");
-      }
-
-      public Clone branch(String branch) {
-        return add(Option.BRANCH, branch);
-      }
-
-      public Clone repoWithDir(String repo, String dir) {
-        return add(repo).add(dir);
-      }
-
-      private enum Option implements CommanderOption {
-        BRANCH("-b", null);
-
-        private final String shortFormat;
-        private final String longFormat;
-
-        Option(String shortFormat, String longFormat) {
-          this.shortFormat = shortFormat;
-          this.longFormat = longFormat;
-        }
-
-        @Override
-        public String longFormat() {
-          return requireNonNull(this.longFormat);
-        }
-
-        @Override
-        public String shortFormat() {
-          return this.shortFormat;
-        }
-      }
-    }
-
-    public static class Checkout extends Git<Checkout> {
-
-      public Checkout() {
-        super();
-        super.add("checkout");
-      }
-
-      public Checkout baseBranch(String branch) {
-        return add(branch);
-      }
-
-      public Checkout newBranch(String branch) {
-        return add(Option.BRANCH, branch);
-      }
-
-      private enum Option implements CommanderOption {
-        BRANCH("-b", null);
-
-        private final String shortFormat;
-        private final String longFormat;
-
-        Option(String shortFormat, String longFormat) {
-          this.shortFormat = shortFormat;
-          this.longFormat = longFormat;
-        }
-
-        @Override
-        public String longFormat() {
-          return requireNonNull(this.longFormat);
-        }
-
-        @Override
-        public String shortFormat() {
-          return this.shortFormat;
-        }
-      }
-    }
 
     public Git() {
       super();

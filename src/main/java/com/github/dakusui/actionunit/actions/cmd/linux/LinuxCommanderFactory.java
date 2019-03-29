@@ -4,12 +4,12 @@ import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
 
 public interface LinuxCommanderFactory extends CommanderFactory {
-  default Cat cat() {
-    return createCommander(Cat::new);
-  }
-
   default Echo echo() {
     return createCommander(Echo::new);
+  }
+
+  default Cat cat() {
+    return createCommander(Cat::new);
   }
 
   default Ls ls() {
@@ -30,6 +30,10 @@ public interface LinuxCommanderFactory extends CommanderFactory {
 
   default Scp scp() {
     return createCommander(Scp::new);
+  }
+
+  default Curl curl() {
+    return createCommander(Curl::new);
   }
 
   default Git git() {

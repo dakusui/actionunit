@@ -2,11 +2,7 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.*;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
@@ -145,6 +141,9 @@ public enum CommanderUtils {
         .apply(variableNames)
         .apply(params.context(), variableValues);
     LOGGER.info("Command Line:{}", commandLine);
+    LOGGER.debug("Shell:{}", shell);
+    LOGGER.debug("Cwd:{}", cwd);
+    LOGGER.debug("Environment variables:{}", envvars);
     ProcessStreamer.Builder ret;
     if (stdin == null)
       ret = ProcessStreamer.source(shell);
