@@ -2,50 +2,45 @@ package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
-import com.github.dakusui.processstreamer.core.process.Shell;
-
-import java.util.function.Function;
-import java.util.function.IntFunction;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static java.util.Objects.requireNonNull;
 
+@FunctionalInterface
 public interface Git extends CommanderFactory {
   default LsRemote lsRemote() {
-    return new LsRemote(variablePlaceHolderFormatter());
+    return new LsRemote(initializer());
   }
 
   default Clone cloneRepo() {
-    return new Clone(variablePlaceHolderFormatter());
+    return new Clone(initializer());
   }
 
   default Checkout checkout() {
-    return new Checkout(variablePlaceHolderFormatter());
+    return new Checkout(initializer());
   }
 
   default Push push() {
-    return new Push(variablePlaceHolderFormatter());
+    return new Push(initializer());
   }
 
   default GitBase<Plain> plain() {
-    return new Plain(variablePlaceHolderFormatter());
+    return new Plain(initializer());
   }
 
-  default Function<String[], IntFunction<String>> variablePlaceHolderFormatter() {
-    return parent().variablePlaceHolderFormatter();
-  }
-
-  default Shell shell() {
-    return parent().shell();
+  @Override
+  default CommanderInitializer initializer() {
+    return parent().initializer();
   }
 
   CommanderFactory parent();
 
   class Clone extends GitBase<Clone> {
-    public Clone(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-      super(parameterPlaceHolderFormatter);
+    public Clone(CommanderInitializer initializer) {
+      super(initializer);
       this.addOption("clone");
     }
 
@@ -63,8 +58,8 @@ public interface Git extends CommanderFactory {
   }
 
   class LsRemote extends GitBase<LsRemote> {
-    public LsRemote(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-      super(parameterPlaceHolderFormatter);
+    public LsRemote(CommanderInitializer initializer) {
+      super(initializer);
       this.addOption("ls-remote");
     }
 
@@ -82,8 +77,8 @@ public interface Git extends CommanderFactory {
   }
 
   class Checkout extends GitBase<Checkout> {
-    public Checkout(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-      super(parameterPlaceHolderFormatter);
+    public Checkout(CommanderInitializer initializer) {
+      super(initializer);
       this.addOption("checkout");
     }
 
@@ -105,20 +100,20 @@ public interface Git extends CommanderFactory {
   }
 
   class Push extends GitBase<Push> {
-    public Push(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-      super(parameterPlaceHolderFormatter);
+    public Push(CommanderInitializer initializer) {
+      super(initializer);
     }
   }
 
   class Plain extends GitBase<Plain> {
-    public Plain(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-      super(parameterPlaceHolderFormatter);
+    public Plain(CommanderInitializer initializer) {
+      super(initializer);
     }
   }
 
   abstract class GitBase<C extends GitBase<C>> extends Commander<C> {
-    public GitBase(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-      super(parameterPlaceHolderFormatter);
+    public GitBase(CommanderInitializer initializer) {
+      super(initializer);
       this.command("git");
     }
 

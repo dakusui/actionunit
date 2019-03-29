@@ -42,8 +42,8 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   private       String                     description = null;
 
 
-  protected Commander(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    this.parameterPlaceHolderFactory = parameterPlaceHolderFormatter;
+  protected Commander(CommanderInitializer initializer) {
+    this.parameterPlaceHolderFactory = initializer.variablePlaceHolderFormatter();
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(RetryOption.none())
@@ -164,19 +164,19 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    * @return A stream generator object.
    */
   public StreamGenerator<String> toStreamGenerator() {
-    return CommanderUtils.createStreamGenerator(this, this.variableNames());
+    return CommanderUtils.createStreamGenerator(this);
   }
 
   public ContextConsumer toContextConsumer() {
-    return CommanderUtils.createContextConsumer(this, this.variableNames());
+    return CommanderUtils.createContextConsumer(this);
   }
 
   public ContextPredicate toContextPredicate() {
-    return CommanderUtils.createContextPredicate(this, this.variableNames());
+    return CommanderUtils.createContextPredicate(this);
   }
 
   public ContextFunction<String> toContextFunction() {
-    return CommanderUtils.createContextFunction(this, this.variableNames());
+    return CommanderUtils.createContextFunction(this);
   }
 
   /**
@@ -314,7 +314,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return this.downstreamConsumerFactory.get();
   }
 
-  private String[] variableNames() {
+  String[] variableNames() {
     return commandLineComposerBuilderIfSet().knownVariables();
   }
 

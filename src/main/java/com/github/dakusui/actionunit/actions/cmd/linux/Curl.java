@@ -1,10 +1,8 @@
 package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
-
-import java.util.function.Function;
-import java.util.function.IntFunction;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static java.util.Objects.requireNonNull;
@@ -28,9 +26,9 @@ public class Curl extends Commander<Curl> {
     }
   }
 
-  public Curl(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    super(parameterPlaceHolderFormatter);
-    this.command("curl");
+  public Curl(CommanderInitializer initializer) {
+    super(initializer);
+    initializer.init(this);
   }
 
   public Curl post() {

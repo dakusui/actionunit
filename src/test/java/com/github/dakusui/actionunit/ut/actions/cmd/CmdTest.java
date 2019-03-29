@@ -1,9 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
-import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.linux.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
@@ -110,7 +111,7 @@ public class CmdTest {
     public void whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles() {
       // This test only makes sure buildCommandLineComposer can be overridden.
       requireThat(
-          new Cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER) {
+          new Cmd(CommanderInitializer.INSTANCE) {
             @Test
             public CommandLineComposer buildCommandLineComposer() {
               return super.buildCommandLineComposer();
@@ -361,7 +362,11 @@ public class CmdTest {
 
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(initCmd(cmd(ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME, "echo {{i}}", "i")));
+      performAsActionInsideHelloWorldLoop(
+          initCmd(cmd(
+              "echo {{i}}",
+              () -> ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME,
+              "i")));
       assertThat(
           out,
           asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()

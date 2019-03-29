@@ -1,18 +1,17 @@
 package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
 
 public class Ls extends Commander<Ls> {
-  public Ls(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    super(parameterPlaceHolderFormatter);
-    this.command("ls");
+  public Ls(CommanderInitializer initializer) {
+    super(initializer);
+    initializer.init(this);
   }
 
   public Ls longListing() {

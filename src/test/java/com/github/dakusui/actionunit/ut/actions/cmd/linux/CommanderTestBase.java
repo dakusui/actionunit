@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.linux.LinuxCommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.HostCommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.linux.Cmd;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -23,11 +23,10 @@ import java.util.function.Consumer;
 import static com.github.dakusui.crest.Crest.asBoolean;
 import static com.github.dakusui.crest.Crest.requireThat;
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
-public abstract class CommanderTestBase extends TestUtils.TestBase implements LinuxCommanderFactory {
-  private       File         baseDir;
-  private final List<String> out = new LinkedList<>();
+public abstract class CommanderTestBase extends TestUtils.TestBase implements HostCommanderFactory {
+  private             File                 baseDir;
+  private final       List<String>         out      = new LinkedList<>();
 
   @Before
   public void setUp() throws IOException {
@@ -109,7 +108,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Li
   }
 
   private Action cleanUp() {
-    return new Cmd(requireNonNull(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER))
+    return new Cmd(CommanderInitializer.INSTANCE)
         .command("/bin/rm")
         .addOption("-rf")
         .append(" ")

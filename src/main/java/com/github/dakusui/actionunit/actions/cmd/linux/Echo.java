@@ -1,15 +1,13 @@
 package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 
-import java.util.function.Function;
-import java.util.function.IntFunction;
-
 public class Echo extends Commander<Echo> {
-  public Echo(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    super(parameterPlaceHolderFormatter);
-    this.command("/bin/echo");
+  public Echo(CommanderInitializer initializer) {
+    super(initializer);
+    initializer.init(this);
   }
 
   public Echo noTrailingNewLine() {

@@ -2,13 +2,13 @@ package com.github.dakusui.actionunit.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.printables.PrintableFunction;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
@@ -18,9 +18,9 @@ public class Scp extends Commander<Scp> {
   private ContextFunction<Target> destination;
   private SshOptions              sshOptions;
 
-  public Scp(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    super(parameterPlaceHolderFormatter);
-    this.command("scp");
+  public Scp(CommanderInitializer initializer) {
+    super(initializer);
+    initializer.init(this);
   }
 
   public Scp options(SshOptions sshOptions) {

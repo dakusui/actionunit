@@ -1,13 +1,9 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.linux.Mkdir;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.crest.Crest.asObject;

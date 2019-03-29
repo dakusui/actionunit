@@ -39,13 +39,12 @@ public enum CommanderUtils {
 
   static Action createAction(Commander commander, String[] variableNames) {
     return RetryOption.retryAndTimeOut(
-        leaf(createContextConsumer(commander, variableNames)),
+        leaf(createContextConsumer(commander)),
         commander.retryOption());
   }
 
   static StreamGenerator<String> createStreamGenerator(
-      Commander<?> commander,
-      final String[] variableNames) {
+      Commander<?> commander) {
     return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {
           @Override
@@ -62,13 +61,13 @@ public enum CommanderUtils {
             return format("(%s)", commander.buildCommandLineComposer().commandLineString());
           }
         },
-        variableNames
+        commander.variableNames()
     );
   }
 
-  static ContextConsumer createContextConsumer(Commander<?> commander, String[] variableNames) {
+  static ContextConsumer createContextConsumer(Commander<?> commander) {
     requireNonNull(commander);
-    return multiParamsConsumerFor(variableNames)
+    return multiParamsConsumerFor(commander.variableNames())
         .toContextConsumer(
             printableConsumer(
                 (Params params) -> createProcessStreamerBuilder(commander, params)
@@ -80,9 +79,8 @@ public enum CommanderUtils {
   }
 
   static ContextPredicate createContextPredicate(
-      Commander<?> commander,
-      String[] variableNames) {
-    return multiParamsPredicateFor(variableNames)
+      Commander<?> commander) {
+    return multiParamsPredicateFor(commander.variableNames())
         .toContextPredicate(printablePredicate(
             (Params params) -> {
               ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);
@@ -106,8 +104,8 @@ public enum CommanderUtils {
                 objectToStringIfOverridden(commander.checker(), () -> "(noname)"))));
   }
 
-  static ContextFunction<String> createContextFunction(Commander<?> commander, String[] variableNames) {
-    return ContextFunctions.<String>multiParamsFunctionFor(variableNames)
+  static ContextFunction<String> createContextFunction(Commander<?> commander) {
+    return ContextFunctions.<String>multiParamsFunctionFor(commander.variableNames())
         .toContextFunction(params ->
             createProcessStreamerBuilder(commander, params)
                 .checker(commander.checker())
