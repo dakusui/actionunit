@@ -51,9 +51,4 @@ public interface HostCommanderFactory extends CommanderFactory {
   default Cmd cmd() {
     return new Cmd(initializer());
   }
-
-  @Override
-  default CommanderInitializer initializer() {
-    return CommanderInitializer.INSTANCE;
-  }
 }

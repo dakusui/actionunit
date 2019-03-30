@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -365,7 +367,12 @@ public class CmdTest {
       performAsActionInsideHelloWorldLoop(
           initCmd(cmd(
               "echo {{i}}",
-              () -> ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME,
+              new CommanderInitializer() {
+                @Override
+                public Function<String[], IntFunction<String>> variablePlaceHolderFormatter() {
+                  return ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;
+                }
+              },
               "i")));
       assertThat(
           out,

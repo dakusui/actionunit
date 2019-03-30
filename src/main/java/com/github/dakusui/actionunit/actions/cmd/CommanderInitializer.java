@@ -9,6 +9,7 @@ import com.github.dakusui.actionunit.actions.cmd.linux.Ls;
 import com.github.dakusui.actionunit.actions.cmd.linux.Mkdir;
 import com.github.dakusui.actionunit.actions.cmd.linux.Rm;
 import com.github.dakusui.actionunit.actions.cmd.linux.Scp;
+import com.github.dakusui.actionunit.actions.cmd.linux.SshOptions;
 import com.github.dakusui.actionunit.actions.cmd.linux.Touch;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.processstreamer.core.process.Shell;
@@ -19,7 +20,8 @@ import java.util.function.IntFunction;
 import static java.lang.String.format;
 
 public interface CommanderInitializer {
-  CommanderInitializer INSTANCE = () -> ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
+  CommanderInitializer INSTANCE = new CommanderInitializer() {
+  };
 
   default void init(Commander<?> commander) {
     throw new UnsupportedOperationException(
@@ -59,6 +61,7 @@ public interface CommanderInitializer {
   default void init(Scp scp) {
     scp.command("scp");
     initialize(scp);
+    scp.options(sshOptions());
   }
 
   default void init(Curl curl) {
@@ -83,5 +86,14 @@ public interface CommanderInitializer {
     commander.shell(shell());
   }
 
-  Function<String[], IntFunction<String>> variablePlaceHolderFormatter();
+  default SshOptions sshOptions() {
+    return new SshOptions.Builder()
+        .disableStrictHostkeyChecking()
+        .disableStrictHostkeyChecking()
+        .build();
+  }
+
+  default Function<String[], IntFunction<String>> variablePlaceHolderFormatter() {
+    return ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
+  }
 }

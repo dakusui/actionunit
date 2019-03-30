@@ -73,6 +73,11 @@ public class SshShellBuilder {
       public List<String> options() {
         return options;
       }
+
+      @Override
+      public String toString() {
+        return String.format("%s %s", program, String.join(" ", options));
+      }
     };
   }
 }

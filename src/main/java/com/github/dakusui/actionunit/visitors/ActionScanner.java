@@ -97,7 +97,7 @@ public abstract class ActionScanner implements Action.Visitor {
   protected abstract void handleAction(Action action);
 
   protected String indent() {
-    return InternalUtils.indent(this.indentLevel);
+    return InternalUtils.indent(this.indentLevel, 2);
   }
 
   private void enter() {

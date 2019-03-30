@@ -38,6 +38,11 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Ho
     performAction(cleanUp());
   }
 
+  @Override
+  public CommanderInitializer initializer() {
+    return CommanderInitializer.INSTANCE;
+  }
+
   List<String> out() {
     return Collections.unmodifiableList(out);
   }
