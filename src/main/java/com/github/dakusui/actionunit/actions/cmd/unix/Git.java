@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions.cmd.linux;
+package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
@@ -102,6 +102,23 @@ public interface Git extends CommanderFactory {
   class Push extends GitBase<Push> {
     public Push(CommanderInitializer initializer) {
       super(initializer);
+      this.addOption("push");
+    }
+
+    public Push repo(String repo) {
+      return add(repo);
+    }
+
+    public Push repo(ContextFunction<String> repo) {
+      return add(repo);
+    }
+
+    public Push refspec(String spec) {
+      return add(spec);
+    }
+
+    public Push refspec(ContextFunction<String> spec) {
+      return add(spec);
     }
   }
 
@@ -116,37 +133,5 @@ public interface Git extends CommanderFactory {
       super(initializer);
       this.command("git");
     }
-
-    /*
-  public abstract class Git<G extends Commander<G>> extends Commander<G> {
-
-    public static class Push extends Git<Push> {
-
-      public Push() {
-        super();
-        super.add("push");
-      }
-
-      public Push repoWithRefSpec(String repo, String refSpec) {
-        return add(repo).add(refSpec);
-      }
-    }
-
-
-    public Git() {
-      super();
-    }
-
-    public G repo(String repo) {
-      return add(repo);
-    }
-
-    @Override
-    protected String program() {
-      return "git";
-    }
-  }
-
-     */
   }
 }

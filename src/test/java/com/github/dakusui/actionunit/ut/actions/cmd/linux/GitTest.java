@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.Git;
+import com.github.dakusui.actionunit.actions.cmd.unix.Git;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -11,9 +11,13 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
+import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.printTo;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 
 @RunWith(Enclosed.class)
 public class GitTest {
@@ -26,7 +30,7 @@ public class GitTest {
           .branch("0.8.x-develop")
           .cwd(this.baseDir());
 
-      System.out.println(gitClone.buildCommandLineComposer().commandLineString());
+      System.out.println(gitClone.buildCommandLineComposer().format());
 
       performAsAction(gitClone);
     }
@@ -116,6 +120,44 @@ public class GitTest {
 
     private File repoDir() {
       return new File(baseDir(), "combinatoradix");
+    }
+  }
+
+  public static class ForPush extends CommanderTestBase {
+    @Test
+    public void givenRepoAndSpecWithImmediate$whenFormat$thenCommandLineFormatIsCorrect() {
+      Git.Push gitPush = git().push().repo("origin").refspec("master:master");
+      assertThat(
+          gitPush.buildCommandLineComposer().format(),
+          asString().equalTo("git push quoteWith['](origin) quoteWith['](master:master)").$()
+      );
+    }
+    @Test
+    public void givenRepoAndSpecWithFunction$whenFormat$thenCommandLineFormatIsCorrect() {
+      Git.Push gitPush = git().push().repo(immediateOf("origin")).refspec(immediateOf("master:master"));
+      assertThat(
+          gitPush.buildCommandLineComposer().format(),
+          asString().equalTo("git push quoteWith['](origin) quoteWith['](master:master)").$()
+      );
+    }
+  }
+
+  public static class ForPlain extends CommanderTestBase {
+    @Test
+    public void givenRepoAndSpecWithImmediate$whenFormat$thenCommandLineFormatIsCorrect() {
+      Git.Plain git = git().plain().add("hello").add("world");
+      assertThat(
+          git.buildCommandLineComposer().format(),
+          asString().equalTo("git quoteWith['](hello) quoteWith['](world)").$()
+      );
+    }
+    @Test
+    public void givenRepoAndSpecWithFunction$whenFormat$thenCommandLineFormatIsCorrect() {
+      Git.Plain git = git().plain().add("hello").add("world");
+      assertThat(
+          git.buildCommandLineComposer().format(),
+          asString().equalTo("git quoteWith['](hello) quoteWith['](world)").$()
+      );
     }
   }
 }

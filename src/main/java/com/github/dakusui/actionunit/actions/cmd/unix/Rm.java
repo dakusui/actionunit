@@ -1,4 +1,4 @@
-package com.github.dakusui.actionunit.actions.cmd.linux;
+package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;

@@ -1,15 +1,15 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.Cat;
-import com.github.dakusui.actionunit.actions.cmd.linux.Cmd;
-import com.github.dakusui.actionunit.actions.cmd.linux.Curl;
-import com.github.dakusui.actionunit.actions.cmd.linux.Echo;
-import com.github.dakusui.actionunit.actions.cmd.linux.Git;
-import com.github.dakusui.actionunit.actions.cmd.linux.Ls;
-import com.github.dakusui.actionunit.actions.cmd.linux.Mkdir;
-import com.github.dakusui.actionunit.actions.cmd.linux.Rm;
-import com.github.dakusui.actionunit.actions.cmd.linux.Scp;
-import com.github.dakusui.actionunit.actions.cmd.linux.Touch;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cat;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
+import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
+import com.github.dakusui.actionunit.actions.cmd.unix.Git;
+import com.github.dakusui.actionunit.actions.cmd.unix.Ls;
+import com.github.dakusui.actionunit.actions.cmd.unix.Mkdir;
+import com.github.dakusui.actionunit.actions.cmd.unix.Rm;
+import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
+import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
 
 public interface HostCommanderFactory extends CommanderFactory {
   default Echo echo() {

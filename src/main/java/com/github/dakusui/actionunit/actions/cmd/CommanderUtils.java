@@ -58,7 +58,7 @@ public enum CommanderUtils {
 
           @Override
           public String toString() {
-            return format("(%s)", commander.buildCommandLineComposer().commandLineString());
+            return format("(%s)", commander.buildCommandLineComposer().format());
           }
         },
         commander.variableNames()
@@ -75,7 +75,7 @@ public enum CommanderUtils {
                     .build()
                     .stream()
                     .forEach(commander.downstreamConsumer()))
-                .describe(() -> commander.buildCommandLineComposer().commandLineString()));
+                .describe(() -> commander.buildCommandLineComposer().format()));
   }
 
   static ContextPredicate createContextPredicate(
@@ -100,7 +100,7 @@ public enum CommanderUtils {
             })
             .describe(() -> format(
                 "outputOf[command:'%s'].matches[%s]",
-                commander.buildCommandLineComposer().commandLineString(),
+                commander.buildCommandLineComposer().format(),
                 objectToStringIfOverridden(commander.checker(), () -> "(noname)"))));
   }
 

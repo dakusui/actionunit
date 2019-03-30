@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.Curl;
+import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ public class CurlTest extends CommanderTestBase {
   @Test
   public void test1() {
     Curl curl = curl().get().url("https://www.github.com/").urlEncodedData(immediateOf("Hello world"));
-    System.out.println(curl.buildCommandLineComposer().commandLineString());
+    System.out.println(curl.buildCommandLineComposer().format());
     performAction(
         forEach("i", curl.toStreamGenerator())
             .perform(leaf(writeTo(System.out::println, contextValueOf("i"))))
@@ -29,7 +29,7 @@ public class CurlTest extends CommanderTestBase {
         .urlEncodedData("Hello world");
     assertThat(
         curl,
-        asString(call("buildCommandLineComposer").andThen("commandLineString").$())
+        asString(call("buildCommandLineComposer").andThen("format").$())
             .equalTo("curl -X GET quoteWith['](https://www.github.com) --data-urlencode quoteWith['](Hello world)")
             .$()
     );
@@ -46,7 +46,7 @@ public class CurlTest extends CommanderTestBase {
         .rawData("Hello world");
     assertThat(
         curl,
-        asString(call("buildCommandLineComposer").andThen("commandLineString").$())
+        asString(call("buildCommandLineComposer").andThen("format").$())
             .equalTo("curl -X PUT --insecure -s -i quoteWith['](https://www.github.com) --data-raw quoteWith['](Hello world)")
             .$()
     );
@@ -63,7 +63,7 @@ public class CurlTest extends CommanderTestBase {
         .asciiData("Hello world");
     assertThat(
         curl,
-        asString(call("buildCommandLineComposer").andThen("commandLineString").$())
+        asString(call("buildCommandLineComposer").andThen("format").$())
             .equalTo("curl -X POST --insecure -s -I quoteWith['](https://www.github.com) --data quoteWith['](Hello world)")
             .$()
     );
@@ -80,7 +80,7 @@ public class CurlTest extends CommanderTestBase {
         .binaryData("Hello world");
     assertThat(
         curl,
-        asString(call("buildCommandLineComposer").andThen("commandLineString").$())
+        asString(call("buildCommandLineComposer").andThen("format").$())
             .equalTo("curl -X POST --insecure -s -I quoteWith['](https://www.github.com) --data-binary quoteWith['](Hello world)")
             .$()
     );
@@ -97,7 +97,7 @@ public class CurlTest extends CommanderTestBase {
         .asciiData(immediateOf("Hello world"));
     assertThat(
         curl,
-        asString(call("buildCommandLineComposer").andThen("commandLineString").$())
+        asString(call("buildCommandLineComposer").andThen("format").$())
             .equalTo("curl -X DELETE --insecure -s -I quoteWith['](https://www.github.com) --data quoteWith['](Hello world)")
             .$()
     );

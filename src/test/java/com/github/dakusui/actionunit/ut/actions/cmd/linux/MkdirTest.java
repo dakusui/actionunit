@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.actions.cmd.linux.Mkdir;
+import com.github.dakusui.actionunit.actions.cmd.unix.Mkdir;
 import org.junit.Test;
 
 import java.io.File;

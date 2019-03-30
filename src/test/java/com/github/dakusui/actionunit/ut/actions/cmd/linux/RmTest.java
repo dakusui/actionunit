@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.Rm;
+import com.github.dakusui.actionunit.actions.cmd.unix.Rm;
 import org.junit.Test;
 
 import java.io.File;

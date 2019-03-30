@@ -3,7 +3,7 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.HostCommanderFactory;
-import com.github.dakusui.actionunit.actions.cmd.linux.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
@@ -40,7 +40,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Ho
 
   @Override
   public CommanderInitializer initializer() {
-    return CommanderInitializer.INSTANCE;
+    return CommanderInitializer.DEFAULT_INSTANCE;
   }
 
   List<String> out() {
@@ -113,7 +113,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Ho
   }
 
   private Action cleanUp() {
-    return new Cmd(CommanderInitializer.INSTANCE)
+    return new Cmd(CommanderInitializer.DEFAULT_INSTANCE)
         .command("/bin/rm")
         .addOption("-rf")
         .append(" ")

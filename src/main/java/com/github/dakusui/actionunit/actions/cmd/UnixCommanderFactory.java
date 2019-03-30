@@ -1,8 +1,5 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.SshShellBuilder;
-import com.github.dakusui.processstreamer.core.process.Shell;
-
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.memoize;
@@ -18,17 +15,15 @@ public interface UnixCommanderFactory {
 
   default Function<String, CommanderInitializer> initializerManager() {
     return memoize(
-        host -> "localhost".equals(host) ?
-            CommanderInitializer.INSTANCE :
-            new CommanderInitializer() {
-              @Override
-              public Shell shell() {
-                return new SshShellBuilder(host)
-                    .program("ssh")
-                    .enableAuthAgentConnectionForwarding()
-                    .sshOptions(sshOptions())
-                    .build();
-              }
-            });
+        host -> isLocalHost(host) ?
+            CommanderInitializer.DEFAULT_INSTANCE :
+            initializerFor(host)
+    );
   }
+
+  default boolean isLocalHost(String host) {
+    return "localhost".equals(host);
+  }
+
+  CommanderInitializer initializerFor(String host);
 }

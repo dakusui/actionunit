@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.Touch;
+import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
 import org.junit.Test;
 
 import java.io.File;

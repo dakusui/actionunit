@@ -1,6 +1,4 @@
-package com.github.dakusui.actionunit.actions.cmd.linux;
-
-import com.github.dakusui.processstreamer.core.process.Shell;
+package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,17 +46,6 @@ public interface SshOptions {
 
   default List<String> options(Formatter formatter) {
     return requireNonNull(formatter).format(this);
-  };
-
-  default Shell createSshShell(String program, String user, String host) {
-    requireNonNull(program);
-    requireNonNull(user);
-    requireNonNull(host);
-    return new SshShellBuilder(host).user(user)
-        .enableAuthAgentConnectionForwarding()
-        .program(program)
-        .sshOptions(this)
-        .build();
   }
 
   class Builder {
@@ -142,11 +129,6 @@ public interface SshOptions {
         public boolean verbose() {
           return false;
         }
-
-        @Override
-        public List<String> options(Formatter formatter) {
-          return requireNonNull(formatter).format(this);
-        }
       };
     }
   }
@@ -154,6 +136,7 @@ public interface SshOptions {
   @FunctionalInterface
   interface Formatter {
     List<String> format(SshOptions sshOptions);
+
     static Formatter forSsh() {
       return sshOptions -> new LinkedList<String>() {{
         if (sshOptions.ipv4())
@@ -163,11 +146,11 @@ public interface SshOptions {
         if (sshOptions.compression())
           add("-C");
         sshOptions.configFile().ifPresent(v -> {
-          add("-c");
+          add("-F");
           add(v);
         });
         sshOptions.cipherSpec().ifPresent(v -> {
-          add("-i");
+          add("-c");
           add(v);
         });
         sshOptions.identity().ifPresent(v -> {
@@ -188,6 +171,7 @@ public interface SshOptions {
           add("-v");
       }};
     }
+
     static Formatter forScp() {
       return sshOptions -> new LinkedList<String>() {{
         if (sshOptions.ipv4())
@@ -197,11 +181,11 @@ public interface SshOptions {
         if (sshOptions.compression())
           add("-C");
         sshOptions.configFile().ifPresent(v -> {
-          add("-c");
+          add("-F");
           add(v);
         });
         sshOptions.cipherSpec().ifPresent(v -> {
-          add("-i");
+          add("-c");
           add(v);
         });
         sshOptions.identity().ifPresent(v -> {

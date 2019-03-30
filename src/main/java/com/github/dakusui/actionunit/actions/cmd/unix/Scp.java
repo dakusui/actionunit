@@ -1,11 +1,15 @@
-package com.github.dakusui.actionunit.actions.cmd.linux;
+package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.printables.PrintableFunction;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -15,11 +19,13 @@ import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static java.util.Objects.requireNonNull;
 
 public class Scp extends Commander<Scp> {
-  private ContextFunction<Target> destination;
-  private SshOptions              sshOptions;
+  private ContextFunction<Target>       destination;
+  private List<ContextFunction<Target>> files;
+  private SshOptions                    sshOptions;
 
   public Scp(CommanderInitializer initializer) {
     super(initializer);
+    this.files = new LinkedList<>();
     initializer.init(this);
   }
 
@@ -32,8 +38,13 @@ public class Scp extends Commander<Scp> {
     return this.addOption("-r");
   }
 
+  public Scp file(ContextFunction<Target> target) {
+    this.files.add(requireNonNull(target));
+    return this;
+  }
+
   public Scp file(Target target) {
-    return this.add(requireNonNull(target).format());
+    return this.file(ContextFunctions.immediateOf(requireNonNull(target)));
   }
 
   public Scp to(Target target) {
@@ -44,14 +55,26 @@ public class Scp extends Commander<Scp> {
   @Override
   public CommandLineComposer buildCommandLineComposer() {
     Scp cloned = this.clone();
-    if (sshOptions != null)
-      sshOptions.options(SshOptions.Formatter.forScp()).forEach(cloned::addOption);
     CommandLineComposer.Builder commandLineComposerBuilder = cloned.commandLineComposerBuilderIfSet();
     Function<Target, String> formatTarget = PrintableFunction.of(Target::format).describe("Target::format");
+    for (ContextFunction<Target> each : files) {
+      commandLineComposerBuilder
+          .append(" ", false)
+          .append(each.andThen(formatTarget), true);
+    }
     return commandLineComposerBuilder
         .append(" ", false)
-        .append(requireState(Objects::nonNull, this.destination).andThen(formatTarget), true)
+        .append(requireState(Objects::nonNull, cloned.destination).andThen(formatTarget), true)
         .build();
+  }
+
+  @Override
+  public Scp clone() {
+    Scp ret = super.clone();
+    if (ret.sshOptions != null)
+      ret.sshOptions.options(SshOptions.Formatter.forScp()).forEach(ret::addOption);
+    ret.files = new ArrayList<>(ret.files);
+    return ret;
   }
 
   public interface Target {
@@ -118,7 +141,7 @@ public class Scp extends Commander<Scp> {
           path();
     }
 
-    static Target create(String path) {
+    static Target of(String path) {
       requireNonNull(path);
       return new Target() {
         @Override
@@ -138,7 +161,7 @@ public class Scp extends Commander<Scp> {
       };
     }
 
-    static Target create(String host, String path) {
+    static Target of(String host, String path) {
       requireNonNull(host);
       requireNonNull(path);
       return new Target() {
@@ -159,7 +182,7 @@ public class Scp extends Commander<Scp> {
       };
     }
 
-    static Target create(String user, String host, String path) {
+    static Target of(String user, String host, String path) {
       requireNonNull(user);
       requireNonNull(host);
       requireNonNull(path);

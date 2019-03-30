@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.actions.cmd.linux.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
@@ -113,7 +113,7 @@ public class CmdTest {
     public void whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles() {
       // This test only makes sure buildCommandLineComposer can be overridden.
       requireThat(
-          new Cmd(CommanderInitializer.INSTANCE) {
+          new Cmd(CommanderInitializer.DEFAULT_INSTANCE) {
             @Test
             public CommandLineComposer buildCommandLineComposer() {
               return super.buildCommandLineComposer();

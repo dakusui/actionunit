@@ -9,7 +9,7 @@ import com.github.dakusui.actionunit.actions.Retry;
 import com.github.dakusui.actionunit.actions.TimeOut;
 import com.github.dakusui.actionunit.actions.When;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.actions.cmd.linux.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
@@ -74,7 +74,7 @@ public enum ActionSupport {
   }
 
   public static Cmd cmd(String program, String... knownVariables) {
-    return cmd(program, CommanderInitializer.INSTANCE, knownVariables);
+    return cmd(program, CommanderInitializer.DEFAULT_INSTANCE, knownVariables);
   }
 
   public static Cmd cmd(String program, CommanderInitializer initializer, String... knownVariables) {

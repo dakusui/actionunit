@@ -1,13 +1,16 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.Scp;
-import com.github.dakusui.actionunit.actions.cmd.linux.SshOptions;
+import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.call;
 
 public class ScpTest extends CommanderTestBase {
   @Test
@@ -18,9 +21,9 @@ public class ScpTest extends CommanderTestBase {
     performAction(
         newScp()
             .recursive()
-            .file(Scp.Target.create(absolutePathOf("hello")))
-            .file(Scp.Target.create(absolutePathOf("world")))
-            .to(Scp.Target.create("ngsuser", "testenv101", "~/tmpdir")).toAction()
+            .file(Scp.Target.of(absolutePathOf("hello")))
+            .file(Scp.Target.of(absolutePathOf("world")))
+            .to(Scp.Target.of("ngsuser", "testenv101", "~/tmpdir")).toAction()
     );
   }
 
@@ -28,7 +31,7 @@ public class ScpTest extends CommanderTestBase {
   @Ignore
   public void test3() {
     Scp scp = newScp().options(
-        new SshOptions.Builder().disablePasswordAuthentication().disableStrictHostkeyChecking().identity("~/.ssh/id_rsa").build()).to(Scp.Target.create("hello"));
+        new SshOptions.Builder().disablePasswordAuthentication().disableStrictHostkeyChecking().identity("~/.ssh/id_rsa").build()).to(Scp.Target.of("hello"));
     System.out.println(String.format("%s", scp.toAction()));
     performAction(scp.toAction());
   }
@@ -40,40 +43,38 @@ public class ScpTest extends CommanderTestBase {
             new SshOptions.Builder()
                 .disablePasswordAuthentication()
                 .disableStrictHostkeyChecking()
-                .identity("~/.ssh/id_rsa").build())
-        .to(Scp.Target.create("hello"));
+                .identity("~/.ssh/id_rsa")
+                .build())
+        .file(Scp.Target.of("user", "remotehost1", "/remote/path"))
+        .to(Scp.Target.of("hello"));
+    String expectedString = "scp -i ~/.ssh/id_rsa -o "
+        + "PasswordAuthentication=no -o StrictHostkeyChecking=no "
+        + "quoteWith['](Target::format(user@remotehost1:/remote/path)) "
+        + "quoteWith['](Target::format(hello))";
     assertThat(
-        scp,
+        scp.buildCommandLineComposer(),
         allOf(
-            asString(call("buildCommandLineComposer").andThen("commandLineString").$())
-                .startsWith("scp -i ~/.ssh/id_rsa -o PasswordAuthentication=no -o StrictHostkeyChecking=no")
-                .containsString("hello")
-                .$(),
-            asString(call("buildCommandLineComposer").andThen("commandLineString").$())
-                .startsWith("scp -i ~/.ssh/id_rsa -o PasswordAuthentication=no -o StrictHostkeyChecking=no")
-                .containsString("hello")
-                .$())
-    );
-    System.out.println("1:" + scp.buildCommandLineComposer().commandLineString());
-    System.out.println("2:" + scp.buildCommandLineComposer().commandLineString());
-    System.out.println("3:" + scp.buildCommandLineComposer().commandLineString());
+            asString(call("format").$()).equalTo(expectedString).$(),
+            asString(call("format").$()).equalTo(expectedString).$()));
+    System.out.println("1:" + scp.buildCommandLineComposer().format());
+    System.out.println("2:" + scp.buildCommandLineComposer().format());
+    System.out.println("3:" + scp.buildCommandLineComposer().format());
   }
 
   @Test
   public void givenScp$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect() {
-    Scp scp = newScp().to(Scp.Target.create("hello"));
+    Scp scp = newScp().file(Scp.Target.of("localfile")).to(Scp.Target.of("remotehost1", "hello"));
+    String expectedString = "scp -o StrictHostkeyChecking=no -o StrictHostkeyChecking=no "
+        + "quoteWith['](Target::format(localfile)) "
+        + "quoteWith['](Target::format(remotehost1:hello))";
     assertThat(
-        scp,
+        scp.buildCommandLineComposer(),
         allOf(
-            asString(call("buildCommandLineComposer").andThen("commandLineString").$())
-                .startsWith("scp ")
-                .containsString("hello")
-                .$(),
-            asString(call("buildCommandLineComposer").andThen("commandLineString").$())
-                .startsWith("scp ")
-                .containsString("hello")
-                .$())
-    );
+            asString(call("format").$()).equalTo(expectedString).$(),
+            asString(call("format").$()).equalTo(expectedString).$()));
+    System.out.println("1:" + scp.buildCommandLineComposer().format());
+    System.out.println("2:" + scp.buildCommandLineComposer().format());
+    System.out.println("3:" + scp.buildCommandLineComposer().format());
   }
 
   private Scp newScp() {

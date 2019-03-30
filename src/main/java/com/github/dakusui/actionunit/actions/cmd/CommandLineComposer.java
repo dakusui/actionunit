@@ -24,12 +24,12 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(commandLineString());
+    formatter.format(format());
   }
 
   Function<String[], IntFunction<String>> parameterPlaceHolderFactory();
 
-  String commandLineString();
+  String format();
 
   String compose(Context context);
 
@@ -83,7 +83,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
         }
 
         @Override
-        public String commandLineString() {
+        public String format() {
           return tokens.stream().map(Object::toString).collect(joining());
         }
 

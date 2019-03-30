@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.linux.Ls;
+import com.github.dakusui.actionunit.actions.cmd.unix.Ls;
 import org.junit.Test;
 
 import java.io.IOException;
