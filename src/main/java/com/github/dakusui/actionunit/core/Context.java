@@ -71,6 +71,11 @@ public interface Context {
     public <T extends Throwable> T thrownException() {
       return (T) this.variables.get(ONGOING_EXCEPTION);
     }
+
+    @Override
+    public String toString() {
+      return String.format("Context:(%s; parent=%s)", variables, parent);
+    }
   }
 
   static Context create() {

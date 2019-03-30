@@ -89,7 +89,7 @@ public interface CommanderInitializer {
   default SshOptions sshOptions() {
     return new SshOptions.Builder()
         .disableStrictHostkeyChecking()
-        .disableStrictHostkeyChecking()
+        .disablePasswordAuthentication()
         .build();
   }
 

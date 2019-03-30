@@ -14,15 +14,7 @@ public interface UnixCommanderFactory {
   }
 
   default Function<String, CommanderInitializer> initializerManager() {
-    return memoize(
-        host -> isLocalHost(host) ?
-            CommanderInitializer.DEFAULT_INSTANCE :
-            initializerFor(host)
-    );
-  }
-
-  default boolean isLocalHost(String host) {
-    return "localhost".equals(host);
+    return memoize(this::initializerFor);
   }
 
   CommanderInitializer initializerFor(String host);

@@ -39,13 +39,18 @@ public interface Git extends CommanderFactory {
   CommanderFactory parent();
 
   class Clone extends GitBase<Clone> {
+    @SuppressWarnings("WeakerAccess")
     public Clone(CommanderInitializer initializer) {
       super(initializer);
       this.addOption("clone");
     }
 
     public Clone branch(String branchName) {
-      return this.addOption("-b").addOption(branchName);
+      return this.addOption("-b").add(branchName);
+    }
+
+    public Clone branch(ContextFunction<String> branchName) {
+      return this.addOption("-b").add(branchName);
     }
 
     public Clone repo(String repo) {
@@ -58,6 +63,7 @@ public interface Git extends CommanderFactory {
   }
 
   class LsRemote extends GitBase<LsRemote> {
+    @SuppressWarnings("WeakerAccess")
     public LsRemote(CommanderInitializer initializer) {
       super(initializer);
       this.addOption("ls-remote");
@@ -77,6 +83,7 @@ public interface Git extends CommanderFactory {
   }
 
   class Checkout extends GitBase<Checkout> {
+    @SuppressWarnings("WeakerAccess")
     public Checkout(CommanderInitializer initializer) {
       super(initializer);
       this.addOption("checkout");
@@ -100,6 +107,7 @@ public interface Git extends CommanderFactory {
   }
 
   class Push extends GitBase<Push> {
+    @SuppressWarnings("WeakerAccess")
     public Push(CommanderInitializer initializer) {
       super(initializer);
       this.addOption("push");
@@ -123,12 +131,14 @@ public interface Git extends CommanderFactory {
   }
 
   class Plain extends GitBase<Plain> {
+    @SuppressWarnings("WeakerAccess")
     public Plain(CommanderInitializer initializer) {
       super(initializer);
     }
   }
 
   abstract class GitBase<C extends GitBase<C>> extends Commander<C> {
+    @SuppressWarnings("WeakerAccess")
     public GitBase(CommanderInitializer initializer) {
       super(initializer);
       this.command("git");

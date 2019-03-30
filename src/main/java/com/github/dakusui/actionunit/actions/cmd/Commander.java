@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.named;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
@@ -289,6 +290,15 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   public Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
     return this.parameterPlaceHolderFactory;
+  }
+
+  @Override
+  public String toString() {
+    return format(
+        "%s:Shell:(%s), CommandLine(%s)",
+        this.getClass().getSimpleName(),
+        shell(),
+        commandLineComposerBuilder);
   }
 
   @SuppressWarnings("unchecked")

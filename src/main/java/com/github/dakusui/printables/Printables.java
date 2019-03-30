@@ -11,6 +11,10 @@ import static com.github.dakusui.actionunit.utils.InternalUtils.summary;
 public enum Printables {
   ;
 
+  public static Predicate<String> isEmptyString() {
+    return printablePredicate(String::isEmpty).describe("isEmptyString");
+  }
+
   public static <T> PrintablePredicate.Builder<T> printablePredicate(Predicate<T> predicate) {
     return new PrintablePredicate.Builder<>(predicate);
   }

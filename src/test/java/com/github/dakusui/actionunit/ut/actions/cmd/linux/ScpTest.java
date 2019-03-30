@@ -64,7 +64,23 @@ public class ScpTest extends CommanderTestBase {
   @Test
   public void givenScp$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect() {
     Scp scp = newScp().file(Scp.Target.of("localfile")).to(Scp.Target.of("remotehost1", "hello"));
-    String expectedString = "scp -o StrictHostkeyChecking=no -o StrictHostkeyChecking=no "
+    String expectedString = "scp -o StrictHostkeyChecking=no -o PasswordAuthentication=no "
+        + "quoteWith['](Target::format(localfile)) "
+        + "quoteWith['](Target::format(remotehost1:hello))";
+    assertThat(
+        scp.buildCommandLineComposer(),
+        allOf(
+            asString(call("format").$()).equalTo(expectedString).$(),
+            asString(call("format").$()).equalTo(expectedString).$()));
+    System.out.println("1:" + scp.buildCommandLineComposer().format());
+    System.out.println("2:" + scp.buildCommandLineComposer().format());
+    System.out.println("3:" + scp.buildCommandLineComposer().format());
+  }
+
+  @Test
+  public void givenScpWithCustomSshOptions$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect() {
+    Scp scp = newScp().file(Scp.Target.of("localfile")).to(Scp.Target.of("remotehost1", "hello"));
+    String expectedString = "scp -o StrictHostkeyChecking=no -o PasswordAuthentication=no "
         + "quoteWith['](Target::format(localfile)) "
         + "quoteWith['](Target::format(remotehost1:hello))";
     assertThat(

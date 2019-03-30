@@ -5,7 +5,11 @@ import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Formattable;
+import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -108,6 +112,11 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
       } catch (CloneNotSupportedException e) {
         throw ActionException.wrap(e);
       }
+    }
+
+    @Override
+    public String toString() {
+      return String.format("Builder:%s(vars=%s)", tokens, knownVariableNames);
     }
 
 
