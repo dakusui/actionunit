@@ -1,12 +1,11 @@
-package com.github.dakusui.actionunit.actions.cmd.linux;
+package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static java.lang.String.format;
@@ -18,10 +17,10 @@ public class Cat extends Commander<Cat> {
    */
   private String tag;
 
-  public Cat(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    super(parameterPlaceHolderFormatter);
+  public Cat(CommanderInitializer initializer) {
+    super(initializer);
     this.tag = null;
-    this.command("cat");
+    initializer.init(this);
   }
 
   public Cat beginHereDocument(String tag) {

@@ -42,6 +42,10 @@ public class PrintableFunction<T, R> implements Function<T, R> {
     return formatter.get();
   }
 
+
+  public static <T, R> PrintableFunction.Builder<T, R> of(Function<T, R> func){
+    return new PrintableFunction.Builder<>(requireNonNull(func));
+  }
   public static class Builder<T, R> {
 
     private final Function<T, R> function;

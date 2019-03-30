@@ -2,13 +2,16 @@ package com.github.dakusui.actionunit.utils;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -60,10 +63,10 @@ public enum InternalUtils {
     }
   }
 
-  public static String indent(int level) {
+  public static String indent(int level, int indentWidth) {
     StringBuilder b = new StringBuilder();
     for (int i = 0; i < level; i++)
-      b.append("  ");
+      b.append(spaces(indentWidth));
     return b.toString();
   }
 
@@ -112,5 +115,10 @@ public enum InternalUtils {
     if (OBJECT_TO_STRING_PATTERN.matcher(s).matches())
       return formatter.get();
     return s;
+  }
+
+  public static <T, R> Function<T, R> memoize(Function<T, R> function) {
+    Map<T, R> memo = new ConcurrentHashMap<>();
+    return t -> memo.computeIfAbsent(t, function);
   }
 }

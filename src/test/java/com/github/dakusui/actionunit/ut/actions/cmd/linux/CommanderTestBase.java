@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.HostCommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -23,11 +23,10 @@ import java.util.function.Consumer;
 import static com.github.dakusui.crest.Crest.asBoolean;
 import static com.github.dakusui.crest.Crest.requireThat;
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
-public abstract class CommanderTestBase extends TestUtils.TestBase implements CommanderFactory {
-  private       File         baseDir;
-  private final List<String> out = new LinkedList<>();
+public abstract class CommanderTestBase extends TestUtils.TestBase implements HostCommanderFactory {
+  private             File                 baseDir;
+  private final       List<String>         out      = new LinkedList<>();
 
   @Before
   public void setUp() throws IOException {
@@ -37,6 +36,11 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Co
   @After
   public void tearDown() {
     performAction(cleanUp());
+  }
+
+  @Override
+  public CommanderInitializer initializer() {
+    return CommanderInitializer.DEFAULT_INSTANCE;
   }
 
   List<String> out() {
@@ -73,7 +77,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Co
 
   @SuppressWarnings("UnusedReturnValue")
   File createNewFile(String name, String... content) throws IOException {
-    File file = new File(this.baseDir, name);
+    File file = fileOf(name);
     requireThat(file.createNewFile(), asBoolean().isTrue().$());
     file.deleteOnExit();
     try (FileWriter writer = new FileWriter(file)) {
@@ -87,7 +91,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Co
 
   @SuppressWarnings("UnusedReturnValue")
   File createNewDir(@SuppressWarnings("SameParameterValue") String name) {
-    File ret = new File(this.baseDir, name);
+    File ret = fileOf(name);
     requireThat(ret.mkdirs(), asBoolean().isTrue().$());
     return ret;
   }
@@ -96,12 +100,20 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Co
     return this.baseDir;
   }
 
+  File fileOf(String name) {
+    return new File(this.baseDir, name);
+  }
+
+  String absolutePathOf(String name) {
+    return fileOf(name).getAbsolutePath();
+  }
+
   void performAction(Action action) {
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 
   private Action cleanUp() {
-    return new Cmd(requireNonNull(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER))
+    return new Cmd(CommanderInitializer.DEFAULT_INSTANCE)
         .command("/bin/rm")
         .addOption("-rf")
         .append(" ")

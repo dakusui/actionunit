@@ -2,8 +2,10 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
+import java.util.ArrayList;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.LinkedList;
@@ -26,23 +28,23 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(commandLineString());
+    formatter.format(format());
   }
 
   Function<String[], IntFunction<String>> parameterPlaceHolderFactory();
 
-  String commandLineString();
+  String format();
 
   String compose(Context context);
 
-  class Builder {
+  class Builder implements Cloneable {
     private Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
     private List<String>                            knownVariableNames;
-    private List<ContextFunction<String>>           builder;
+    private List<ContextFunction<String>>           tokens;
 
     public Builder(Function<String[], IntFunction<String>> parameterPlaceHolderFactory) {
       this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
-      this.builder = new LinkedList<>();
+      this.tokens = new LinkedList<>();
       this.knownVariableNames = new LinkedList<>();
     }
 
@@ -55,7 +57,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
     public Builder append(ContextFunction<String> func, boolean quoted) {
       if (quoted)
         func = quoteWithApostrophe(func);
-      this.builder.add(func);
+      this.tokens.add(func);
       return this;
     }
 
@@ -67,7 +69,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
       if (quoted) {
         func = quoteWithApostrophe(func);
       }
-      this.builder.add(func);
+      this.tokens.add(func);
       return this.declareVariable(variableName);
     }
 
@@ -85,13 +87,13 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
         }
 
         @Override
-        public String commandLineString() {
-          return builder.stream().map(Object::toString).collect(joining());
+        public String format() {
+          return tokens.stream().map(Object::toString).collect(joining());
         }
 
         @Override
         public String compose(Context context) {
-          return builder.stream().map(each -> each.apply(context)).collect(joining());
+          return tokens.stream().map(each -> each.apply(context)).collect(joining());
         }
       };
     }
@@ -99,6 +101,24 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
     public String[] knownVariables() {
       return knownVariableNames.toArray(new String[0]);
     }
+
+    @Override
+    public CommandLineComposer.Builder clone() {
+      try {
+        CommandLineComposer.Builder ret = (Builder) super.clone();
+        ret.knownVariableNames = new ArrayList<>(this.knownVariableNames);
+        ret.tokens = new ArrayList<>(this.tokens);
+        return ret;
+      } catch (CloneNotSupportedException e) {
+        throw ActionException.wrap(e);
+      }
+    }
+
+    @Override
+    public String toString() {
+      return String.format("Builder:%s(vars=%s)", tokens, knownVariableNames);
+    }
+
 
     private static ContextFunction<String> quoteWithApostrophe(ContextFunction<String> func) {
       return func.andThen(new Function<String, String>() {

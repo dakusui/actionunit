@@ -1,18 +1,17 @@
-package com.github.dakusui.actionunit.actions.cmd.linux;
+package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 
 import static java.util.Objects.requireNonNull;
 
 public class Touch extends Commander<Touch> {
-  public Touch(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    super(parameterPlaceHolderFormatter);
-    this.command("touch");
+  public Touch(CommanderInitializer initializer) {
+    super(initializer);
+    initializer.init(this);
   }
 
   public Touch noCreate() {

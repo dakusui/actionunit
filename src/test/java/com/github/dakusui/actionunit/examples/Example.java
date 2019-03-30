@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.stream.Stream;
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public class Example extends TestUtils.TestBase {
+  @Ignore
   @Test
   public void test() {
     Action action = forEach(

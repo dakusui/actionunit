@@ -2,11 +2,7 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.*;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
@@ -43,14 +39,12 @@ public enum CommanderUtils {
 
   static Action createAction(Commander commander, String[] variableNames) {
     return RetryOption.retryAndTimeOut(
-        leaf(createContextConsumer(commander, variableNames)),
+        leaf(createContextConsumer(commander)),
         commander.retryOption());
   }
 
   static StreamGenerator<String> createStreamGenerator(
-      Commander<?> commander,
-      final String[] variableNames) {
-    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
+      Commander<?> commander) {
     return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {
           @Override
@@ -64,17 +58,16 @@ public enum CommanderUtils {
 
           @Override
           public String toString() {
-            return format("(%s)", commandLineComposer.commandLineString());
+            return format("(%s)", commander.buildCommandLineComposer().format());
           }
         },
-        variableNames
+        commander.variableNames()
     );
   }
 
-  static ContextConsumer createContextConsumer(Commander<?> commander, String[] variableNames) {
+  static ContextConsumer createContextConsumer(Commander<?> commander) {
     requireNonNull(commander);
-    CommandLineComposer commandLineComposer = commander.buildCommandLineComposer();
-    return multiParamsConsumerFor(variableNames)
+    return multiParamsConsumerFor(commander.variableNames())
         .toContextConsumer(
             printableConsumer(
                 (Params params) -> createProcessStreamerBuilder(commander, params)
@@ -82,13 +75,12 @@ public enum CommanderUtils {
                     .build()
                     .stream()
                     .forEach(commander.downstreamConsumer()))
-                .describe(commandLineComposer::commandLineString));
+                .describe(() -> commander.buildCommandLineComposer().format()));
   }
 
   static ContextPredicate createContextPredicate(
-      Commander<?> commander,
-      String[] variableNames) {
-    return multiParamsPredicateFor(variableNames)
+      Commander<?> commander) {
+    return multiParamsPredicateFor(commander.variableNames())
         .toContextPredicate(printablePredicate(
             (Params params) -> {
               ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);
@@ -108,12 +100,12 @@ public enum CommanderUtils {
             })
             .describe(() -> format(
                 "outputOf[command:'%s'].matches[%s]",
-                commander.buildCommandLineComposer().commandLineString(),
+                commander.buildCommandLineComposer().format(),
                 objectToStringIfOverridden(commander.checker(), () -> "(noname)"))));
   }
 
-  static ContextFunction<String> createContextFunction(Commander<?> commander, String[] variableNames) {
-    return ContextFunctions.<String>multiParamsFunctionFor(variableNames)
+  static ContextFunction<String> createContextFunction(Commander<?> commander) {
+    return ContextFunctions.<String>multiParamsFunctionFor(commander.variableNames())
         .toContextFunction(params ->
             createProcessStreamerBuilder(commander, params)
                 .checker(commander.checker())
@@ -147,6 +139,9 @@ public enum CommanderUtils {
         .apply(variableNames)
         .apply(params.context(), variableValues);
     LOGGER.info("Command Line:{}", commandLine);
+    LOGGER.debug("Shell:{}", shell);
+    LOGGER.debug("Cwd:{}", cwd);
+    LOGGER.debug("Environment variables:{}", envvars);
     ProcessStreamer.Builder ret;
     if (stdin == null)
       ret = ProcessStreamer.source(shell);

@@ -1,9 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
-import com.github.dakusui.actionunit.actions.cmd.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
@@ -21,6 +22,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -110,9 +113,9 @@ public class CmdTest {
     public void whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles() {
       // This test only makes sure buildCommandLineComposer can be overridden.
       requireThat(
-          new Cmd(ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER) {
+          new Cmd(CommanderInitializer.DEFAULT_INSTANCE) {
             @Test
-            protected CommandLineComposer buildCommandLineComposer() {
+            public CommandLineComposer buildCommandLineComposer() {
               return super.buildCommandLineComposer();
             }
           },
@@ -361,7 +364,16 @@ public class CmdTest {
 
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(initCmd(cmd(ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME, "echo {{i}}", "i")));
+      performAsActionInsideHelloWorldLoop(
+          initCmd(cmd(
+              "echo {{i}}",
+              new CommanderInitializer() {
+                @Override
+                public Function<String[], IntFunction<String>> variablePlaceHolderFormatter() {
+                  return ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;
+                }
+              },
+              "i")));
       assertThat(
           out,
           asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()

@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,26 +23,28 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.utils.Checks.requireState;
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
-  private static final Logger                                  LOGGER = LoggerFactory.getLogger(Commander.class);
-  private final        Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
+  private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
+  CommandLineComposer.Builder commandLineComposerBuilder;
+  private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
 
-  private       RetryOption                 retryOption;
-  private       Supplier<Consumer<String>>  downstreamConsumerFactory;
-  private       Supplier<Checker>           checkerFactory;
-  private       Stream<String>              stdin;
-  private       Shell                       shell;
-  private       File                        cwd = null;
-  private final Map<String, String>         envvars;
-  private       CommandLineComposer.Builder commandLineComposerBuilder;
+  private       RetryOption                retryOption;
+  private       Supplier<Consumer<String>> downstreamConsumerFactory;
+  private       Supplier<Checker>          checkerFactory;
+  private       Stream<String>             stdin;
+  private       Shell                      shell;
+  private       File                       cwd         = null;
+  private final Map<String, String>        envvars;
+  private       String                     description = null;
 
 
-  protected Commander(Function<String[], IntFunction<String>> parameterPlaceHolderFormatter) {
-    this.parameterPlaceHolderFactory = parameterPlaceHolderFormatter;
+  protected Commander(CommanderInitializer initializer) {
+    this.parameterPlaceHolderFactory = initializer.variablePlaceHolderFormatter();
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(RetryOption.none())
@@ -53,9 +54,18 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   @SuppressWarnings("unchecked")
+  public C describe(String descriptionSupplier) {
+    this.description = descriptionSupplier;
+    return (C) this;
+  }
+
+  @SuppressWarnings("unchecked")
   public C clone() {
     try {
-      return (C) super.clone();
+      C ret = (C) super.clone();
+      if (ret.commandLineComposerBuilder().isPresent())
+        ret.commandLineComposerBuilder = ret.commandLineComposerBuilderIfSet().clone();
+      return ret;
     } catch (CloneNotSupportedException e) {
       throw ActionException.wrap(e);
     }
@@ -143,7 +153,10 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    * @return An action object.
    */
   public Action toAction() {
-    return CommanderUtils.createAction(this, this.variableNames());
+    Action action = CommanderUtils.createAction(this, this.variableNames());
+    return this.description != null ?
+        named(this.description, action) :
+        action;
   }
 
   /**
@@ -152,26 +165,19 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    * @return A stream generator object.
    */
   public StreamGenerator<String> toStreamGenerator() {
-    return CommanderUtils.createStreamGenerator(this, this.variableNames());
+    return CommanderUtils.createStreamGenerator(this);
   }
 
   public ContextConsumer toContextConsumer() {
-    return CommanderUtils.createContextConsumer(this, this.variableNames());
+    return CommanderUtils.createContextConsumer(this);
   }
 
   public ContextPredicate toContextPredicate() {
-    return CommanderUtils.createContextPredicate(this, this.variableNames());
+    return CommanderUtils.createContextPredicate(this);
   }
 
   public ContextFunction<String> toContextFunction() {
-    return CommanderUtils.createContextFunction(this, this.variableNames());
-  }
-
-  @SuppressWarnings("unchecked")
-  protected C command(String command) {
-    this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory())
-        .append(command, false);
-    return (C) this;
+    return CommanderUtils.createContextFunction(this);
   }
 
   /**
@@ -212,7 +218,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   @SuppressWarnings("unchecked")
   public C append(ContextFunction<String> func, boolean b) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(func, b);
+    commandLineComposerBuilderIfSet().append(func, b);
     return (C) this;
   }
 
@@ -226,7 +232,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   @SuppressWarnings("unchecked")
   public C append(String text, boolean b) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).append(text, b);
+    commandLineComposerBuilderIfSet().append(text, b);
     return (C) this;
   }
 
@@ -244,13 +250,13 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   @SuppressWarnings("unchecked")
   public C appendVariable(String variableName, boolean b) {
-    requireState(Objects::nonNull, this.commandLineComposerBuilder).appendVariable(variableName, b);
+    commandLineComposerBuilderIfSet().appendVariable(variableName, b);
     return (C) this;
   }
 
   @SuppressWarnings("unchecked")
   public C declareVariable(String variableName) {
-    this.commandLineComposerBuilder.declareVariable(variableName);
+    this.commandLineComposerBuilderIfSet().declareVariable(variableName);
     return (C) this;
   }
 
@@ -282,8 +288,32 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return Optional.ofNullable(this.cwd);
   }
 
-  protected CommandLineComposer buildCommandLineComposer() {
-    return requireState(Objects::nonNull, this.commandLineComposerBuilder).build();
+  public Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
+    return this.parameterPlaceHolderFactory;
+  }
+
+  @Override
+  public String toString() {
+    return format(
+        "%s:Shell:(%s), CommandLine(%s)",
+        this.getClass().getSimpleName(),
+        shell(),
+        commandLineComposerBuilder);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected C command(String command) {
+    this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory())
+        .append(command, false);
+    return (C) this;
+  }
+
+  protected CommandLineComposer.Builder commandLineComposerBuilderIfSet() {
+    return this.commandLineComposerBuilder().orElseThrow(IllegalStateException::new);
+  }
+
+  public CommandLineComposer buildCommandLineComposer() {
+    return commandLineComposerBuilderIfSet().clone().build();
   }
 
   Checker checker() {
@@ -294,11 +324,11 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return this.downstreamConsumerFactory.get();
   }
 
-  private String[] variableNames() {
-    return requireState(Objects::nonNull, this.commandLineComposerBuilder).knownVariables();
+  String[] variableNames() {
+    return commandLineComposerBuilderIfSet().knownVariables();
   }
 
-  private Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
-    return this.parameterPlaceHolderFactory;
+  Optional<CommandLineComposer.Builder> commandLineComposerBuilder() {
+    return Optional.ofNullable(commandLineComposerBuilder);
   }
 }
