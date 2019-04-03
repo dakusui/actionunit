@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.actions.cmd.HostCommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
@@ -24,7 +24,7 @@ import static com.github.dakusui.crest.Crest.asBoolean;
 import static com.github.dakusui.crest.Crest.requireThat;
 import static java.lang.String.format;
 
-public abstract class CommanderTestBase extends TestUtils.TestBase implements HostCommanderFactory {
+public abstract class CommanderTestBase extends TestUtils.TestBase implements UnixCommanderFactory {
   private             File                 baseDir;
   private final       List<String>         out      = new LinkedList<>();
 
