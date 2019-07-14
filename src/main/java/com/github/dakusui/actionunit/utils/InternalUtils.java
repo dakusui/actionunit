@@ -1,37 +1,27 @@
 package com.github.dakusui.actionunit.utils;
 
-import com.github.dakusui.actionunit.exceptions.ActionException;
-
+import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Objects;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public enum InternalUtils {
   ;
-
-  public static final Pattern OBJECT_TO_STRING_PATTERN = Pattern.compile(
-      "([a-zA-Z\\$_][a-zA-Z0-9\\$_]*\\.)*([a-zA-Z0-9\\$_]+)*(\\$[0-9a-f]+/[0-9a-f]+)?@[]0-9a-f]+"
-  );
+  public static final Method OBJECT_TO_STRING_METHOD = objectToStringMethod();
 
   public static void sleep(long duration, TimeUnit timeUnit) {
     try {
       checkNotNull(timeUnit).sleep(duration);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw ActionException.wrap(e);
+      throw wrap(e);
     }
   }
 
@@ -44,10 +34,10 @@ public enum InternalUtils {
       return future.get(timeout, timeUnit);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw ActionException.wrap(e);
+      throw wrap(e);
     } catch (TimeoutException e) {
       future.cancel(true);
-      throw ActionException.wrap(e);
+      throw wrap(e);
     } catch (ExecutionException e) {
       //unwrap the root cause
       Throwable cause = e.getCause();
@@ -110,11 +100,22 @@ public enum InternalUtils {
   }
 
   public static String objectToStringIfOverridden(Object o, Supplier<String> formatter) {
-    String s = o.toString();
     requireNonNull(formatter);
-    if (OBJECT_TO_STRING_PATTERN.matcher(s).matches())
+    try {
+      return !Objects.equals(o.getClass().getMethod("toString"), OBJECT_TO_STRING_METHOD) ?
+          o.toString() :
+          formatter.get();
+    } catch (NoSuchMethodException e) {
       return formatter.get();
-    return s;
+    }
+  }
+
+  private static Method objectToStringMethod() {
+    try {
+      return Object.class.getMethod("toString");
+    } catch (NoSuchMethodException e) {
+      throw wrap(e);
+    }
   }
 
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
