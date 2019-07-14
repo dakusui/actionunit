@@ -3,12 +3,20 @@ package com.github.dakusui.actionunit.core.context;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.printables.PrintablePredicate;
 
+import java.util.Formatter;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+
 @FunctionalInterface
 public interface ContextPredicate extends Predicate<Context>, Printable {
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+    formatter.format(objectToStringIfOverridden(this, () -> "(noname)"));
+  }
+
   @Override
   default ContextPredicate and(Predicate<? super Context> other) {
     Objects.requireNonNull(other);

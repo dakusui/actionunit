@@ -302,7 +302,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   @SuppressWarnings("unchecked")
-  protected C command(String command) {
+  public C command(String command) {
     this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory())
         .append(command, false);
     return (C) this;

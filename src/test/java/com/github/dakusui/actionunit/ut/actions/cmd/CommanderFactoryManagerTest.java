@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.CommanderFactoryManager;
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
 import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
 import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
@@ -31,8 +31,8 @@ import static com.github.dakusui.printables.Printables.isEmptyString;
 import static java.util.Collections.emptyList;
 
 @RunWith(Enclosed.class)
-public class UnixCommanderFactoryTest {
-  static abstract class Base implements UnixCommanderFactory {
+public class CommanderFactoryManagerTest {
+  static abstract class Base implements CommanderFactoryManager {
     @Ignore
     @Test
     public void performLocally() {

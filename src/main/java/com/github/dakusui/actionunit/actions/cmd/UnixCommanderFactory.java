@@ -1,21 +1,54 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import java.util.function.Function;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cat;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
+import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
+import com.github.dakusui.actionunit.actions.cmd.unix.Git;
+import com.github.dakusui.actionunit.actions.cmd.unix.Ls;
+import com.github.dakusui.actionunit.actions.cmd.unix.Mkdir;
+import com.github.dakusui.actionunit.actions.cmd.unix.Rm;
+import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
+import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.memoize;
-
-public interface UnixCommanderFactory {
-  default HostCommanderFactory local() {
-    return () -> initializerManager().apply("localhost");
+public interface UnixCommanderFactory extends CommanderFactory {
+  default Echo echo() {
+    return new Echo(initializer());
   }
 
-  default HostCommanderFactory remote(String host) {
-    return () -> initializerManager().apply(host);
+  default Cat cat() {
+    return new Cat(initializer());
   }
 
-  default Function<String, CommanderInitializer> initializerManager() {
-    return memoize(this::initializerFor);
+  default Ls ls() {
+    return new Ls(initializer());
   }
 
-  CommanderInitializer initializerFor(String host);
+  default Mkdir mkdir() {
+    return new Mkdir(initializer());
+  }
+
+  default Rm rm() {
+    return new Rm(initializer());
+  }
+
+  default Touch touch() {
+    return new Touch(initializer());
+  }
+
+  default Scp scp() {
+    return  new Scp(initializer());
+  }
+
+  default Curl curl() {
+    return new Curl(initializer());
+  }
+
+  default Git git() {
+    return () -> UnixCommanderFactory.this;
+  }
+
+  default Cmd cmd() {
+    return new Cmd(initializer());
+  }
 }

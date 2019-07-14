@@ -15,16 +15,11 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.nop;
-import static com.github.dakusui.actionunit.core.ActionSupport.when;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.printables.Printables.printableConsumer;
 import static com.github.dakusui.printables.Printables.printablePredicate;
 
@@ -34,8 +29,7 @@ public class ContextFunctionsUnitTest {
     return multiParamsPredicateFor(variableName)
         .toContextPredicate(
             printablePredicate((Params params) -> predicate.test(params.valueOf(variableName)))
-                .describe(predicate.toString())
-        );
+                .describe(() -> objectToStringIfOverridden(predicate, () -> "(noname)({{0}})")));
   }
 
   public static class GivenPrintableContextConsumer {
