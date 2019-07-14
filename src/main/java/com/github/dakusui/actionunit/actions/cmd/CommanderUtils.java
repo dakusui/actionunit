@@ -140,8 +140,10 @@ public enum CommanderUtils {
         .apply(params.context(), variableValues);
     LOGGER.info("Command Line:{}", commandLine);
     LOGGER.trace("Shell:{}", shell);
-    LOGGER.trace("Cwd:{}", cwd);
-    LOGGER.trace("Environment variables:{}", envvars);
+    if (cwd != null)
+      LOGGER.debug("Cwd:{}", cwd);
+    if (!envvars.isEmpty())
+      LOGGER.debug("Environment variables:{}", envvars);
     ProcessStreamer.Builder ret;
     if (stdin == null)
       ret = ProcessStreamer.source(shell);
