@@ -9,7 +9,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * An action that gives a name to another.
  */
-public interface Named extends Action {
+public interface Named extends Action<Named> {
   /**
    * Returns a name of this action.
    *

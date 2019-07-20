@@ -10,7 +10,7 @@ import static com.github.dakusui.actionunit.utils.InternalUtils.formatDuration;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public interface TimeOut extends Action {
+public interface TimeOut extends Action<TimeOut> {
   Action perform();
 
   long durationInNanos();

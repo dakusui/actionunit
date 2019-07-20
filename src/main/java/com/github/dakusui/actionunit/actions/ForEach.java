@@ -8,7 +8,7 @@ import java.util.Formatter;
 
 import static java.util.Objects.requireNonNull;
 
-public interface ForEach<E> extends Action {
+public interface ForEach<E> extends Action<ForEach<E>> {
   String loopVariableName();
 
   StreamGenerator<E> data();

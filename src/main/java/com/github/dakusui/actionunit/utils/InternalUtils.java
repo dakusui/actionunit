@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.utils;
 
+import java.io.*;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
@@ -121,5 +122,13 @@ public enum InternalUtils {
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
     Map<T, R> memo = new ConcurrentHashMap<>();
     return t -> memo.computeIfAbsent(t, function);
+  }
+
+  public static ByteArrayInputStream serialize(Serializable serializableObject) throws IOException {
+    ByteArrayOutputStream b = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(b);
+    oos.writeObject(serializableObject);
+    oos.close();
+    return new ByteArrayInputStream(b.toByteArray());
   }
 }

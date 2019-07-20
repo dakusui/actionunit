@@ -4,13 +4,14 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.printables.PrintableFunction;
 import com.github.dakusui.printables.Printables;
 
+import java.io.Serializable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface
-public interface ContextFunction<R> extends Function<Context, R>, Printable {
+public interface ContextFunction<R> extends Function<Context, R>, Serializable, Printable {
   default <V> Function<V, R> compose(Function<? super V, ? extends Context> before) {
     return v -> ContextFunction.this.apply(before.apply(v));
   }

@@ -11,7 +11,7 @@ import static com.github.dakusui.actionunit.utils.InternalUtils.formatNumberOfTi
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public interface Retry extends Action {
+public interface Retry extends Action<Retry> {
 
   Action perform();
 

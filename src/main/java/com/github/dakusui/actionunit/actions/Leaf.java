@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public interface Leaf extends Action, Function<Context, Runnable> {
+public interface Leaf extends Action<Leaf>, Function<Context, Runnable> {
   Runnable runnable(Context context);
 
   default Runnable apply(Context context) {

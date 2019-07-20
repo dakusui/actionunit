@@ -12,7 +12,7 @@ import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.named;
 import static java.util.Objects.requireNonNull;
 
-public interface Attempt extends Action {
+public interface Attempt extends Action<Attempt> {
   @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);

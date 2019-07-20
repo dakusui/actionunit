@@ -8,7 +8,7 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
-public interface Composite extends Action {
+public interface Composite extends Action<Composite> {
   List<Action> children();
 
   boolean isParallel();

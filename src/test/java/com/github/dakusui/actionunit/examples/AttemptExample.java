@@ -20,6 +20,16 @@ public class AttemptExample extends TestUtils.TestBase {
     TestUtils.createReportingActionPerformer().performAndReport(buildAttemptAction(), Writer.Std.OUT);
   }
 
+  @Test
+  public void givenAction$whenAttemptAndEnsureIt$thenPrintedIncorrectly() {
+    Action action = simple("printHello", (c) -> System.out.println("hello"));
+    TestUtils.createReportingActionPerformer()
+        .performAndReport(
+            attempt(action)
+                .ensure(action.cloneAction()),
+            Writer.Std.OUT);
+  }
+
 
   private Action buildAttemptAction() {
     return attempt(

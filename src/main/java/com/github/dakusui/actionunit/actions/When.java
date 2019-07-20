@@ -8,7 +8,7 @@ import java.util.Formatter;
 
 import static java.util.Objects.requireNonNull;
 
-public interface When extends Action {
+public interface When extends Action<When> {
   ContextPredicate cond();
 
   Action perform();

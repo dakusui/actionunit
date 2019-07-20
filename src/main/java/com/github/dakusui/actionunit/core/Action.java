@@ -1,11 +1,26 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Formattable;
 
-public interface Action extends Formattable {
+import static com.github.dakusui.actionunit.utils.InternalUtils.serialize;
+
+public interface Action<A extends Action> extends Formattable, Serializable {
   void accept(Visitor visitor);
+
+  @SuppressWarnings("unchecked")
+  default A cloneAction() {
+    try {
+      return (A) new ObjectInputStream(serialize(this)).readObject();
+    } catch (IOException | ClassNotFoundException e) {
+      throw ActionException.wrap(e);
+    }
+  }
 
   abstract class Builder<A extends Action> {
     public abstract A build();

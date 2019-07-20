@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.core.context;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.printables.PrintableConsumer;
 
+import java.io.Serializable;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.Objects;
@@ -13,7 +14,7 @@ import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIf
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface
-public interface ContextConsumer extends Consumer<Context>, Formattable {
+public interface ContextConsumer extends Consumer<Context>, Formattable, Serializable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
     formatter.format(objectToStringIfOverridden(this, () -> "(noname)"));
