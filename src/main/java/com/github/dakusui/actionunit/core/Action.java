@@ -22,7 +22,7 @@ public interface Action<A extends Action> extends Formattable, Serializable {
     }
   }
 
-  abstract class Builder<A extends Action> {
+  abstract class Builder<A extends Action> implements Serializable {
     public abstract A build();
 
     /**

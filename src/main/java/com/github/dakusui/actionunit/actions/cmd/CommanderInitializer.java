@@ -14,12 +14,13 @@ import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
+import java.io.Serializable;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import static java.lang.String.format;
 
-public interface CommanderInitializer {
+public interface CommanderInitializer extends Serializable{
   CommanderInitializer DEFAULT_INSTANCE = new CommanderInitializer() {
   };
 

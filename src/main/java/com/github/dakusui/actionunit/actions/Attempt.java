@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 
+import java.io.Serializable;
 import java.util.Formatter;
 import java.util.function.Consumer;
 
