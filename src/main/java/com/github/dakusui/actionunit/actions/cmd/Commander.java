@@ -31,7 +31,7 @@ public abstract class Commander<C extends Commander<C>> implements Serializable,
   private       RetryOption                            retryOption;
   private       SerializableSupplier<Consumer<String>> downstreamConsumerFactory;
   private       SerializableSupplier<Checker>          checkerFactory;
-  private       Stream<String>                         stdin;
+  private       StreamSupplier<String>                         stdin;
   private       Shell                                  shell;
   private       File                                   cwd         = null;
   private final Map<String, String>                    envvars;
@@ -41,16 +41,11 @@ public abstract class Commander<C extends Commander<C>> implements Serializable,
   protected Commander(CommanderInitializer initializer) {
     this.parameterPlaceHolderFactory = initializer.variablePlaceHolderFormatter();
     this.envvars = new LinkedHashMap<>();
-    this.stdin(Stream.empty())
+    this.stdin(Stream::empty)
         .retryOption(RetryOption.none())
         .shell(Shell.local())
         .checker(createCheckerForExitCode(0))
-        .downstreamConsumer(new SerializableConsumer<String>() {
-          @Override
-          public void accept(String s) {
-            LOGGER.trace(s);
-          }
-        });
+        .downstreamConsumerFactory(() -> LOGGER::info);
   }
 
   @SuppressWarnings("unchecked")
@@ -134,7 +129,7 @@ public abstract class Commander<C extends Commander<C>> implements Serializable,
   }
 
   @SuppressWarnings("unchecked")
-  public C stdin(Stream<String> stdin) {
+  public C stdin(StreamSupplier<String> stdin) {
     this.stdin = requireNonNull(stdin);
     return (C) this;
   }
@@ -282,7 +277,7 @@ public abstract class Commander<C extends Commander<C>> implements Serializable,
     return this.downstreamConsumerFactory;
   }
 
-  public Stream<String> stdin() {
+  public StreamSupplier<String> stdin() {
     return this.stdin;
   }
 

@@ -131,7 +131,7 @@ public enum CommanderUtils {
   }
 
   static ProcessStreamer.Builder createProcessStreamerBuilder(
-      Stream<String> stdin, Shell shell, File cwd, Map<String, String> envvars,
+      StreamSupplier<String> stdin, Shell shell, File cwd, Map<String, String> envvars,
       CommandLineComposer commandLineComposer,
       Params params) {
     String[] variableNames = params.paramNames().toArray(new String[0]);
@@ -152,7 +152,7 @@ public enum CommanderUtils {
     if (stdin == null)
       ret = ProcessStreamer.source(shell);
     else
-      ret = ProcessStreamer.pipe(stdin, shell);
+      ret = ProcessStreamer.pipe(stdin.get(), shell);
     envvars.forEach(ret::env);
     if (cwd != null)
       ret.cwd(cwd);

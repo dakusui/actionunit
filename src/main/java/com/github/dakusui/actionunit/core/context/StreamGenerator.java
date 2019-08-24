@@ -13,6 +13,7 @@ import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
+@FunctionalInterface
 public interface StreamGenerator<T> extends ContextFunction<Stream<T>> {
 
   @SafeVarargs

@@ -1,17 +1,21 @@
 package com.github.dakusui.printables;
 
+import com.github.dakusui.actionunit.core.context.SerializableFunction;
+import com.github.dakusui.actionunit.core.context.SerializableSupplier;
+
+import java.io.Serializable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
-public class PrintableFunction<T, R> implements Function<T, R> {
-  private final Function<? super T, ? extends R> function;
-  private final Supplier<String>                 formatter;
+public class PrintableFunction<T, R> implements Function<T, R>, Serializable {
+  private final transient SerializableFunction<? super T, ? extends R> function;
+  private final transient SerializableSupplier<String>                 formatter;
 
   public PrintableFunction(Supplier<String> formatter, Function<? super T, ? extends R> function) {
-    this.formatter = requireNonNull(formatter);
-    this.function = requireNonNull(function);
+    this.formatter = () -> requireNonNull(formatter).get();
+    this.function = t -> requireNonNull(function).apply(t);
   }
 
   @Override
@@ -39,13 +43,16 @@ public class PrintableFunction<T, R> implements Function<T, R> {
 
   @Override
   public String toString() {
+    if (formatter == null)
+      return super.toString();
     return formatter.get();
   }
 
 
-  public static <T, R> PrintableFunction.Builder<T, R> of(Function<T, R> func){
+  public static <T, R> PrintableFunction.Builder<T, R> of(Function<T, R> func) {
     return new PrintableFunction.Builder<>(requireNonNull(func));
   }
+
   public static class Builder<T, R> {
 
     private final Function<T, R> function;

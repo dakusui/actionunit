@@ -104,7 +104,6 @@ public class CmdTest {
       // This test only makes sure buildCommandLineComposer can be overridden.
       requireThat(
           new Cmd(CommanderInitializer.DEFAULT_INSTANCE) {
-            @Test
             public CommandLineComposer buildCommandLineComposer() {
               return super.buildCommandLineComposer();
             }
@@ -202,7 +201,7 @@ public class CmdTest {
     @Test
     public void givenCatStreamOfHelloWorld$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("cat").stdin(Stream.of("hello", "world")))
+          initCmd(cmd("cat").stdin(() -> Stream.of("hello", "world")))
               .toAction());
       assertThat(
           out,
