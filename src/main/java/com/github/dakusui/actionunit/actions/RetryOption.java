@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.retry;
@@ -9,7 +10,7 @@ import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class RetryOption {
+public class RetryOption implements Serializable {
   public static class Builder {
     long                       timeoutDuration       = -1;
     TimeUnit                   timeoutTimeUnit       = SECONDS;

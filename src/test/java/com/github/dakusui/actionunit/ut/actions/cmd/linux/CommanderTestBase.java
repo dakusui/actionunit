@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.context.SerializableConsumer;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -25,8 +26,8 @@ import static com.github.dakusui.crest.Crest.requireThat;
 import static java.lang.String.format;
 
 public abstract class CommanderTestBase extends TestUtils.TestBase implements UnixCommanderFactory {
-  private             File                 baseDir;
-  private final       List<String>         out      = new LinkedList<>();
+  private       File         baseDir;
+  private final List<String> out = new LinkedList<>();
 
   @Before
   public void setUp() throws IOException {
@@ -121,7 +122,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
         .toAction();
   }
 
-  private Consumer<String> downstreamConsumer() {
-    return ((Consumer<String>) System.out::println).andThen(out::add);
+  private SerializableConsumer<String> downstreamConsumer() {
+    return SerializableConsumer.of(((Consumer<String>) System.out::println).andThen(out::add));
   }
 }

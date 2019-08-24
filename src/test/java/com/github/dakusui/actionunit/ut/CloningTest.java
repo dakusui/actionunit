@@ -1,8 +1,10 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -162,9 +164,25 @@ public class CloningTest {
 
   @Test
   public void cloneCmd() {
-    Action action = ActionSupport.cmd("echo hello").toAction();
+    Action action = ActionSupport.cmd("echo hello").describe("echoing hello").toAction();
 
     Action cloned = action.cloneAction();
+
+    assertThat(
+        cloned,
+        asObject()
+            .isInstanceOf(Leaf.class)
+            .check(callOn(String.class, "format", "string:<%s>", new Object[]{cloned}).$(),
+                isEqualTo("string:<do parallelly>"))
+            .$()
+    );
+  }
+
+  @Test
+  public void cloneCommander() {
+    Commander commander = ActionSupport.cmd("echo hello").describe("echoing hello");
+
+    Commander cloned = InternalUtils.cloneObjectBySerialization(commander);
 
     assertThat(
         cloned,

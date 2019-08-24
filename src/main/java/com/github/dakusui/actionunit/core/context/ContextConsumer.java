@@ -51,5 +51,4 @@ public interface ContextConsumer extends Consumer<Context>, Formattable, Seriali
       return new ContextConsumer.Impl(formatter, (Consumer<Context>) consumer);
     }
   }
-
 }

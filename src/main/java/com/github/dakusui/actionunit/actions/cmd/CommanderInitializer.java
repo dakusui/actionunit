@@ -1,16 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.unix.Cat;
-import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
-import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
-import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
-import com.github.dakusui.actionunit.actions.cmd.unix.Git;
-import com.github.dakusui.actionunit.actions.cmd.unix.Ls;
-import com.github.dakusui.actionunit.actions.cmd.unix.Mkdir;
-import com.github.dakusui.actionunit.actions.cmd.unix.Rm;
-import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
-import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
-import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
+import com.github.dakusui.actionunit.actions.cmd.unix.*;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
@@ -20,7 +10,7 @@ import java.util.function.IntFunction;
 
 import static java.lang.String.format;
 
-public interface CommanderInitializer extends Serializable{
+public interface CommanderInitializer extends Serializable {
   CommanderInitializer DEFAULT_INSTANCE = new CommanderInitializer() {
   };
 

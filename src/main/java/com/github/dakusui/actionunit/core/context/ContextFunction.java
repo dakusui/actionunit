@@ -13,12 +13,12 @@ import static java.util.Objects.requireNonNull;
 @FunctionalInterface
 public interface ContextFunction<R> extends Function<Context, R>, Serializable, Printable {
   default <V> Function<V, R> compose(Function<? super V, ? extends Context> before) {
-    return v -> ContextFunction.this.apply(before.apply(v));
+    return (Serializable & Function<V, R>) v -> ContextFunction.this.apply(before.apply(v));
   }
 
   default <V> ContextFunction<V> andThen(Function<? super R, ? extends V> after) {
     requireNonNull(after);
-    return (Context r) -> after.apply(apply(r));
+    return (Serializable & ContextFunction<V>) (Context r) -> after.apply(apply(r));
   }
 
   static <R> ContextFunction<R> of(Supplier<String> formatter, Function<Context, R> function) {
@@ -33,13 +33,13 @@ public interface ContextFunction<R> extends Function<Context, R>, Serializable, 
     @Override
     public <V> Function<V, R> compose(Function<? super V, ? extends Context> before) {
       return Printables.<V, R>printableFunction(ContextFunction.super.compose(before))
-          .describe(() -> String.format("%s(%s)", getFormatter().get(), before));
+          .describe((Serializable & Supplier<String>) () -> String.format("%s(%s)", getFormatter().get(), before));
     }
 
     @Override
     public <V> ContextFunction<V> andThen(Function<? super R, ? extends V> after) {
       return new ContextFunction.Impl<>(
-          () -> String.format("%s(%s)", after, getFormatter().get()),
+          (Serializable & Supplier<String>)() -> String.format("%s(%s)", after, getFormatter().get()),
           toContextFunction(getFunction().andThen(after))
       );
     }

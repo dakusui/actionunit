@@ -10,8 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
@@ -27,7 +31,7 @@ import static java.util.stream.Collectors.joining;
 public enum CommanderUtils {
   ;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CommanderUtils.class);
+  transient private static final Logger LOGGER = LoggerFactory.getLogger(CommanderUtils.class);
 
   public static String quoteWithApostropheForShell(String s) {
     return String.format("'%s'", escapeSingleQuotesForShell(s));
@@ -37,7 +41,7 @@ public enum CommanderUtils {
     return requireNonNull(s).replaceAll("('+)", "'\"$1\"'");
   }
 
-  static Action createAction(Commander commander, String[] variableNames) {
+  static Action createAction(Commander commander) {
     return RetryOption.retryAndTimeOut(
         leaf(createContextConsumer(commander)),
         commander.retryOption());
@@ -70,19 +74,19 @@ public enum CommanderUtils {
     return multiParamsConsumerFor(commander.variableNames())
         .toContextConsumer(
             printableConsumer(
-                (Params params) -> createProcessStreamerBuilder(commander, params)
+                (Serializable & Consumer<Params>) (Params params) -> createProcessStreamerBuilder(commander, params)
                     .checker(commander.checker())
                     .build()
                     .stream()
                     .forEach(commander.downstreamConsumer()))
-                .describe(() -> commander.buildCommandLineComposer().format()));
+                .describe((Serializable & Supplier<String>) () -> commander.buildCommandLineComposer().format()));
   }
 
   static ContextPredicate createContextPredicate(
       Commander<?> commander) {
     return multiParamsPredicateFor(commander.variableNames())
         .toContextPredicate(printablePredicate(
-            (Params params) -> {
+            (Serializable & Predicate<Params>) (Params params) -> {
               ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);
               try {
                 processStreamerBuilder

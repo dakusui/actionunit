@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.core.context;
 
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextConsumerBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextPredicateBuilder;
@@ -7,11 +8,10 @@ import com.github.dakusui.actionunit.utils.Checks;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.TreeMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.IntFunction;
+import java.util.function.*;
 import java.util.stream.IntStream;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
@@ -22,9 +22,9 @@ import static java.util.stream.Collectors.joining;
 public enum ContextFunctions {
   ;
 
-  public static final Function<String[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = varnames -> i -> String.format("{{%s}}", i);
+  public static final Function<String[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = (Serializable & Function<String[], IntFunction<String>>)varnames -> i -> String.format("{{%s}}", i);
 
-  public static final Function<String[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = varnames -> i -> String.format("{{%s}}", varnames[i]);
+  public static final Function<String[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = (Serializable & Function<String[], IntFunction<String>>)varnames -> i -> String.format("{{%s}}", varnames[i]);
 
   public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(String... variableNames) {
     return new MultiParamsContextPredicateBuilder(variableNames);
@@ -44,42 +44,42 @@ public enum ContextFunctions {
         summarize(StableTemplatingUtils.template(
             objectToStringIfOverridden(
                 f,
-                () -> "(noname)" +
+                (Serializable & Supplier<String>) () -> "(noname)" +
                     IntStream.range(0, v.length)
                         .mapToObj(placeHolderFormatter)
                         .collect(joining(", ", "(", ")"))),
             new TreeMap<String, Object>() {{
               IntStream.range(0, v.length).forEach(
-                  i -> put(placeHolderFormatter.apply(i), String.format("${%s}", v[i]))
+                  (Serializable & IntConsumer) i -> put(placeHolderFormatter.apply(i), String.format("${%s}", v[i]))
               );
             }}), 60));
   }
 
   public static <R> ContextConsumer assignTo(String variableName, ContextFunction<R> value) {
     return ContextConsumer.of(
-        () -> format("assignTo[%s](%s)", variableName, value),
-        (c) -> c.assignTo(variableName, value.apply(c)));
+        (Serializable & Supplier<String>) () -> format("assignTo[%s](%s)", variableName, value),
+        (Serializable & Consumer<Context>) (c) -> c.assignTo(variableName, value.apply(c)));
   }
 
   public static <R> ContextFunction<R> immediateOf(R value) {
     return ContextFunction.of(
-        () -> format("%s", value),
-        c -> value
+        (Serializable & Supplier<String>)() -> format("%s", value),
+        (Serializable & Function<Context, R>) c -> value
     );
   }
 
   public static <R> ContextFunction<R> contextValueOf(String variableName) {
     requireNonNull(variableName);
     return ContextFunction.of(
-        () -> format("valueOf[%s]", variableName),
-        c -> c.valueOf(variableName)
+        (Serializable & Supplier<String>)() -> format("valueOf[%s]", variableName),
+        (Serializable & Function<Context, R>)c -> c.valueOf(variableName)
     );
   }
 
   public static ContextConsumer throwIllegalArgument() {
     return ContextConsumer.of(
-        () -> "throw IllegalArgumentException",
-        (c) -> {
+        (Serializable & Supplier<String>) () -> "throw IllegalArgumentException",
+        (Serializable & Consumer<Context>) (c) -> {
           throw new IllegalArgumentException();
         }
     );
@@ -88,8 +88,8 @@ public enum ContextFunctions {
   public static <R> ContextConsumer printTo(PrintStream ps, ContextFunction<R> value) {
     requireNonNull(ps);
     return ContextConsumer.of(
-        () -> format("printTo[%s](%s)", prettyClassName(ps.getClass()), value),
-        c -> ps.println(value.apply(c))
+        (Serializable & Supplier<String>)() -> format("printTo[%s](%s)", prettyClassName(ps.getClass()), value),
+        (Serializable & Consumer<Context>) c -> ps.println(value.apply(c))
     );
   }
 
@@ -97,7 +97,7 @@ public enum ContextFunctions {
     requireNonNull(sink);
     return ContextConsumer.of(
         () -> format("writeTo[%s](%s)", prettyClassName(sink.getClass()), value),
-        c -> sink.accept(value.apply(c))
+        (Serializable & Consumer<Context>) c -> sink.accept(value.apply(c))
     );
   }
 

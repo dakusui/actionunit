@@ -131,4 +131,13 @@ public enum InternalUtils {
     oos.close();
     return new ByteArrayInputStream(b.toByteArray());
   }
+
+  @SuppressWarnings("unchecked")
+  public static <S extends Serializable> S cloneObjectBySerialization(S serializable) {
+    try {
+      return (S) new ObjectInputStream(serialize(serializable)).readObject();
+    } catch (IOException | ClassNotFoundException e) {
+      throw wrap(e);
+    }
+  }
 }

@@ -2,10 +2,7 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.core.context.*;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
@@ -13,10 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.io.Serializable;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -28,19 +23,19 @@ import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Ch
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public abstract class Commander<C extends Commander<C>> implements Cloneable {
+public abstract class Commander<C extends Commander<C>> implements Serializable, Cloneable {
   private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
   CommandLineComposer.Builder commandLineComposerBuilder;
   private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
 
-  private       RetryOption                retryOption;
-  private       Supplier<Consumer<String>> downstreamConsumerFactory;
-  private       Supplier<Checker>          checkerFactory;
-  private       Stream<String>             stdin;
-  private       Shell                      shell;
-  private       File                       cwd         = null;
-  private final Map<String, String>        envvars;
-  private       String                     description = null;
+  private       RetryOption                            retryOption;
+  private       SerializableSupplier<Consumer<String>> downstreamConsumerFactory;
+  private       SerializableSupplier<Checker>          checkerFactory;
+  private       Stream<String>                         stdin;
+  private       Shell                                  shell;
+  private       File                                   cwd         = null;
+  private final Map<String, String>                    envvars;
+  private       String                                 description = null;
 
 
   protected Commander(CommanderInitializer initializer) {
@@ -50,12 +45,17 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
         .retryOption(RetryOption.none())
         .shell(Shell.local())
         .checker(createCheckerForExitCode(0))
-        .downstreamConsumer(LOGGER::trace);
+        .downstreamConsumer(new SerializableConsumer<String>() {
+          @Override
+          public void accept(String s) {
+            LOGGER.trace(s);
+          }
+        });
   }
 
   @SuppressWarnings("unchecked")
-  public C describe(String descriptionSupplier) {
-    this.description = descriptionSupplier;
+  public C describe(String description) {
+    this.description = description;
     return (C) this;
   }
 
@@ -79,7 +79,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   /**
    * Sets a down-stream consumer to this builder object.
-   * In case the down-stream consumer is stateful, use {@link Commander#downstreamConsumerFactory(Supplier)}
+   * In case the down-stream consumer is stateful, use {@link Commander#downstreamConsumerFactory(SerializableSupplier)}
    * method instead and give a supplier that returns a new consumer object every time
    * when its {@code get()} method is called.
    *
@@ -88,7 +88,12 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    */
   public C downstreamConsumer(Consumer<String> downstreamConsumer) {
     requireNonNull(downstreamConsumer);
-    return this.downstreamConsumerFactory(() -> downstreamConsumer);
+    return this.downstreamConsumerFactory(new SerializableSupplier<Consumer<String>>() {
+      @Override
+      public Consumer<String> get() {
+        return SerializableConsumer.of(downstreamConsumer);
+      }
+    });
   }
 
   /**
@@ -98,14 +103,14 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    * @return This object
    */
   @SuppressWarnings("unchecked")
-  public C downstreamConsumerFactory(Supplier<Consumer<String>> downstreamConsumerFactory) {
+  public C downstreamConsumerFactory(SerializableSupplier<Consumer<String>> downstreamConsumerFactory) {
     this.downstreamConsumerFactory = requireNonNull(downstreamConsumerFactory);
     return (C) this;
   }
 
   /**
    * Sets a checker to this builder object.
-   * In case the checker is stateful, use {@link Commander#checkerFactory(Supplier)}
+   * In case the checker is stateful, use {@link Commander#checkerFactory(SerializableSupplier)}
    * method instead and give a suuplier that returns a new checker object every
    * time when its {@code get()} method is called.
    *
@@ -114,11 +119,16 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    */
   public C checker(Checker checker) {
     requireNonNull(checker);
-    return this.checkerFactory(() -> checker);
+    return this.checkerFactory(new SerializableSupplier<Checker>() {
+      @Override
+      public Checker get() {
+        return checker;
+      }
+    });
   }
 
   @SuppressWarnings("unchecked")
-  public C checkerFactory(Supplier<Checker> checkerFactory) {
+  public C checkerFactory(SerializableSupplier<Checker> checkerFactory) {
     this.checkerFactory = requireNonNull(checkerFactory);
     return (C) this;
   }
@@ -153,9 +163,9 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    * @return An action object.
    */
   public Action toAction() {
-    Action action = CommanderUtils.createAction(this, this.variableNames());
+    Action action = CommanderUtils.createAction(this);
     return this.description != null ?
-        named(this.description, action) :
+        named(this.description + ":" + Arrays.toString(this.variableNames()), action) :
         action;
   }
 
@@ -309,7 +319,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   protected CommandLineComposer.Builder commandLineComposerBuilderIfSet() {
-    return this.commandLineComposerBuilder().orElseThrow(IllegalStateException::new);
+    return this.commandLineComposerBuilder().orElseThrow((Serializable & Supplier<RuntimeException>) IllegalStateException::new);
   }
 
   public CommandLineComposer buildCommandLineComposer() {

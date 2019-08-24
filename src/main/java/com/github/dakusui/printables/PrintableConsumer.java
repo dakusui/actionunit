@@ -1,5 +1,6 @@
 package com.github.dakusui.printables;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -7,7 +8,7 @@ import java.util.function.Supplier;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public class PrintableConsumer<T> implements Consumer<T> {
+public class PrintableConsumer<T> implements Consumer<T>, Serializable {
   private final Consumer<? super T> consumer;
   private final Supplier<String>    formatter;
 

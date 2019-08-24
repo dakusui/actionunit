@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Formattable;
 import java.util.Formatter;
@@ -37,7 +38,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
 
   String compose(Context context);
 
-  class Builder implements Cloneable {
+  class Builder implements Cloneable, Serializable {
     private Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
     private List<String>                            knownVariableNames;
     private List<ContextFunction<String>>           tokens;
