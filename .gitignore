@@ -13,3 +13,6 @@ buildNumber.properties
 actionunit.iml
 Project_Default.xml
 *~
+package-info.java
+*.png
+.asciidoctor

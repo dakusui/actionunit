@@ -23,7 +23,7 @@ import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Ch
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public abstract class Commander<C extends Commander<C>> implements Serializable, Cloneable {
+public abstract class Commander<C extends Commander<C>> implements Serializable {
   private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
   CommandLineComposer.Builder commandLineComposerBuilder;
   private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
@@ -83,12 +83,7 @@ public abstract class Commander<C extends Commander<C>> implements Serializable,
    */
   public C downstreamConsumer(Consumer<String> downstreamConsumer) {
     requireNonNull(downstreamConsumer);
-    return this.downstreamConsumerFactory(new SerializableSupplier<Consumer<String>>() {
-      @Override
-      public Consumer<String> get() {
-        return SerializableConsumer.of(downstreamConsumer);
-      }
-    });
+    return this.downstreamConsumerFactory((SerializableSupplier<Consumer<String>>) () -> SerializableConsumer.of(downstreamConsumer));
   }
 
   /**
@@ -114,12 +109,7 @@ public abstract class Commander<C extends Commander<C>> implements Serializable,
    */
   public C checker(Checker checker) {
     requireNonNull(checker);
-    return this.checkerFactory(new SerializableSupplier<Checker>() {
-      @Override
-      public Checker get() {
-        return checker;
-      }
-    });
+    return this.checkerFactory((SerializableSupplier<Checker>) () -> checker);
   }
 
   @SuppressWarnings("unchecked")
@@ -293,7 +283,7 @@ public abstract class Commander<C extends Commander<C>> implements Serializable,
     return Optional.ofNullable(this.cwd);
   }
 
-  public Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
+  private Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
     return this.parameterPlaceHolderFactory;
   }
 

@@ -40,7 +40,7 @@ public class TestUtils {
    * detect the operating system from the os.name System property and cache
    * the result
    *
-   * @return - the operating system detected
+   * @return the detected operating system
    */
   private static OSType getOperatingSystemType(Properties properties) {
     OSType detectedOS;

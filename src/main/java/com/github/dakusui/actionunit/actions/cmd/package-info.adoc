@@ -1,0 +1,23 @@
+This package provides capability to handle (unix-like) commands as actions.
+
+= Cmd package
+
+[ditaa]
+----
+       +--------------------+
+       |CommanderInitializer|
+       +--------------------+
+
+            +---------+
+            |Commander|
+            +----+----+
+                 |
+                 ^
+                 |
+     +-----------+-----------+
+     |           |           |
++----+----+ +----+----+ +----+----+
+|  Echo   | |  Mkdir  | |   Curl  | ...
++----+----+ +----+----+ +----+----+
+
+----
