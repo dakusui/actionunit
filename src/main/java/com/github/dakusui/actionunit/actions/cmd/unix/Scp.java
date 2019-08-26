@@ -5,9 +5,9 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.printables.PrintableFunction;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -54,7 +54,7 @@ public class Scp extends Commander<Scp> {
 
   @Override
   public CommandLineComposer buildCommandLineComposer() {
-    Scp cloned = this.clone();
+    Scp cloned = InternalUtils.cloneObjectBySerialization(this);
     CommandLineComposer.Builder commandLineComposerBuilder = cloned.commandLineComposerBuilderIfSet();
     Function<Target, String> formatTarget = PrintableFunction.of(Target::format).describe("Target::format");
     for (ContextFunction<Target> each : files) {
@@ -66,15 +66,6 @@ public class Scp extends Commander<Scp> {
         .append(" ", false)
         .append(requireState(Objects::nonNull, cloned.destination).andThen(formatTarget), true)
         .build();
-  }
-
-  @Override
-  public Scp clone() {
-    Scp ret = super.clone();
-    if (ret.sshOptions != null)
-      ret.sshOptions.options(SshOptions.Formatter.forScp()).forEach(ret::addOption);
-    ret.files = new ArrayList<>(ret.files);
-    return ret;
   }
 
   public interface Target {

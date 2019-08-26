@@ -8,9 +8,9 @@ This package provides capability to handle (unix-like) commands as actions.
        |CommanderInitializer|
        +--------------------+
 
-            +---------+
-            |Commander|
-            +----+----+
+            +---------+                   +---------+
+            |Commander+-=---------------->|  Action |
+            +----+----+ toAction          +---------+
                  |
                  ^
                  |

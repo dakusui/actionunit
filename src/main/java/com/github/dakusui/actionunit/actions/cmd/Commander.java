@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.actions.cmd;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.*;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
 import org.slf4j.Logger;
@@ -24,14 +23,14 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public abstract class Commander<C extends Commander<C>> implements Serializable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
-  CommandLineComposer.Builder commandLineComposerBuilder;
-  private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
+  private static final Logger                                  LOGGER = LoggerFactory.getLogger(Commander.class);
+  private              CommandLineComposer.Builder             commandLineComposerBuilder;
+  private final        Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
 
   private       RetryOption                            retryOption;
   private       SerializableSupplier<Consumer<String>> downstreamConsumerFactory;
   private       SerializableSupplier<Checker>          checkerFactory;
-  private       StreamSupplier<String>                         stdin;
+  private       StreamSupplier<String>                 stdin;
   private       Shell                                  shell;
   private       File                                   cwd         = null;
   private final Map<String, String>                    envvars;
@@ -52,18 +51,6 @@ public abstract class Commander<C extends Commander<C>> implements Serializable 
   public C describe(String description) {
     this.description = description;
     return (C) this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public C clone() {
-    try {
-      C ret = (C) super.clone();
-      if (ret.commandLineComposerBuilder().isPresent())
-        ret.commandLineComposerBuilder = ret.commandLineComposerBuilderIfSet().clone();
-      return ret;
-    } catch (CloneNotSupportedException e) {
-      throw ActionException.wrap(e);
-    }
   }
 
   @SuppressWarnings("unchecked")
@@ -323,7 +310,7 @@ public abstract class Commander<C extends Commander<C>> implements Serializable 
     return commandLineComposerBuilderIfSet().knownVariables();
   }
 
-  Optional<CommandLineComposer.Builder> commandLineComposerBuilder() {
+  private Optional<CommandLineComposer.Builder> commandLineComposerBuilder() {
     return Optional.ofNullable(commandLineComposerBuilder);
   }
 }
