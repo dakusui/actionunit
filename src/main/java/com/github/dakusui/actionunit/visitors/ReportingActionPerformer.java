@@ -3,6 +3,8 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,7 +12,8 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 
 public class ReportingActionPerformer extends ActionPerformer {
-  private final Map<Action, Record> report;
+  private static final Logger              LOGGER = LoggerFactory.getLogger(ReportingActionPerformer.class);
+  private final        Map<Action, Record> report;
 
   private ReportingActionPerformer() {
     this(Context.create(), new LinkedHashMap<>());
@@ -28,10 +31,14 @@ public class ReportingActionPerformer extends ActionPerformer {
 
   @Override
   protected void callAccept(Action action, Action.Visitor visitor) {
+    Record record;
     synchronized (report) {
-      report.computeIfAbsent(action, a -> createRecord());
+      record = report.computeIfAbsent(action, a -> createRecord());
     }
-    Record record = requireNonNull(report.get(action));
+    if (record == null) {
+      LOGGER.error("record became null for action:{}({})", action, action.getClass());
+      assert false;
+    }
     record.started();
     try {
       action.accept(visitor);
