@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.asBoolean;
 import static com.github.dakusui.crest.Crest.requireThat;
@@ -47,12 +48,16 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
     return Collections.unmodifiableList(out);
   }
 
-  void performAsAction(Commander commander) {
+  void performAsAction(Commander<?> commander) {
     this.performAction(initCommander(commander).toAction());
   }
 
+  Stream<String> performWithRunMethod(Commander<?> commander) {
+    return initCommander(commander).run();
+  }
+
   @SuppressWarnings("unchecked")
-  <C extends Commander> C initCommander(C commander) {
+  <C extends Commander<?>> C initCommander(C commander) {
     return (C) commander.downstreamConsumer(downstreamConsumer());
   }
 
