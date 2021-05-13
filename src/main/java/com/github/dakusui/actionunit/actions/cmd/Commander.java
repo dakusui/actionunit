@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
@@ -17,15 +18,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.named;
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
@@ -54,8 +53,8 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   @SuppressWarnings("unchecked")
-  public C describe(String descriptionSupplier) {
-    this.description = descriptionSupplier;
+  public C describe(String description) {
+    this.description = description;
     return (C) this;
   }
 
@@ -178,6 +177,27 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   public ContextFunction<String> toContextFunction() {
     return CommanderUtils.createContextFunction(this);
+  }
+
+  /**
+   * A short hand method to execute a command directly.
+   *
+   * @return data stream from the executed command.
+   */
+  public Stream<String> run() {
+    return run(emptyMap());
+  }
+
+  /**
+   * A short hand method to execute a command directly.
+   *
+   * @param variables Variables to be set to the context.
+   * @return data stream from the executed command.
+   */
+  public Stream<String> run(Map<String, Object> variables) {
+    Context context = Context.create();
+    requireNonNull(variables).forEach(context::assignTo);
+    return toStreamGenerator().apply(context);
   }
 
   /**
