@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.removeSpentTimeFromResultColumn;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.size;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.crest.Crest.asInteger;
@@ -145,7 +146,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         final TestUtils.Out out2 = new TestUtils.Out();
         runAndReport(action, out2);
         Crest.assertThat(
-            out2,
+            removeSpentTimeFromResultColumn(out2),
             Crest.allOf(
                 asString("get", 0).containsString("[o]").containsString("for each").$(),
                 asString("get", 1).containsString("[oo]").containsString("sequential").$(),
@@ -163,7 +164,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         TestUtils.Out out = new TestUtils.Out();
         runAndReport(action, out);
         Crest.assertThat(
-            out.get(0),
+            removeSpentTimeFromResultColumn(out).get(0),
             Crest.allOf(
                 asString().containsString("[o]").$(),
                 asString().containsString("retry once in 60 [seconds]").$()
@@ -220,7 +221,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         Action action = retry.build();
         runAndReport(action, outForRun);
         Crest.assertThat(
-            outForRun,
+            removeSpentTimeFromResultColumn(outForRun),
             Crest.allOf(
                 asString("get", 0).containsString("PassAfterFail").$(),
                 asString("get", 1).containsString("[o]").$(),
@@ -237,7 +238,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         final TestUtils.Out out = new TestUtils.Out();
         runAndReport(action, out);
         Crest.assertThat(
-            out.get(0),
+            removeSpentTimeFromResultColumn(out).get(0),
             Crest.allOf(
                 Crest.asString().containsString("[o]").$(),
                 Crest.asString().containsString("timeout in 60 [seconds]").$()

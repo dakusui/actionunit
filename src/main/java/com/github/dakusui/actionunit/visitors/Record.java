@@ -1,22 +1,33 @@
 package com.github.dakusui.actionunit.visitors;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class Record implements Iterable<Record.Run> {
 
   private final List<Run> runs = Collections.synchronizedList(new LinkedList<>());
 
-  public void started() {
+  public long started() {
+    return System.currentTimeMillis();
   }
 
-  public void succeeded() {
-    runs.add(Run.SUCCEEDED);
+  public void succeeded(long timeSpentInMillis) {
+    runs.add(Run.succeeded(timeSpentInMillis));
   }
 
-  public void failed(Throwable t) {
-    runs.add(Run.failed(t));
+  public void failed(long timeSpentInMillis, Throwable t) {
+    runs.add(Run.failed(timeSpentInMillis, t));
+  }
+
+  public long timeSpentInMillis() {
+    return this.runs.stream()
+        .map(Run::timeSpentInMillis)
+        .reduce(Long::sum)
+        .orElse((long) 0);
   }
 
   @Override
@@ -33,7 +44,8 @@ public class Record implements Iterable<Record.Run> {
     StringBuilder b = new StringBuilder();
     if (runs != null)
       runs.forEach(run -> b.append(run.toString()));
-    return summarize(b.toString());
+    assert runs != null;
+    return summarize(b.toString()) + ":" + MILLISECONDS.toSeconds(runs.timeSpentInMillis());
   }
 
   private static String summarize(String in) {
@@ -57,20 +69,35 @@ public class Record implements Iterable<Record.Run> {
    * A fail means an assertion error, which is raised when a test fails.
    */
   public interface Run {
-    Run SUCCEEDED = new Run() {
-      public String toString() {
-        return "o";
-      }
-    };
+    long timeSpentInMillis();
 
-    static Run failed(Throwable t) {
+    static Run failed(long timeSpentInMillis, Throwable t) {
       Objects.requireNonNull(t);
       return new Run() {
+        @Override
+        public long timeSpentInMillis() {
+          return timeSpentInMillis;
+        }
+
         @Override
         public String toString() {
           return t instanceof AssertionError
               ? "F"
               : "E";
+        }
+      };
+    }
+
+    static Run succeeded(long timeSpentInMillis) {
+      return new Run() {
+        @Override
+        public String toString() {
+          return "o";
+        }
+
+        @Override
+        public long timeSpentInMillis() {
+          return timeSpentInMillis;
         }
       };
     }

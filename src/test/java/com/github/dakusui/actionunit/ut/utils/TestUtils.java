@@ -16,9 +16,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 public class TestUtils {
   public static <T> List<T> toList(Iterable<T> iterable) {
@@ -27,6 +29,10 @@ public class TestUtils {
         add(i);
       }
     }};
+  }
+
+  public static List<String> removeSpentTimeFromResultColumn(List<String> writer) {
+    return writer.stream().map(v -> v.replaceAll(":[0-9]+", "")).collect(Collectors.toList());
   }
 
   /**

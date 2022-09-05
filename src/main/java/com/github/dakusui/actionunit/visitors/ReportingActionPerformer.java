@@ -39,12 +39,12 @@ public class ReportingActionPerformer extends ActionPerformer {
       LOGGER.error("record became null for action:{}({})", action, action.getClass());
       assert false;
     }
-    record.started();
+    long timeStartedInMillis = record.started();
     try {
       action.accept(visitor);
-      record.succeeded();
+      record.succeeded(System.currentTimeMillis() - timeStartedInMillis);
     } catch (Throwable t) {
-      record.failed(t);
+      record.failed(System.currentTimeMillis() - timeStartedInMillis, t);
       throw t;
     }
   }

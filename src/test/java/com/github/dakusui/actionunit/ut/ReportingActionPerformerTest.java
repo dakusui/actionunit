@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.ut;
 
-import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -49,7 +49,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       //Then printed correctly
       //noinspection unchecked
       assertThat(
-          getWriter(),
+          TestUtils.removeSpentTimeFromResultColumn(getWriter()),
           allOf(
               asString("get", 0).equalTo("[o]A passing action").$(),
               asString("get", 1).equalTo("  [o]This passes always").$()
@@ -72,7 +72,8 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         ////
         //Then printed correctly
         //noinspection unchecked
-        assertThat(getWriter(),
+        assertThat(
+            TestUtils.removeSpentTimeFromResultColumn(getWriter()),
             allOf(
                 asString("get", 0).startsWith("[F]A failing action").$(),
                 asString("get", 1).equalTo("  [F]This fails always").$()
@@ -95,7 +96,8 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         ////
         //Then printed correctly
         //noinspection unchecked
-        assertThat(getWriter(),
+        assertThat(
+            TestUtils.removeSpentTimeFromResultColumn(getWriter()),
             allOf(
                 asString("get", 0).startsWith("[E]An error action").$(),
                 asString("get", 1).equalTo("  [E]This gives a runtime exception always").$(),
@@ -103,6 +105,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
             ));
       }
     }
+
   }
 
   public static class ConcurrentAction extends Base {
@@ -120,19 +123,21 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       ////
       //Then printed correctly
       //noinspection unchecked
-      assertThat(getWriter(), allOf(
-          asString("get", 0).equalTo("[o]do parallelly").$(),
-          asString("get", 1).equalTo("  [o]A passing action-1").$(),
-          asString("get", 2).equalTo("    [o]This passes always-1").$(),
-          asString("get", 3).equalTo("      [o](noname)").$(),
-          asString("get", 4).equalTo("  [o]A passing action-2").$(),
-          asString("get", 5).equalTo("    [o]This passes always-2").$(),
-          asString("get", 6).equalTo("      [o](noname)").$(),
-          asString("get", 7).equalTo("  [o]A passing action-3").$(),
-          asString("get", 8).equalTo("    [o]This passes always-3").$(),
-          asString("get", 9).equalTo("      [o](noname)").$(),
-          asInteger("size").equalTo(10).$()
-      ));
+      assertThat(
+          TestUtils.removeSpentTimeFromResultColumn(getWriter()),
+          allOf(
+              asString("get", 0).equalTo("[o]do parallelly").$(),
+              asString("get", 1).equalTo("  [o]A passing action-1").$(),
+              asString("get", 2).equalTo("    [o]This passes always-1").$(),
+              asString("get", 3).equalTo("      [o](noname)").$(),
+              asString("get", 4).equalTo("  [o]A passing action-2").$(),
+              asString("get", 5).equalTo("    [o]This passes always-2").$(),
+              asString("get", 6).equalTo("      [o](noname)").$(),
+              asString("get", 7).equalTo("  [o]A passing action-3").$(),
+              asString("get", 8).equalTo("    [o]This passes always-3").$(),
+              asString("get", 9).equalTo("      [o](noname)").$(),
+              asInteger("size").equalTo(10).$()
+          ));
     }
   }
 
@@ -159,8 +164,8 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       //Then printed correctly
       //noinspection unchecked
       assertThat(
-          getWriter(),
-          Crest.allOf(
+          TestUtils.removeSpentTimeFromResultColumn(getWriter()),
+          allOf(
               asString("get", 0).startsWith("[o]for each of (noname) sequentially").$(),
               asString("get", 1).equalTo("  [ooo]do sequentially").$(),
               asString("get", 2).equalTo("    [ooo]Sink-1").$(),
@@ -193,15 +198,17 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         ////
         //Then printed correctly
         //noinspection unchecked
-        assertThat(getWriter(), allOf(
-            asString("get", 0).startsWith("[E]for each of (noname) sequentially").$(),
-            asString("get", 1).startsWith("  [E]do sequentially").$(),
-            asString("get", 2).startsWith("    [E]Sink-1").$(),
-            asString("get", 3).startsWith("      [E](noname)").$(),
-            asString("get", 4).startsWith("    []Sink-2").$(),
-            asString("get", 5).startsWith("      [](noname)").$(),
-            asInteger("size").equalTo(6).$()
-        ));
+        assertThat(
+            TestUtils.removeSpentTimeFromResultColumn(getWriter()),
+            allOf(
+                asString("get", 0).startsWith("[E]for each of (noname) sequentially").$(),
+                asString("get", 1).startsWith("  [E]do sequentially").$(),
+                asString("get", 2).startsWith("    [E]Sink-1").$(),
+                asString("get", 3).startsWith("      [E](noname)").$(),
+                asString("get", 4).startsWith("    []Sink-2").$(),
+                asString("get", 5).startsWith("      [](noname)").$(),
+                asInteger("size").equalTo(6).$()
+            ));
       }
     }
   }
@@ -219,12 +226,12 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       );
       performAndPrintAction(action);
       assertThat(getWriter(), allOf(
-          asString("get", 0).equalTo("[o]attempt").$(),
-          asString("get", 1).equalTo("  [o](nop)").$(),
+          asString("get", 0).matchesRegex("\\[o:[0-9]+\\]attempt").$(),
+          asString("get", 1).matchesRegex("  \\[o:[0-9]+\\]\\(nop\\)").$(),
           asString("get", 2).equalTo("  []recover").$(),
           asString("get", 3).equalTo("    [](nop)").$(),
-          asString("get", 4).equalTo("  [o]ensure").$(),
-          asString("get", 5).equalTo("    [o](nop)").$(),
+          asString("get", 4).matchesRegex("  \\[o:[0-9]+\\]ensure").$(),
+          asString("get", 5).matchesRegex("    \\[o:[0-9]+\\]\\(nop\\)").$(),
           asInteger("size").equalTo(6).$()
       ));
     }
@@ -246,13 +253,13 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       );
       performAndPrintAction(action);
       assertThat(getWriter(), Crest.allOf(
-          asString("get", 0).equalTo("[o]attempt").$(),
-          asString("get", 1).equalTo("  [E]Howdy, NPE").$(),
-          asString("get", 2).equalTo("    [E](noname)").$(),
-          asString("get", 3).equalTo("  [o]recover").$(),
-          asString("get", 4).equalTo("    [o](nop)").$(),
-          asString("get", 5).equalTo("  [o]ensure").$(),
-          asString("get", 6).equalTo("    [o](nop)").$(),
+          asString("get", 0).matchesRegex("\\[o:[0-9]+\\]attempt").$(),
+          asString("get", 1).matchesRegex("  \\[E:[0-9]+\\]Howdy, NPE").$(),
+          asString("get", 2).matchesRegex("    \\[E:[0-9]+\\]\\(noname\\)").$(),
+          asString("get", 3).matchesRegex("  \\[o:[0-9]+\\]recover").$(),
+          asString("get", 4).matchesRegex("    \\[o:[0-9]+\\]\\(nop\\)").$(),
+          asString("get", 5).matchesRegex("  \\[o:[0-9]+\\]ensure").$(),
+          asString("get", 6).matchesRegex("    \\[o:[0-9]+\\]\\(nop\\)").$(),
           asInteger("size").equalTo(7).$()
       ));
     }
