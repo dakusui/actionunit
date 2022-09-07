@@ -1,7 +1,6 @@
 package com.github.dakusui.actionunit.visitors;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
