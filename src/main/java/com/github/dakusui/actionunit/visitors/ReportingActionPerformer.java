@@ -61,6 +61,14 @@ public class ReportingActionPerformer extends ActionPerformer {
     }
   }
 
+  public void performAndReport(Action action, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, int forcePrintLevelForUnexercisedActions) {
+    try {
+      perform(action);
+    } finally {
+      new ActionReporter(warnWriter, infoWriter, debugWriter, traceWriter, this.getReport(), forcePrintLevelForUnexercisedActions).report(action);
+    }
+  }
+
   public Map<Action, Record> getReport() {
     return this.report;
   }

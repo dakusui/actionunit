@@ -29,6 +29,10 @@ public class Record implements Iterable<Record.Run> {
         .orElse((long) 0);
   }
 
+  public boolean allFailing() {
+    return this.runs.stream().noneMatch(Run::succeeded);
+  }
+
   @Override
   public Iterator<Run> iterator() {
     return runs.iterator();
@@ -69,6 +73,7 @@ public class Record implements Iterable<Record.Run> {
    */
   public interface Run {
     long timeSpentInMillis();
+    boolean succeeded();
 
     static Run failed(long timeSpentInMillis, Throwable t) {
       Objects.requireNonNull(t);
@@ -76,6 +81,11 @@ public class Record implements Iterable<Record.Run> {
         @Override
         public long timeSpentInMillis() {
           return timeSpentInMillis;
+        }
+
+        @Override
+        public boolean succeeded() {
+          return false;
         }
 
         @Override
@@ -97,6 +107,11 @@ public class Record implements Iterable<Record.Run> {
         @Override
         public long timeSpentInMillis() {
           return timeSpentInMillis;
+        }
+
+        @Override
+        public boolean succeeded() {
+          return true;
         }
       };
     }
