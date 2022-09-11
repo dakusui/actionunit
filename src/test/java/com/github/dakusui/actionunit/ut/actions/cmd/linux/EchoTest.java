@@ -2,13 +2,12 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
-import static com.github.dakusui.crest.Crest.asListOf;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.Crest.sublistAfterElement;
+import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;
 
 public class EchoTest extends CommanderTestBase {
@@ -37,7 +36,7 @@ public class EchoTest extends CommanderTestBase {
         .disableBackslashInterpretation()
         .message("hello, world's\nbest message"));
     assertThat(
-        out(),
+        TestUtils.removeSpentTimeFromResultColumn(out()),
         asListOf(
             String.class,
             sublistAfterElement("hello, world's").afterElement("best message").$())
@@ -51,7 +50,7 @@ public class EchoTest extends CommanderTestBase {
         .enableBackslashInterpretation()
         .message("hello, world's\\nbest message"));
     assertThat(
-        out(),
+        TestUtils.removeSpentTimeFromResultColumn(out()),
         asListOf(
             String.class,
             sublistAfterElement("hello, world's").afterElement("best message").$())
@@ -65,7 +64,7 @@ public class EchoTest extends CommanderTestBase {
         .disableBackslashInterpretation()
         .message("hello\\nworld"));
     assertThat(
-        out(),
+        TestUtils.removeSpentTimeFromResultColumn(out()),
         asListOf(String.class).equalTo(singletonList("hello\\nworld")).$()
     );
   }

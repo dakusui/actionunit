@@ -39,12 +39,12 @@ public class ReportingActionPerformer extends ActionPerformer {
       LOGGER.error("record became null for action:{}({})", action, action.getClass());
       assert false;
     }
-    record.started();
+    long timeStartedInMillis = record.started();
     try {
       action.accept(visitor);
-      record.succeeded();
+      record.succeeded(System.currentTimeMillis() - timeStartedInMillis);
     } catch (Throwable t) {
-      record.failed(t);
+      record.failed(System.currentTimeMillis() - timeStartedInMillis, t);
       throw t;
     }
   }
@@ -58,6 +58,14 @@ public class ReportingActionPerformer extends ActionPerformer {
       perform(action);
     } finally {
       new ActionReporter(writer, this.getReport()).report(action);
+    }
+  }
+
+  public void performAndReport(Action action, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, int forcePrintLevelForUnexercisedActions) {
+    try {
+      perform(action);
+    } finally {
+      new ActionReporter(warnWriter, infoWriter, debugWriter, traceWriter, this.getReport(), forcePrintLevelForUnexercisedActions).report(action);
     }
   }
 
