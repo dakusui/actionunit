@@ -4,8 +4,12 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 public abstract class ActionScanner implements Action.Visitor {
-  private int indentLevel = 0;
+  private final List<Action> path        = new LinkedList<>();
 
   @Override
   public void visit(Leaf action) {
@@ -97,14 +101,22 @@ public abstract class ActionScanner implements Action.Visitor {
   protected abstract void handleAction(Action action);
 
   protected String indent() {
-    return InternalUtils.indent(this.indentLevel, 2);
+    return InternalUtils.indent(this.indentLevel(), 2);
   }
 
   protected void enter(Action action) {
-    indentLevel++;
+    path.add(action);
   }
 
   protected void leave(Action action) {
-    indentLevel--;
+    path.remove(path().size() - 1);
+  }
+
+  protected List<? extends Action> path() {
+    return Collections.unmodifiableList(this.path);
+  }
+
+  protected int indentLevel() {
+    return this.path.size();
   }
 }

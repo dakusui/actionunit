@@ -22,11 +22,11 @@ public class Example extends TestUtils.TestBase {
     ).parallelly(
     ).perform(
         sequential(
-            simple("print", (c) -> System.out.println(v(c))),
-            simple("print", (c) -> System.out.println(v(c))),
+            simple("print1", (c) -> System.out.println(v(c))),
+            simple("print2", (c) -> System.out.println(v(c))),
             sequential(
-                simple("print", (c) -> System.out.println(v(c))),
-                simple("print", (c) -> System.out.println(v(c)))
+                simple("print2-1", (c) -> System.out.println(v(c))),
+                simple("print2-2", (c) -> System.out.println(v(c)))
             )
         )
     );

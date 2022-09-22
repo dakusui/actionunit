@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.visitors;
 
+import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 
@@ -46,6 +47,8 @@ public class ActionReporter extends ActionPrinter {
     if (isInFailingContext()) {
       this.warnWriter.writeLine(message);
     } else {
+      if (action instanceof Composite)
+        return;
       if (emptyLevel < 1) { // Top level unexercised + exercised ones
         if (passingLevels() < 1) {
           this.infoWriter.writeLine(message);
@@ -56,6 +59,54 @@ public class ActionReporter extends ActionPrinter {
         writeLineForUnexercisedAction(message);
       }
     }
+  }
+
+  @Override
+  public String indent() {
+    List<? extends Action> path = this.path();
+    StringBuilder b = new StringBuilder();
+    if (!path.isEmpty()) {
+      Action last = path.get(path.size() - 1);
+      for (Action each : path) {
+        if (each instanceof Composite) {
+          if (each == last) {
+            if (((Composite) each).isParallel())
+              b.append("*-");
+            else
+              b.append("+-");
+          } else {
+            if (isLastChild(nextOf(each, path), each))
+              b.append("  ");
+            else
+              b.append("| ");
+          }
+        } else {
+          b.append("  ");
+        }
+      }
+    }
+    return b.toString();
+  }
+
+  private static Action nextOf(Action each, List<? extends Action> path) {
+    return path.get(path.indexOf(each) + 1);
+  }
+
+  private static boolean isFirstChild(Action each, Action parent) {
+    if (parent instanceof Composite) {
+      return ((Composite) parent).children().indexOf(each) == 0;
+    }
+    return true;
+  }
+
+  private static boolean isLastChild(Action each, Action parent) {
+    if (parent instanceof Composite) {
+      int index = ((Composite) parent).children().indexOf(each);
+      int size = ((Composite) parent).children().size();
+      assert index >= 0;
+      return index == size - 1;
+    }
+    return true;
   }
 
   private void writeLineForUnexercisedAction(String message) {
@@ -106,4 +157,24 @@ public class ActionReporter extends ActionPrinter {
     depth--;
     super.leave(action);
   }
+  /*
+  [E:0]for each of (noname) parallely
+  [EE:0]do sequentially
+  |  [EE:0]print
+  |    [EE:0](noname)
+  | []print
+  |    [](noname)
+  | :[]print
+    :   [](noname)
+    :[]print
+    :   [](noname)
+
+        : []parallel1
+        : | | []sequential(1.1)
+        : | | []sequential(1.1)
+        : | []sequential(2)
+        : |[]sequential(1)
+        : []parallel2
+
+   */
 }
