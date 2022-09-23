@@ -149,12 +149,11 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             removeSpentTimeFromResultColumn(out2),
             Crest.allOf(
                 asString("get", 0).containsString("[o]").containsString("for each").$(),
-                asString("get", 1).containsString("[oo]").containsString("sequential").$(),
-                asString("get", 2).containsString("[oo]").containsString("+0").$(),
-                asString("get", 3).containsString("[oo]").containsString("(noname)").$(),
-                asString("get", 4).containsString("[oo]").containsString("+1").$(),
-                asString("get", 5).containsString("[oo]").containsString("(noname)").$(),
-                asInteger("size").equalTo(6).$()
+                asString("get", 1).containsString("[oo]").containsString("+0").$(),
+                asString("get", 2).containsString("[oo]").containsString("(noname)").$(),
+                asString("get", 3).containsString("[oo]").containsString("+1").$(),
+                asString("get", 4).containsString("[oo]").containsString("(noname)").$(),
+                asInteger("size").equalTo(5).$()
             ));
       }
 
