@@ -122,21 +122,19 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       performAndPrintAction(action);
       ////
       //Then printed correctly
-      //noinspection unchecked
       assertThat(
           TestUtils.removeSpentTimeFromResultColumn(getWriter()),
           allOf(
-              asString("get", 0).equalTo("[o]do parallelly").$(),
-              asString("get", 1).equalTo("  [o]A passing action-1").$(),
-              asString("get", 2).equalTo("    [o]This passes always-1").$(),
-              asString("get", 3).equalTo("      [o](noname)").$(),
-              asString("get", 4).equalTo("  [o]A passing action-2").$(),
-              asString("get", 5).equalTo("    [o]This passes always-2").$(),
-              asString("get", 6).equalTo("      [o](noname)").$(),
-              asString("get", 7).equalTo("  [o]A passing action-3").$(),
-              asString("get", 8).equalTo("    [o]This passes always-3").$(),
-              asString("get", 9).equalTo("      [o](noname)").$(),
-              asInteger("size").equalTo(10).$()
+              asString("get", 0).equalTo("*-[o]A passing action-1").$(),
+              asString("get", 1).equalTo("|   [o]This passes always-1").$(),
+              asString("get", 2).equalTo("|     [o](noname)").$(),
+              asString("get", 3).equalTo("*-[o]A passing action-2").$(),
+              asString("get", 4).equalTo("|   [o]This passes always-2").$(),
+              asString("get", 5).equalTo("|     [o](noname)").$(),
+              asString("get", 6).equalTo("*-[o]A passing action-3").$(),
+              asString("get", 7).equalTo("    [o]This passes always-3").$(),
+              asString("get", 8).equalTo("      [o](noname)").$(),
+              asInteger("size").equalTo(9).$()
           ));
     }
   }
@@ -167,12 +165,11 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
           TestUtils.removeSpentTimeFromResultColumn(getWriter()),
           allOf(
               asString("get", 0).startsWith("[o]for each of (noname) sequentially").$(),
-              asString("get", 1).equalTo("  [ooo]do sequentially").$(),
-              asString("get", 2).equalTo("    [ooo]Sink-1").$(),
-              asString("get", 3).equalTo("      [ooo](noname)").$(),
-              asString("get", 4).equalTo("    [ooo]Sink-2").$(),
-              asString("get", 5).equalTo("      [ooo](noname)").$(),
-              asInteger("size").equalTo(6).$()
+              asString("get", 1).equalTo("  +-[ooo]Sink-1").$(),
+              asString("get", 2).equalTo("  |   [ooo](noname)").$(),
+              asString("get", 3).equalTo("  +-[ooo]Sink-2").$(),
+              asString("get", 4).equalTo("      [ooo](noname)").$(),
+              asInteger("size").equalTo(5).$()
           ));
     }
 
@@ -202,12 +199,11 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
             TestUtils.removeSpentTimeFromResultColumn(getWriter()),
             allOf(
                 asString("get", 0).startsWith("[E]for each of (noname) sequentially").$(),
-                asString("get", 1).startsWith("  [E]do sequentially").$(),
-                asString("get", 2).startsWith("    [E]Sink-1").$(),
-                asString("get", 3).startsWith("      [E](noname)").$(),
-                asString("get", 4).startsWith("    []Sink-2").$(),
-                asString("get", 5).startsWith("      [](noname)").$(),
-                asInteger("size").equalTo(6).$()
+                asString("get", 1).startsWith("  +-[E]Sink-1").$(),
+                asString("get", 2).startsWith("  |   [E](noname)").$(),
+                asString("get", 3).startsWith("  +-[]Sink-2").$(),
+                asString("get", 4).startsWith("      [](noname)").$(),
+                asInteger("size").equalTo(5).$()
             ));
       }
     }

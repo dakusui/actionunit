@@ -1,18 +1,22 @@
 package com.github.dakusui.actionunit.visitors;
 
+import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class ActionReporter extends ActionPrinter {
-  private final List<Boolean>       failingContext = new LinkedList<>();
-  private       int                 emptyLevel     = 0;
+  public static final Predicate<Action> DEFAULT_CONDITION_TO_SQUASH_ACTION = v -> v instanceof Composite;
+  private final List<Boolean>           failingContext                     = new LinkedList<>();
+  private final Predicate<Action> conditionToSquashAction;
+  private       int               emptyLevel     = 0;
   private       int                 depth          = 0;
   private final Map<Action, Record> report;
   private final Writer              warnWriter;
@@ -21,8 +25,9 @@ public class ActionReporter extends ActionPrinter {
   private final Writer              infoWriter;
   private final int                 forcePrintLevelForUnexercisedActions;
 
-  public ActionReporter(Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, Map<Action, Record> report, int forcePrintLevelForUnexercisedActions) {
+  public ActionReporter(Predicate<Action> conditionToSquashAction, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, Map<Action, Record> report, int forcePrintLevelForUnexercisedActions) {
     super(infoWriter);
+    this.conditionToSquashAction = conditionToSquashAction;
     this.report = requireNonNull(report);
     this.warnWriter = requireNonNull(warnWriter);
     this.debugWriter = requireNonNull(debugWriter);
@@ -32,7 +37,7 @@ public class ActionReporter extends ActionPrinter {
   }
 
   public ActionReporter(Writer writer, Map<Action, Record> report) {
-    this(writer, writer, writer, writer, report, 2);
+    this(DEFAULT_CONDITION_TO_SQUASH_ACTION, writer, writer, writer, writer, report, 2);
   }
 
   public void report(Action action) {
@@ -41,8 +46,13 @@ public class ActionReporter extends ActionPrinter {
 
   @Override
   protected void handleAction(Action action) {
+    if (this.conditionToSquashAction.test(action)) {
+      this.previousIndent = indent();
+      return;
+    }
     Record runs = report.get(action);
     String message = format("%s[%s]%s", indent(), runs != null ? runs : "", action);
+    this.previousIndent = "";
     if (isInFailingContext()) {
       this.warnWriter.writeLine(message);
     } else {
@@ -56,6 +66,141 @@ public class ActionReporter extends ActionPrinter {
         writeLineForUnexercisedAction(message);
       }
     }
+  }
+
+  String previousIndent = "";
+
+  /**
+   * ----
+   * [E:0]for each of (noname) parallely
+   * +-[EE:0]print1
+   * |   [EE:0](noname)
+   * +-[]print2
+   * |   [](noname)
+   * $$+-[]print2-1
+   * |   [](noname)
+   * +-[]print2-2
+   * [](noname)
+   * ----
+   *
+   * @return
+   */
+  @Override
+  public String indent() {
+    List<? extends Action> path = this.path();
+    StringBuilder b = new StringBuilder();
+    if (!path.isEmpty()) {
+      Action last = path.get(path.size() - 1);
+      for (Action each : path) {
+        if (each instanceof Composite) {
+          if (each == last) {
+            if (((Composite) each).isParallel())
+              b.append("*-");
+            else
+              b.append("+-");
+          } else {
+            if (isLastChild(nextOf(each, path), each))
+              b.append("  ");
+            else
+              b.append("| ");
+          }
+        } else {
+          b.append("  ");
+        }
+      }
+    }
+    return mergeStrings(this.previousIndent, b.toString());
+  }
+
+  public List<? extends Action> subListAfter(Action each, List<? extends Action> path) {
+    return path.subList(path.indexOf(each) + 1, path.size());
+  }
+
+  /**
+   * Returns `true`:
+   * - If the first element of `path` is the first child of `action`
+   * - Or if the `path` empty
+   *
+   * @param action
+   * @param remainingPath
+   * @return
+   */
+  private static boolean hasFirstElementAsFirstChild(Action action, List<? extends Action> remainingPath) {
+    if (remainingPath.isEmpty())
+      return true;
+    if (!(action instanceof Composite))
+      return true;
+    return ((Composite) action).children().get(0) == remainingPath.get(0);
+  }
+
+  private static boolean hasFirstElementAsFirstChildToLeaf(Action action, List<? extends Action> remainingPath) {
+    if (!hasFirstElementAsFirstChild(action, remainingPath))
+      return false;
+    if (remainingPath.isEmpty())
+      return true;
+    Action next = remainingPath.get(0);
+    List<? extends Action> nextRemainingPath = remainingPath.subList(1, remainingPath.size());
+    return hasFirstElementAsFirstChild(next, nextRemainingPath);
+  }
+
+
+  private static Action nextOf(Action each, List<? extends Action> path) {
+    return path.get(path.indexOf(each) + 1);
+  }
+
+  private static boolean isFirstChild(Action each, Action parent) {
+    if (parent instanceof Composite) {
+      return ((Composite) parent).children().indexOf(each) == 0;
+    }
+    return true;
+  }
+
+  /**
+   * Merges two string into one.
+   * A white space in `a` or `b` will be replaced with non-white space in the other at the same position.
+   * In case both have non-white space in the same position, the latter's (`b`) overrides the first's (`a`).
+   * <p>
+   * .Example input
+   * ----
+   * a:"hello    "
+   * b:"    O WORLD "
+   * ----
+   * <p>
+   * .Example output
+   * ----
+   * "hellO WORLD "
+   * ----
+   *
+   * @param a A string to be merged.
+   * @param b A stringto be merged
+   * @return The merged result string.
+   */
+  private static String mergeStrings(String a, String b) {
+    StringBuilder builder = new StringBuilder();
+    int min = Math.min(a.length(), b.length());
+    for (int i = 0; i < min; i++) {
+      char ach = a.charAt(i);
+      char bch = b.charAt(i);
+      if (bch != ' ')
+        builder.append(bch);
+      else
+        builder.append(ach);
+    }
+    // Whichever longer, the result is the same since the shorter.substring(min) will become an empty
+    // string.
+    builder.append(a.substring(min));
+    builder.append(b.substring(min));
+    return builder.toString();
+  }
+
+  private static boolean isLastChild(Action each, Action parent) {
+    if (parent instanceof Composite) {
+      int index = ((Composite) parent).children().indexOf(each);
+      int size = ((Composite) parent).children().size();
+      assert index >= 0;
+      return index == size - 1;
+    }
+    return true;
   }
 
   private void writeLineForUnexercisedAction(String message) {
@@ -106,4 +251,52 @@ public class ActionReporter extends ActionPrinter {
     depth--;
     super.leave(action);
   }
+  /*
+  [E:0]for each of (noname) parallely
+  [EE:0]do sequentially
+  |  [EE:0]print
+  |    [EE:0](noname)
+  | []print
+  |    [](noname)
+  | :[]print
+    :   [](noname)
+    :[]print
+    :   [](noname)
+
+        : []parallel1
+        : | | []sequential(1.1)
+        : | | []sequential(1.1)
+        : | []sequential(2)
+        : |[]sequential(1)
+        : []parallel2
+
+   */
+  /*
+[E:0]do sequentially
++-[E:0]do sequentially
+  +-[E:0]do sequentially
+    +-[E:0]print2-1
+    |   [E:0](noname)
+    +-[]print2-2
+        [](noname)
+
+|
+V
+
++-
+  +-
+    +-[E:0]print2-1
+    |   [E:0](noname)
+    +-[]print2-2
+        [](noname)
+
+|
+V
+
++-+-+-[E:0]print2-1
+    |   [E:0](noname)
+    +-[]print2-2
+        [](noname)
+
+   */
 }

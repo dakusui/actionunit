@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
@@ -61,12 +62,17 @@ public class ReportingActionPerformer extends ActionPerformer {
     }
   }
 
-  public void performAndReport(Action action, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, int forcePrintLevelForUnexercisedActions) {
+  public void performAndReport(Predicate<Action> conditionToSquashAction, Action action, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, int forcePrintLevelForUnexercisedActions) {
     try {
       perform(action);
     } finally {
-      new ActionReporter(warnWriter, infoWriter, debugWriter, traceWriter, this.getReport(), forcePrintLevelForUnexercisedActions).report(action);
+      new ActionReporter(conditionToSquashAction, warnWriter, infoWriter, debugWriter, traceWriter, this.getReport(), forcePrintLevelForUnexercisedActions).report(action);
     }
+
+  }
+
+  public void performAndReport(Action action, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, int forcePrintLevelForUnexercisedActions) {
+    performAndReport(ActionReporter.DEFAULT_CONDITION_TO_SQUASH_ACTION, action, warnWriter, infoWriter, debugWriter, traceWriter, forcePrintLevelForUnexercisedActions);
   }
 
   public Map<Action, Record> getReport() {
