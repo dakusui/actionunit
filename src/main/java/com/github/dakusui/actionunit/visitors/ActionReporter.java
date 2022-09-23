@@ -7,13 +7,16 @@ import com.github.dakusui.actionunit.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class ActionReporter extends ActionPrinter {
-  private final List<Boolean>       failingContext = new LinkedList<>();
-  private       int                 emptyLevel     = 0;
+  public static final Predicate<Action> DEFAULT_CONDITION_TO_SQUASH_ACTION = v -> v instanceof Composite;
+  private final List<Boolean>           failingContext                     = new LinkedList<>();
+  private final Predicate<Action> conditionToSquashAction;
+  private       int               emptyLevel     = 0;
   private       int                 depth          = 0;
   private final Map<Action, Record> report;
   private final Writer              warnWriter;
@@ -22,8 +25,9 @@ public class ActionReporter extends ActionPrinter {
   private final Writer              infoWriter;
   private final int                 forcePrintLevelForUnexercisedActions;
 
-  public ActionReporter(Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, Map<Action, Record> report, int forcePrintLevelForUnexercisedActions) {
+  public ActionReporter(Predicate<Action> conditionToSquashAction, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, Map<Action, Record> report, int forcePrintLevelForUnexercisedActions) {
     super(infoWriter);
+    this.conditionToSquashAction = conditionToSquashAction;
     this.report = requireNonNull(report);
     this.warnWriter = requireNonNull(warnWriter);
     this.debugWriter = requireNonNull(debugWriter);
@@ -33,7 +37,7 @@ public class ActionReporter extends ActionPrinter {
   }
 
   public ActionReporter(Writer writer, Map<Action, Record> report) {
-    this(writer, writer, writer, writer, report, 2);
+    this(DEFAULT_CONDITION_TO_SQUASH_ACTION, writer, writer, writer, writer, report, 2);
   }
 
   public void report(Action action) {
@@ -42,7 +46,7 @@ public class ActionReporter extends ActionPrinter {
 
   @Override
   protected void handleAction(Action action) {
-    if (action instanceof Composite) {
+    if (this.conditionToSquashAction.test(action)) {
       this.previousIndent = indent();
       return;
     }
