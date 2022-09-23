@@ -42,13 +42,16 @@ public class ActionReporter extends ActionPrinter {
 
   @Override
   protected void handleAction(Action action) {
+    if (action instanceof Composite) {
+      this.previousIndent = indent();
+      return;
+    }
     Record runs = report.get(action);
     String message = format("%s[%s]%s", indent(), runs != null ? runs : "", action);
+    this.previousIndent = "";
     if (isInFailingContext()) {
       this.warnWriter.writeLine(message);
     } else {
-      if (action instanceof Composite)
-        return;
       if (emptyLevel < 1) { // Top level unexercised + exercised ones
         if (passingLevels() < 1) {
           this.infoWriter.writeLine(message);
@@ -61,6 +64,23 @@ public class ActionReporter extends ActionPrinter {
     }
   }
 
+  String previousIndent = "";
+
+  /**
+   * ----
+   * [E:0]for each of (noname) parallely
+   * +-[EE:0]print1
+   * |   [EE:0](noname)
+   * +-[]print2
+   * |   [](noname)
+   * $$+-[]print2-1
+   * |   [](noname)
+   * +-[]print2-2
+   * [](noname)
+   * ----
+   *
+   * @return
+   */
   @Override
   public String indent() {
     List<? extends Action> path = this.path();
@@ -85,8 +105,40 @@ public class ActionReporter extends ActionPrinter {
         }
       }
     }
-    return b.toString();
+    return mergeStrings(this.previousIndent, b.toString());
   }
+
+  public List<? extends Action> subListAfter(Action each, List<? extends Action> path) {
+    return path.subList(path.indexOf(each) + 1, path.size());
+  }
+
+  /**
+   * Returns `true`:
+   * - If the first element of `path` is the first child of `action`
+   * - Or if the `path` empty
+   *
+   * @param action
+   * @param remainingPath
+   * @return
+   */
+  private static boolean hasFirstElementAsFirstChild(Action action, List<? extends Action> remainingPath) {
+    if (remainingPath.isEmpty())
+      return true;
+    if (!(action instanceof Composite))
+      return true;
+    return ((Composite) action).children().get(0) == remainingPath.get(0);
+  }
+
+  private static boolean hasFirstElementAsFirstChildToLeaf(Action action, List<? extends Action> remainingPath) {
+    if (!hasFirstElementAsFirstChild(action, remainingPath))
+      return false;
+    if (remainingPath.isEmpty())
+      return true;
+    Action next = remainingPath.get(0);
+    List<? extends Action> nextRemainingPath = remainingPath.subList(1, remainingPath.size());
+    return hasFirstElementAsFirstChild(next, nextRemainingPath);
+  }
+
 
   private static Action nextOf(Action each, List<? extends Action> path) {
     return path.get(path.indexOf(each) + 1);
@@ -97,6 +149,44 @@ public class ActionReporter extends ActionPrinter {
       return ((Composite) parent).children().indexOf(each) == 0;
     }
     return true;
+  }
+
+  /**
+   * Merges two string into one.
+   * A white space in `a` or `b` will be replaced with non-white space in the other at the same position.
+   * In case both have non-white space in the same position, the latter's (`b`) overrides the first's (`a`).
+   * <p>
+   * .Example input
+   * ----
+   * a:"hello    "
+   * b:"    O WORLD "
+   * ----
+   * <p>
+   * .Example output
+   * ----
+   * "hellO WORLD "
+   * ----
+   *
+   * @param a A string to be merged.
+   * @param b A stringto be merged
+   * @return The merged result string.
+   */
+  private static String mergeStrings(String a, String b) {
+    StringBuilder builder = new StringBuilder();
+    int min = Math.min(a.length(), b.length());
+    for (int i = 0; i < min; i++) {
+      char ach = a.charAt(i);
+      char bch = b.charAt(i);
+      if (bch != ' ')
+        builder.append(bch);
+      else
+        builder.append(ach);
+    }
+    // Whichever longer, the result is the same since the shorter.substring(min) will become an empty
+    // string.
+    builder.append(a.substring(min));
+    builder.append(b.substring(min));
+    return builder.toString();
   }
 
   private static boolean isLastChild(Action each, Action parent) {
@@ -175,6 +265,34 @@ public class ActionReporter extends ActionPrinter {
         : | []sequential(2)
         : |[]sequential(1)
         : []parallel2
+
+   */
+  /*
+[E:0]do sequentially
++-[E:0]do sequentially
+  +-[E:0]do sequentially
+    +-[E:0]print2-1
+    |   [E:0](noname)
+    +-[]print2-2
+        [](noname)
+
+|
+V
+
++-
+  +-
+    +-[E:0]print2-1
+    |   [E:0](noname)
+    +-[]print2-2
+        [](noname)
+
+|
+V
+
++-+-+-[E:0]print2-1
+    |   [E:0](noname)
+    +-[]print2-2
+        [](noname)
 
    */
 }
