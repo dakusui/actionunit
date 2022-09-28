@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.actions;
 
+import com.github.dakusui.actionunit.actions.cmd.Trivial;
 import com.github.dakusui.actionunit.core.Action;
 
 import java.util.Collections;
@@ -8,7 +9,7 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
-public interface Composite extends Action {
+public interface Composite extends Action, Trivial {
   List<Action> children();
 
   boolean isParallel();
@@ -42,7 +43,6 @@ public interface Composite extends Action {
       return this;
     }
 
-    @SuppressWarnings("unchecked")
     public Composite build() {
       return new Impl(actions, parallel);
     }

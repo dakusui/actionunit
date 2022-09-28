@@ -112,18 +112,11 @@ public class ActionReporter extends ActionPrinter {
     return mergeStrings(this.previousIndent, b.toString());
   }
 
-  public List<? extends Action> subListAfter(Action each, List<? extends Action> path) {
-    return path.subList(path.indexOf(each) + 1, path.size());
-  }
 
   /**
    * Returns `true`:
    * - If the first element of `path` is the first child of `action`
    * - Or if the `path` empty
-   *
-   * @param action
-   * @param remainingPath
-   * @return
    */
   private static boolean hasFirstElementAsFirstChild(Action action, List<? extends Action> remainingPath) {
     if (remainingPath.isEmpty())
