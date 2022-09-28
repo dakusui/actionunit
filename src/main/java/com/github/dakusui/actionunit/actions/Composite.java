@@ -42,7 +42,6 @@ public interface Composite extends Action {
       return this;
     }
 
-    @SuppressWarnings("unchecked")
     public Composite build() {
       return new Impl(actions, parallel);
     }
