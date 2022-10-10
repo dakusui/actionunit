@@ -1,13 +1,6 @@
 package com.github.dakusui.actionunit.visitors;
 
-import com.github.dakusui.actionunit.actions.Attempt;
-import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.actions.ForEach;
-import com.github.dakusui.actionunit.actions.Leaf;
-import com.github.dakusui.actionunit.actions.Named;
-import com.github.dakusui.actionunit.actions.Retry;
-import com.github.dakusui.actionunit.actions.TimeOut;
-import com.github.dakusui.actionunit.actions.When;
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -55,6 +48,12 @@ public abstract class ActionPerformer implements Action.Visitor {
                     e
                 )
             )));
+  }
+
+  public void visit(While action) {
+    while (action.condition().test(this.context)) {
+      callAccept(action.perform(), this);
+    }
   }
 
   public void visit(When action) {
