@@ -1,0 +1,31 @@
+----
+[o:0]for each of (noname) parallely
+  [o...:0]do sequentially
+    [o...:0]retry 10 times in 2 [milliseconds] on UnluckyException
+      [E...ooEooo:0]Try to figure out physical ip address
+        [E...ooEooo:0](noname)
+    [o...:0]do sequentially
+      [o...:0]Do something using retrieved IP address
+        [o...:0](noname)
+      [o...:0]Do something time consuming
+        [o...:0](noname)
+      [o...:0]Get state of the server using IP address
+        [o...:0](noname)
+      [o...:0]Do something else using retrieved IP address
+        [o...:0](noname)
+----
+
+----
+[o:0]for each of (noname) parallely
+  [o...:0]retry 10 times in 2 [milliseconds] on UnluckyException
+    [E...ooEooo:0]Try to figure out physical ip address
+      [E...ooEooo:0](noname)
+  [o...:0]Do something using retrieved IP address
+    [o...:0](noname)
+  [o...:0]Do something time consuming
+    [o...:0](noname)
+  [o...:0]Get state of the server using IP address
+    [o...:0](noname)
+  [o...:0]Do something else using retrieved IP address
+    [o...:0](noname)
+----
