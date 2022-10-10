@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
 import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
+import com.github.dakusui.actionunit.core.Context;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class ScpTest extends CommanderTestBase {
   public void test3() {
     Scp scp = newScp().options(
         new SshOptions.Builder().disablePasswordAuthentication().disableStrictHostkeyChecking().identity("~/.ssh/id_rsa").build()).to(Scp.Target.of("hello"));
-    System.out.println(String.format("%s", scp.toAction()));
+    System.out.printf("%s%n", scp.toAction());
     performAction(scp.toAction());
   }
 
@@ -59,6 +60,20 @@ public class ScpTest extends CommanderTestBase {
     System.out.println("1:" + scp.buildCommandLineComposer().format());
     System.out.println("2:" + scp.buildCommandLineComposer().format());
     System.out.println("3:" + scp.buildCommandLineComposer().format());
+  }
+
+  @Test
+  public void tryJumpHostOption() {
+    Scp scp = newScp().options(new SshOptions.Builder()
+            .addJumpHost("alexios.local")
+            .build())
+        .file(Scp.Target.of("user", "remotehost1", "/remote/path"))
+        .to(Scp.Target.of("hello"));
+    String expectedString = "scp -J alexios.local 'user@remotehost1:/remote/path' 'hello'";
+    System.out.println(scp.buildCommandLineComposer().compose(Context.create()));
+    assertThat(
+        scp.buildCommandLineComposer(),
+        asString(call("compose", Context.create()).$()).equalTo(expectedString).$());
   }
 
   @Test

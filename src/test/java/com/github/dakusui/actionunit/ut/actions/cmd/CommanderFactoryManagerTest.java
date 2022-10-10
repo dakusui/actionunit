@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -28,6 +29,7 @@ import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
 import static com.github.dakusui.crest.Crest.substringAfterRegex;
 import static com.github.dakusui.printables.Printables.isEmptyString;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 @RunWith(Enclosed.class)
@@ -54,15 +56,16 @@ public class CommanderFactoryManagerTest {
                   call("buildCommandLineComposer")
                       .andThen("compose", Context.create()).$())
                   .check(
-                      substringAfterRegex("echo").after("'hello world'").$(),
+                      substringAfterRegex("echo")
+                          .after("'hello world'").$(),
                       isEmptyString()
                   ).$(),
               asString(
-                  call("shell").andThen("format").$()
-              ).check(
-                  substringAfterRegex("sh").after("-c").$(),
-                  isEmptyString()
-              ).$()
+                  call("shell")
+                      .andThen("format").$())
+                  .check(
+                      substringAfterRegex("sh").after("-c").$(),
+                      isEmptyString()).$()
           )
       );
     }
@@ -97,7 +100,7 @@ public class CommanderFactoryManagerTest {
               call("buildCommandLineComposer")
                   .andThen("compose", Context.create()).$())
               .check(
-                  substringAfterExpectedRexesForSshOptions_Scp(),
+                  substringAfterExpectedRegexesForSshOptions_Scp(),
                   isEmptyString()
               ).$());
     }
@@ -105,7 +108,7 @@ public class CommanderFactoryManagerTest {
 
     abstract public Function<String, String> substringAfterExpectedRegexesForSshOptions();
 
-    abstract Function<String, String> substringAfterExpectedRexesForSshOptions_Scp();
+    abstract Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp();
 
     private Echo remoteEcho() {
       return remote(hostName())
@@ -157,7 +160,7 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRexesForSshOptions_Scp() {
+    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
       return substringAfterRegex("scp")
           .after("-o").after("StrictHostkeyChecking=no")
           .after("-o").after("PasswordAuthentication=no")
@@ -196,7 +199,7 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRexesForSshOptions_Scp() {
+    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
       return substringAfterRegex("scp")
           .after("-o").after("StrictHostkeyChecking=no")
           .after("-o").after("PasswordAuthentication=no")
@@ -222,6 +225,11 @@ public class CommanderFactoryManagerTest {
       @Override
       public boolean compression() {
         return true;
+      }
+
+      @Override
+      public List<String> jumpHosts() {
+        return Collections.emptyList();
       }
 
       @Override
@@ -301,7 +309,7 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRexesForSshOptions_Scp() {
+    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
       return substringAfterRegex("scp")
           .after("-4")
           .after("-C")
@@ -329,6 +337,11 @@ public class CommanderFactoryManagerTest {
       @Override
       public boolean compression() {
         return false;
+      }
+
+      @Override
+      public List<String> jumpHosts() {
+        return asList("jumphost1,jumphost2");
       }
 
       @Override
@@ -408,7 +421,7 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRexesForSshOptions_Scp() {
+    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
       return substringAfterRegex("scp")
           .after("-6")
           .after("-c cipher_spec")

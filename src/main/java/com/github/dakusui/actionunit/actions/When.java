@@ -2,14 +2,15 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Formatter;
+import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
 public interface When extends Action {
-  ContextPredicate cond();
+  Predicate<Context> cond();
 
   Action perform();
 
@@ -26,12 +27,12 @@ public interface When extends Action {
   }
 
   class Builder extends Action.Builder<When> {
-    private final ContextPredicate cond;
+    private final Predicate<Context> cond;
 
     private Action otherwise = Named.of("else", ActionSupport.nop());
     private Action perform;
 
-    public Builder(ContextPredicate cond) {
+    public Builder(Predicate<Context> cond) {
       this.cond = requireNonNull(cond);
     }
 
@@ -50,7 +51,7 @@ public interface When extends Action {
       requireNonNull(this.perform);
       return new When() {
         @Override
-        public ContextPredicate cond() {
+        public Predicate<Context> cond() {
           return Builder.this.cond;
         }
 

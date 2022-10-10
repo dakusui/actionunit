@@ -27,17 +27,14 @@ public class ForEachTest extends TestUtils.TestBase {
     // Given
     Action action = forEach(
         "i",
-        (c) -> Stream.of("Hello", "world", "!")
-    ).perform(
+        (c) -> Stream.of("Hello", "world", "!")).perform(
         sequential(
             simple(
                 "print {s}",
-                (c) -> System.out.println("<" + c.valueOf("i") + ">")
-            ),
+                (c) -> System.out.println("<" + c.valueOf("i") + ">")),
             simple(
                 "add {s} to 'out'",
-                (c) -> out.add("'" + c.valueOf("i") + "'")
-            )));
+                (c) -> out.add("'" + c.valueOf("i") + "'"))));
     // When
     TestUtils.createReportingActionPerformer().performAndReport(action, Writer.Std.OUT);
     // Then

@@ -1,13 +1,6 @@
 package com.github.dakusui.actionunit.core;
 
-import com.github.dakusui.actionunit.actions.Attempt;
-import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.actions.ForEach;
-import com.github.dakusui.actionunit.actions.Leaf;
-import com.github.dakusui.actionunit.actions.Named;
-import com.github.dakusui.actionunit.actions.Retry;
-import com.github.dakusui.actionunit.actions.TimeOut;
-import com.github.dakusui.actionunit.actions.When;
+import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
@@ -16,6 +9,7 @@ import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.Formatter;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;
 
@@ -53,7 +47,11 @@ public enum ActionSupport {
     return new ForEach.Builder<>(variableName, streamGenerator);
   }
 
-  public static When.Builder when(ContextPredicate cond) {
+  public static While.Builder repeatWhile(Predicate<Context> condition) {
+    return new While.Builder(condition);
+  }
+
+  public static When.Builder when(Predicate<Context> cond) {
     return new When.Builder(cond);
   }
 
