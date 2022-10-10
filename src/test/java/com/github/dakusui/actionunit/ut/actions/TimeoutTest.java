@@ -5,27 +5,22 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.nop;
-import static com.github.dakusui.actionunit.core.ActionSupport.parallel;
-import static com.github.dakusui.actionunit.core.ActionSupport.retry;
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
 import static java.lang.Thread.currentThread;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.*;
+import static java.util.stream.Collectors.toList;
 
 public class TimeoutTest extends TestUtils.TestBase {
   @Test(expected = IllegalArgumentException.class)
@@ -104,12 +99,12 @@ public class TimeoutTest extends TestUtils.TestBase {
   public void givenLongerTimeoutActionWhichHoldsNotEndingRetryAction$whenTimeoutOutside$thenOuterTimeoutUsed() {
     Action action = timeout(
         timeout(
-        retry(
-            simple("throw an Exception", c -> {
-              throw new RuntimeException();
-            })
-        ).times(Integer.MAX_VALUE)
-            .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
+            retry(
+                simple("throw an Exception", c -> {
+                  throw new RuntimeException();
+                })
+            ).times(Integer.MAX_VALUE)
+                .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
         ).in(60, MINUTES)
     ).in(1, SECONDS);
     action.accept(createActionPerformer());
@@ -128,6 +123,46 @@ public class TimeoutTest extends TestUtils.TestBase {
         ).in(100, MILLISECONDS)
     ).in(1, MINUTES);
     action.accept(createActionPerformer());
+  }
+
+  @Test(expected = ActionTimeOutException.class)
+  public void issue92() {
+    List<String> alphabets = new ArrayList<String>() {{
+      this.add("a");
+      this.add("b");
+    }};
+
+    Action action = parallel(alphabets.stream()
+        .map(alphabet -> leaf(c -> {
+          if (alphabet.equals("b")) {
+            try {
+              Thread.sleep(2000);
+            } catch (InterruptedException e) {
+              e.getMessage();
+            }
+          }
+        }))
+        .map(a -> timeout(a).in(1, MILLISECONDS))
+        .map(a -> retry(a)
+            .on(ActionException.class)
+            .withIntervalOf(1, MILLISECONDS)
+            .times(2)
+            .$())
+        .collect(toList()));
+
+    try {
+      ReportingActionPerformer.create().performAndReport(action, Writer.Slf4J.INFO);
+    } catch (ActionTimeOutException e) {
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+      assertThat(
+          e.getMessage(),
+          asString()
+              .containsString("timeout")
+              .containsString("with message:")
+              .$());
+      throw e;
+    }
   }
 
   private Action sleepAction(long millis) {
