@@ -48,8 +48,6 @@ public class ActionException extends RuntimeException {
     if (t instanceof RuntimeException) {
       throw (RuntimeException) t;
     }
-    if (t instanceof TimeoutException)
-      throw new ActionTimeOutException(t.getMessage(), t);
     throw new ActionException(t.getMessage(), t);
   }
 }
