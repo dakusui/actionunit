@@ -1,10 +1,13 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
+import com.github.dakusui.actionunit.actions.cmd.Commander;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,6 +33,8 @@ public interface SshOptions {
 
   boolean compression();
 
+  List<String> jumpHosts();
+
   Optional<String> cipherSpec();
 
   Optional<String> configFile();
@@ -51,6 +56,7 @@ public interface SshOptions {
   class Builder {
     private       String       identity;
     private final List<String> sshOptions = new LinkedList<>();
+    private final List<String> jumpHosts  = new LinkedList<>();
 
     public Builder() {
     }
@@ -73,6 +79,11 @@ public interface SshOptions {
       return this.addSshOption("PasswordAuthentication", "no");
     }
 
+    public Builder addJumpHost(String jumpHost) {
+      this.jumpHosts.add(requireNonNull(jumpHost));
+      return this;
+    }
+
     public Builder disableStrictHostkeyChecking() {
       return this.addSshOption("StrictHostkeyChecking", "no");
     }
@@ -93,6 +104,11 @@ public interface SshOptions {
         @Override
         public boolean compression() {
           return false;
+        }
+
+        @Override
+        public List<String> jumpHosts() {
+          return jumpHosts;
         }
 
         @Override
@@ -149,6 +165,8 @@ public interface SshOptions {
           add("-F");
           add(v);
         });
+        if (!sshOptions.jumpHosts().isEmpty())
+          add("-J " + String.join(",", sshOptions.jumpHosts()));
         sshOptions.cipherSpec().ifPresent(v -> {
           add("-c");
           add(v);

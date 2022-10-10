@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -225,6 +226,11 @@ public class CommanderFactoryManagerTest {
       }
 
       @Override
+      public List<String> jumpHosts() {
+        return Collections.emptyList();
+      }
+
+      @Override
       public Optional<String> cipherSpec() {
         return Optional.empty();
       }
@@ -329,6 +335,11 @@ public class CommanderFactoryManagerTest {
       @Override
       public boolean compression() {
         return false;
+      }
+
+      @Override
+      public List<String> jumpHosts() {
+        return Collections.emptyList();
       }
 
       @Override
