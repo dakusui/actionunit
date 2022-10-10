@@ -66,6 +66,11 @@ public interface SshOptions {
       return this;
     }
 
+    public Builder addJumpHost(String jumpHost) {
+      this.jumpHosts.add(requireNonNull(jumpHost));
+      return this;
+    }
+
     public Builder addSshOption(String option) {
       sshOptions.add(option);
       return this;
@@ -77,11 +82,6 @@ public interface SshOptions {
 
     public Builder disablePasswordAuthentication() {
       return this.addSshOption("PasswordAuthentication", "no");
-    }
-
-    public Builder addJumpHost(String jumpHost) {
-      this.jumpHosts.add(requireNonNull(jumpHost));
-      return this;
     }
 
     public Builder disableStrictHostkeyChecking() {
@@ -202,6 +202,8 @@ public interface SshOptions {
           add("-F");
           add(v);
         });
+        if (!sshOptions.jumpHosts().isEmpty())
+          add("-J " + String.join(",", sshOptions.jumpHosts()));
         sshOptions.cipherSpec().ifPresent(v -> {
           add("-c");
           add(v);
