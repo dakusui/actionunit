@@ -1,5 +1,7 @@
 package com.github.dakusui.actionunit.utils;
 
+import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
@@ -25,7 +27,7 @@ public enum InternalUtils {
     }
   }
 
-  public static <T> T runWithTimeout(Callable<T> callable, long timeout, TimeUnit timeUnit) {
+  public static <T> T runWithTimeout(Callable<T> callable, String timeoutDescription, String description, long timeout, TimeUnit timeUnit) {
     final ExecutorService executor = Executors.newSingleThreadExecutor();
     final Future<T> future = executor.submit(callable);
     executor.shutdown(); // This does not cancel the already-scheduled task.
@@ -37,7 +39,9 @@ public enum InternalUtils {
       throw wrap(e);
     } catch (TimeoutException e) {
       future.cancel(true);
-      throw wrap(e);
+      throw new ActionTimeOutException(
+          String.format("Action: <%s>; %s with message: <%s>", description, timeoutDescription, e.getMessage()),
+          e);
     } catch (ExecutionException e) {
       //unwrap the root cause
       Throwable cause = e.getCause();

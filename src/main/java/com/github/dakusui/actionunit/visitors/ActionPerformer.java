@@ -109,6 +109,8 @@ public abstract class ActionPerformer implements Action.Visitor {
           callAccept(action.perform(), ActionPerformer.this);
           return true;
         },
+        String.format("%s", action),
+        String.format("%s", action.perform()),
         action.durationInNanos(),
         NANOSECONDS
     );
