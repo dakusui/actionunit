@@ -4,11 +4,11 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.Formatter;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;
@@ -84,6 +84,10 @@ public enum ActionSupport {
 
   public static Action simple(String name, ContextConsumer consumer) {
     return named(name, leaf(consumer));
+  }
+
+  public static <T> Action context(Function<Context, T> function) {
+    return new Contextful.Impl<>(function);
   }
 
   public static Action sequential(Action... actions) {

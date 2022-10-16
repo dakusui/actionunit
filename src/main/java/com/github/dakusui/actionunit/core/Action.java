@@ -35,6 +35,10 @@ public interface Action extends Formattable {
       this.visit((Action) action);
     }
 
+    default <T> void visit(Contextful<T> action) {
+      this.visit((Action) action);
+    }
+
     default void visit(Named action) {
       this.visit((Action) action);
     }

@@ -22,6 +22,12 @@ public abstract class ActionPerformer implements Action.Visitor {
     action.runnable(context).run();
   }
 
+  public <T> void visit(Contextful<T> action) {
+    T value = action.action().apply(context);
+    String variableName = String.format("variableName:%s", System.identityHashCode(action));
+    context.assignTo(variableName, value);
+  }
+
   public void visit(Named action) {
     callAccept(action.action(), this);
   }

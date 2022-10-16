@@ -17,6 +17,11 @@ public abstract class ActionScanner implements Action.Visitor {
   }
 
   @Override
+  public <T> void visit(Contextful<T> action) {
+    this.handleAction(action);
+  }
+
+  @Override
   public void visit(Named action) {
     this.handleAction(action);
     this.enter(action);
