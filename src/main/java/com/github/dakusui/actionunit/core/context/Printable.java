@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.core.context;
 import java.util.Formattable;
 import java.util.Formatter;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 
 public interface Printable extends Formattable {

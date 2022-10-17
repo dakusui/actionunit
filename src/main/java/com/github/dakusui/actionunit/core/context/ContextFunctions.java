@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContext
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextPredicateBuilder;
 import com.github.dakusui.actionunit.utils.Checks;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 
 import java.io.PrintStream;
@@ -42,9 +43,7 @@ public enum ContextFunctions {
     return String.format("(%s)->%s",
         String.join(",", v),
         summarize(StableTemplatingUtils.template(
-            objectToStringIfOverridden(
-                f,
-                () -> formatPlaceHolders(placeHolderFormatter, v)),
+            objectToStringIfOverridden(f, obj -> formatPlaceHolders(obj, placeHolderFormatter, v)),
             new TreeMap<String, Object>() {{
               IntStream.range(0, v.length).forEach(
                   i -> put(placeHolderFormatter.apply(i), String.format("${%s}", v[i]))
@@ -52,8 +51,8 @@ public enum ContextFunctions {
             }}), 60));
   }
 
-  private static String formatPlaceHolders(IntFunction<String> placeHolderFormatter, String[] v) {
-    return "(noname)" +
+  private static String formatPlaceHolders(Object obj, IntFunction<String> placeHolderFormatter, String[] v) {
+    return InternalUtils.fallbackFormatter().apply(obj) +
         IntStream.range(0, v.length)
             .mapToObj(placeHolderFormatter)
             .collect(joining(", ", "(", ")"));

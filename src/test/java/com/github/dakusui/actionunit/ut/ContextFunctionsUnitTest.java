@@ -29,7 +29,7 @@ public class ContextFunctionsUnitTest {
     return multiParamsPredicateFor(variableName)
         .toContextPredicate(
             printablePredicate((Params params) -> predicate.test(params.valueOf(variableName)))
-                .describe(() -> objectToStringIfOverridden(predicate, () -> "(noname)({{0}})")));
+                .describe(() -> objectToStringIfOverridden(predicate, (v) -> "(noname)({{0}})")));
   }
 
   public static class GivenPrintableContextConsumer {
