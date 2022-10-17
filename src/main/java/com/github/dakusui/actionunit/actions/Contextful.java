@@ -3,11 +3,13 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Formatter;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static com.github.dakusui.pcond.Requires.requireNonNull;
 
 public interface Contextful<T> extends Action {
@@ -88,7 +90,7 @@ public interface Contextful<T> extends Action {
 
     @Override
     public void formatTo(Formatter formatter, int i, int i1, int i2) {
-      formatter.format("%s", function);
+      formatter.format("%s:%s", anonymous ? "(noname)" : (variableName() + (threadLocal ? "" : "(global)")), toStringIfOverriddenOrNoname(function));
     }
   }
 }

@@ -44,15 +44,19 @@ public enum ContextFunctions {
         summarize(StableTemplatingUtils.template(
             objectToStringIfOverridden(
                 f,
-                () -> "(noname)" +
-                    IntStream.range(0, v.length)
-                        .mapToObj(placeHolderFormatter)
-                        .collect(joining(", ", "(", ")"))),
+                () -> formatPlaceHolders(placeHolderFormatter, v)),
             new TreeMap<String, Object>() {{
               IntStream.range(0, v.length).forEach(
                   i -> put(placeHolderFormatter.apply(i), String.format("${%s}", v[i]))
               );
             }}), 60));
+  }
+
+  private static String formatPlaceHolders(IntFunction<String> placeHolderFormatter, String[] v) {
+    return "(noname)" +
+        IntStream.range(0, v.length)
+            .mapToObj(placeHolderFormatter)
+            .collect(joining(", ", "(", ")"));
   }
 
   public static <R> ContextConsumer assignTo(String variableName, ContextFunction<R> value) {

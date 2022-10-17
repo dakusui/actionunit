@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static com.github.dakusui.printables.Printables.printableConsumer;
 import static com.github.dakusui.printables.Printables.printablePredicate;
 import static java.lang.String.format;
@@ -37,7 +37,7 @@ public enum CommanderUtils {
     return requireNonNull(s).replaceAll("('+)", "'\"$1\"'");
   }
 
-  static Action createAction(Commander commander, String[] variableNames) {
+  static Action createAction(Commander commander) {
     return RetryOption.retryAndTimeOut(
         leaf(createContextConsumer(commander)),
         commander.retryOption());
@@ -101,7 +101,7 @@ public enum CommanderUtils {
             .describe(() -> format(
                 "outputOf[command:'%s'].matches[%s]",
                 commander.buildCommandLineComposer().format(),
-                objectToStringIfOverridden(commander.checker(), () -> "(noname)"))));
+                toStringIfOverriddenOrNoname(commander.checker()))));
   }
 
   static ContextFunction<String> createContextFunction(Commander<?> commander) {

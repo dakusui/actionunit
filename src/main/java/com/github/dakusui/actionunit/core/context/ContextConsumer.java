@@ -9,14 +9,14 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface
 public interface ContextConsumer extends Consumer<Context>, Formattable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(objectToStringIfOverridden(this, () -> "(noname)"));
+    formatter.format(toStringIfOverriddenOrNoname(this));
   }
 
   @Override

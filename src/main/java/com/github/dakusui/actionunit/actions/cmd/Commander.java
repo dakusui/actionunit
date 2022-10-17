@@ -152,7 +152,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    * @return An action object.
    */
   public Action toAction() {
-    Action action = CommanderUtils.createAction(this, this.variableNames());
+    Action action = CommanderUtils.createAction(this);
     return this.description != null ?
         named(this.description, action) :
         action;
@@ -180,7 +180,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   /**
-   * A short hand method to execute a command directly.
+   * A short-hand method to execute a command directly.
    *
    * @return data stream from the executed command.
    */
@@ -189,7 +189,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   /**
-   * A short hand method to execute a command directly.
+   * A short-hand method to execute a command directly.
    *
    * @param variables Variables to be set to the context.
    * @return data stream from the executed command.

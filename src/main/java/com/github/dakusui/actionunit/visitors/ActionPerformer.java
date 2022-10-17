@@ -48,12 +48,10 @@ public abstract class ActionPerformer implements Action.Visitor {
         : data;
     data.forEach(
         e -> callAccept(action.perform(),
-            newInstance(
-                this.context.createChild().assignTo(
-                    action.loopVariableName(),
-                    e
-                )
-            )));
+            newInstance(this.context.createChild().assignTo(
+                action.loopVariableName(),
+                e
+            ))));
   }
 
   public void visit(While action) {

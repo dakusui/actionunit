@@ -103,6 +103,10 @@ public enum InternalUtils {
         : s;
   }
 
+  public static String toStringIfOverriddenOrNoname(Object o) {
+    return objectToStringIfOverridden(o, () -> "(noname)");
+  }
+
   public static String objectToStringIfOverridden(Object o, Supplier<String> formatter) {
     requireNonNull(formatter);
     try {
