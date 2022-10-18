@@ -6,11 +6,11 @@ import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
-import java.util.Formatter;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CONSUMER;
 import static java.util.Arrays.asList;
 
 public enum ActionSupport {
@@ -19,16 +19,7 @@ public enum ActionSupport {
   public static Action nop() {
     // Needs to be instantiated each time this method is called.
     // Otherwise, multiple nops cannot be identified in an action tree.
-    return Leaf.of(new ContextConsumer() {
-      @Override
-      public void accept(Context context) {
-      }
-
-      @Override
-      public void formatTo(Formatter formatter, int flags, int width, int precision) {
-        formatter.format("(nop)");
-      }
-    });
+    return Leaf.of(NOP_CONSUMER);
   }
 
   public static Action leaf(ContextConsumer consumer) {

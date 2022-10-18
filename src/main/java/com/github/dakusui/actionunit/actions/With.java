@@ -3,6 +3,9 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.FormattableConsumer;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Formatter;
 import java.util.LinkedList;
@@ -10,6 +13,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CONSUMER;
+import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
 import static java.util.Objects.requireNonNull;
 
 public interface With<V> extends Action {
@@ -52,8 +57,14 @@ public interface With<V> extends Action {
       return this;
     }
 
-    public Builder<V> thenAccept(Consumer<V> consumer) {
-      return this.add(this.sourceAction.thenConsume(consumer));
+    public Builder<V> thenConsumeBy(Consumer<V> consumer) {
+      return this.add(this.sourceAction.thenConsumeWith(consumer));
+    }
+
+    public <W> Builder<W> thenApply(Function<V, W> function) {
+      Builder<W> ret = new Builder<>(context -> function.apply(context.valueOf(sourceAction.internalVariableName())));
+      this.add(this.sourceAction.thenApply(function));
+      return ret;
     }
 
 
@@ -62,33 +73,47 @@ public interface With<V> extends Action {
       return this;
     }
 
-    public static void main(String... args) {
-
+    public With<V> build() {
+      return build(nopConsumer());
     }
 
-
-    public With<V> build() {
+    public With<V> build(Consumer<V> finisher) {
+      final Contextful<V> begin = Builder.this.sourceAction;
+      final Action actions = Builder.this.isParallel ?
+          ActionSupport.parallel(Builder.this.actions) :
+          ActionSupport.sequential(Builder.this.actions);
       return new With<V>() {
         @Override
         public Action begin() {
-          return null;
+          return begin;
         }
 
         @Override
         public Action perform() {
-          return isParallel ?
-              ActionSupport.parallel(actions) :
-              ActionSupport.sequential(actions);
+          return actions;
         }
 
         @Override
         public Action end() {
-          return null;
+          return ActionSupport.simple("", ContextConsumer.of(() -> "", new FormattableConsumer<Context>() {
+            @Override
+            public void accept(Context context) {
+              V variable = context.valueOf(begin.internalVariableName());
+              context.unassign(begin.internalVariableName()); // Unassign first. Otherwise, finisher may fail.
+              finisher.accept(variable);
+            }
+
+            @Override
+            public void formatTo(Formatter formatter, int i, int i1, int i2) {
+              formatter.format("%s", InternalUtils.toStringIfOverriddenOrNoname(finisher));
+            }
+
+          }));
         }
 
         @Override
         public String internalVariableName() {
-          return null;
+          return begin.internalVariableName();
         }
       };
     }

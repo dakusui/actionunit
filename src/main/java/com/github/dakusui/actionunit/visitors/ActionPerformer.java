@@ -41,6 +41,7 @@ public abstract class ActionPerformer implements Action.Visitor {
     );
   }
 
+  @Override
   public <E> void visit(ForEach<E> action) {
     Stream<E> data = requireNonNull(action.data().apply(this.context));
     data = action.isParallel()
@@ -54,17 +55,32 @@ public abstract class ActionPerformer implements Action.Visitor {
             ))));
   }
 
+  @Override
   public void visit(While action) {
     while (action.condition().test(this.context)) {
       callAccept(action.perform(), this);
     }
   }
 
+  @Override
   public void visit(When action) {
     if (action.cond().test(this.context)) {
       callAccept(action.perform(), this);
     } else {
       callAccept(action.otherwise(), this);
+    }
+  }
+
+  @Override
+  public <T> void visit(With<T> action) {
+    Context originalContext = this.context;
+    this.context = this.context.createChild();
+    callAccept(action.begin(), this);
+    try {
+      callAccept(action.perform(), this);
+    } finally {
+      callAccept(action.end(), this);
+      this.context = originalContext;
     }
   }
 

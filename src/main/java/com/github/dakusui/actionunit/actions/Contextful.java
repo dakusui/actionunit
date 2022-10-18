@@ -19,7 +19,7 @@ public interface Contextful<T> extends Action {
   }
 
 
-  default <R> Action thenConsume(Consumer<R> consumer) {
+  default <R> Action thenConsumeWith(Consumer<R> consumer) {
     return ActionSupport.simple("", null);
   }
 
@@ -71,6 +71,7 @@ public interface Contextful<T> extends Action {
     public String variableName() {
       return this.baseName;
     }
+
 
     @Override
     public <V> V value(Context context) {

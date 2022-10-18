@@ -13,7 +13,18 @@ import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverri
 import static java.util.Objects.requireNonNull;
 
 @FunctionalInterface
-public interface ContextConsumer extends Consumer<Context>, Formattable {
+public interface ContextConsumer extends FormattableConsumer<Context> {
+  ContextConsumer NOP_CONSUMER = new ContextConsumer() {
+    @Override
+    public void accept(Context context) {
+    }
+
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision) {
+      formatter.format("(nop)");
+    }
+  };
+
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
     formatter.format(toStringIfOverriddenOrNoname(this));
