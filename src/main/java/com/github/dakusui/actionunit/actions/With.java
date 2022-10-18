@@ -3,8 +3,6 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Formatter;
 import java.util.LinkedList;
@@ -35,12 +33,12 @@ public interface With<V> extends Action {
 
   class Builder<V> extends Action.Builder<With<V>> {
 
-    private final Function<Context, V>            function;
-    private final List<Function<With<V>, Action>> actions    = new LinkedList<>();
-    private       boolean                         isParallel = false;
+    private final Contextful<V> sourceAction;
+    private final List<Action>  actions    = new LinkedList<>();
+    private       boolean       isParallel = false;
 
     public Builder(Function<Context, V> function) {
-      this.function = requireNonNull(function);
+      this.sourceAction = new Contextful.Impl<>(requireNonNull(function));
       this.sequential();
     }
 
@@ -54,15 +52,13 @@ public interface With<V> extends Action {
       return this;
     }
 
-    public Builder<V> add(Consumer<V> consumer) {
-      this.actions.add(w -> ActionSupport.leaf(
-          ContextConsumer.of(
-              () -> InternalUtils.toStringIfOverriddenOrNoname(consumer),
-              (ContextConsumer) context -> consumer.accept(context.valueOf(w.internalVariableName())))));
-      return this;
+    public Builder<V> thenAccept(Consumer<V> consumer) {
+      return this.add(this.sourceAction.thenConsume(consumer));
     }
 
-    public Builder<V> add(Function<Builder<V>, Action> action) {
+
+    public Builder<V> add(Action action) {
+      this.actions.add(action);
       return this;
     }
 
@@ -72,7 +68,29 @@ public interface With<V> extends Action {
 
 
     public With<V> build() {
-      return null;
+      return new With<V>() {
+        @Override
+        public Action begin() {
+          return null;
+        }
+
+        @Override
+        public Action perform() {
+          return isParallel ?
+              ActionSupport.parallel(actions) :
+              ActionSupport.sequential(actions);
+        }
+
+        @Override
+        public Action end() {
+          return null;
+        }
+
+        @Override
+        public String internalVariableName() {
+          return null;
+        }
+      };
     }
   }
 }
