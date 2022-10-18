@@ -11,7 +11,7 @@ import java.util.function.Function;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static com.github.dakusui.pcond.Requires.requireNonNull;
 
-public interface Contextful<T> extends Action {
+public interface Contextful<T> extends Leaf {
   Function<Context, T> action();
 
   default <R> Contextful<R> thenApply(Function<T, R> function) {
@@ -20,7 +20,9 @@ public interface Contextful<T> extends Action {
 
 
   default <R> Action thenConsumeWith(Consumer<R> consumer) {
-    return ActionSupport.simple("", null);
+    return ActionSupport.simple(
+        toStringIfOverriddenOrNoname(consumer),
+        c -> consumer.accept(c.valueOf(internalVariableName())));
   }
 
   <V> V value(Context context);
@@ -86,8 +88,8 @@ public interface Contextful<T> extends Action {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
+    public Runnable runnable(Context context) {
+      return () -> context.assignTo(internalVariableName(), function.apply(context));
     }
 
     @Override

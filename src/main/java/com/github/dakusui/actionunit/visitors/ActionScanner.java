@@ -52,7 +52,7 @@ public abstract class ActionScanner implements Action.Visitor {
   }
 
   @Override
-  public <E> void visit(While action) {
+  public void visit(While action) {
     this.handleAction(action);
     this.enter(action);
     try {

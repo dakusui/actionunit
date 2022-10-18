@@ -46,6 +46,10 @@ public enum ActionSupport {
     return new When.Builder(cond);
   }
 
+  public static <T> With.Builder<T> with(Function<Context, T> value) {
+    return new With.Builder<>(value);
+  }
+
   public static Retry.Builder retry(Action action) {
     return new Retry.Builder(action);
   }
