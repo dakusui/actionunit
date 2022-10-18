@@ -104,10 +104,10 @@ public enum ContextFunctions {
     );
   }
 
-  public static String prettyClassName(Class c) {
+  public static String prettyClassName(Class<?> c) {
     String ret = c.getSimpleName();
     if (ret.equals("")) {
-      Class mostRecentNamedSuper = mostRecentNamedSuperOf(c);
+      Class<?> mostRecentNamedSuper = mostRecentNamedSuperOf(c);
       if (!mostRecentNamedSuper.equals(Object.class))
         ret = format("(anon:%s)", mostRecentNamedSuperOf(c).getSimpleName());
       else
@@ -117,7 +117,7 @@ public enum ContextFunctions {
     return ret.replaceFirst("\\$\\$Lambda\\$[\\d]+/[\\d]+$", ".lambda");
   }
 
-  private static Class mostRecentNamedSuperOf(Class c) {
+  private static Class<?> mostRecentNamedSuperOf(Class<?> c) {
     if ("".equals(c.getSimpleName()))
       return mostRecentNamedSuperOf(c.getSuperclass());
     return c;

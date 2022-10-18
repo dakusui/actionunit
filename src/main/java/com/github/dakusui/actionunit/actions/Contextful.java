@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Formatter;
 import java.util.function.Consumer;
@@ -15,17 +14,18 @@ import static com.github.dakusui.pcond.Requires.requireNonNull;
 public interface Contextful<T> extends Action {
   Function<Context, T> action();
 
-  default <R> Contextful<R> andThen(Function<T, R> function) {
-    String variableName = String.format("variableName:%s", System.identityHashCode(this));
-    return new Impl<>(context -> function.apply(context.valueOf(variableName)));
+  default <R> Contextful<R> thenApply(Function<T, R> function) {
+    return new Impl<>(context -> function.apply(context.valueOf(internalVariableName())));
   }
 
 
-  default <R> Action andThen(Consumer<R> consumer) {
+  default <R> Action thenConsume(Consumer<R> consumer) {
     return ActionSupport.simple("", null);
   }
 
   <V> V value(Context context);
+
+  String internalVariableName();
 
   /**
    * A name of a variable this action assigns its result to.
@@ -77,7 +77,8 @@ public interface Contextful<T> extends Action {
       return requireNonNull(context).valueOf(internalVariableName());
     }
 
-    private String internalVariableName() {
+    @Override
+    public String internalVariableName() {
       return this.threadLocal ?
           this.baseName + ":threadId-" + Thread.currentThread().getId() :
           this.baseName;

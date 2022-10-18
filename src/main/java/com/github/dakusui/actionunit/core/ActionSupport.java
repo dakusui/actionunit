@@ -86,7 +86,7 @@ public enum ActionSupport {
     return named(name, leaf(consumer));
   }
 
-  public static <T> Action context(Function<Context, T> function) {
+  public static <T> Contextful<T> context(Function<Context, T> function) {
     return new Contextful.Impl<>(function);
   }
 
