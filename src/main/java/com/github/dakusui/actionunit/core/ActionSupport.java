@@ -7,6 +7,7 @@ import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -22,7 +23,7 @@ public enum ActionSupport {
     return Leaf.of(NOP_CONSUMER);
   }
 
-  public static Action leaf(ContextConsumer consumer) {
+  public static Action leaf(Consumer<Context> consumer) {
     return Leaf.of(consumer);
   }
 
@@ -51,12 +52,11 @@ public enum ActionSupport {
   }
 
   /**
-   *
    * Note that `variableName` won't be used to resolve avalue of a variable, it is
    * merely intended to be printed in an action-tree or logs.
    *
    * @param variableName human-readable variable name.
-   * @param value A function to give a value to be used a context under the returned action.
+   * @param value        A function to give a value to be used a context under the returned action.
    * @param <T>
    * @return
    */

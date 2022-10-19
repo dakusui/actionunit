@@ -7,6 +7,7 @@ import java.util.Formattable;
 public interface Action extends Formattable {
   void accept(Visitor visitor);
 
+
   abstract class Builder<A extends Action> {
     public abstract A build();
 

@@ -4,9 +4,8 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.FormattableConsumer;
-import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.pcond.forms.Printables;
 
 import java.util.Formatter;
 import java.util.function.Consumer;
@@ -14,6 +13,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
 
 public interface With<V> extends Action {
@@ -33,15 +33,19 @@ public interface With<V> extends Action {
     formatter.format("attempt");
   }
 
-  String internalVariableName();
-
   class Builder<V> extends Action.Builder<With<V>> {
 
     private final Contextful<V> sourceAction;
     private       Action        mainAction;
+    private       String        name;
 
     public Builder(Function<Context, V> function) {
       this.sourceAction = new Contextful.Impl<>(requireNonNull(function));
+    }
+
+    public Builder<V> name(String name) {
+      this.name = requireNonNull(name);
+      return this;
     }
 
     public Builder<V> perform(Consumer<V> consumer) {
@@ -54,15 +58,23 @@ public interface With<V> extends Action {
     }
 
     public <W> Function<Context, W> function(Function<V, W> function) {
-      return context -> function.apply(context.valueOf(sourceAction.internalVariableName()));
+      return Printables.function(
+          () -> name() + ":" + toStringIfOverriddenOrNoname(function),
+          context -> function.apply(context.valueOf(sourceAction.internalVariableName())));
     }
 
     public ContextConsumer consumer(Consumer<V> consumer) {
       return context -> consumer.accept(context.valueOf(sourceAction.internalVariableName()));
     }
 
-    public ContextPredicate predicate(Predicate<V> predicate) {
-      return context -> predicate.test(context.valueOf(sourceAction.internalVariableName()));
+    public Predicate<Context> predicate(Predicate<V> predicate) {
+      return Printables.predicate(
+          () -> name() + ":" + toStringIfOverriddenOrNoname(predicate),
+          (Context context) -> predicate.test(context.valueOf(sourceAction.internalVariableName())));
+    }
+
+    private String name() {
+      return this.name == null ? "(noname)" : this.name;
     }
 
 
@@ -96,7 +108,7 @@ public interface With<V> extends Action {
 
         @Override
         public Action end() {
-          return ActionSupport.simple("+++", ContextConsumer.of(() -> "***", new FormattableConsumer<Context>() {
+          return ActionSupport.simple(String.format("done:%s", finisher), ContextConsumer.of(() -> "***", new FormattableConsumer<Context>() {
             @Override
             public void accept(Context context) {
               V variable = context.valueOf(begin.internalVariableName());
@@ -106,15 +118,9 @@ public interface With<V> extends Action {
 
             @Override
             public void formatTo(Formatter formatter, int i, int i1, int i2) {
-              formatter.format("%s", InternalUtils.toStringIfOverriddenOrNoname(finisher));
+              formatter.format("%s", toStringIfOverriddenOrNoname(finisher));
             }
-
           }));
-        }
-
-        @Override
-        public String internalVariableName() {
-          return begin.internalVariableName();
         }
       };
     }

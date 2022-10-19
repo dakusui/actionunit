@@ -4,6 +4,9 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
+import com.github.dakusui.actionunit.visitors.ActionPrinter;
+import com.github.dakusui.pcond.forms.Predicates;
+import com.github.dakusui.pcond.forms.Printables;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -38,12 +41,22 @@ public class WithTest {
   public void givenWithAction_whenPerform3() {
     List<String> out = new LinkedList<>();
     Action withAction = with(c -> 10)
-        .action(b -> ActionSupport.when(b.predicate(i -> i < 100))
+        .action(b -> when(b.predicate(i -> i < 100))
             .perform(leaf(b.consumer(println(out))))
             .otherwise(ActionSupport.nop()))
         .build();
     TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
     assertThat(value(out).elementAt(0).then().asString().isEqualTo("10"));
+  }
+
+  @Test
+  public void printActionTree() {
+    Action withAction = with(c -> 10).name("i")
+        .action(b -> when(b.predicate(Predicates.lessThan(10)))
+            .perform(leaf(b.consumer(i -> System.out.println("<" + i + ">"))))
+            .otherwise(ActionSupport.nop()))
+        .build();
+    withAction.accept(new ActionPrinter(Writer.Std.OUT));
   }
 
   private static <T> Consumer<T> println(List<String> out) {

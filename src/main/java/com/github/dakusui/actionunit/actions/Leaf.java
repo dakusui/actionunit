@@ -3,10 +3,13 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Formatter;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
 
 public interface Leaf extends Action, Function<Context, Runnable> {
@@ -20,7 +23,7 @@ public interface Leaf extends Action, Function<Context, Runnable> {
     visitor.visit(this);
   }
 
-  static Leaf of(ContextConsumer consumer) {
+  static Leaf of(Consumer<Context> consumer) {
     requireNonNull(consumer);
     return new Leaf() {
       @Override
@@ -30,7 +33,7 @@ public interface Leaf extends Action, Function<Context, Runnable> {
 
       @Override
       public void formatTo(Formatter formatter, int flags, int width, int precision) {
-        formatter.format("%s", consumer);
+        formatter.format("%s", toStringIfOverriddenOrNoname(consumer));
       }
     };
   }
