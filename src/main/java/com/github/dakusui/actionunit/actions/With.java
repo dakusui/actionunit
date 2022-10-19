@@ -4,16 +4,15 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.FormattableConsumer;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Formatter;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CONSUMER;
 import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
 import static java.util.Objects.requireNonNull;
 
@@ -39,39 +38,43 @@ public interface With<V> extends Action {
   class Builder<V> extends Action.Builder<With<V>> {
 
     private final Contextful<V> sourceAction;
-    private final List<Action>  actions    = new LinkedList<>();
-    private       boolean       isParallel = false;
+    private       Action        mainAction;
 
     public Builder(Function<Context, V> function) {
       this.sourceAction = new Contextful.Impl<>(requireNonNull(function));
-      this.sequential();
     }
 
-    public Builder<V> parallel() {
-      this.isParallel = true;
+    public Builder<V> perform(Consumer<V> consumer) {
+      this.mainAction = ActionSupport.leaf(consumer(consumer));
       return this;
     }
 
-    public Builder<V> sequential() {
-      this.isParallel = false;
+    public <W> Builder<W> andThen(Function<V, W> function) {
+      return new Builder<>(function(function));
+    }
+
+    public <W> Function<Context, W> function(Function<V, W> function) {
+      return context -> function.apply(context.valueOf(sourceAction.internalVariableName()));
+    }
+
+    public ContextConsumer consumer(Consumer<V> consumer) {
+      return context -> consumer.accept(context.valueOf(sourceAction.internalVariableName()));
+    }
+
+    public ContextPredicate predicate(Predicate<V> predicate) {
+      return context -> predicate.test(context.valueOf(sourceAction.internalVariableName()));
+    }
+
+
+    public Builder<V> action(Action action) {
+      this.mainAction = requireNonNull(action);
       return this;
     }
 
-    public Builder<V> thenConsumeBy(Consumer<V> consumer) {
-      return this.add(this.sourceAction.thenConsumeWith(consumer));
+    public Builder<V> action(Function<Builder<V>, Action> action) {
+      return this.action(action.apply(this));
     }
 
-    public <W> Builder<W> thenApply(Function<V, W> function) {
-      Builder<W> ret = new Builder<>(context -> function.apply(context.valueOf(sourceAction.internalVariableName())));
-      this.add(this.sourceAction.thenApply(function));
-      return ret;
-    }
-
-
-    public Builder<V> add(Action action) {
-      this.actions.add(action);
-      return this;
-    }
 
     public With<V> build() {
       return build(nopConsumer());
@@ -79,9 +82,7 @@ public interface With<V> extends Action {
 
     public With<V> build(Consumer<V> finisher) {
       final Contextful<V> begin = Builder.this.sourceAction;
-      final Action actions = Builder.this.isParallel ?
-          ActionSupport.parallel(Builder.this.actions) :
-          ActionSupport.sequential(Builder.this.actions);
+      final Action mainAction = Builder.this.mainAction;
       return new With<V>() {
         @Override
         public Action begin() {
@@ -90,12 +91,12 @@ public interface With<V> extends Action {
 
         @Override
         public Action perform() {
-          return actions;
+          return mainAction;
         }
 
         @Override
         public Action end() {
-          return ActionSupport.simple("", ContextConsumer.of(() -> "", new FormattableConsumer<Context>() {
+          return ActionSupport.simple("+++", ContextConsumer.of(() -> "***", new FormattableConsumer<Context>() {
             @Override
             public void accept(Context context) {
               V variable = context.valueOf(begin.internalVariableName());

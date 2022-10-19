@@ -50,6 +50,20 @@ public enum ActionSupport {
     return new With.Builder<>(value);
   }
 
+  /**
+   *
+   * Note that `variableName` won't be used to resolve avalue of a variable, it is
+   * merely intended to be printed in an action-tree or logs.
+   *
+   * @param variableName human-readable variable name.
+   * @param value A function to give a value to be used a context under the returned action.
+   * @param <T>
+   * @return
+   */
+  public static <T> With.Builder<T> with(String variableName, Function<Context, T> value) {
+    return new With.Builder<>(value);
+  }
+
   public static Retry.Builder retry(Action action) {
     return new Retry.Builder(action);
   }

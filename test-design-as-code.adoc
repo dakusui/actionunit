@@ -1,0 +1,12 @@
+= ActionUnit in Test Design as Code
+
+In the context of automated testing, it is very important to reuse a fragment of code to exercise a certain operation.
+However, the ways it is reused are quite diversified.
+
+For instance, an installer is used to set up an application under tests.
+At the same time, it is also a software component to be tested with various sets of its parameters.
+In order to detect bugs triggered by combinations of installation-time parameters and runtime parameters, you may need to run it with different parameters but as a part of set up procedure, not a procedure to be examined under tests.
+
+Note that the parameters I mentioned above is "test parameters".
+Not merely ones directly defined as input of the installer, but also, ones defined by test practitioners, and it may mean "how" the practitioner uses the target component.
+For instance "UI to access the component" can be one test parameter and its values can be like "GUI", "CLI", etc.
