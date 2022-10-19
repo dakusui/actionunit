@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import org.junit.Test;
@@ -10,8 +11,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.core.ActionSupport.with;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.pcond.fluent.Fluents.assertThat;
+import static com.github.dakusui.pcond.fluent.Fluents.value;
 
 public class WithTest {
   @Test
@@ -19,20 +21,35 @@ public class WithTest {
     List<String> out = new LinkedList<>();
     Action withAction = with(c -> 0).perform(println(out)).build();
     TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
+    assertThat(value(out).elementAt(0).then().asString().isEqualTo("0"));
   }
 
   @Test
   public void givenWithAction_whenPerform2() {
+    List<String> out = new LinkedList<>();
     Action withAction = with(c -> 10)
-        .action(b -> simple("printVariable", b.consumer(i -> System.out.println(i + 1))))
+        .action(b -> simple("printVariable", b.consumer((Integer i) -> println(out).accept(i + 1))))
         .build();
     TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
+    assertThat(value(out).elementAt(0).then().asString().isEqualTo("11"));
   }
 
-  private static Consumer<Integer> println(List<String> out) {
-    return new Consumer<Integer>() {
+  @Test
+  public void givenWithAction_whenPerform3() {
+    List<String> out = new LinkedList<>();
+    Action withAction = with(c -> 10)
+        .action(b -> ActionSupport.when(b.predicate(i -> i < 100))
+            .perform(leaf(b.consumer(println(out))))
+            .otherwise(ActionSupport.nop()))
+        .build();
+    TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
+    assertThat(value(out).elementAt(0).then().asString().isEqualTo("10"));
+  }
+
+  private static <T> Consumer<T> println(List<String> out) {
+    return new Consumer<T>() {
       @Override
-      public void accept(Integer value) {
+      public void accept(T value) {
         System.out.println(value);
         out.add(Objects.toString(value));
       }
