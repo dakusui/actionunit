@@ -1,15 +1,12 @@
 package com.github.dakusui.actionunit.actions;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Formatter;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
-import static com.github.dakusui.pcond.Requires.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 public interface Contextful<T> extends Leaf {
   Function<Context, T> action();

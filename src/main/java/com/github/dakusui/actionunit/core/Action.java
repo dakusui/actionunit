@@ -56,7 +56,7 @@ public interface Action extends Formattable {
       this.visit((Action) action);
     }
 
-    default <T> void visit(With<T> action) {
+    default <T> void visit(With action) {
       this.visit((Action) action);
     }
 

@@ -52,13 +52,13 @@ public enum ActionSupport {
   }
 
   /**
-   * Note that `variableName` won't be used to resolve avalue of a variable, it is
+   * Note that `variableName` won't be used to resolve a value of a variable, it is
    * merely intended to be printed in an action-tree or logs.
    *
    * @param variableName human-readable variable name.
    * @param value        A function to give a value to be used a context under the returned action.
    * @param <T>          The type of the variable
-   * @return
+   * @return A builder for a `with` action.
    */
   public static <T> With.Builder<T> with(String variableName, Function<Context, T> value) {
     return new With.Builder<>(variableName, value);

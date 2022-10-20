@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.FormattableConsumer;
-import com.github.dakusui.pcond.forms.Printables;
+import com.github.dakusui.printables.Printables;
 
 import java.util.Formatter;
 import java.util.function.Consumer;
@@ -16,7 +16,7 @@ import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nop
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
 
-public interface With<V> extends Action {
+public interface With extends Action {
   @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);
@@ -33,7 +33,7 @@ public interface With<V> extends Action {
     formatter.format("attempt");
   }
 
-  class Builder<V> extends Action.Builder<With<V>> {
+  class Builder<V> extends Action.Builder<With> {
 
     private final Contextful<V> sourceAction;
     private       Action        mainAction;
@@ -64,9 +64,9 @@ public interface With<V> extends Action {
 
 
     public <W> Function<Context, W> function(Function<V, W> function) {
-      return Printables.function(
-          () -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(function),
-          context -> function.apply(context.valueOf(sourceAction.internalVariableName())));
+      return Printables.printableFunction(
+              (Context context) -> function.apply(context.valueOf(sourceAction.internalVariableName())))
+          .describe(() -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(function));
     }
 
     public ContextConsumer consumer(Consumer<V> consumer) {
@@ -74,9 +74,9 @@ public interface With<V> extends Action {
     }
 
     public Predicate<Context> predicate(Predicate<V> predicate) {
-      return Printables.predicate(
-          () -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(predicate),
-          (Context context) -> predicate.test(context.valueOf(sourceAction.internalVariableName())));
+      return Printables.printablePredicate(
+              (Context context) -> predicate.test(context.valueOf(sourceAction.internalVariableName())))
+          .describe(() -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
     }
 
 
@@ -90,14 +90,14 @@ public interface With<V> extends Action {
     }
 
 
-    public With<V> build() {
+    public With build() {
       return build(nopConsumer());
     }
 
-    public With<V> build(Consumer<V> finisher) {
+    public With build(Consumer<V> finisher) {
       final Contextful<V> begin = Builder.this.sourceAction;
       final Action mainAction = Builder.this.mainAction;
-      return new With<V>() {
+      return new With() {
         @Override
         public Action begin() {
           return begin;

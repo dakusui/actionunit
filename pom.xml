@@ -34,45 +34,53 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pcond.version>3.0.0</pcond.version>
+        <processstreamer.version>1.0.0</processstreamer.version>
+        <thincrest.version>3.6.0</thincrest.version>
+        <slf4j-api.version>1.7.30</slf4j-api.version>
+        <slf4j-simple.version>1.7.30</slf4j-simple.version>
+        <junit.version>4.13.1</junit.version>
+        <mockito-core.version>1.10.19</mockito-core.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.dakusui</groupId>
-            <artifactId>pcond</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.dakusui</groupId>
             <artifactId>processstreamer</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.dakusui</groupId>
-            <artifactId>thincrest</artifactId>
-            <version>3.6.0</version>
-            <scope>test</scope>
+            <version>${processstreamer.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
+            <version>${slf4j-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.30</version>
+            <version>${slf4j-simple.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>pcond</artifactId>
+            <version>${pcond.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>thincrest</artifactId>
+            <version>${thincrest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.10.19</version>
+            <version>${mockito-core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

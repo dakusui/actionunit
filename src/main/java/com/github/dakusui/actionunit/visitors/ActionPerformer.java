@@ -72,7 +72,7 @@ public abstract class ActionPerformer implements Action.Visitor {
   }
 
   @Override
-  public <T> void visit(With<T> action) {
+  public <T> void visit(With action) {
     Context originalContext = this.context;
     this.context = this.context.createChild();
     callAccept(action.begin(), this);
