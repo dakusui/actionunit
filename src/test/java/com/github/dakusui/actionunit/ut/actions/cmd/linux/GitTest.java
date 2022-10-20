@@ -21,7 +21,7 @@ import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
 import static com.github.dakusui.crest.Crest.substringAfterRegex;
-import static com.github.dakusui.printables.Printables.isEmptyString;
+import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
 
 @RunWith(Enclosed.class)
 public class GitTest {

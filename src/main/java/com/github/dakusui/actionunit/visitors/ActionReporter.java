@@ -13,17 +13,17 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class ActionReporter extends ActionPrinter {
-  public static final Predicate<Action> DEFAULT_CONDITION_TO_SQUASH_ACTION = v -> v instanceof Composite;
-  private final List<Boolean>           failingContext                     = new LinkedList<>();
-  private final Predicate<Action> conditionToSquashAction;
-  private       int               emptyLevel     = 0;
-  private       int                 depth          = 0;
-  private final Map<Action, Record> report;
-  private final Writer              warnWriter;
-  private final Writer              traceWriter;
-  private final Writer              debugWriter;
-  private final Writer              infoWriter;
-  private final int                 forcePrintLevelForUnexercisedActions;
+  public static final Predicate<Action>   DEFAULT_CONDITION_TO_SQUASH_ACTION = v -> v instanceof Composite;
+  private final       List<Boolean>       failingContext                     = new LinkedList<>();
+  private final       Predicate<Action>   conditionToSquashAction;
+  private             int                 emptyLevel                         = 0;
+  private             int                 depth                              = 0;
+  private final       Map<Action, Record> report;
+  private final       Writer              warnWriter;
+  private final       Writer              traceWriter;
+  private final       Writer              debugWriter;
+  private final       Writer              infoWriter;
+  private final       int                 forcePrintLevelForUnexercisedActions;
 
   public ActionReporter(Predicate<Action> conditionToSquashAction, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, Map<Action, Record> report, int forcePrintLevelForUnexercisedActions) {
     super(infoWriter);
@@ -71,19 +71,19 @@ public class ActionReporter extends ActionPrinter {
   String previousIndent = "";
 
   /**
+   * //@formatter.off
    * ----
-   * [E:0]for each of (noname) parallely
-   * +-[EE:0]print1
-   * |   [EE:0](noname)
-   * +-[]print2
-   * |   [](noname)
-   * $$+-[]print2-1
-   * |   [](noname)
-   * +-[]print2-2
-   * [](noname)
+   * > [E:0]for each of (noname) parallely
+   * >  +-[EE:0]print1
+   * >    |   [EE:0](noname)
+   * >    +-[]print2
+   * >      |   [](noname)
+   * >      +-[]print2-1
+   * >      |   [](noname)
+   * >      +-[]print2-2
+   * >        [](noname)
    * ----
-   *
-   * @return
+   * //@format:on
    */
   @Override
   public String indent() {
@@ -112,40 +112,8 @@ public class ActionReporter extends ActionPrinter {
     return mergeStrings(this.previousIndent, b.toString());
   }
 
-
-  /**
-   * Returns `true`:
-   * - If the first element of `path` is the first child of `action`
-   * - Or if the `path` empty
-   */
-  private static boolean hasFirstElementAsFirstChild(Action action, List<? extends Action> remainingPath) {
-    if (remainingPath.isEmpty())
-      return true;
-    if (!(action instanceof Composite))
-      return true;
-    return ((Composite) action).children().get(0) == remainingPath.get(0);
-  }
-
-  private static boolean hasFirstElementAsFirstChildToLeaf(Action action, List<? extends Action> remainingPath) {
-    if (!hasFirstElementAsFirstChild(action, remainingPath))
-      return false;
-    if (remainingPath.isEmpty())
-      return true;
-    Action next = remainingPath.get(0);
-    List<? extends Action> nextRemainingPath = remainingPath.subList(1, remainingPath.size());
-    return hasFirstElementAsFirstChild(next, nextRemainingPath);
-  }
-
-
   private static Action nextOf(Action each, List<? extends Action> path) {
     return path.get(path.indexOf(each) + 1);
-  }
-
-  private static boolean isFirstChild(Action each, Action parent) {
-    if (parent instanceof Composite) {
-      return ((Composite) parent).children().indexOf(each) == 0;
-    }
-    return true;
   }
 
   /**

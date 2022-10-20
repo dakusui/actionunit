@@ -20,8 +20,8 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiP
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.printables.Printables.printableConsumer;
-import static com.github.dakusui.printables.Printables.printablePredicate;
+import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
+import static com.github.dakusui.printables.PrintableFunctionals.printablePredicate;
 
 @RunWith(Enclosed.class)
 public class ContextFunctionsUnitTest {

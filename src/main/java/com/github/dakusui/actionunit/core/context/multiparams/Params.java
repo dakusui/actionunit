@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
-import static com.github.dakusui.printables.Printables.isKeyOf;
+import static com.github.dakusui.printables.PrintableFunctionals.isKeyOf;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;

@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.FormattableConsumer;
-import com.github.dakusui.printables.Printables;
+import com.github.dakusui.printables.PrintableFunctionals;
 
 import java.util.Formatter;
 import java.util.function.Consumer;
@@ -22,7 +22,7 @@ public interface With extends Action {
     visitor.visit(this);
   }
 
-  Action begin();
+  Contextful<?> begin();
 
   Action perform();
 
@@ -30,7 +30,7 @@ public interface With extends Action {
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("attempt");
+    formatter.format("with:" + begin().variableName());
   }
 
   class Builder<V> extends Action.Builder<With> {
@@ -64,7 +64,7 @@ public interface With extends Action {
 
 
     public <W> Function<Context, W> function(Function<V, W> function) {
-      return Printables.printableFunction(
+      return PrintableFunctionals.printableFunction(
               (Context context) -> function.apply(context.valueOf(sourceAction.internalVariableName())))
           .describe(() -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(function));
     }
@@ -74,7 +74,7 @@ public interface With extends Action {
     }
 
     public Predicate<Context> predicate(Predicate<V> predicate) {
-      return Printables.printablePredicate(
+      return PrintableFunctionals.printablePredicate(
               (Context context) -> predicate.test(context.valueOf(sourceAction.internalVariableName())))
           .describe(() -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
     }
@@ -89,7 +89,6 @@ public interface With extends Action {
       return this.action(action.apply(this));
     }
 
-
     public With build() {
       return build(nopConsumer());
     }
@@ -98,8 +97,23 @@ public interface With extends Action {
       final Contextful<V> begin = Builder.this.sourceAction;
       final Action mainAction = Builder.this.mainAction;
       return new With() {
+
+        private final Action end = ActionSupport.simple(String.format("done:%s", finisher), ContextConsumer.of(() -> String.format("cleanUp:%s", begin.variableName()), new FormattableConsumer<Context>() {
+          @Override
+          public void accept(Context context) {
+            V variable = context.valueOf(begin.internalVariableName());
+            context.unassign(begin.internalVariableName()); // Unassign first. Otherwise, finisher may fail.
+            finisher.accept(variable);
+          }
+
+          @Override
+          public void formatTo(Formatter formatter, int i, int i1, int i2) {
+            formatter.format("%s", toStringIfOverriddenOrNoname(finisher));
+          }
+        }));
+
         @Override
-        public Action begin() {
+        public Contextful<V> begin() {
           return begin;
         }
 
@@ -110,19 +124,7 @@ public interface With extends Action {
 
         @Override
         public Action end() {
-          return ActionSupport.simple(String.format("done:%s", finisher), ContextConsumer.of(() -> "***", new FormattableConsumer<Context>() {
-            @Override
-            public void accept(Context context) {
-              V variable = context.valueOf(begin.internalVariableName());
-              context.unassign(begin.internalVariableName()); // Unassign first. Otherwise, finisher may fail.
-              finisher.accept(variable);
-            }
-
-            @Override
-            public void formatTo(Formatter formatter, int i, int i1, int i2) {
-              formatter.format("%s", toStringIfOverriddenOrNoname(finisher));
-            }
-          }));
+          return end;
         }
       };
     }

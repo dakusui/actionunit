@@ -1,19 +1,14 @@
 package com.github.dakusui.printables;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.summary;
 
-public enum Printables {
+public enum PrintableFunctionals {
   ;
-
-  public static Predicate<String> isEmptyString() {
-    return printablePredicate(String::isEmpty).describe("isEmptyString");
-  }
 
   public static <T> PrintablePredicate.Builder<T> printablePredicate(Predicate<T> predicate) {
     return new PrintablePredicate.Builder<>(predicate);
@@ -30,10 +25,5 @@ public enum Printables {
   public static <T> Predicate<T> isKeyOf(Map<T, Object> values) {
     return printablePredicate((Predicate<T>) values::containsKey)
         .describe(() -> String.format("isKeyOf[%s]", summary(values.toString())));
-  }
-
-  public static <T> Predicate<T> isEqualTo(T value) {
-    return printablePredicate((Predicate<T>) v -> Objects.equals(v, value))
-        .describe(() -> String.format("is[%s]", value));
   }
 }

@@ -19,8 +19,8 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiP
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.printables.Printables.printableConsumer;
-import static com.github.dakusui.printables.Printables.printableFunction;
+import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
+import static com.github.dakusui.printables.PrintableFunctionals.printableFunction;
 
 public class ContextFunctionsHelperUnitTest {
   private static <T, R> ContextFunction<R> toMultiParamsContextFunction(String variableName, Function<T, R> function) {

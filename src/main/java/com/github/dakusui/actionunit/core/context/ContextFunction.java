@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.core.context;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.printables.PrintableFunction;
-import com.github.dakusui.printables.Printables;
+import com.github.dakusui.printables.PrintableFunctionals;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -31,7 +31,7 @@ public interface ContextFunction<R> extends Function<Context, R>, Printable {
 
     @Override
     public <V> Function<V, R> compose(Function<? super V, ? extends Context> before) {
-      return Printables.<V, R>printableFunction(ContextFunction.super.compose(before))
+      return PrintableFunctionals.<V, R>printableFunction(ContextFunction.super.compose(before))
           .describe(() -> String.format("%s(%s)", getFormatter().get(), before));
     }
 
