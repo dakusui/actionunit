@@ -37,15 +37,9 @@ public interface With<V> extends Action {
 
     private final Contextful<V> sourceAction;
     private       Action        mainAction;
-    private       String        name;
 
-    public Builder(Function<Context, V> function) {
-      this.sourceAction = new Contextful.Impl<>(requireNonNull(function));
-    }
-
-    public Builder<V> name(String name) {
-      this.name = requireNonNull(name);
-      return this;
+    public Builder(String name, Function<Context, V> function) {
+      this.sourceAction = new Contextful.Impl<>(name, requireNonNull(function));
     }
 
     public Builder<V> perform(Consumer<V> consumer) {
@@ -54,12 +48,24 @@ public interface With<V> extends Action {
     }
 
     public <W> Builder<W> andThen(Function<V, W> function) {
-      return new Builder<>(function(function));
+      return new Builder<>(next(sourceAction.variableName()), function(function));
     }
+
+    private static String next(String variableName) {
+      requireNonNull(variableName);
+      if (variableName.length() == 1 && 'a' <= variableName.charAt(0) && variableName.charAt(0) <= 'z')
+        return Character.toString((char) (variableName.charAt(0) + 1));
+      if (variableName.matches(".*_[1-9][0-9]*$")) {
+        int index = Integer.parseInt(variableName.replaceAll(".*_", "")) + 1;
+        return variableName.replaceAll("_[1-9][0-9]*$", "_" + index);
+      }
+      return variableName + "_1";
+    }
+
 
     public <W> Function<Context, W> function(Function<V, W> function) {
       return Printables.function(
-          () -> name() + ":" + toStringIfOverriddenOrNoname(function),
+          () -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(function),
           context -> function.apply(context.valueOf(sourceAction.internalVariableName())));
     }
 
@@ -69,12 +75,8 @@ public interface With<V> extends Action {
 
     public Predicate<Context> predicate(Predicate<V> predicate) {
       return Printables.predicate(
-          () -> name() + ":" + toStringIfOverriddenOrNoname(predicate),
+          () -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(predicate),
           (Context context) -> predicate.test(context.valueOf(sourceAction.internalVariableName())));
-    }
-
-    private String name() {
-      return this.name == null ? "(noname)" : this.name;
     }
 
 

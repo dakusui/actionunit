@@ -14,17 +14,6 @@ import static com.github.dakusui.pcond.Requires.requireNonNull;
 public interface Contextful<T> extends Leaf {
   Function<Context, T> action();
 
-  default <R> Contextful<R> thenApply(Function<T, R> function) {
-    return new Impl<>(context -> function.apply(context.valueOf(internalVariableName())));
-  }
-
-
-  default <R> Action thenConsumeWith(Consumer<R> consumer) {
-    return ActionSupport.simple(
-        toStringIfOverriddenOrNoname(consumer),
-        c -> consumer.accept(c.valueOf(internalVariableName())));
-  }
-
   <V> V value(Context context);
 
   String internalVariableName();
@@ -42,36 +31,15 @@ public interface Contextful<T> extends Leaf {
     private final Function<Context, T> function;
     private final String               baseName;
 
-    private final boolean anonymous;
-    private final boolean threadLocal;
 
-    public Impl(Function<Context, T> function) {
-      this(null, function, true);
-    }
-
-    public Impl(Function<Context, T> function, boolean threadLocal) {
-      this(null, function, threadLocal);
-    }
-
-    public Impl(String variableName, Function<Context, T> function, boolean threadLocal) {
+    public Impl(String variableName, Function<Context, T> function) {
+      this.baseName = requireNonNull(variableName);
       this.function = requireNonNull(function);
-      this.threadLocal = threadLocal;
-      if (variableName != null) {
-        this.baseName = variableName;
-        this.anonymous = false;
-      } else {
-        this.baseName = String.format("anonymous:%s", System.identityHashCode(this));
-        this.anonymous = true;
-      }
     }
 
     @Override
     public Function<Context, T> action() {
       return this.function;
-    }
-
-    public String variableName() {
-      return this.baseName;
     }
 
 
@@ -81,10 +49,13 @@ public interface Contextful<T> extends Leaf {
     }
 
     @Override
+    public String variableName() {
+      return this.baseName;
+    }
+
+    @Override
     public String internalVariableName() {
-      return this.threadLocal ?
-          this.baseName + ":threadId-" + Thread.currentThread().getId() :
-          this.baseName;
+      return this.baseName + ":" + System.identityHashCode(this);
     }
 
     @Override
@@ -94,7 +65,7 @@ public interface Contextful<T> extends Leaf {
 
     @Override
     public void formatTo(Formatter formatter, int i, int i1, int i2) {
-      formatter.format("%s:%s", anonymous ? "(noname)" : (variableName() + (threadLocal ? "" : "(global)")), toStringIfOverriddenOrNoname(function));
+      formatter.format("%s:%s", variableName(), toStringIfOverriddenOrNoname(function));
     }
   }
 }

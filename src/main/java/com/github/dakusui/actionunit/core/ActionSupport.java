@@ -48,7 +48,7 @@ public enum ActionSupport {
   }
 
   public static <T> With.Builder<T> with(Function<Context, T> value) {
-    return new With.Builder<>(value);
+    return new With.Builder<>("i", value);
   }
 
   /**
@@ -57,11 +57,11 @@ public enum ActionSupport {
    *
    * @param variableName human-readable variable name.
    * @param value        A function to give a value to be used a context under the returned action.
-   * @param <T>
+   * @param <T>          The type of the variable
    * @return
    */
   public static <T> With.Builder<T> with(String variableName, Function<Context, T> value) {
-    return new With.Builder<>(value);
+    return new With.Builder<>(variableName, value);
   }
 
   public static Retry.Builder retry(Action action) {
@@ -93,10 +93,6 @@ public enum ActionSupport {
 
   public static Action simple(String name, ContextConsumer consumer) {
     return named(name, leaf(consumer));
-  }
-
-  public static <T> Contextful<T> context(Function<Context, T> function) {
-    return new Contextful.Impl<>(function);
   }
 
   public static Action sequential(Action... actions) {

@@ -51,7 +51,7 @@ public class WithTest {
 
   @Test
   public void printActionTree() {
-    Action withAction = with(c -> 10).name("i")
+    Action withAction = with(Printables.function("=9", c -> 9))
         .action(b -> when(b.predicate(Predicates.lessThan(10)))
             .perform(leaf(b.consumer(i -> System.out.println("<" + i + ">"))))
             .otherwise(ActionSupport.nop()))
