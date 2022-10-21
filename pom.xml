@@ -584,6 +584,9 @@
     <profiles>
         <profile>
             <id>mac</id>
+            <properties>
+                <profile.mac>enabled</profile.mac>
+            </properties>
             <activation>
                 <os>
                     <family>mac</family>

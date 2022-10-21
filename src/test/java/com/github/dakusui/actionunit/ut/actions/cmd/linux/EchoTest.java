@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.assumeRunningOnLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;
 
@@ -32,6 +33,7 @@ public class EchoTest extends CommanderTestBase {
 
   @Test
   public void givenSingleQuoteAndNewLineContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+    assumeRunningOnLinux();
     performAsAction(newEcho()
         .disableBackslashInterpretation()
         .message("hello, world's\nbest message"));
@@ -46,6 +48,7 @@ public class EchoTest extends CommanderTestBase {
 
   @Test
   public void givenSingleQuoteAndEscapedNewLineContainingMessage_enablingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+    assumeRunningOnLinux();
     performAsAction(newEcho()
         .enableBackslashInterpretation()
         .message("hello, world's\\nbest message"));
@@ -60,6 +63,7 @@ public class EchoTest extends CommanderTestBase {
 
   @Test
   public void givenHello_EscapedNewLine_World_disblingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted() {
+    assumeRunningOnLinux();
     performAsAction(newEcho()
         .disableBackslashInterpretation()
         .message("hello\\nworld"));
@@ -117,6 +121,11 @@ public class EchoTest extends CommanderTestBase {
         out(),
         asListOf(String.class, sublistAfterElement("hello").afterElement("'world'").$()).isEmpty().$()
     );
+  }
+
+  @Test
+  public void test() {
+    System.getProperties().keySet().stream().sorted().forEach((k) -> System.out.printf("%-20s=%-20s%n", k, System.getProperties().get(k)));
   }
 
   private Echo newEcho() {

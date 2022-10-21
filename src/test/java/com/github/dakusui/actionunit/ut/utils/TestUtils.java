@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
 import org.junit.After;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 
 import java.io.OutputStream;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
-import static java.util.stream.Collectors.toList;
+import static java.lang.String.format;
 
 public class TestUtils {
   public static <T> List<T> toList(Iterable<T> iterable) {
@@ -68,8 +69,13 @@ public class TestUtils {
     return System.getProperty("surefire.real.class.path") != null;
   }
 
-  public static boolean isRunUnderLinux() {
+  public static boolean isRunOnLinux() {
     return getOperatingSystemType(System.getProperties()).equals(OSType.Linux);
+  }
+
+  public static void assumeRunningOnLinux() {
+    if (!isRunOnLinux())
+      throw new AssumptionViolatedException(format("Assumed to be running on  on Linux: but actually on <%s>", getOperatingSystemType(System.getProperties())));
   }
 
   public static boolean isRunByTravis() {
@@ -90,7 +96,7 @@ public class TestUtils {
   }
 
   public static Action sleep(long duration, TimeUnit timeUnit) {
-    return simple(String.format("sleep %s[%s]", duration, timeUnit), context -> {
+    return simple(format("sleep %s[%s]", duration, timeUnit), context -> {
       try {
         Thread.sleep(timeUnit.toMillis(duration));
       } catch (InterruptedException e) {
@@ -99,6 +105,7 @@ public class TestUtils {
       }
     });
   }
+
 
   /**
    * Equivalent to {@code range(0, stop)}.
@@ -225,7 +232,7 @@ public class TestUtils {
     }
 
     protected void printf(String format, Object... args) {
-      String s = String.format(format, args);
+      String s = format(format, args);
       System.out.println(s);
       out.add(s);
     }
