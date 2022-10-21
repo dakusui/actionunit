@@ -129,10 +129,6 @@ public class WithTest {
     return printableConsumer((Integer i) -> System.out.println(i)).describe("printVariable");
   }
 
-  private static Consumer<Context> printVariable(With.Builder<Integer> b) {
-    return printableConsumer((Context c) -> System.out.println(b.referenceValue(c))).describe("printVariable");
-  }
-
   private static Function<Integer, Integer> increment() {
     return PrintableFunctionals.<Integer, Integer>printableFunction(i -> (int) i + 1).describe("increment");
   }
