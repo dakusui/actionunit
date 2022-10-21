@@ -37,9 +37,13 @@ public interface With extends Action {
 
     private final Contextful<V> sourceAction;
     private       Action        mainAction;
+    private final String        internalVariableName;
+    private final String        variableName;
 
     public Builder(String name, Function<Context, V> function) {
       this.sourceAction = new Contextful.Impl<>(name, requireNonNull(function));
+      this.internalVariableName = sourceAction.internalVariableName();
+      this.variableName = sourceAction.variableName();
     }
 
     public Builder<V> perform(Consumer<V> consumer) {
@@ -48,17 +52,19 @@ public interface With extends Action {
     }
 
     public Action variableUpdatingAction(Function<V, V> function) {
-      return ActionSupport.simple("updateVariable:" + sourceAction.variableName(),
-          PrintableFunctionals.printableConsumer((Context c) -> variableUpdateFunction(function).apply(c)).describe(toStringIfOverriddenOrNoname(function)));
+      return ActionSupport.simple(
+          toStringIfOverriddenOrNoname(function) + ":" + variableName + "*",
+          (Context c) -> variableUpdateFunction(function).apply(c));
     }
 
     public Action variableReferencingAction(Consumer<V> consumer) {
-      return ActionSupport.simple("referenceVariable:" + sourceAction.variableName(),
-          PrintableFunctionals.printableConsumer((Context c) -> variableReferenceConsumer(consumer).accept(c)).describe(toStringIfOverriddenOrNoname(consumer)));
+      return ActionSupport.simple(
+          toStringIfOverriddenOrNoname(consumer) + ":" + variableName,
+          (Context c) -> variableReferenceConsumer(consumer).accept(c));
     }
 
     public <W> Builder<W> andThen(Function<V, W> function) {
-      return new Builder<>(nextVariableName(sourceAction.variableName()), function(function));
+      return new Builder<>(nextVariableName(variableName), function(function));
     }
 
     private static String nextVariableName(String variableName) {
@@ -76,8 +82,8 @@ public interface With extends Action {
     public Function<Context, V> variableUpdateFunction(Function<V, V> function) {
       return PrintableFunctionals.printableFunction(
               (Context context) -> {
-                V ret = function.apply(context.valueOf(sourceAction.internalVariableName()));
-                context.assignTo(sourceAction.internalVariableName(), ret);
+                V ret = function.apply(context.valueOf(internalVariableName));
+                context.assignTo(internalVariableName, ret);
                 return ret;
               })
           .describe("XYZ");
@@ -85,25 +91,25 @@ public interface With extends Action {
 
     public Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
       return PrintableFunctionals.printableConsumer(
-              (Context context) -> consumer.accept(context.valueOf(sourceAction.internalVariableName())))
+              (Context context) -> consumer.accept(context.valueOf(internalVariableName)))
           .describe("XYZ");
     }
 
 
     public <W> Function<Context, W> function(Function<V, W> function) {
       return PrintableFunctionals.printableFunction(
-              (Context context) -> function.apply(context.valueOf(sourceAction.internalVariableName())))
-          .describe(() -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(function));
+              (Context context) -> function.apply(context.valueOf(internalVariableName)))
+          .describe(() -> variableName + ":" + toStringIfOverriddenOrNoname(function));
     }
 
     public ContextConsumer consumer(Consumer<V> consumer) {
-      return context -> consumer.accept(context.valueOf(sourceAction.internalVariableName()));
+      return context -> consumer.accept(context.valueOf(internalVariableName));
     }
 
     public Predicate<Context> predicate(Predicate<V> predicate) {
       return PrintableFunctionals.printablePredicate(
-              (Context context) -> predicate.test(context.valueOf(sourceAction.internalVariableName())))
-          .describe(() -> sourceAction.variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
+              (Context context) -> predicate.test(context.valueOf(internalVariableName)))
+          .describe(() -> variableName + ":" + toStringIfOverriddenOrNoname(predicate));
     }
 
 

@@ -3,8 +3,8 @@ package com.github.dakusui.actionunit.core;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.printables.PrintableFunctionals;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -48,7 +48,7 @@ public enum ActionSupport {
   }
 
   public static <T> With.Builder<T> with(Function<Context, T> value) {
-    return new With.Builder<>("i", value);
+    return with("i", value);
   }
 
   /**
@@ -92,7 +92,7 @@ public enum ActionSupport {
   }
 
   public static Action simple(String name, Consumer<Context> consumer) {
-    return named(name, leaf(consumer));
+    return leaf(PrintableFunctionals.printableConsumer(consumer).describe(name));
   }
 
   public static Action sequential(Action... actions) {

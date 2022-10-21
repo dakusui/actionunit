@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -100,7 +99,6 @@ public class WithTest {
 
   @Test
   public void printActionTree_5() {
-    List<String> out = new LinkedList<>();
     Action withAction = with(c -> 0)
         .action(b -> with(c -> 0)
             .action(nop())
@@ -113,7 +111,7 @@ public class WithTest {
 
   @Test
   public void printActionTree_6() {
-    Action withAction = with(printableFunction((Context c) -> 0).describe("0"))
+    Action withAction = with(constant(0))
         .action(b -> repeatWhile(b.predicate(lt(10)))
             .perform(sequential(
                 b.variableReferencingAction(printVariable()),
@@ -124,12 +122,16 @@ public class WithTest {
     TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
   }
 
+  private static <T, R> Function<T, R> constant(R value) {
+    return printableFunction((T in) -> value).describe(Objects.toString(value));
+  }
+
   private static Consumer<Integer> printVariable() {
     return printableConsumer((Integer i) -> System.out.println(i)).describe("printVariable");
   }
 
   private static Function<Integer, Integer> increment() {
-    return PrintableFunctionals.<Integer, Integer>printableFunction(i -> (int) i + 1).describe("increment");
+    return PrintableFunctionals.<Integer, Integer>printableFunction(i -> i + 1).describe("increment");
   }
 
   private static <T> Consumer<T> println(List<String> out) {
