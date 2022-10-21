@@ -75,13 +75,12 @@ public abstract class ActionScanner implements Action.Visitor {
   }
 
   @Override
-  public <T> void visit(With action) {
+  public <V> void visit(With<V> action) {
     this.handleAction(action);
     this.enter(action);
     try {
-      action.begin().accept(this);
-      action.perform().accept(this);
-      action.end().accept(this);
+      action.action().accept(this);
+      action.close().accept(this);
     } finally {
       this.leave(action);
     }

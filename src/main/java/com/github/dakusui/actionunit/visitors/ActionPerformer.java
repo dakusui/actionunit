@@ -22,12 +22,6 @@ public abstract class ActionPerformer implements Action.Visitor {
     action.runnable(context).run();
   }
 
-  public <T> void visit(Contextful<T> action) {
-    T value = action.action().apply(context);
-    String variableName = String.format("variableName:%s", System.identityHashCode(action));
-    context.assignTo(variableName, value);
-  }
-
   public void visit(Named action) {
     callAccept(action.action(), this);
   }
@@ -72,14 +66,14 @@ public abstract class ActionPerformer implements Action.Visitor {
   }
 
   @Override
-  public <T> void visit(With action) {
+  public <V> void visit(With<V> action) {
     Context originalContext = this.context;
     this.context = this.context.createChild();
-    callAccept(action.begin(), this);
+    context.assignTo(action.internalVariableName(), action.valueSource().apply(context));
     try {
-      callAccept(action.perform(), this);
+      callAccept(action.action(), this);
     } finally {
-      callAccept(action.end(), this);
+      callAccept(action.close(), this);
       this.context = originalContext;
     }
   }

@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.FormattableConsumer;
 import com.github.dakusui.printables.PrintableFunctionals;
 
@@ -16,54 +15,63 @@ import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nop
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
 
-public interface With extends Action {
+public interface With<V> extends Action {
   @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
-  Contextful<?> begin();
+  Function<Context, V> valueSource();
 
-  Action perform();
+  Action action();
 
-  Action end();
+  Action close();
+
+  String variableName();
+
+  String internalVariableName();
+
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("with:" + begin().variableName());
+    formatter.format("with:" + variableName() + ":" + toStringIfOverriddenOrNoname(valueSource()));
   }
 
-  class Builder<V> extends Action.Builder<With> {
+  class Builder<V> extends Action.Builder<With<V>> {
 
-    private final Contextful<V> sourceAction;
-    private       Action        mainAction;
-    private final String        internalVariableName;
-    private final String        variableName;
+    private final Function<Context, V> valueSource;
+    private       Action               action;
+    private final String               internalVariableName;
+    private final String               variableName;
 
-    public Builder(String name, Function<Context, V> function) {
-      this.sourceAction = new Contextful.Impl<>(name, requireNonNull(function));
-      this.internalVariableName = sourceAction.internalVariableName();
-      this.variableName = sourceAction.variableName();
+    public Builder(String variableName, Function<Context, V> function) {
+      this.valueSource = requireNonNull(function);
+      this.internalVariableName = variableName + ":" + System.identityHashCode(this);
+      this.variableName = variableName;
     }
 
-    public Builder<V> perform(Consumer<V> consumer) {
-      this.mainAction = variableReferencingAction(consumer);
+    public Builder<V> action(Action action) {
+      this.action = requireNonNull(action);
       return this;
     }
 
-    public Action variableUpdatingAction(Function<V, V> function) {
+    public Builder<V> action(Function<Builder<V>, Action> action) {
+      return this.action(action.apply(this));
+    }
+
+    public Action updateVariableWith(Function<V, V> function) {
       return ActionSupport.simple(
           toStringIfOverriddenOrNoname(function) + ":" + variableName + "*",
           (Context c) -> variableUpdateFunction(function).apply(c));
     }
 
-    public Action variableReferencingAction(Consumer<V> consumer) {
+    public Action referenceVariable(Consumer<V> consumer) {
       return ActionSupport.simple(
           toStringIfOverriddenOrNoname(consumer) + ":" + variableName,
           (Context c) -> variableReferenceConsumer(consumer).accept(c));
     }
 
-    public <W> Builder<W> andThen(Function<V, W> function) {
+    public <W> Builder<W> nest(Function<V, W> function) {
       return new Builder<>(nextVariableName(variableName), function(function));
     }
 
@@ -79,7 +87,7 @@ public interface With extends Action {
     }
 
 
-    public Function<Context, V> variableUpdateFunction(Function<V, V> function) {
+    private Function<Context, V> variableUpdateFunction(Function<V, V> function) {
       return PrintableFunctionals.printableFunction(
               (Context context) -> {
                 V ret = function.apply(context.valueOf(internalVariableName));
@@ -89,20 +97,20 @@ public interface With extends Action {
           .describe("XYZ");
     }
 
-    public Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
+    private Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
       return PrintableFunctionals.printableConsumer(
               (Context context) -> consumer.accept(context.valueOf(internalVariableName)))
           .describe("XYZ");
     }
 
 
-    public <W> Function<Context, W> function(Function<V, W> function) {
+    private <W> Function<Context, W> function(Function<V, W> function) {
       return PrintableFunctionals.printableFunction(
               (Context context) -> function.apply(context.valueOf(internalVariableName)))
           .describe(() -> variableName + ":" + toStringIfOverriddenOrNoname(function));
     }
 
-    public ContextConsumer consumer(Consumer<V> consumer) {
+    public Consumer<Context> consumer(Consumer<V> consumer) {
       return context -> consumer.accept(context.valueOf(internalVariableName));
     }
 
@@ -112,52 +120,57 @@ public interface With extends Action {
           .describe(() -> variableName + ":" + toStringIfOverriddenOrNoname(predicate));
     }
 
-
-    public Builder<V> action(Action action) {
-      this.mainAction = requireNonNull(action);
-      return this;
-    }
-
-    public Builder<V> action(Function<Builder<V>, Action> action) {
-      return this.action(action.apply(this));
-    }
-
-    public With build() {
+    public With<V> build() {
       return build(nopConsumer());
     }
 
-    public With build(Consumer<V> finisher) {
-      final Contextful<V> begin = Builder.this.sourceAction;
-      final Action mainAction = Builder.this.mainAction;
-      return new With() {
+    public With<V> build(Consumer<V> finisher) {
+      return new With<V>() {
+        final String variableName = Builder.this.variableName;
 
-        private final Action end = ActionSupport.simple(String.format("done:%s", finisher), ContextConsumer.of(() -> String.format("cleanUp:%s", begin.variableName()), new FormattableConsumer<Context>() {
-          @Override
-          public void accept(Context context) {
-            V variable = context.valueOf(begin.internalVariableName());
-            context.unassign(begin.internalVariableName()); // Unassign first. Otherwise, finisher may fail.
-            finisher.accept(variable);
-          }
+        final String internalVariableName = Builder.this.internalVariableName;
 
-          @Override
-          public void formatTo(Formatter formatter, int i, int i1, int i2) {
-            formatter.format("%s", toStringIfOverriddenOrNoname(finisher));
-          }
-        }));
+        final Function<Context, V> valueSource = Builder.this.valueSource;
+
+        final Action action = Builder.this.action;
+        private final Action end = ActionSupport.simple(String.format("done:%s", finisher),
+            PrintableFunctionals.printableConsumer(new FormattableConsumer<Context>() {
+              @Override
+              public void accept(Context context) {
+                V variable = context.valueOf(Builder.this.internalVariableName);
+                context.unassign(Builder.this.internalVariableName); // Unassign first. Otherwise, finisher may fail.
+                finisher.accept(variable);
+              }
+
+              @Override
+              public void formatTo(Formatter formatter, int i, int i1, int i2) {
+                formatter.format("%s", toStringIfOverriddenOrNoname(finisher));
+              }
+            }).describe(String.format("cleanUp:%s", variableName)));
 
         @Override
-        public Contextful<V> begin() {
-          return begin;
+        public Function<Context, V> valueSource() {
+          return valueSource;
         }
 
         @Override
-        public Action perform() {
-          return mainAction;
+        public Action action() {
+          return action;
         }
 
         @Override
-        public Action end() {
+        public Action close() {
           return end;
+        }
+
+        @Override
+        public String variableName() {
+          return variableName;
+        }
+
+        @Override
+        public String internalVariableName() {
+          return internalVariableName;
         }
       };
     }
