@@ -91,7 +91,7 @@ public enum ActionSupport {
     return ret;
   }
 
-  public static Action simple(String name, ContextConsumer consumer) {
+  public static Action simple(String name, Consumer<Context> consumer) {
     return named(name, leaf(consumer));
   }
 

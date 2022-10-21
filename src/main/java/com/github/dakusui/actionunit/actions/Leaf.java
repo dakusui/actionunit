@@ -2,8 +2,6 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Formatter;
 import java.util.function.Consumer;
@@ -34,6 +32,11 @@ public interface Leaf extends Action, Function<Context, Runnable> {
       @Override
       public void formatTo(Formatter formatter, int flags, int width, int precision) {
         formatter.format("%s", toStringIfOverriddenOrNoname(consumer));
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s", this);
       }
     };
   }

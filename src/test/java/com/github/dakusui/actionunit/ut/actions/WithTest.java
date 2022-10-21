@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.ut.actions;
 import com.github.dakusui.actionunit.actions.With;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
@@ -20,6 +21,7 @@ import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.pcond.fluent.Fluents.assertThat;
 import static com.github.dakusui.pcond.fluent.Fluents.value;
 import static com.github.dakusui.pcond.forms.Predicates.lessThan;
+import static com.github.dakusui.pcond.forms.Predicates.lt;
 import static com.github.dakusui.pcond.forms.Printables.function;
 import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
 import static com.github.dakusui.printables.PrintableFunctionals.printableFunction;
@@ -71,7 +73,7 @@ public class WithTest {
         .action(b -> when(b.predicate(lessThan(10)))
             .perform(leaf(b.consumer(i -> System.out.println("<" + i + ">"))))
             .otherwise(ActionSupport.nop()))
-        .build(printableConsumer((Integer i) -> System.out.println(i)).describe("println"));
+        .build(printVariable());
     withAction.accept(new ActionPrinter(Writer.Std.OUT));
   }
 
@@ -81,7 +83,7 @@ public class WithTest {
         .action(b -> when(b.predicate(lessThan(10)))
             .perform(leaf(b.consumer(i -> System.out.println("<" + i + ">"))))
             .otherwise(ActionSupport.nop()))
-        .build(printableConsumer((Integer i) -> System.out.println(i)).describe("println"));
+        .build(printVariable());
     withAction.accept(new ActionPrinter(Writer.Std.OUT));
   }
 
@@ -93,7 +95,7 @@ public class WithTest {
             b -> b.andThen(PrintableFunction.<Integer, String>of(i -> "var:" + i).describe(""))
                 .action(named("HELLO", nop()))
                 .build(println(out)))
-        .build(printableConsumer((Integer i) -> System.out.println(i)).describe("println"));
+        .build(printVariable());
     withAction.accept(new ActionPrinter(Writer.Std.OUT));
   }
 
@@ -104,8 +106,35 @@ public class WithTest {
         .action(b -> with(c -> 0)
             .action(nop())
             .$())
-        .build(printableConsumer((Integer i) -> System.out.println(i)).describe("println"));
+        .build(printVariable());
     withAction.accept(new ActionPrinter(Writer.Std.OUT));
+
+    TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
+  }
+
+  @Test
+  public void printActionTree_6() {
+    Action withAction = with(printableFunction((Context c) -> 0).describe("0"))
+        .action(b -> repeatWhile(b.predicate(lt(10)))
+            .perform(sequential(
+                b.variableReferencingAction(printVariable()),
+                b.variableUpdatingAction(increment())))
+            .build())
+        .build(printVariable());
+    withAction.accept(new ActionPrinter(Writer.Std.OUT));
+    TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
+  }
+
+  private static Consumer<Integer> printVariable() {
+    return printableConsumer((Integer i) -> System.out.println(i)).describe("printVariable");
+  }
+
+  private static Consumer<Context> printVariable(With.Builder<Integer> b) {
+    return printableConsumer((Context c) -> System.out.println(b.referenceValue(c))).describe("printVariable");
+  }
+
+  private static Function<Integer, Integer> increment() {
+    return PrintableFunctionals.<Integer, Integer>printableFunction(i -> (int) i + 1).describe("increment");
   }
 
   private static <T> Consumer<T> println(List<String> out) {

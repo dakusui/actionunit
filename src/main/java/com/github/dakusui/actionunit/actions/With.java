@@ -43,15 +43,29 @@ public interface With extends Action {
     }
 
     public Builder<V> perform(Consumer<V> consumer) {
-      this.mainAction = ActionSupport.leaf(consumer(consumer));
+      this.mainAction = variableReferencingAction(consumer);
       return this;
     }
 
-    public <W> Builder<W> andThen(Function<V, W> function) {
-      return new Builder<>(next(sourceAction.variableName()), function(function));
+    public Action variableUpdatingAction(Function<V, V> function) {
+      return ActionSupport.simple("updateVariable:" + sourceAction.variableName(),
+          PrintableFunctionals.printableConsumer((Context c) -> variableUpdateFunction(function).apply(c)).describe(toStringIfOverriddenOrNoname(function)));
     }
 
-    private static String next(String variableName) {
+    public Action variableReferencingAction(Consumer<V> consumer) {
+      return ActionSupport.simple("referenceVariable:" + sourceAction.variableName(),
+          PrintableFunctionals.printableConsumer((Context c) -> variableReferenceConsumer(consumer).accept(c)).describe(toStringIfOverriddenOrNoname(consumer)));
+    }
+
+    public V referenceValue(Context context) {
+      return context.valueOf(sourceAction.internalVariableName());
+    }
+
+    public <W> Builder<W> andThen(Function<V, W> function) {
+      return new Builder<>(nextVariableName(sourceAction.variableName()), function(function));
+    }
+
+    private static String nextVariableName(String variableName) {
       requireNonNull(variableName);
       if (variableName.length() == 1 && 'a' <= variableName.charAt(0) && variableName.charAt(0) <= 'z')
         return Character.toString((char) (variableName.charAt(0) + 1));
@@ -60,6 +74,23 @@ public interface With extends Action {
         return variableName.replaceAll("_[1-9][0-9]*$", "_" + index);
       }
       return variableName + "_1";
+    }
+
+
+    public Function<Context, V> variableUpdateFunction(Function<V, V> function) {
+      return PrintableFunctionals.printableFunction(
+              (Context context) -> {
+                V ret = function.apply(context.valueOf(sourceAction.internalVariableName()));
+                context.assignTo(sourceAction.internalVariableName(), ret);
+                return ret;
+              })
+          .describe("XYZ");
+    }
+
+    public Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
+      return PrintableFunctionals.printableConsumer(
+              (Context context) -> consumer.accept(context.valueOf(sourceAction.internalVariableName())))
+          .describe("XYZ");
     }
 
 
