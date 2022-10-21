@@ -57,10 +57,6 @@ public interface With extends Action {
           PrintableFunctionals.printableConsumer((Context c) -> variableReferenceConsumer(consumer).accept(c)).describe(toStringIfOverriddenOrNoname(consumer)));
     }
 
-    public V referenceValue(Context context) {
-      return context.valueOf(sourceAction.internalVariableName());
-    }
-
     public <W> Builder<W> andThen(Function<V, W> function) {
       return new Builder<>(nextVariableName(sourceAction.variableName()), function(function));
     }

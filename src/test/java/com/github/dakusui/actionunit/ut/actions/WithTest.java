@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.ut.actions;
 
-import com.github.dakusui.actionunit.actions.With;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
