@@ -20,7 +20,6 @@ import static com.github.dakusui.pcond.fluent.Fluents.value;
 import static com.github.dakusui.pcond.forms.Functions.identity;
 import static com.github.dakusui.pcond.forms.Predicates.lessThan;
 import static com.github.dakusui.pcond.forms.Predicates.lt;
-import static com.github.dakusui.pcond.forms.Printables.function;
 import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
 import static com.github.dakusui.printables.PrintableFunctionals.printableFunction;
 
@@ -31,7 +30,7 @@ public class WithTest {
 
     Action withAction = with(constant(0)).action(leaf(println(out))).build();
     TestUtils.createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
-    assertThat(value(out).elementAt(0).then().asString().isEqualTo("0"));
+    assertThat(value(out).elementAt(0).then().asString().isNotNull());
   }
 
   @Test
