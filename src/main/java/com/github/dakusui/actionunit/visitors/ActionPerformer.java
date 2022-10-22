@@ -49,6 +49,12 @@ public abstract class ActionPerformer implements Action.Visitor {
             ))));
   }
 
+  public <E> void visit(ForEach2<E> action) {
+    Stream<E> data = action.valueSource().apply(this.context);
+    data.forEach(each -> callAccept(action.action(),
+        newInstance(this.context.createChild().assignTo(action.internalVariableName(), each))));
+  }
+
   @Override
   public void visit(While action) {
     while (action.condition().test(this.context)) {

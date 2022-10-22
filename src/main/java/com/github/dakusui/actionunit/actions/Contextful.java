@@ -2,17 +2,9 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.FormattableConsumer;
 
-import java.util.Formatter;
-import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
-import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
-import static com.github.dakusui.printables.PrintableFunctionals.*;
 import static java.util.Objects.requireNonNull;
 
 public interface Contextful<V> extends Action {
@@ -30,13 +22,6 @@ public interface Contextful<V> extends Action {
    * @return A main action.
    */
   Action action();
-
-  /**
-   * Returns a "close" action which takes care of "clean up"
-   *
-   * @return A "close" action.
-   */
-  Optional<Action> close();
 
   /**
    * A name of the variable.
@@ -90,23 +75,6 @@ public interface Contextful<V> extends Action {
       return this.internalVariableName;
     }
 
-    public <W> Function<Context, W> function(Function<V, W> function) {
-      return printableFunction((Context context) -> function.apply(context.valueOf(internalVariableName())))
-          .describe(toStringIfOverriddenOrNoname(function));
-
-    }
-
-    public Consumer<Context> consumer(Consumer<V> consumer) {
-      return printableConsumer((Context context) -> consumer.accept(context.valueOf(internalVariableName())))
-          .describe(toStringIfOverriddenOrNoname(consumer));
-    }
-
-    public Predicate<Context> predicate(Predicate<V> predicate) {
-      return printablePredicate(
-          (Context context) -> predicate.test(context.valueOf(internalVariableName())))
-          .describe(() -> variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
-    }
-
     protected static String nextVariableName(String variableName) {
       requireNonNull(variableName);
       if (variableName.length() == 1 && 'a' <= variableName.charAt(0) && variableName.charAt(0) <= 'z')
@@ -132,27 +100,12 @@ public interface Contextful<V> extends Action {
 
     private final Action action;
 
-    private final Action      end;
 
-    public Base(String variableName, final String internalVariableName, Function<Context, V> valueSource, Action action, Consumer<V> finisher) {
+    public Base(String variableName, final String internalVariableName, Function<Context, V> valueSource, Action action) {
       this.variableName = variableName;
       this.internalVariableName = internalVariableName;
       this.valueSource = valueSource;
       this.action = action;
-      this.end = finisher == null ? null : simple(String.format("done:%s", finisher),
-          printableConsumer(new FormattableConsumer<Context>() {
-            @Override
-            public void accept(Context context) {
-              V variable = context.valueOf(internalVariableName);
-              context.unassign(internalVariableName); // Unassign first. Otherwise, finisher may fail.
-              finisher.accept(variable);
-            }
-
-            @Override
-            public void formatTo(Formatter formatter, int i, int i1, int i2) {
-              formatter.format("%s", toStringIfOverriddenOrNoname(finisher));
-            }
-          }).describe(String.format("cleanUp:%s", variableName)));
     }
 
     @Override
@@ -163,11 +116,6 @@ public interface Contextful<V> extends Action {
     @Override
     public Action action() {
       return action;
-    }
-
-    @Override
-    public Optional<Action> close() {
-      return Optional.ofNullable(end);
     }
 
     @Override

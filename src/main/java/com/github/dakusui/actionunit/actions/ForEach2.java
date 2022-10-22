@@ -28,19 +28,13 @@ public interface ForEach2<V> extends Contextful<Stream<V>> {
       super(variableName, function);
     }
 
-
     public ForEach2<V> build() {
-      return build(nopConsumer());
-    }
-
-
-    public ForEach2<V> build(Consumer<V> finisher) {
-      return new Impl<>(this.variableName(), this.internalVariableName(), null, this.action(), null);
+      return new Impl<>(this.variableName(), this.internalVariableName(), this.valueSource(), this.action());
     }
 
     private static class Impl<V> extends Contextful.Base<Stream<V>> implements ForEach2<V> {
-      public Impl(String variableName, String internalVariableName, Function<Context, Stream<V>> valueSource, Action action, Consumer<Stream<V>> finisher) {
-        super(variableName, internalVariableName, valueSource, action, finisher);
+      public Impl(String variableName, String internalVariableName, Function<Context, Stream<V>> valueSource, Action action) {
+        super(variableName, internalVariableName, valueSource, action);
       }
     }
   }

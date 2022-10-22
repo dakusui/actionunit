@@ -2,16 +2,18 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.printables.PrintableFunctionals;
+import com.github.dakusui.actionunit.core.context.FormattableConsumer;
 
 import java.util.Formatter;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
-import static java.util.Objects.requireNonNull;
+import static com.github.dakusui.printables.PrintableFunctionals.*;
 
 /**
  * An interface to access a context variable safely.
@@ -21,6 +23,13 @@ import static java.util.Objects.requireNonNull;
  * @see Context
  */
 public interface With<V> extends Contextful<V> {
+  /**
+   * Returns a "close" action which takes care of "clean up"
+   *
+   * @return A "close" action.
+   */
+  Optional<Action> close();
+
   @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);
@@ -68,20 +77,47 @@ public interface With<V> extends Contextful<V> {
 
 
     private Function<Context, V> variableUpdateFunction(Function<V, V> function) {
-      return PrintableFunctionals.printableFunction(
-              (Context context) -> {
-                V ret = function.apply(context.valueOf(internalVariableName()));
-                context.assignTo(internalVariableName(), ret);
-                return ret;
-              })
+      return printableFunction(
+          (Context context) -> {
+            V ret = function.apply(context.valueOf(internalVariableName()));
+            context.assignTo(internalVariableName(), ret);
+            return ret;
+          })
           .describe("XYZ");
     }
 
     private Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
       return (Context context) -> consumer.accept(context.valueOf(internalVariableName()));
+    }
+
+    public <W> Function<Context, W> function(Function<V, W> function) {
+      return toContextFunction(this, function);
 
     }
 
+    private static <V, W> Function<Context, W> toContextFunction(Builder<V> builder, Function<V, W> function) {
+      return printableFunction((Context context) -> function.apply(context.valueOf(builder.internalVariableName())))
+          .describe(toStringIfOverriddenOrNoname(function));
+    }
+
+    public Consumer<Context> consumer(Consumer<V> consumer) {
+      return toContextConsumer(this, consumer);
+    }
+
+    private static <V> Consumer<Context> toContextConsumer(Builder<V> builder, Consumer<V> consumer) {
+      return printableConsumer((Context context) -> consumer.accept(context.valueOf(builder.internalVariableName())))
+          .describe(toStringIfOverriddenOrNoname(consumer));
+    }
+
+    public Predicate<Context> predicate(Predicate<V> predicate) {
+      return toContextPredicate(this, predicate);
+    }
+
+    private static <V> Predicate<Context> toContextPredicate(Builder<V> builder, Predicate<V> predicate) {
+      return printablePredicate(
+          (Context context) -> predicate.test(context.valueOf(builder.internalVariableName())))
+          .describe(() -> builder.variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
+    }
 
     public With<V> build() {
       return build(nopConsumer());
@@ -92,9 +128,23 @@ public interface With<V> extends Contextful<V> {
     }
 
     private static class Impl<V> extends Base<V> implements With<V> {
+      private final Action end;
+
       public Impl(String variableName, String internalVariableName, Function<Context, V> valueSource, Action action, Consumer<V> finisher) {
-        super(variableName, internalVariableName, valueSource, action, finisher);
+        super(variableName, internalVariableName, valueSource, action);
+        this.end = finisher == null ? null : simple(String.format("done:%s", finisher),
+            printableConsumer((Context context) -> {
+              V variable = context.valueOf(internalVariableName);
+              context.unassign(internalVariableName); // Un-assign first. Otherwise, finisher may fail.
+              finisher.accept(variable);
+            }).describe(String.format("cleanUp:%s", variableName)));
       }
+
+      @Override
+      public Optional<Action> close() {
+        return Optional.ofNullable(end);
+      }
+
     }
   }
 }
