@@ -47,12 +47,12 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       performAndPrintAction(action);
       ////
       //Then printed correctly
-      //noinspection unchecked
+      //noinspection
       assertThat(
           TestUtils.removeSpentTimeFromResultColumn(getWriter()),
           allOf(
               asString("get", 0).equalTo("[o]A passing action").$(),
-              asString("get", 1).equalTo("  [o]This passes always").$()
+              asString("get", 1).equalTo("  [o]This passes always:(noname)").$()
           )
       );
     }
@@ -71,12 +71,12 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         action.accept(this.getPrinter());
         ////
         //Then printed correctly
-        //noinspection unchecked
+        //noinspection
         assertThat(
             TestUtils.removeSpentTimeFromResultColumn(getWriter()),
             allOf(
                 asString("get", 0).startsWith("[F]A failing action").$(),
-                asString("get", 1).equalTo("  [F]This fails always").$()
+                asString("get", 1).equalTo("  [F]This fails always:(noname)").$()
             )
         );
       }
@@ -95,13 +95,13 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       } catch (RuntimeException e) {
         ////
         //Then printed correctly
-        //noinspection unchecked
+        //noinspection
         assertThat(
             TestUtils.removeSpentTimeFromResultColumn(getWriter()),
             allOf(
                 asString("get", 0).startsWith("[E]An error action").$(),
-                asString("get", 1).equalTo("  [E]This gives a runtime exception always").$(),
-                asInteger("size").equalTo(3).$()
+                asString("get", 1).equalTo("  [E]This gives a runtime exception always:(noname)").$(),
+                asInteger("size").equalTo(2).$()
             ));
       }
     }
@@ -126,15 +126,12 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
           TestUtils.removeSpentTimeFromResultColumn(getWriter()),
           allOf(
               asString("get", 0).equalTo("*-[o]A passing action-1").$(),
-              asString("get", 1).equalTo("|   [o]This passes always-1").$(),
-              asString("get", 2).equalTo("|     [o](noname)").$(),
-              asString("get", 3).equalTo("*-[o]A passing action-2").$(),
-              asString("get", 4).equalTo("|   [o]This passes always-2").$(),
-              asString("get", 5).equalTo("|     [o](noname)").$(),
-              asString("get", 6).equalTo("*-[o]A passing action-3").$(),
-              asString("get", 7).equalTo("    [o]This passes always-3").$(),
-              asString("get", 8).equalTo("      [o](noname)").$(),
-              asInteger("size").equalTo(9).$()
+              asString("get", 1).equalTo("|   [o]This passes always-1:(noname)").$(),
+              asString("get", 2).equalTo("*-[o]A passing action-2").$(),
+              asString("get", 3).equalTo("|   [o]This passes always-2:(noname)").$(),
+              asString("get", 4).equalTo("*-[o]A passing action-3").$(),
+              asString("get", 5).equalTo("    [o]This passes always-3:(noname)").$(),
+              asInteger("size").equalTo(6).$()
           ));
     }
   }
@@ -160,16 +157,14 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       performAndPrintAction(action);
       ////
       //Then printed correctly
-      //noinspection unchecked
+      //noinspection
       assertThat(
           TestUtils.removeSpentTimeFromResultColumn(getWriter()),
           allOf(
               asString("get", 0).startsWith("[o]for each of (noname) sequentially").$(),
-              asString("get", 1).equalTo("  +-[ooo]Sink-1").$(),
-              asString("get", 2).equalTo("  |   [ooo](noname)").$(),
-              asString("get", 3).equalTo("  +-[ooo]Sink-2").$(),
-              asString("get", 4).equalTo("      [ooo](noname)").$(),
-              asInteger("size").equalTo(5).$()
+              asString("get", 1).equalTo("  +-[ooo]Sink-1:(noname)").$(),
+              asString("get", 2).equalTo("  +-[ooo]Sink-2:(noname)").$(),
+              asInteger("size").equalTo(3).$()
           ));
     }
 
@@ -194,16 +189,14 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       } finally {
         ////
         //Then printed correctly
-        //noinspection unchecked
+        //noinspection
         assertThat(
             TestUtils.removeSpentTimeFromResultColumn(getWriter()),
             allOf(
                 asString("get", 0).startsWith("[E]for each of (noname) sequentially").$(),
-                asString("get", 1).startsWith("  +-[E]Sink-1").$(),
-                asString("get", 2).startsWith("  |   [E](noname)").$(),
-                asString("get", 3).startsWith("  +-[]Sink-2").$(),
-                asString("get", 4).startsWith("      [](noname)").$(),
-                asInteger("size").equalTo(5).$()
+                asString("get", 1).startsWith("  +-[E]Sink-1:(noname)").$(),
+                asString("get", 2).startsWith("  +-[]Sink-2:(noname)").$(),
+                asInteger("size").equalTo(3).$()
             ));
       }
     }
@@ -250,13 +243,12 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       performAndPrintAction(action);
       assertThat(getWriter(), Crest.allOf(
           asString("get", 0).matchesRegex("\\[o:[0-9]+\\]attempt").$(),
-          asString("get", 1).matchesRegex("  \\[E:[0-9]+\\]Howdy, NPE").$(),
-          asString("get", 2).matchesRegex("    \\[E:[0-9]+\\]\\(noname\\)").$(),
-          asString("get", 3).matchesRegex("  \\[o:[0-9]+\\]recover").$(),
-          asString("get", 4).matchesRegex("    \\[o:[0-9]+\\]\\(nop\\)").$(),
-          asString("get", 5).matchesRegex("  \\[o:[0-9]+\\]ensure").$(),
-          asString("get", 6).matchesRegex("    \\[o:[0-9]+\\]\\(nop\\)").$(),
-          asInteger("size").equalTo(7).$()
+          asString("get", 1).matchesRegex("  \\[E:[0-9]+\\]Howdy, NPE:\\(noname\\)").$(),
+          asString("get", 2).matchesRegex("  \\[o:[0-9]+\\]recover").$(),
+          asString("get", 3).matchesRegex("    \\[o:[0-9]+\\]\\(nop\\)").$(),
+          asString("get", 4).matchesRegex("  \\[o:[0-9]+\\]ensure").$(),
+          asString("get", 5).matchesRegex("    \\[o:[0-9]+\\]\\(nop\\)").$(),
+          asInteger("size").equalTo(6).$()
       ));
     }
   }

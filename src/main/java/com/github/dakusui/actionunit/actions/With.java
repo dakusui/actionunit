@@ -15,18 +15,39 @@ import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nop
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * An interface to access a context variable safely.
+ * An instance of this interface corresponds to single context variable.
+ *
+ * @param <V> A type of variable through which this action interacts with another.
+ *
+ * @see Context
+ */
 public interface With<V> extends Action {
   @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /**
+   * A function to provide a value referenced from inside an action returned by the
+   * {@link this#action()} method.
+   *
+   * @return A function to provide a value for an action.
+   */
   Function<Context, V> valueSource();
 
   Action action();
 
   Action close();
 
+  /**
+   * A name of the variable.
+   * The string returned by this method is used only for printing an action tree.
+   * To identify a variable, a string returned by {@link this#internalVariableName()}.
+   *
+   * @return A human-readable variable name.
+   */
   String variableName();
 
   String internalVariableName();
@@ -59,12 +80,25 @@ public interface With<V> extends Action {
       return this.action(action.apply(this));
     }
 
+    /**
+     * Creates an action that updates the context variable.
+     * A current value of the context variable is given to the `function` and the result
+     * of the function is written back to the context.
+     *
+     * @param function A function to compute a new value of the context variable.
+     * @return An action that updates the context variable.
+     */
     public Action updateVariableWith(Function<V, V> function) {
       return ActionSupport.simple(
           toStringIfOverriddenOrNoname(function) + ":" + variableName + "*",
           (Context c) -> variableUpdateFunction(function).apply(c));
     }
 
+    /**
+     * Creates an action that consumes the context variable.
+     * @param consumer
+     * @return
+     */
     public Action referenceVariable(Consumer<V> consumer) {
       return ActionSupport.simple(
           toStringIfOverriddenOrNoname(consumer) + ":" + variableName,

@@ -101,17 +101,14 @@ public class ActionPrinterTest extends TestUtils.TestBase {
               asString("next").containsString("do parallelly").$(),
               asString("next").containsString("Sequential (1st child)").$(),
               asString("next").containsString("do sequentially").$(),
-              asString("next").containsString("simple1").$(),
-              asString("next").containsString("(noname)").$(),
-              asString("next").containsString("simple2").$(),
-              asString("next").containsString("(noname)").$(),
-              asString("next").containsString("simple3").$(),
-              asString("next").containsString("(noname)").$(),
+              asString("next").containsString("simple1:(noname)").$(),
+              asString("next").containsString("simple2:(noname)").$(),
+              asString("next").containsString("simple3:(noname)").$(),
               asString("next").containsString("for each of (noname) sequentially").$(),
               asString("next").containsString("(nop)").$()
           )
       );
-      assertEquals(12, size(writer));
+      assertEquals(9, size(writer));
     }
   }
 
@@ -149,11 +146,9 @@ public class ActionPrinterTest extends TestUtils.TestBase {
             removeSpentTimeFromResultColumn(out2),
             Crest.allOf(
                 asString("get", 0).containsString("[o]").containsString("for each").$(),
-                asString("get", 1).containsString("[oo]").containsString("+0").$(),
-                asString("get", 2).containsString("[oo]").containsString("(noname)").$(),
-                asString("get", 3).containsString("[oo]").containsString("+1").$(),
-                asString("get", 4).containsString("[oo]").containsString("(noname)").$(),
-                asInteger("size").equalTo(5).$()
+                asString("get", 1).containsString("[oo]").containsString("+0:(noname)").$(),
+                asString("get", 2).containsString("[oo]").containsString("+1:(noname)").$(),
+                asInteger("size").equalTo(3).$()
             ));
       }
 

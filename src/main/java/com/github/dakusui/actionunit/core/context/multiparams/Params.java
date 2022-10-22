@@ -28,7 +28,7 @@ public interface Params {
 
   static Params create(Context context, String... paramNames) {
     return new Params() {
-      Map<String, Object> values = new LinkedHashMap<String, Object>() {{
+      final Map<String, Object> values = new LinkedHashMap<String, Object>() {{
         for (String each : paramNames) {
           put(each, context.valueOf(each));
         }

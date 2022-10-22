@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.printables.PrintableFunctionals;
 
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CONSUMER;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
 import static java.util.Arrays.asList;
 
 public enum ActionSupport {
@@ -92,7 +95,7 @@ public enum ActionSupport {
   }
 
   public static Action simple(String name, Consumer<Context> consumer) {
-    return leaf(PrintableFunctionals.printableConsumer(consumer).describe(name));
+    return leaf(printableConsumer(consumer).describe(name + ":" + toStringIfOverriddenOrNoname(consumer)));
   }
 
   public static Action sequential(Action... actions) {

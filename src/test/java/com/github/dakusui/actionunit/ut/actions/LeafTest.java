@@ -12,7 +12,7 @@ public class LeafTest {
   public void givenAnonymousLeaf$whenToString$thenNoname() {
     String s = String.format("%s", simple("NameOfRunnable", (context) -> {
     }));
-    Crest.assertThat(s, asString().equalTo("NameOfRunnable").$());
+    Crest.assertThat(s, asString().equalTo("NameOfRunnable:(noname)").$());
   }
 
   @Test

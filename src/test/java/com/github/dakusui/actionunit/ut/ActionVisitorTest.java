@@ -35,7 +35,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     assertThat(
         out,
         allOf(
-            asString("get", 0).equalTo("simpleAction").$(),
+            asString("get", 0).equalTo("simpleAction:(noname)").$(),
             asInteger("size").equalTo(1).$()
         )
     );
