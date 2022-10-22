@@ -4,12 +4,9 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Formatter;
-import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 
 public interface ForEach2<V> extends Contextful<Stream<V>> {

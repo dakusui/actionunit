@@ -48,6 +48,10 @@ public interface Action extends Formattable {
       this.visit((Action) action);
     }
 
+    default <E> void visit(ForEach2<E> action) {
+      this.visit((Action) action);
+    }
+
     default void visit(While action) {
       this.visit((Action) action);
     }
