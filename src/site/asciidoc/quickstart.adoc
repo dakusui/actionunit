@@ -1,0 +1,18 @@
+include::attributes.adoc[]
+
+= Quick Start
+
+
+== Installation
+
+Have a following maven dependency in your `pom.xml`.
+
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>com.github.dakusui</groupId>
+  <artifactId>actionunit</artifactId>
+  <version>{actionunit-version}</version>
+</dependency>
+----
