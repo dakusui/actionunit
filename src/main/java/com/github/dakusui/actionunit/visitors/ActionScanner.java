@@ -80,7 +80,7 @@ public abstract class ActionScanner implements Action.Visitor {
     this.enter(action);
     try {
       action.action().accept(this);
-      action.close().accept(this);
+      action.close().ifPresent(a -> a.accept(this));
     } finally {
       this.leave(action);
     }

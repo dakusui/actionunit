@@ -38,6 +38,10 @@ public enum ActionSupport {
     return new Attempt.Builder(action);
   }
 
+  public static <E> ForEach.Builder<E> forEach(StreamGenerator<E> streamGenerator) {
+    return forEach("i", streamGenerator);
+  }
+
   public static <E> ForEach.Builder<E> forEach(String variableName, StreamGenerator<E> streamGenerator) {
     return new ForEach.Builder<>(variableName, streamGenerator);
   }

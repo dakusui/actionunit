@@ -1,16 +1,17 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.FormattableConsumer;
 import com.github.dakusui.printables.PrintableFunctionals;
 
 import java.util.Formatter;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
@@ -20,10 +21,9 @@ import static java.util.Objects.requireNonNull;
  * An instance of this interface corresponds to single context variable.
  *
  * @param <V> A type of variable through which this action interacts with another.
- *
  * @see Context
  */
-public interface With<V> extends Action {
+public interface With<V> extends Contextful<V> {
   @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);
@@ -37,9 +37,19 @@ public interface With<V> extends Action {
    */
   Function<Context, V> valueSource();
 
+  /**
+   * Returns a main action.
+   *
+   * @return A main action.
+   */
   Action action();
 
-  Action close();
+  /**
+   * Returns a "close" action which takes care of "clean up"
+   *
+   * @return A "close" action.
+   */
+  Optional<Action> close();
 
   /**
    * A name of the variable.
@@ -89,19 +99,19 @@ public interface With<V> extends Action {
      * @return An action that updates the context variable.
      */
     public Action updateVariableWith(Function<V, V> function) {
-      return ActionSupport.simple(
+      return simple(
           toStringIfOverriddenOrNoname(function) + ":" + variableName + "*",
           (Context c) -> variableUpdateFunction(function).apply(c));
     }
 
     /**
      * Creates an action that consumes the context variable.
-     * @param consumer
-     * @return
+     *
+     * @param consumer A consumer that processes the context variable.
+     * @return A created action.
      */
-    public Action referenceVariable(Consumer<V> consumer) {
-      return ActionSupport.simple(
-          toStringIfOverriddenOrNoname(consumer) + ":" + variableName,
+    public Action createAction(Consumer<V> consumer) {
+      return simple(toStringIfOverriddenOrNoname(consumer) + ":" + variableName,
           (Context c) -> variableReferenceConsumer(consumer).accept(c));
     }
 
@@ -160,14 +170,15 @@ public interface With<V> extends Action {
 
     public With<V> build(Consumer<V> finisher) {
       return new With<V>() {
-        final String variableName = Builder.this.variableName;
+        private final String variableName = Builder.this.variableName;
 
-        final String internalVariableName = Builder.this.internalVariableName;
+        private final String internalVariableName = Builder.this.internalVariableName;
 
-        final Function<Context, V> valueSource = Builder.this.valueSource;
+        private final Function<Context, V> valueSource = Builder.this.valueSource;
 
-        final Action action = Builder.this.action;
-        private final Action end = ActionSupport.simple(String.format("done:%s", finisher),
+        private final Action action = Builder.this.action;
+
+        private final Action end = finisher == null ? null : simple(String.format("done:%s", finisher),
             PrintableFunctionals.printableConsumer(new FormattableConsumer<Context>() {
               @Override
               public void accept(Context context) {
@@ -193,8 +204,8 @@ public interface With<V> extends Action {
         }
 
         @Override
-        public Action close() {
-          return end;
+        public Optional<Action> close() {
+          return Optional.ofNullable(end);
         }
 
         @Override

@@ -115,7 +115,7 @@ public class WithTest {
     Action withAction = with(constant(1))
         .action(b -> repeatWhile(b.predicate(lt(10)))
             .perform(sequential(
-                b.referenceVariable(printVariable()),
+                b.createAction(printVariable()),
                 b.updateVariableWith(increment())))
             .build())
         .build(printVariable());

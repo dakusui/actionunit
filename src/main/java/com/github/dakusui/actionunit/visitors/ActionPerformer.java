@@ -73,7 +73,7 @@ public abstract class ActionPerformer implements Action.Visitor {
     try {
       callAccept(action.action(), this);
     } finally {
-      callAccept(action.close(), this);
+      action.close().ifPresent(a -> callAccept(a, this));
       this.context = originalContext;
     }
   }

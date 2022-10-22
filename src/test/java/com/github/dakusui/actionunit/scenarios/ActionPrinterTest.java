@@ -47,8 +47,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
                       }),
                       forEach(
                           "i",
-                          (c) -> Stream.of("hello1", "hello2", "hello3")
-                      ).perform(
+                          (c) -> Stream.of("hello1", "hello2", "hello3")).perform(
                           nop()
                       )
                   ))));
