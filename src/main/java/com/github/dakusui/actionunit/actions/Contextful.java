@@ -2,18 +2,28 @@ package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.printables.PrintableFunctionals;
+import com.github.dakusui.actionunit.core.context.FormattableConsumer;
 
+import java.util.Formatter;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static com.github.dakusui.printables.PrintableFunctionals.*;
 import static java.util.Objects.requireNonNull;
 
 public interface Contextful<V> extends Action {
+  /**
+   * A function to provide a value referenced from inside an action returned by the
+   * {@link Contextful#action()} method.
+   *
+   * @return A function to provide a value for an action.
+   */
+  Function<Context, V> valueSource();
+
   /**
    * Returns a main action.
    *
@@ -44,15 +54,16 @@ public interface Contextful<V> extends Action {
 
 
   abstract class Builder<B extends Builder<B, A, V>, A extends Contextful<V>, V> extends Action.Builder<A> {
+    private final Function<Context, V> valueSource;
     private final String internalVariableName;
     private final String variableName;
 
     private Action action;
 
-    protected Builder(String variableName) {
+    protected Builder(String variableName, Function<Context, V> function) {
       this.variableName = requireNonNull(variableName);
       this.internalVariableName = variableName + ":" + System.identityHashCode(this);
-
+      this.valueSource = requireNonNull(function);
     }
 
     @SuppressWarnings("unchecked")
@@ -106,5 +117,68 @@ public interface Contextful<V> extends Action {
       }
       return variableName + "_1";
     }
+
+    public Function<Context, V> valueSource() {
+      return this.valueSource;
+    }
+  }
+
+  abstract class Base<V> implements Contextful<V> {
+    private final String variableName;
+
+    private final String internalVariableName;
+
+    private final Function<Context, V> valueSource;
+
+    private final Action action;
+
+    private final Action      end;
+
+    public Base(String variableName, final String internalVariableName, Function<Context, V> valueSource, Action action, Consumer<V> finisher) {
+      this.variableName = variableName;
+      this.internalVariableName = internalVariableName;
+      this.valueSource = valueSource;
+      this.action = action;
+      this.end = finisher == null ? null : simple(String.format("done:%s", finisher),
+          printableConsumer(new FormattableConsumer<Context>() {
+            @Override
+            public void accept(Context context) {
+              V variable = context.valueOf(internalVariableName);
+              context.unassign(internalVariableName); // Unassign first. Otherwise, finisher may fail.
+              finisher.accept(variable);
+            }
+
+            @Override
+            public void formatTo(Formatter formatter, int i, int i1, int i2) {
+              formatter.format("%s", toStringIfOverriddenOrNoname(finisher));
+            }
+          }).describe(String.format("cleanUp:%s", variableName)));
+    }
+
+    @Override
+    public Function<Context, V> valueSource() {
+      return valueSource;
+    }
+
+    @Override
+    public Action action() {
+      return action;
+    }
+
+    @Override
+    public Optional<Action> close() {
+      return Optional.ofNullable(end);
+    }
+
+    @Override
+    public String variableName() {
+      return variableName;
+    }
+
+    @Override
+    public String internalVariableName() {
+      return internalVariableName;
+    }
+
   }
 }
