@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ActionSupport.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.core</a> &gt; <span class="el_source">ActionSupport.java</span></div><h1>ActionSupport.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.core;
+
+import com.github.dakusui.actionunit.actions.*;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.printables.PrintableFunctionals;
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CONSUMER;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
+import static java.util.Arrays.asList;
+
+<span class="fc" id="L20">public enum ActionSupport {</span>
+  ;
+
+  public static Action nop() {
+    // Needs to be instantiated each time this method is called.
+    // Otherwise, multiple nops cannot be identified in an action tree.
+<span class="fc" id="L26">    return Leaf.of(NOP_CONSUMER);</span>
+  }
+
+  public static Action leaf(Consumer&lt;Context&gt; consumer) {
+<span class="fc" id="L30">    return Leaf.of(consumer);</span>
+  }
+
+  public static Action named(String name, Action action) {
+<span class="fc" id="L34">    return Named.of(name, action);</span>
+  }
+
+  public static Attempt.Builder attempt(Action action) {
+<span class="fc" id="L38">    return new Attempt.Builder(action);</span>
+  }
+
+  public static &lt;E&gt; ForEach.Builder&lt;E&gt; forEach(StreamGenerator&lt;E&gt; streamGenerator) {
+<span class="nc" id="L42">    return forEach(&quot;i&quot;, streamGenerator);</span>
+  }
+
+  public static &lt;E&gt; ForEach.Builder&lt;E&gt; forEach(String variableName, StreamGenerator&lt;E&gt; streamGenerator) {
+<span class="fc" id="L46">    return new ForEach.Builder&lt;&gt;(variableName, streamGenerator);</span>
+  }
+
+  public static While.Builder repeatWhile(Predicate&lt;Context&gt; condition) {
+<span class="fc" id="L50">    return new While.Builder(condition);</span>
+  }
+
+  public static When.Builder when(Predicate&lt;Context&gt; cond) {
+<span class="fc" id="L54">    return new When.Builder(cond);</span>
+  }
+
+  public static &lt;T&gt; With.Builder&lt;T&gt; with(Function&lt;Context, T&gt; value) {
+<span class="fc" id="L58">    return with(&quot;i&quot;, value);</span>
+  }
+
+  /**
+   * Note that `variableName` won't be used to resolve a value of a variable, it is
+   * merely intended to be printed in an action-tree or logs.
+   *
+   * @param variableName human-readable variable name.
+   * @param value        A function to give a value to be used a context under the returned action.
+   * @param &lt;T&gt;          The type of the variable
+   * @return A builder for a `with` action.
+   */
+  public static &lt;T&gt; With.Builder&lt;T&gt; with(String variableName, Function&lt;Context, T&gt; value) {
+<span class="fc" id="L71">    return new With.Builder&lt;&gt;(variableName, value);</span>
+  }
+
+  public static Retry.Builder retry(Action action) {
+<span class="fc" id="L75">    return new Retry.Builder(action);</span>
+  }
+
+  public static TimeOut.Builder timeout(Action action) {
+<span class="fc" id="L79">    return new TimeOut.Builder(action);</span>
+  }
+
+  public static Action sequential(List&lt;Action&gt; actions) {
+<span class="fc" id="L83">    return new Composite.Builder(actions).build();</span>
+  }
+
+  public static Action parallel(List&lt;Action&gt; actions) {
+<span class="fc" id="L87">    return new Composite.Builder(actions).parallel().build();</span>
+  }
+
+  public static Cmd cmd(String program, String... knownVariables) {
+<span class="fc" id="L91">    return cmd(program, CommanderInitializer.DEFAULT_INSTANCE, knownVariables);</span>
+  }
+
+  public static Cmd cmd(String program, CommanderInitializer initializer, String... knownVariables) {
+<span class="fc" id="L95">    Cmd ret = new Cmd(initializer).command(program);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">    for (String each : knownVariables)</span>
+<span class="fc" id="L97">      ret = ret.declareVariable(each);</span>
+<span class="fc" id="L98">    return ret;</span>
+  }
+
+  public static Action simple(String name, Consumer&lt;Context&gt; consumer) {
+<span class="fc" id="L102">    return leaf(printableConsumer(consumer).describe(name + &quot;:&quot; + toStringIfOverriddenOrNoname(consumer)));</span>
+  }
+
+  public static Action sequential(Action... actions) {
+<span class="fc" id="L106">    return sequential(asList(actions));</span>
+  }
+
+  public static Action parallel(Action... actions) {
+<span class="fc" id="L110">    return parallel(asList(actions));</span>
+  }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

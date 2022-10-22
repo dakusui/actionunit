@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SshShellBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd.unix</a> &gt; <span class="el_source">SshShellBuilder.java</span></div><h1>SshShellBuilder.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd.unix;
+
+
+import com.github.dakusui.processstreamer.core.process.Shell;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+
+public class SshShellBuilder {
+  private String       program;
+  private String       user;
+  private String       host;
+  /**
+   * Holds options specific to {@code ssh} command. That is, options supported
+   * by {@code ssh} but not by {@code scp} should be stored in this field.
+   */
+  private List&lt;String&gt; options;
+  /**
+   * Holds options common to both {@code ssh} and {@code scp}.
+   */
+  private SshOptions   sshOptions;
+
+<span class="fc" id="L25">  public SshShellBuilder(String host) {</span>
+<span class="fc" id="L26">    this.program(&quot;ssh&quot;);</span>
+<span class="fc" id="L27">    this.options = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L28">    this.host = requireNonNull(host);</span>
+<span class="fc" id="L29">  }</span>
+
+  public SshShellBuilder program(String program) {
+<span class="fc" id="L32">    this.program = requireNonNull(program);</span>
+<span class="fc" id="L33">    return this;</span>
+  }
+
+  public SshShellBuilder user(String user) {
+<span class="fc" id="L37">    this.user = requireNonNull(user);</span>
+<span class="fc" id="L38">    return this;</span>
+  }
+
+  /**
+   * Sets standard ssh options to this object.
+   *
+   * @param sshOptions Options to be set.
+   * @return This object.
+   */
+  public SshShellBuilder sshOptions(SshOptions sshOptions) {
+<span class="fc" id="L48">    this.sshOptions = sshOptions;</span>
+<span class="fc" id="L49">    return this;</span>
+  }
+
+  public SshShellBuilder enableAuthAgentConnectionForwarding() {
+<span class="fc" id="L53">    this.options.add(&quot;-A&quot;);</span>
+<span class="fc" id="L54">    return this;</span>
+  }
+
+  public Shell build() {
+<span class="fc" id="L58">    List&lt;String&gt; options = new LinkedList&lt;String&gt;() {{</span>
+<span class="fc" id="L59">      this.addAll(SshShellBuilder.this.options);</span>
+<span class="fc" id="L60">      this.addAll(SshShellBuilder.this.sshOptions.options(SshOptions.Formatter.forSsh()));</span>
+<span class="fc" id="L61">      this.add(</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">          user != null ?</span>
+<span class="fc" id="L63">              String.format(&quot;%s@%s&quot;, user, host) :</span>
+<span class="fc" id="L64">              host);</span>
+<span class="fc" id="L65">    }};</span>
+<span class="fc" id="L66">    return new Shell() {</span>
+      @Override
+      public String program() {
+<span class="fc" id="L69">        return program;</span>
+      }
+
+      @Override
+      public List&lt;String&gt; options() {
+<span class="fc" id="L74">        return options;</span>
+      }
+
+      @Override
+      public String toString() {
+<span class="fc" id="L79">        return String.format(&quot;%s %s&quot;, program, String.join(&quot; &quot;, options));</span>
+      }
+    };
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

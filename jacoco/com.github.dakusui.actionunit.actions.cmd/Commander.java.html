@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Commander.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">Commander.java</span></div><h1>Commander.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.actions.RetryOption;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.context.ContextPredicate;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
+import com.github.dakusui.processstreamer.core.process.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.*;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
+import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
+import static java.util.Objects.requireNonNull;
+
+public abstract class Commander&lt;C extends Commander&lt;C&gt;&gt; implements Cloneable {
+<span class="fc" id="L31">  private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);</span>
+  CommandLineComposer.Builder commandLineComposerBuilder;
+  private final Function&lt;String[], IntFunction&lt;String&gt;&gt; parameterPlaceHolderFactory;
+
+  private       RetryOption                retryOption;
+  private       Supplier&lt;Consumer&lt;String&gt;&gt; downstreamConsumerFactory;
+  private       Supplier&lt;Checker&gt;          checkerFactory;
+  private       Stream&lt;String&gt;             stdin;
+  private       Shell                      shell;
+<span class="fc" id="L40">  private       File                       cwd         = null;</span>
+  private final Map&lt;String, String&gt;        envvars;
+<span class="fc" id="L42">  private       String                     description = null;</span>
+
+
+<span class="fc" id="L45">  protected Commander(CommanderInitializer initializer) {</span>
+<span class="fc" id="L46">    this.parameterPlaceHolderFactory = initializer.variablePlaceHolderFormatter();</span>
+<span class="fc" id="L47">    this.envvars = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L48">    this.stdin(Stream.empty())</span>
+<span class="fc" id="L49">        .retryOption(RetryOption.none())</span>
+<span class="fc" id="L50">        .shell(Shell.local())</span>
+<span class="fc" id="L51">        .checker(createCheckerForExitCode(0))</span>
+<span class="fc" id="L52">        .downstreamConsumer(LOGGER::trace);</span>
+<span class="fc" id="L53">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C describe(String description) {
+<span class="fc" id="L57">    this.description = description;</span>
+<span class="fc" id="L58">    return (C) this;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C clone() {
+    try {
+<span class="fc" id="L64">      C ret = (C) super.clone();</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">      if (ret.commandLineComposerBuilder().isPresent())</span>
+<span class="fc" id="L66">        ret.commandLineComposerBuilder = ret.commandLineComposerBuilderIfSet().clone();</span>
+<span class="fc" id="L67">      return ret;</span>
+<span class="nc" id="L68">    } catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L69">      throw ActionException.wrap(e);</span>
+    }
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C retryOption(RetryOption retryOption) {
+<span class="fc" id="L75">    this.retryOption = retryOption;</span>
+<span class="fc" id="L76">    return (C) this;</span>
+  }
+
+  /**
+   * Sets a down-stream consumer to this builder object.
+   * In case the down-stream consumer is stateful, use {@link Commander#downstreamConsumerFactory(Supplier)}
+   * method instead and give a supplier that returns a new consumer object every time
+   * when its {@code get()} method is called.
+   *
+   * @param downstreamConsumer A down-stream consumer.
+   * @return This object
+   */
+  public C downstreamConsumer(Consumer&lt;String&gt; downstreamConsumer) {
+<span class="fc" id="L89">    requireNonNull(downstreamConsumer);</span>
+<span class="fc" id="L90">    return this.downstreamConsumerFactory(() -&gt; downstreamConsumer);</span>
+  }
+
+  /**
+   * Sets a downstream consumer's factory to this builder object.
+   *
+   * @param downstreamConsumerFactory A supplier of a down-stream consumer.
+   * @return This object
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C downstreamConsumerFactory(Supplier&lt;Consumer&lt;String&gt;&gt; downstreamConsumerFactory) {
+<span class="fc" id="L101">    this.downstreamConsumerFactory = requireNonNull(downstreamConsumerFactory);</span>
+<span class="fc" id="L102">    return (C) this;</span>
+  }
+
+  /**
+   * Sets a checker to this builder object.
+   * In case the checker is stateful, use {@link Commander#checkerFactory(Supplier)}
+   * method instead and give a suuplier that returns a new checker object every
+   * time when its {@code get()} method is called.
+   *
+   * @param checker A checker object
+   * @return This object
+   */
+  public C checker(Checker checker) {
+<span class="fc" id="L115">    requireNonNull(checker);</span>
+<span class="fc" id="L116">    return this.checkerFactory(() -&gt; checker);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C checkerFactory(Supplier&lt;Checker&gt; checkerFactory) {
+<span class="fc" id="L121">    this.checkerFactory = requireNonNull(checkerFactory);</span>
+<span class="fc" id="L122">    return (C) this;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C stdin(Stream&lt;String&gt; stdin) {
+<span class="fc" id="L127">    this.stdin = requireNonNull(stdin);</span>
+<span class="fc" id="L128">    return (C) this;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C shell(Shell shell) {
+<span class="fc" id="L133">    this.shell = requireNonNull(shell);</span>
+<span class="fc" id="L134">    return (C) this;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C cwd(File cwd) {
+<span class="fc" id="L139">    this.cwd = requireNonNull(cwd);</span>
+<span class="fc" id="L140">    return (C) this;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C setenv(String varname, String varvalue) {
+<span class="fc" id="L145">    this.envvars.put(requireNonNull(varname), requireNonNull(varvalue));</span>
+<span class="fc" id="L146">    return (C) this;</span>
+  }
+
+  /**
+   * A building method that returns an {@link Action} object.
+   *
+   * @return An action object.
+   */
+  public Action toAction() {
+<span class="fc" id="L155">    Action action = CommanderUtils.createAction(this);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">    return this.description != null ?</span>
+<span class="fc" id="L157">        named(this.description, action) :</span>
+        action;
+  }
+
+  /**
+   * A building method that returns {@link StreamGenerator} object.
+   *
+   * @return A stream generator object.
+   */
+  public StreamGenerator&lt;String&gt; toStreamGenerator() {
+<span class="fc" id="L167">    return CommanderUtils.createStreamGenerator(this);</span>
+  }
+
+  public ContextConsumer toContextConsumer() {
+<span class="fc" id="L171">    return CommanderUtils.createContextConsumer(this);</span>
+  }
+
+  public ContextPredicate toContextPredicate() {
+<span class="fc" id="L175">    return CommanderUtils.createContextPredicate(this);</span>
+  }
+
+  public ContextFunction&lt;String&gt; toContextFunction() {
+<span class="fc" id="L179">    return CommanderUtils.createContextFunction(this);</span>
+  }
+
+  /**
+   * A short-hand method to execute a command directly.
+   *
+   * @return data stream from the executed command.
+   */
+  public Stream&lt;String&gt; run() {
+<span class="fc" id="L188">    return run(emptyMap());</span>
+  }
+
+  /**
+   * A short-hand method to execute a command directly.
+   *
+   * @param variables Variables to be set to the context.
+   * @return data stream from the executed command.
+   */
+  public Stream&lt;String&gt; run(Map&lt;String, Object&gt; variables) {
+<span class="fc" id="L198">    Context context = Context.create();</span>
+<span class="fc" id="L199">    requireNonNull(variables).forEach(context::assignTo);</span>
+<span class="fc" id="L200">    return toStreamGenerator().apply(context);</span>
+  }
+
+  /**
+   * Adds a {@code target} to this object. A target may be a file, directory, or a
+   * message. For instance, for a {@code cat} command, which usually processes
+   * a file or files, this method will be used to add a file to be processed by
+   * the command.
+   * The value of the {@code target} parameter will be quoted.
+   *
+   * @param target A target string
+   * @return This object
+   */
+  public C add(ContextFunction&lt;String&gt; target) {
+<span class="fc" id="L214">    return this.append(&quot; &quot;).appendq(requireNonNull(target));</span>
+  }
+
+  /**
+   * Adds a {@code target} to this object. A target may be a file, directory, or a
+   * message. For instance, for a {@code cat} command, which usually processes
+   * a file or files, this method will be used to add a file to be processed by
+   * the command.
+   * The value of the {@code target} parameter will be quoted.
+   *
+   * @param target A target string
+   * @return This object
+   */
+  public C add(String target) {
+<span class="fc" id="L228">    return this.append(&quot; &quot;).appendq(requireNonNull(target));</span>
+  }
+
+  public C append(ContextFunction&lt;String&gt; func) {
+<span class="fc" id="L232">    return append(func, false);</span>
+  }
+
+  public C appendq(ContextFunction&lt;String&gt; func) {
+<span class="fc" id="L236">    return append(func, true);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C append(ContextFunction&lt;String&gt; func, boolean b) {
+<span class="fc" id="L241">    commandLineComposerBuilderIfSet().append(func, b);</span>
+<span class="fc" id="L242">    return (C) this;</span>
+  }
+
+  public C append(String text) {
+<span class="fc" id="L246">    return append(text, false);</span>
+  }
+
+  public C appendq(String text) {
+<span class="fc" id="L250">    return append(text, true);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C append(String text, boolean b) {
+<span class="fc" id="L255">    commandLineComposerBuilderIfSet().append(text, b);</span>
+<span class="fc" id="L256">    return (C) this;</span>
+  }
+
+  public C addOption(String option) {
+<span class="fc" id="L260">    return this.append(&quot; &quot;).append(option);</span>
+  }
+
+  public C appendVariable(String variableName) {
+<span class="fc" id="L264">    return appendVariable(variableName, false);</span>
+  }
+
+  public C appendQuotedVariable(String variableName) {
+<span class="fc" id="L268">    return appendVariable(variableName, true);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C appendVariable(String variableName, boolean b) {
+<span class="fc" id="L273">    commandLineComposerBuilderIfSet().appendVariable(variableName, b);</span>
+<span class="fc" id="L274">    return (C) this;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C declareVariable(String variableName) {
+<span class="fc" id="L279">    this.commandLineComposerBuilderIfSet().declareVariable(variableName);</span>
+<span class="fc" id="L280">    return (C) this;</span>
+  }
+
+  public RetryOption retryOption() {
+<span class="fc" id="L284">    return this.retryOption;</span>
+  }
+
+  public Supplier&lt;Checker&gt; checkerFactory() {
+<span class="fc" id="L288">    return this.checkerFactory;</span>
+  }
+
+  public Supplier&lt;Consumer&lt;String&gt;&gt; downstreamConsumerFactory() {
+<span class="fc" id="L292">    return this.downstreamConsumerFactory;</span>
+  }
+
+  public Stream&lt;String&gt; stdin() {
+<span class="fc" id="L296">    return this.stdin;</span>
+  }
+
+  public Shell shell() {
+<span class="fc" id="L300">    return this.shell;</span>
+  }
+
+  public Map&lt;String, String&gt; envvars() {
+<span class="fc" id="L304">    return Collections.unmodifiableMap(this.envvars);</span>
+  }
+
+  public Optional&lt;File&gt; cwd() {
+<span class="fc" id="L308">    return Optional.ofNullable(this.cwd);</span>
+  }
+
+  public Function&lt;String[], IntFunction&lt;String&gt;&gt; parameterPlaceHolderFactory() {
+<span class="fc" id="L312">    return this.parameterPlaceHolderFactory;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L317">    return format(</span>
+        &quot;%s:Shell:(%s), CommandLine(%s)&quot;,
+<span class="fc" id="L319">        this.getClass().getSimpleName(),</span>
+<span class="fc" id="L320">        shell(),</span>
+        commandLineComposerBuilder);
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public C command(String command) {
+<span class="fc" id="L326">    this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory())</span>
+<span class="fc" id="L327">        .append(command, false);</span>
+<span class="fc" id="L328">    return (C) this;</span>
+  }
+
+  protected CommandLineComposer.Builder commandLineComposerBuilderIfSet() {
+<span class="fc" id="L332">    return this.commandLineComposerBuilder().orElseThrow(IllegalStateException::new);</span>
+  }
+
+  public CommandLineComposer buildCommandLineComposer() {
+<span class="fc" id="L336">    return commandLineComposerBuilderIfSet().clone().build();</span>
+  }
+
+  Checker checker() {
+<span class="fc" id="L340">    return this.checkerFactory.get();</span>
+  }
+
+  Consumer&lt;String&gt; downstreamConsumer() {
+<span class="fc" id="L344">    return this.downstreamConsumerFactory.get();</span>
+  }
+
+  String[] variableNames() {
+<span class="fc" id="L348">    return commandLineComposerBuilderIfSet().knownVariables();</span>
+  }
+
+  Optional&lt;CommandLineComposer.Builder&gt; commandLineComposerBuilder() {
+<span class="fc" id="L352">    return Optional.ofNullable(commandLineComposerBuilder);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

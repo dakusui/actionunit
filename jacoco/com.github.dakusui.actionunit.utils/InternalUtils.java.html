@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InternalUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.utils</a> &gt; <span class="el_source">InternalUtils.java</span></div><h1>InternalUtils.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.utils;
+
+import com.github.dakusui.actionunit.exceptions.ActionTimeOutException;
+
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
+import static com.github.dakusui.actionunit.utils.Checks.checkNotNull;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+
+<span class="fc" id="L17">public enum InternalUtils {</span>
+  ;
+<span class="fc" id="L19">  public static final Method OBJECT_TO_STRING_METHOD = objectToStringMethod();</span>
+
+  public static void sleep(long duration, TimeUnit timeUnit) {
+    try {
+<span class="fc" id="L23">      checkNotNull(timeUnit).sleep(duration);</span>
+<span class="fc" id="L24">    } catch (InterruptedException e) {</span>
+<span class="fc" id="L25">      Thread.currentThread().interrupt();</span>
+<span class="nc" id="L26">      throw wrap(e);</span>
+<span class="fc" id="L27">    }</span>
+<span class="fc" id="L28">  }</span>
+
+  public static &lt;T&gt; T runWithTimeout(Callable&lt;T&gt; callable, String timeoutDescription, String description, long timeout, TimeUnit timeUnit) {
+<span class="fc" id="L31">    final ExecutorService executor = Executors.newSingleThreadExecutor();</span>
+<span class="fc" id="L32">    final Future&lt;T&gt; future = executor.submit(callable);</span>
+<span class="fc" id="L33">    executor.shutdown(); // This does not cancel the already-scheduled task.</span>
+    try {
+<span class="fc" id="L35">      Thread.interrupted();</span>
+<span class="fc" id="L36">      return future.get(timeout, timeUnit);</span>
+<span class="fc" id="L37">    } catch (InterruptedException e) {</span>
+<span class="fc" id="L38">      Thread.currentThread().interrupt();</span>
+<span class="nc" id="L39">      throw wrap(e);</span>
+<span class="fc" id="L40">    } catch (TimeoutException e) {</span>
+<span class="fc" id="L41">      future.cancel(true);</span>
+<span class="fc" id="L42">      throw new ActionTimeOutException(</span>
+<span class="fc" id="L43">          String.format(&quot;Action: &lt;%s&gt;; %s with message: &lt;%s&gt;&quot;, description, timeoutDescription, e.getMessage()),</span>
+          e);
+<span class="fc" id="L45">    } catch (ExecutionException e) {</span>
+      //unwrap the root cause
+<span class="fc" id="L47">      Throwable cause = e.getCause();</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">      if (cause instanceof Error) {</span>
+<span class="fc" id="L49">        throw (Error) cause;</span>
+      }
+      ////
+      // It's safe to directly cast to RuntimeException, because a Callable can only
+      // throw an Error or a RuntimeException.
+<span class="fc" id="L54">      throw (RuntimeException) cause;</span>
+    } finally {
+<span class="fc" id="L56">      executor.shutdownNow();</span>
+    }
+  }
+
+  public static String indent(int level, int indentWidth) {
+<span class="fc" id="L61">    StringBuilder b = new StringBuilder();</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    for (int i = 0; i &lt; level; i++)</span>
+<span class="fc" id="L63">      b.append(spaces(indentWidth));</span>
+<span class="fc" id="L64">    return b.toString();</span>
+  }
+
+  public static String formatNumberOfTimes(int i) {
+<span class="fc bfc" id="L68" title="All 2 branches covered.">    if (i == 1)</span>
+<span class="fc" id="L69">      return &quot;once&quot;;</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    if (i == 2)</span>
+<span class="fc" id="L71">      return &quot;twice&quot;;</span>
+<span class="fc" id="L72">    return String.format(&quot;%s times&quot;, i);</span>
+  }
+
+
+  public static String formatDuration(long durationInNanos) {
+<span class="fc" id="L77">    TimeUnit timeUnit = chooseTimeUnit(durationInNanos);</span>
+<span class="fc" id="L78">    return format(&quot;%d [%s]&quot;, timeUnit.convert(durationInNanos, TimeUnit.NANOSECONDS), timeUnit.toString().toLowerCase());</span>
+  }
+
+  private static TimeUnit chooseTimeUnit(long intervalInNanos) {
+    // TimeUnit.values() returns elements of TimeUnit in declared order
+    // And they are declared in ascending order.
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    for (TimeUnit timeUnit : TimeUnit.values()) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">      if (1000 &gt; timeUnit.convert(intervalInNanos, TimeUnit.NANOSECONDS)) {</span>
+<span class="fc" id="L86">        return timeUnit;</span>
+      }
+    }
+<span class="fc" id="L89">    return TimeUnit.DAYS;</span>
+  }
+
+  public static String spaces(int numSpaces) {
+<span class="fc" id="L93">    StringBuilder ret = new StringBuilder();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    for (int i = 0; i &lt; numSpaces; i++) {</span>
+<span class="fc" id="L95">      ret.append(&quot; &quot;);</span>
+    }
+<span class="fc" id="L97">    return ret.toString();</span>
+  }
+
+  public static String summary(String s) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    return requireNonNull(s).length() &gt; 40</span>
+<span class="nc" id="L102">        ? s.substring(0, 40) + &quot;...&quot;</span>
+        : s;
+  }
+
+  public static String toStringIfOverriddenOrNoname(Object o) {
+<span class="fc" id="L107">    return objectToStringIfOverridden(o, fallbackFormatter());</span>
+  }
+
+  public static Function&lt;Object, String&gt; fallbackFormatter() {
+<span class="fc" id="L111">    return obj -&gt; &quot;(noname)&quot;;</span>
+  }
+
+  public static String objectToStringIfOverridden(Object o, Function&lt;Object, String&gt; formatter) {
+<span class="fc" id="L115">    requireNonNull(formatter);</span>
+    try {
+<span class="fc bfc" id="L117" title="All 2 branches covered.">      return !Objects.equals(o.getClass().getMethod(&quot;toString&quot;), OBJECT_TO_STRING_METHOD) ?</span>
+<span class="fc" id="L118">          o.toString() :</span>
+<span class="fc" id="L119">          formatter.apply(o);</span>
+<span class="nc" id="L120">    } catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L121">      return formatter.apply(o);</span>
+    }
+  }
+
+  private static Method objectToStringMethod() {
+    try {
+<span class="fc" id="L127">      return Object.class.getMethod(&quot;toString&quot;);</span>
+<span class="nc" id="L128">    } catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L129">      throw wrap(e);</span>
+    }
+  }
+
+  public static &lt;T, R&gt; Function&lt;T, R&gt; memoize(Function&lt;T, R&gt; function) {
+<span class="fc" id="L134">    Map&lt;T, R&gt; memo = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L135">    return t -&gt; memo.computeIfAbsent(t, function);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

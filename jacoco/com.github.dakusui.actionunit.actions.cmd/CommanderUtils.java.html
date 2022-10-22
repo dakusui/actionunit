@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommanderUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">CommanderUtils.java</span></div><h1>CommanderUtils.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.actions.RetryOption;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.context.*;
+import com.github.dakusui.actionunit.core.context.multiparams.Params;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
+import static com.github.dakusui.printables.PrintableFunctionals.printablePredicate;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
+
+<span class="fc" id="L27">public enum CommanderUtils {</span>
+  ;
+
+<span class="fc" id="L30">  private static final Logger LOGGER = LoggerFactory.getLogger(CommanderUtils.class);</span>
+
+  public static String quoteWithApostropheForShell(String s) {
+<span class="fc" id="L33">    return String.format(&quot;'%s'&quot;, escapeSingleQuotesForShell(s));</span>
+  }
+
+  private static String escapeSingleQuotesForShell(String s) {
+<span class="fc" id="L37">    return requireNonNull(s).replaceAll(&quot;('+)&quot;, &quot;'\&quot;$1\&quot;'&quot;);</span>
+  }
+
+  static Action createAction(Commander commander) {
+<span class="fc" id="L41">    return RetryOption.retryAndTimeOut(</span>
+<span class="fc" id="L42">        leaf(createContextConsumer(commander)),</span>
+<span class="fc" id="L43">        commander.retryOption());</span>
+  }
+
+  static StreamGenerator&lt;String&gt; createStreamGenerator(
+      Commander&lt;?&gt; commander) {
+<span class="fc" id="L48">    return StreamGenerator.fromContextWith(</span>
+<span class="fc" id="L49">        new Function&lt;Params, Stream&lt;String&gt;&gt;() {</span>
+          @Override
+          public Stream&lt;String&gt; apply(Params params) {
+<span class="fc" id="L52">            return createProcessStreamerBuilder(commander, params)</span>
+<span class="fc" id="L53">                .checker(commander.checker())</span>
+<span class="fc" id="L54">                .build()</span>
+<span class="fc" id="L55">                .stream()</span>
+<span class="fc" id="L56">                .peek(commander.downstreamConsumer());</span>
+          }
+
+          @Override
+          public String toString() {
+<span class="fc" id="L61">            return format(&quot;(%s)&quot;, commander.buildCommandLineComposer().format());</span>
+          }
+        },
+<span class="fc" id="L64">        commander.variableNames()</span>
+    );
+  }
+
+  static ContextConsumer createContextConsumer(Commander&lt;?&gt; commander) {
+<span class="fc" id="L69">    requireNonNull(commander);</span>
+<span class="fc" id="L70">    return multiParamsConsumerFor(commander.variableNames())</span>
+<span class="fc" id="L71">        .toContextConsumer(</span>
+<span class="fc" id="L72">            printableConsumer(</span>
+<span class="fc" id="L73">                (Params params) -&gt; createProcessStreamerBuilder(commander, params)</span>
+<span class="fc" id="L74">                    .checker(commander.checker())</span>
+<span class="fc" id="L75">                    .build()</span>
+<span class="fc" id="L76">                    .stream()</span>
+<span class="fc" id="L77">                    .forEach(commander.downstreamConsumer()))</span>
+<span class="fc" id="L78">                .describe(() -&gt; commander.buildCommandLineComposer().format()));</span>
+  }
+
+  static ContextPredicate createContextPredicate(
+      Commander&lt;?&gt; commander) {
+<span class="fc" id="L83">    return multiParamsPredicateFor(commander.variableNames())</span>
+<span class="fc" id="L84">        .toContextPredicate(printablePredicate(</span>
+            (Params params) -&gt; {
+<span class="fc" id="L86">              ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);</span>
+              try {
+<span class="fc" id="L88">                processStreamerBuilder</span>
+<span class="fc" id="L89">                    .checker(commander.checker())</span>
+<span class="fc" id="L90">                    .build()</span>
+<span class="fc" id="L91">                    .stream()</span>
+<span class="fc" id="L92">                    .forEach(commander.downstreamConsumer());</span>
+<span class="fc" id="L93">                return true;</span>
+<span class="fc" id="L94">              } catch (ProcessStreamer.Failure failure) {</span>
+<span class="fc" id="L95">                String msg = format(&quot;Condition '%s' was not satisfied: %s&quot;, commander.checker(), failure.getMessage());</span>
+<span class="fc" id="L96">                LOGGER.debug(msg);</span>
+<span class="fc" id="L97">                LOGGER.trace(msg, failure);</span>
+<span class="fc" id="L98">                return false;</span>
+              }
+            })
+<span class="fc" id="L101">            .describe(() -&gt; format(</span>
+                &quot;outputOf[command:'%s'].matches[%s]&quot;,
+<span class="fc" id="L103">                commander.buildCommandLineComposer().format(),</span>
+<span class="fc" id="L104">                toStringIfOverriddenOrNoname(commander.checker()))));</span>
+  }
+
+  static ContextFunction&lt;String&gt; createContextFunction(Commander&lt;?&gt; commander) {
+<span class="fc" id="L108">    return ContextFunctions.&lt;String&gt;multiParamsFunctionFor(commander.variableNames())</span>
+<span class="fc" id="L109">        .toContextFunction(params -&gt;</span>
+<span class="fc" id="L110">            createProcessStreamerBuilder(commander, params)</span>
+<span class="fc" id="L111">                .checker(commander.checker())</span>
+<span class="fc" id="L112">                .build()</span>
+<span class="fc" id="L113">                .stream()</span>
+<span class="fc" id="L114">                .peek(commander.downstreamConsumer())</span>
+<span class="fc" id="L115">                .collect(joining(format(&quot;%n&quot;))));</span>
+  }
+
+  static ProcessStreamer.Builder createProcessStreamerBuilder(Commander&lt;?&gt; commander, Params params) {
+<span class="fc" id="L119">    return createProcessStreamerBuilder(</span>
+<span class="fc" id="L120">        commander.stdin(),</span>
+<span class="fc" id="L121">        commander.shell(),</span>
+<span class="fc" id="L122">        commander.cwd().orElse(null),</span>
+<span class="fc" id="L123">        commander.envvars(),</span>
+<span class="fc" id="L124">        commander.buildCommandLineComposer(),</span>
+        params
+    );
+  }
+
+  static ProcessStreamer.Builder createProcessStreamerBuilder(
+      Stream&lt;String&gt; stdin, Shell shell, File cwd, Map&lt;String, String&gt; envvars,
+      CommandLineComposer commandLineComposer,
+      Params params) {
+<span class="fc" id="L133">    String[] variableNames = params.paramNames().toArray(new String[0]);</span>
+<span class="fc" id="L134">    Object[] variableValues = params.paramNames()</span>
+<span class="fc" id="L135">        .stream()</span>
+<span class="fc" id="L136">        .map(params::valueOf)</span>
+<span class="fc" id="L137">        .toArray();</span>
+<span class="fc" id="L138">    String commandLine = commandLineComposer</span>
+<span class="fc" id="L139">        .apply(variableNames)</span>
+<span class="fc" id="L140">        .apply(params.context(), variableValues);</span>
+<span class="fc" id="L141">    LOGGER.info(&quot;Command Line:{}&quot;, commandLine);</span>
+<span class="fc" id="L142">    LOGGER.trace(&quot;Shell:{}&quot;, shell);</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">    if (cwd != null)</span>
+<span class="fc" id="L144">      LOGGER.debug(&quot;Cwd:{}&quot;, cwd);</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">    if (!envvars.isEmpty())</span>
+<span class="fc" id="L146">      LOGGER.debug(&quot;Environment variables:{}&quot;, envvars);</span>
+    ProcessStreamer.Builder ret;
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">    if (stdin == null)</span>
+<span class="nc" id="L149">      ret = ProcessStreamer.source(shell);</span>
+    else
+<span class="fc" id="L151">      ret = ProcessStreamer.pipe(stdin, shell);</span>
+<span class="fc" id="L152">    envvars.forEach(ret::env);</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">    if (cwd != null)</span>
+<span class="fc" id="L154">      ret.cwd(cwd);</span>
+<span class="fc" id="L155">    return ret.command(commandLine);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

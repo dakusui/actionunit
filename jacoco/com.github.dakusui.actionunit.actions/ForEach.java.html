@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForEach.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">ForEach.java</span></div><h1>ForEach.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
+
+import java.util.Formatter;
+
+import static java.util.Objects.requireNonNull;
+
+public interface ForEach&lt;E&gt; extends Action {
+  String loopVariableName();
+
+  StreamGenerator&lt;E&gt; data();
+
+  Action perform();
+
+  boolean isParallel();
+
+  default void accept(Visitor visitor) {
+<span class="fc" id="L21">    visitor.visit(this);</span>
+<span class="fc" id="L22">  }</span>
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    formatter.format(&quot;for each of %s %s&quot;, data(), isParallel() ? &quot;parallely&quot; : &quot;sequentially&quot;);</span>
+<span class="fc" id="L27">  }</span>
+
+  class Builder&lt;E&gt; extends Action.Builder&lt;ForEach&lt;E&gt;&gt; {
+    private final StreamGenerator&lt;E&gt; streamGenerator;
+    private final String             loopVariableName;
+<span class="fc" id="L32">    private       Action             perform = ActionSupport.nop();</span>
+    private       boolean            parallel;
+
+<span class="fc" id="L35">    public Builder(String loopVariableName, StreamGenerator&lt;E&gt; streamGenerator) {</span>
+<span class="fc" id="L36">      this.loopVariableName = requireNonNull(loopVariableName);</span>
+<span class="fc" id="L37">      this.streamGenerator = requireNonNull(streamGenerator);</span>
+<span class="fc" id="L38">      this.sequentially();</span>
+<span class="fc" id="L39">    }</span>
+
+    public Action perform(Action perform) {
+<span class="fc" id="L42">      this.perform = requireNonNull(perform);</span>
+<span class="fc" id="L43">      return this.$();</span>
+    }
+
+    public Builder&lt;E&gt; parallelly() {
+<span class="fc" id="L47">      this.parallel = true;</span>
+<span class="fc" id="L48">      return this;</span>
+    }
+
+    public Builder&lt;E&gt; sequentially() {
+<span class="fc" id="L52">      this.parallel = false;</span>
+<span class="fc" id="L53">      return this;</span>
+    }
+
+    public ForEach&lt;E&gt; build() {
+<span class="fc" id="L57">      return new ForEach&lt;E&gt;() {</span>
+        @Override
+        public String loopVariableName() {
+<span class="fc" id="L60">          return Builder.this.loopVariableName;</span>
+        }
+
+        @Override
+        public StreamGenerator&lt;E&gt; data() {
+<span class="fc" id="L65">          return Builder.this.streamGenerator;</span>
+        }
+
+        @Override
+        public Action perform() {
+<span class="fc" id="L70">          return Builder.this.perform;</span>
+        }
+
+        @Override
+        public boolean isParallel() {
+<span class="fc" id="L75">          return Builder.this.parallel;</span>
+        }
+      };
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

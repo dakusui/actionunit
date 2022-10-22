@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Checks.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.utils</a> &gt; <span class="el_source">Checks.java</span></div><h1>Checks.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.utils;
+
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static java.lang.String.format;
+
+<span class="fc" id="L9">public enum Checks {</span>
+  ;
+
+  public static &lt;T&gt; T requireState(Predicate&lt;T&gt; condition, T value) {
+<span class="pc" id="L13">    return requireState(condition, value, c -&gt; v -&gt; format(&quot;'%s' did not not satisfy '%s'&quot;, v, c));</span>
+  }
+
+  public static &lt;T&gt; T requireState(Predicate&lt;T&gt; condition, T value, Function&lt;Predicate&lt;T&gt;, Function&lt;T, String&gt;&gt; messageComposer) {
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">    if (condition.test(value))</span>
+<span class="fc" id="L18">      return value;</span>
+<span class="nc" id="L19">    throw exceptionForIllegaState(messageComposer.apply(condition).apply(value));</span>
+  }
+
+  public static &lt;T&gt; T requireArgument(Predicate&lt;T&gt; condition, T value) {
+<span class="fc" id="L23">    return requireArgument(condition, value, c -&gt; v -&gt; format(&quot;'%s' did not not satisfy '%s'&quot;, v, c));</span>
+  }
+
+  public static &lt;T&gt; T requireArgument(Predicate&lt;T&gt; condition, T value, Function&lt;Predicate&lt;T&gt;, Function&lt;T, String&gt;&gt; messageComposer) {
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">    if (condition.test(value))</span>
+<span class="fc" id="L28">      return value;</span>
+<span class="nc" id="L29">    throw exceptionForIllegalValue(messageComposer.apply(condition).apply(value));</span>
+  }
+
+  private static RuntimeException exceptionForIllegaState(String message) {
+<span class="nc" id="L33">    throw new IllegalStateException(message);</span>
+  }
+
+  private static RuntimeException exceptionForIllegalValue(String message) {
+<span class="fc" id="L37">    throw new IllegalArgumentException(message);</span>
+  }
+
+  public static RuntimeException impossibleLineReached(String message, Throwable t) {
+<span class="nc" id="L41">    throw exceptionForImpossibleLine(message, t);</span>
+  }
+
+  private static RuntimeException exceptionForImpossibleLine(String message, Throwable t) {
+<span class="nc" id="L45">    throw new AssertionError(message, t);</span>
+  }
+
+  public static &lt;T&gt; T checkNotNull(T value, String message) {
+<span class="nc" id="L49">    return Objects.requireNonNull(value, message);</span>
+  }
+
+  public static &lt;T&gt; T checkNotNull(T value) {
+<span class="fc" id="L53">    return Objects.requireNonNull(value);</span>
+  }
+
+  public static void checkArgument(boolean cond, String message, Object... args) {
+<span class="fc" id="L57">    checkArgument(cond, format(message, args));</span>
+<span class="fc" id="L58">  }</span>
+
+  public static void checkArgument(boolean cond, String message) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (!cond)</span>
+<span class="fc" id="L62">      throw new IllegalArgumentException(message);</span>
+<span class="fc" id="L63">  }</span>
+
+  public static void checkArgument(boolean cond) {
+<span class="nc" id="L66">    checkArgument(cond, null);</span>
+<span class="nc" id="L67">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

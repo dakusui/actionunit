@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>When.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">When.java</span></div><h1>When.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.Context;
+
+import java.util.Formatter;
+import java.util.function.Predicate;
+
+import static java.util.Objects.requireNonNull;
+
+public interface When extends Action {
+  Predicate&lt;Context&gt; cond();
+
+  Action perform();
+
+  Action otherwise();
+
+  @Override
+  default void accept(Visitor visitor) {
+<span class="fc" id="L21">    visitor.visit(this);</span>
+<span class="fc" id="L22">  }</span>
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="fc" id="L26">    formatter.format(&quot;if [%s]&quot;, cond());</span>
+<span class="fc" id="L27">  }</span>
+
+  class Builder extends Action.Builder&lt;When&gt; {
+    private final Predicate&lt;Context&gt; cond;
+
+<span class="fc" id="L32">    private Action otherwise = Named.of(&quot;else&quot;, ActionSupport.nop());</span>
+    private Action perform;
+
+<span class="fc" id="L35">    public Builder(Predicate&lt;Context&gt; cond) {</span>
+<span class="fc" id="L36">      this.cond = requireNonNull(cond);</span>
+<span class="fc" id="L37">    }</span>
+
+    public Builder perform(Action perform) {
+<span class="fc" id="L40">      this.perform = Named.of(&quot;then&quot;, requireNonNull(perform));</span>
+<span class="fc" id="L41">      return this;</span>
+    }
+
+    public Action otherwise(Action otherwise) {
+<span class="fc" id="L45">      this.otherwise = Named.of(&quot;else&quot;, requireNonNull(otherwise));</span>
+<span class="fc" id="L46">      return this.$();</span>
+    }
+
+    @Override
+    public When build() {
+<span class="fc" id="L51">      requireNonNull(this.perform);</span>
+<span class="fc" id="L52">      return new When() {</span>
+        @Override
+        public Predicate&lt;Context&gt; cond() {
+<span class="fc" id="L55">          return Builder.this.cond;</span>
+        }
+
+        @Override
+        public Action perform() {
+<span class="fc" id="L60">          return Builder.this.perform;</span>
+        }
+
+        @Override
+        public Action otherwise() {
+<span class="fc" id="L65">          return Builder.this.otherwise;</span>
+        }
+      };
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

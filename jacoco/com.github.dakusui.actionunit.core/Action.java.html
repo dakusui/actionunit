@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Action.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.core</a> &gt; <span class="el_source">Action.java</span></div><h1>Action.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.core;
+
+import com.github.dakusui.actionunit.actions.*;
+
+import java.util.Formattable;
+
+public interface Action extends Formattable {
+  void accept(Visitor visitor);
+
+
+<span class="fc" id="L11">  abstract class Builder&lt;A extends Action&gt; {</span>
+    public abstract A build();
+
+    /**
+     * A synonym of {@code build()} method. This method is defined not to use a
+     * method name 'build', which introduces extra word not relating to what is
+     * being achieved.
+     * &lt;p&gt;
+     * If you prefer a word 'build' in your code, simply use {@code build}
+     * method.
+     *
+     * @return An object built by {@code build} method.
+     */
+    final public A $() {
+<span class="fc" id="L25">      return build();</span>
+    }
+  }
+
+  interface Visitor {
+    @SuppressWarnings(&quot;unused&quot;)
+    default void visit(Action action) {
+<span class="fc" id="L32">      throw new UnsupportedOperationException();</span>
+    }
+
+    default void visit(Leaf action) {
+<span class="fc" id="L36">      this.visit((Action) action);</span>
+<span class="fc" id="L37">    }</span>
+
+    default void visit(Named action) {
+<span class="fc" id="L40">      this.visit((Action) action);</span>
+<span class="fc" id="L41">    }</span>
+
+    default void visit(Composite action) {
+<span class="fc" id="L44">      this.visit((Action) action);</span>
+<span class="fc" id="L45">    }</span>
+
+    default &lt;E&gt; void visit(ForEach&lt;E&gt; action) {
+<span class="fc" id="L48">      this.visit((Action) action);</span>
+<span class="fc" id="L49">    }</span>
+
+    default void visit(While action) {
+<span class="nc" id="L52">      this.visit((Action) action);</span>
+<span class="nc" id="L53">    }</span>
+
+    default void visit(When action) {
+<span class="fc" id="L56">      this.visit((Action) action);</span>
+<span class="fc" id="L57">    }</span>
+
+    default &lt;V&gt; void visit(With&lt;V&gt; action) {
+<span class="nc" id="L60">      this.visit((Action) action);</span>
+<span class="nc" id="L61">    }</span>
+
+    default void visit(Attempt action) {
+<span class="fc" id="L64">      this.visit((Action) action);</span>
+<span class="fc" id="L65">    }</span>
+
+    default void visit(Retry action) {
+<span class="fc" id="L68">      this.visit((Action) action);</span>
+<span class="fc" id="L69">    }</span>
+
+    default void visit(TimeOut action) {
+<span class="fc" id="L72">      this.visit((Action) action);</span>
+<span class="fc" id="L73">    }</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintableFunction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.printables</a> &gt; <span class="el_source">PrintableFunction.java</span></div><h1>PrintableFunction.java</h1><pre class="source lang-java linenums">package com.github.dakusui.printables;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
+
+public class PrintableFunction&lt;T, R&gt; implements Function&lt;T, R&gt; {
+  private final Function&lt;? super T, ? extends R&gt; function;
+  private final Supplier&lt;String&gt;                 formatter;
+
+<span class="fc" id="L12">  public PrintableFunction(Supplier&lt;String&gt; formatter, Function&lt;? super T, ? extends R&gt; function) {</span>
+<span class="fc" id="L13">    this.formatter = requireNonNull(formatter);</span>
+<span class="fc" id="L14">    this.function = requireNonNull(function);</span>
+<span class="fc" id="L15">  }</span>
+
+  @Override
+  public R apply(T t) {
+<span class="fc" id="L19">    return this.function.apply(t);</span>
+  }
+
+  public &lt;V&gt; Function&lt;V, R&gt; compose(Function&lt;? super V, ? extends T&gt; before) {
+<span class="nc" id="L23">    requireNonNull(before);</span>
+<span class="nc" id="L24">    return new PrintableFunction&lt;&gt;(() -&gt; String.format(&quot;%s(%s)&quot;, formatter.get(), before), this.function.compose(before));</span>
+  }
+
+  public &lt;V&gt; Function&lt;T, V&gt; andThen(Function&lt;? super R, ? extends V&gt; after) {
+<span class="nc" id="L28">    requireNonNull(after);</span>
+<span class="nc" id="L29">    return new PrintableFunction&lt;&gt;(() -&gt; String.format(&quot;%s(%s)&quot;, after, formatter.get()), this.function.andThen(after));</span>
+  }
+
+  protected Supplier&lt;String&gt; getFormatter() {
+<span class="fc" id="L33">    return formatter;</span>
+  }
+
+  protected Function&lt;? super T, ? extends R&gt; getFunction() {
+<span class="fc" id="L37">    return this.function;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L42">    return formatter.get();</span>
+  }
+
+
+  public static &lt;T, R&gt; PrintableFunction.Builder&lt;T, R&gt; of(Function&lt;T, R&gt; func){
+<span class="fc" id="L47">    return new PrintableFunction.Builder&lt;&gt;(requireNonNull(func));</span>
+  }
+  public static class Builder&lt;T, R&gt; {
+
+    private final Function&lt;T, R&gt; function;
+
+<span class="fc" id="L53">    public Builder(Function&lt;T, R&gt; function) {</span>
+<span class="fc" id="L54">      this.function = requireNonNull(function);</span>
+<span class="fc" id="L55">    }</span>
+
+    public Function&lt;T, R&gt; describe(Supplier&lt;String&gt; formatter) {
+<span class="fc" id="L58">      return new PrintableFunction&lt;&gt;(requireNonNull(formatter), function);</span>
+    }
+
+    public Function&lt;T, R&gt; describe(String description) {
+<span class="fc" id="L62">      return describe(() -&gt; description);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

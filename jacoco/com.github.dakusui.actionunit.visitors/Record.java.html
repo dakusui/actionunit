@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Record.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.visitors</a> &gt; <span class="el_source">Record.java</span></div><h1>Record.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.visitors;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+<span class="pc bpc" id="L9" title="1 of 2 branches missed.">public class Record implements Iterable&lt;Record.Run&gt; {</span>
+
+<span class="fc" id="L11">  private final List&lt;Run&gt; runs = Collections.synchronizedList(new LinkedList&lt;&gt;());</span>
+
+  public long started() {
+<span class="fc" id="L14">    return System.currentTimeMillis();</span>
+  }
+
+  public void succeeded(long timeSpentInMillis) {
+<span class="fc" id="L18">    runs.add(Run.succeeded(timeSpentInMillis));</span>
+<span class="fc" id="L19">  }</span>
+
+  public void failed(long timeSpentInMillis, Throwable t) {
+<span class="fc" id="L22">    runs.add(Run.failed(timeSpentInMillis, t));</span>
+<span class="fc" id="L23">  }</span>
+
+  public long timeSpentInMillis() {
+<span class="fc" id="L26">    return this.runs.stream()</span>
+<span class="fc" id="L27">        .map(Run::timeSpentInMillis)</span>
+<span class="fc" id="L28">        .reduce(Long::sum)</span>
+<span class="fc" id="L29">        .orElse((long) 0);</span>
+  }
+
+  public boolean allFailing() {
+<span class="fc" id="L33">    return this.runs.stream().noneMatch(Run::succeeded);</span>
+  }
+
+  @Override
+  public Iterator&lt;Run&gt; iterator() {
+<span class="fc" id="L38">    return runs.iterator();</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L43">    return formatRecord(this);</span>
+  }
+
+  private static String formatRecord(Record runs) {
+<span class="fc" id="L47">    StringBuilder b = new StringBuilder();</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">    if (runs != null)</span>
+<span class="fc" id="L49">      runs.forEach(run -&gt; b.append(run.toString()));</span>
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">    assert runs != null;</span>
+<span class="fc" id="L51">    return summarize(b.toString()) + &quot;:&quot; + MILLISECONDS.toSeconds(runs.timeSpentInMillis());</span>
+  }
+
+  private static String summarize(String in) {
+<span class="fc" id="L55">    StringBuilder b = new StringBuilder();</span>
+<span class="fc" id="L56">    Matcher matcher = Pattern.compile(&quot;((.)\\2{0,})&quot;).matcher(in);</span>
+<span class="fc" id="L57">    int i = 0;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    while (matcher.find(i)) {</span>
+<span class="fc" id="L59">      String matched = matcher.group(1);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">      if (matched.length() &gt; 3) {</span>
+<span class="fc" id="L61">        b.append(matched.charAt(0));</span>
+<span class="fc" id="L62">        b.append(&quot;...&quot;);</span>
+      } else
+<span class="fc" id="L64">        b.append(matched);</span>
+<span class="fc" id="L65">      i += matched.length();</span>
+<span class="fc" id="L66">    }</span>
+<span class="fc" id="L67">    return b.toString();</span>
+  }
+
+  /**
+   * {@code o} for Okay, {@code F} for fail, and {@code E} for error.
+   * A fail means an assertion error, which is raised when a test fails.
+   */
+  public interface Run {
+    long timeSpentInMillis();
+    boolean succeeded();
+
+    static Run failed(long timeSpentInMillis, Throwable t) {
+<span class="fc" id="L79">      Objects.requireNonNull(t);</span>
+<span class="fc" id="L80">      return new Run() {</span>
+        @Override
+        public long timeSpentInMillis() {
+<span class="fc" id="L83">          return timeSpentInMillis;</span>
+        }
+
+        @Override
+        public boolean succeeded() {
+<span class="fc" id="L88">          return false;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">          return t instanceof AssertionError</span>
+              ? &quot;F&quot;
+              : &quot;E&quot;;
+        }
+      };
+    }
+
+    static Run succeeded(long timeSpentInMillis) {
+<span class="fc" id="L101">      return new Run() {</span>
+        @Override
+        public String toString() {
+<span class="fc" id="L104">          return &quot;o&quot;;</span>
+        }
+
+        @Override
+        public long timeSpentInMillis() {
+<span class="fc" id="L109">          return timeSpentInMillis;</span>
+        }
+
+        @Override
+        public boolean succeeded() {
+<span class="fc" id="L114">          return true;</span>
+        }
+      };
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

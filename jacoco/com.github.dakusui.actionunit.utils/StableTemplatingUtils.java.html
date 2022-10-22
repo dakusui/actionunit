@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StableTemplatingUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.utils</a> &gt; <span class="el_source">StableTemplatingUtils.java</span></div><h1>StableTemplatingUtils.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.utils;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+
+<span class="fc" id="L24">public enum StableTemplatingUtils {</span>
+  ;
+  public static String template(String template, Map&lt;String, Object&gt; mapping) {
+<span class="fc" id="L27">    AtomicInteger lastPosition = new AtomicInteger(0);</span>
+<span class="fc" id="L28">    StringBuilder b = new StringBuilder();</span>
+<span class="fc" id="L29">    positionToPlaceHolder(template, mapping.keySet())</span>
+<span class="fc" id="L30">        .forEach(chainBiConsumers(</span>
+<span class="fc" id="L31">            (Integer position, String placeHolder) -&gt; b.append(</span>
+                template,
+<span class="fc" id="L33">                lastPosition.get(),</span>
+<span class="fc" id="L34">                position),</span>
+<span class="fc" id="L35">            (Integer position, String placeHolder) -&gt; b.append(mapping.get(placeHolder)),</span>
+<span class="fc" id="L36">            (Integer position, String placeHolder) -&gt; lastPosition.accumulateAndGet(</span>
+<span class="fc" id="L37">                placeHolder.length(),</span>
+<span class="fc" id="L38">                (i, j) -&gt; position + j)</span>
+        ));
+<span class="fc bfc" id="L40" title="All 2 branches covered.">    if (lastPosition.get() &lt; template.length())</span>
+<span class="fc" id="L41">      b.append(template, lastPosition.get(), template.length());</span>
+<span class="fc" id="L42">    return b.toString();</span>
+  }
+
+  public static SortedMap&lt;String, Object&gt; toMapping(IntFunction&lt;String&gt; placeHolderComposer, Object[] argValues) {
+<span class="fc" id="L46">    AtomicInteger i = new AtomicInteger();</span>
+<span class="fc" id="L47">    return parameterPlaceHolders(placeHolderComposer, argValues.length)</span>
+<span class="fc" id="L48">        .stream()</span>
+<span class="fc" id="L49">        .collect(toLinkedHashMap(placeHolder -&gt; placeHolder, placeHolder -&gt; argValues[i.getAndIncrement()]));</span>
+  }
+
+  static List&lt;String&gt; parameterPlaceHolders(IntFunction&lt;String&gt; placeHolderComposer, int numParameters) {
+<span class="fc" id="L53">    return IntStream.range(0, numParameters)</span>
+<span class="fc" id="L54">        .mapToObj(placeHolderComposer)</span>
+<span class="fc" id="L55">        .collect(toList());</span>
+  }
+
+  static SortedMap&lt;Integer, String&gt; positionToPlaceHolder(String formatString, Collection&lt;String&gt; placeHolders) {
+<span class="fc" id="L59">    return new TreeMap&lt;Integer, String&gt;() {{</span>
+<span class="fc" id="L60">      for (Optional&lt;PositionedPlaceHolder&gt; positionedPlaceHolderOptional = findFirstPlaceHolderFrom(</span>
+          formatString,
+          0,
+          new LinkedList&lt;&gt;(placeHolders));
+<span class="fc bfc" id="L64" title="All 2 branches covered.">           positionedPlaceHolderOptional.isPresent();</span>
+<span class="fc" id="L65">           positionedPlaceHolderOptional = findFirstPlaceHolderFrom(</span>
+               formatString,
+<span class="fc" id="L67">               positionedPlaceHolderOptional.get().position + positionedPlaceHolderOptional.get().placeHolder.length(),</span>
+               new LinkedList&lt;&gt;(placeHolders)
+           )) {
+<span class="fc" id="L70">        PositionedPlaceHolder positionedPlaceHolder = positionedPlaceHolderOptional.get();</span>
+<span class="fc" id="L71">        this.put(positionedPlaceHolder.position, positionedPlaceHolder.placeHolder);</span>
+      }
+<span class="fc" id="L73">    }};</span>
+  }
+
+  private static Optional&lt;PositionedPlaceHolder&gt; findFirstPlaceHolderFrom(
+      String template,
+      int from,
+      Collection&lt;String&gt; remainingPlaceHolders) {
+<span class="fc" id="L80">    String templateSubString = template.substring(from);</span>
+<span class="fc" id="L81">    List&lt;String&gt; notFound = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L82">    AtomicReference&lt;Optional&lt;PositionedPlaceHolder&gt;&gt; ret = new AtomicReference&lt;&gt;(Optional.empty());</span>
+<span class="fc" id="L83">    remainingPlaceHolders.forEach(</span>
+        (String s) -&gt; {
+<span class="fc" id="L85">          int position = templateSubString.indexOf(s);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">          if (position &lt; 0)</span>
+<span class="fc" id="L87">            notFound.add(s);</span>
+          else {
+<span class="fc" id="L89">            PositionedPlaceHolder found = PositionedPlaceHolder.of(s, from + position);</span>
+<span class="pc bpc" id="L90" title="1 of 4 branches missed.">            if (!ret.get().isPresent() || found.position &lt; ret.get().get().position)</span>
+<span class="fc" id="L91">              ret.set(Optional.of(found));</span>
+          }
+<span class="fc" id="L93">        });</span>
+<span class="fc" id="L94">    remainingPlaceHolders.removeAll(notFound);</span>
+<span class="fc" id="L95">    return ret.get();</span>
+  }
+
+
+  private static &lt;T, K, U&gt; Collector&lt;T, ?, SortedMap&lt;K, U&gt;&gt; toLinkedHashMap(Function&lt;? super T, ? extends K&gt; keyMapper,
+      Function&lt;? super T, ? extends U&gt; valueMapper) {
+<span class="fc" id="L101">    return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), TreeMap::new);</span>
+  }
+
+  private static &lt;T&gt; BinaryOperator&lt;T&gt; throwingMerger() {
+<span class="fc" id="L105">    return (u, v) -&gt; {</span>
+<span class="nc" id="L106">      throw new IllegalStateException(String.format(&quot;Duplicate key %s&quot;, u));</span>
+    };
+  }
+
+  @SafeVarargs
+  private static &lt;T, U&gt; BiConsumer&lt;T, U&gt; chainBiConsumers(BiConsumer&lt;T, U&gt; c1, BiConsumer&lt;T, U&gt;... c2) {
+<span class="fc" id="L112">    BiConsumer&lt;T, U&gt; ret = c1;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">    for (BiConsumer&lt;T, U&gt; each : c2)</span>
+<span class="fc" id="L114">      ret = ret.andThen(each);</span>
+<span class="fc" id="L115">    return ret;</span>
+  }
+
+  private static class PositionedPlaceHolder {
+    final String placeHolder;
+    final int    position;
+
+<span class="fc" id="L122">    private PositionedPlaceHolder(String placeHolder, int position) {</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">      requireArgument(s -&gt; s.length() &gt; 0, requireNonNull(placeHolder));</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">      requireArgument(i -&gt; i &gt;= 0, position);</span>
+<span class="fc" id="L125">      this.placeHolder = placeHolder;</span>
+<span class="fc" id="L126">      this.position = position;</span>
+<span class="fc" id="L127">    }</span>
+
+    static PositionedPlaceHolder of(String placeHolder, int position) {
+<span class="fc" id="L130">      return new PositionedPlaceHolder(placeHolder, position);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

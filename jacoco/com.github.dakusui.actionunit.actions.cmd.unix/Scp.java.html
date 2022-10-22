@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Scp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd.unix</a> &gt; <span class="el_source">Scp.java</span></div><h1>Scp.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd.unix;
+
+import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
+import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.printables.PrintableFunction;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
+import static com.github.dakusui.actionunit.utils.Checks.requireState;
+import static java.util.Objects.requireNonNull;
+
+public class Scp extends Commander&lt;Scp&gt; {
+  private ContextFunction&lt;Target&gt;       destination;
+  private List&lt;ContextFunction&lt;Target&gt;&gt; files;
+  private SshOptions                    sshOptions;
+
+  public Scp(CommanderInitializer initializer) {
+<span class="fc" id="L27">    super(initializer);</span>
+<span class="fc" id="L28">    this.files = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L29">    initializer.init(this);</span>
+<span class="fc" id="L30">  }</span>
+
+  public Scp options(SshOptions sshOptions) {
+<span class="fc" id="L33">    this.sshOptions = requireNonNull(sshOptions);</span>
+<span class="fc" id="L34">    return this;</span>
+  }
+
+  public Scp recursive() {
+<span class="nc" id="L38">    return this.addOption(&quot;-r&quot;);</span>
+  }
+
+  public Scp file(ContextFunction&lt;Target&gt; target) {
+<span class="fc" id="L42">    this.files.add(requireNonNull(target));</span>
+<span class="fc" id="L43">    return this;</span>
+  }
+
+  public Scp file(Target target) {
+<span class="fc" id="L47">    return this.file(ContextFunctions.immediateOf(requireNonNull(target)));</span>
+  }
+
+  public Scp to(Target target) {
+<span class="fc" id="L51">    this.destination = immediateOf(requireNonNull(target));</span>
+<span class="fc" id="L52">    return this;</span>
+  }
+
+  @Override
+  public CommandLineComposer buildCommandLineComposer() {
+<span class="fc" id="L57">    Scp cloned = this.clone();</span>
+<span class="fc" id="L58">    CommandLineComposer.Builder commandLineComposerBuilder = cloned.commandLineComposerBuilderIfSet();</span>
+<span class="fc" id="L59">    Function&lt;Target, String&gt; formatTarget = PrintableFunction.of(Target::format).describe(&quot;Target::format&quot;);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">    for (ContextFunction&lt;Target&gt; each : files) {</span>
+<span class="fc" id="L61">      commandLineComposerBuilder</span>
+<span class="fc" id="L62">          .append(&quot; &quot;, false)</span>
+<span class="fc" id="L63">          .append(each.andThen(formatTarget), true);</span>
+<span class="fc" id="L64">    }</span>
+<span class="fc" id="L65">    return commandLineComposerBuilder</span>
+<span class="fc" id="L66">        .append(&quot; &quot;, false)</span>
+<span class="fc" id="L67">        .append(requireState(Objects::nonNull, cloned.destination).andThen(formatTarget), true)</span>
+<span class="fc" id="L68">        .build();</span>
+  }
+
+  @Override
+  public Scp clone() {
+<span class="fc" id="L73">    Scp ret = super.clone();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    if (ret.sshOptions != null)</span>
+<span class="fc" id="L75">      ret.sshOptions.options(SshOptions.Formatter.forScp()).forEach(ret::addOption);</span>
+<span class="fc" id="L76">    ret.files = new ArrayList&lt;&gt;(ret.files);</span>
+<span class="fc" id="L77">    return ret;</span>
+  }
+
+  public interface Target {
+    interface Account {
+      Optional&lt;String&gt; user();
+
+      String host();
+
+      default String format() {
+<span class="fc" id="L87">        return user()</span>
+<span class="fc" id="L88">            .map(v -&gt; String.format(&quot;%s@%s&quot;, v, host()))</span>
+<span class="fc" id="L89">            .orElseGet(this::host);</span>
+      }
+
+      static Account create(String user, String host) {
+<span class="fc" id="L93">        requireNonNull(user);</span>
+<span class="fc" id="L94">        requireNonNull(host);</span>
+<span class="fc" id="L95">        return new Account() {</span>
+          @Override
+          public Optional&lt;String&gt; user() {
+<span class="fc" id="L98">            return Optional.of(user);</span>
+          }
+
+          @Override
+          public String host() {
+<span class="fc" id="L103">            return host;</span>
+          }
+
+          @Override
+          public String toString() {
+<span class="nc" id="L108">            return format();</span>
+          }
+        };
+      }
+
+      static Account create(String host) {
+<span class="fc" id="L114">        requireNonNull(host);</span>
+<span class="fc" id="L115">        return new Account() {</span>
+          @Override
+          public Optional&lt;String&gt; user() {
+<span class="fc" id="L118">            return Optional.empty();</span>
+          }
+
+          @Override
+          public String host() {
+<span class="fc" id="L123">            return host;</span>
+          }
+
+          @Override
+          public String toString() {
+<span class="nc" id="L128">            return format();</span>
+          }
+        };
+      }
+    }
+
+    Optional&lt;Account&gt; account();
+
+    String path();
+
+    default String format() {
+<span class="fc bfc" id="L139" title="All 2 branches covered.">      return account().isPresent() ?</span>
+<span class="fc" id="L140">          String.format(&quot;%s:%s&quot;, account().get().format(), path()) :</span>
+<span class="fc" id="L141">          path();</span>
+    }
+
+    static Target of(String path) {
+<span class="fc" id="L145">      requireNonNull(path);</span>
+<span class="fc" id="L146">      return new Target() {</span>
+        @Override
+        public Optional&lt;Account&gt; account() {
+<span class="fc" id="L149">          return Optional.empty();</span>
+        }
+
+        @Override
+        public String path() {
+<span class="fc" id="L154">          return path;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc" id="L159">          return format();</span>
+        }
+      };
+    }
+
+    static Target of(String host, String path) {
+<span class="fc" id="L165">      requireNonNull(host);</span>
+<span class="fc" id="L166">      requireNonNull(path);</span>
+<span class="fc" id="L167">      return new Target() {</span>
+        @Override
+        public Optional&lt;Account&gt; account() {
+<span class="fc" id="L170">          return Optional.of(Account.create(host));</span>
+        }
+
+        @Override
+        public String path() {
+<span class="fc" id="L175">          return path;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc" id="L180">          return format();</span>
+        }
+      };
+    }
+
+    static Target of(String user, String host, String path) {
+<span class="fc" id="L186">      requireNonNull(user);</span>
+<span class="fc" id="L187">      requireNonNull(host);</span>
+<span class="fc" id="L188">      requireNonNull(path);</span>
+<span class="fc" id="L189">      return new Target() {</span>
+        @Override
+        public Optional&lt;Account&gt; account() {
+<span class="fc" id="L192">          return Optional.of(Account.create(user, host));</span>
+        }
+
+        @Override
+        public String path() {
+<span class="fc" id="L197">          return path;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc" id="L202">          return format();</span>
+        }
+      };
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

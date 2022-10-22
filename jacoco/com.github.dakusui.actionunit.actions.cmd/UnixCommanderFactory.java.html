@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnixCommanderFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">UnixCommanderFactory.java</span></div><h1>UnixCommanderFactory.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.actions.cmd.unix.Cat;
+import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
+import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
+import com.github.dakusui.actionunit.actions.cmd.unix.Git;
+import com.github.dakusui.actionunit.actions.cmd.unix.Ls;
+import com.github.dakusui.actionunit.actions.cmd.unix.Mkdir;
+import com.github.dakusui.actionunit.actions.cmd.unix.Rm;
+import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
+import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
+
+public interface UnixCommanderFactory extends CommanderFactory {
+  default Echo echo() {
+<span class="fc" id="L16">    return new Echo(initializer());</span>
+  }
+
+  default Cat cat() {
+<span class="fc" id="L20">    return new Cat(initializer());</span>
+  }
+
+  default Ls ls() {
+<span class="fc" id="L24">    return new Ls(initializer());</span>
+  }
+
+  default Mkdir mkdir() {
+<span class="fc" id="L28">    return new Mkdir(initializer());</span>
+  }
+
+  default Rm rm() {
+<span class="fc" id="L32">    return new Rm(initializer());</span>
+  }
+
+  default Touch touch() {
+<span class="fc" id="L36">    return new Touch(initializer());</span>
+  }
+
+  default Scp scp() {
+<span class="fc" id="L40">    return  new Scp(initializer());</span>
+  }
+
+  default Curl curl() {
+<span class="fc" id="L44">    return new Curl(initializer());</span>
+  }
+
+  default Git git() {
+<span class="fc" id="L48">    return () -&gt; UnixCommanderFactory.this;</span>
+  }
+
+  default Cmd cmd() {
+<span class="nc" id="L52">    return new Cmd(initializer());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

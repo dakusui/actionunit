@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>CommanderFactoryManager.java</h1>
+
+<table class="src">
+
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package com.github.dakusui.actionunit.actions.cmd;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Function;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static com.github.dakusui.actionunit.utils.InternalUtils.memoize;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>public interface CommanderFactoryManager {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  default UnixCommanderFactory local() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_9'/>
+9
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_9'>2</a>
+<span>
+1. lambda$local$0 : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::lambda$local$0 &rarr; KILLED<br/>
+2. local : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::local &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return () -&#62; initializerManager().apply(&#34;localhost&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  default UnixCommanderFactory remote(String host) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_13'/>
+13
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_13'>2</a>
+<span>
+1. lambda$remote$1 : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::lambda$remote$1 &rarr; KILLED<br/>
+2. remote : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::remote &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return () -&#62; initializerManager().apply(host);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  default Function&#60;String, CommanderInitializer&#62; initializerManager() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_17'/>
+17
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_17'>1</a>
+<span>
+1. initializerManager : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::initializerManager &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return memoize(this::initializerFor);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  CommanderInitializer initializerFor(String host);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_9'>9</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_9'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$local$0<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername.formatLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::lambda$local$0 &rarr; KILLED</p> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>local<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername.formatLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::local &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_13'>13</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_13'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$remote$1<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername.formatRemoteEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::lambda$remote$1 &rarr; KILLED</p> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>remote<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername.formatRemoteEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::remote &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@1d6d0a21_17'>17</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@1d6d0a21_17'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>initializerManager<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername.formatLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderFactoryManager::initializerManager &rarr; KILLED</p> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername.formatRemoteEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions1.formatLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions1) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername.formatLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername.formatScp(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername.formatRemoteEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithUsername) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername.formatScp(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions2.formatLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions2) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions2.formatScp(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions2) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions2.formatRemoteEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions2) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions1.formatRemoteEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions1) (11 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions1.formatScp(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithCustomSshOptions1) (14 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername.formatLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.CommanderFactoryManagerTest$WithoutUsername) (2 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='http://pitest.org'>PIT</a> 1.7.3
+
+</body>
+</html>

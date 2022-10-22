@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Retry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">Retry.java</span></div><h1>Retry.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+
+import java.util.Formatter;
+import java.util.concurrent.TimeUnit;
+
+import static com.github.dakusui.actionunit.utils.Checks.requireArgument;
+import static com.github.dakusui.actionunit.utils.InternalUtils.formatDuration;
+import static com.github.dakusui.actionunit.utils.InternalUtils.formatNumberOfTimes;
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+public interface Retry extends Action {
+
+  Action perform();
+
+  int times();
+
+  Class&lt;? extends Throwable&gt; targetExceptionClass();
+
+  long intervalInNanoseconds();
+
+  default void accept(Visitor visitor) {
+<span class="fc" id="L25">    visitor.visit(this);</span>
+<span class="fc" id="L26">  }</span>
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="fc" id="L30">    formatter.format(&quot;retry %s in %s on %s&quot;,</span>
+<span class="fc" id="L31">        formatNumberOfTimes(times()),</span>
+<span class="fc" id="L32">        formatDuration(intervalInNanoseconds()),</span>
+<span class="fc" id="L33">        targetExceptionClass().getSimpleName()</span>
+    );
+<span class="fc" id="L35">  }</span>
+
+  class Builder extends Action.Builder&lt;Retry&gt; {
+
+    private final Action                     perform;
+<span class="fc" id="L40">    private       int                        times                = 2;</span>
+<span class="fc" id="L41">    private       Class&lt;? extends Throwable&gt; targetExceptionClass = Exception.class;</span>
+<span class="fc" id="L42">    private       long                       interval             = 10;</span>
+<span class="fc" id="L43">    private       TimeUnit                   timeUnit             = SECONDS;</span>
+
+<span class="fc" id="L45">    public Builder(Action perform) {</span>
+<span class="fc" id="L46">      this.perform = requireNonNull(perform);</span>
+<span class="fc" id="L47">    }</span>
+
+    public Builder times(int times) {
+<span class="fc bfc" id="L50" title="All 2 branches covered.">      requireArgument(v -&gt; v &gt;= 0, times);</span>
+<span class="fc" id="L51">      this.times = times;</span>
+<span class="fc" id="L52">      return this;</span>
+    }
+
+    public Builder on(Class&lt;? extends Throwable&gt; targetExceptionClass) {
+<span class="fc" id="L56">      this.targetExceptionClass = requireNonNull(targetExceptionClass);</span>
+<span class="fc" id="L57">      return this;</span>
+    }
+
+    public Builder withIntervalOf(long interval, TimeUnit timeUnit) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">      this.interval = requireArgument(v -&gt; v &gt; 0, interval);</span>
+<span class="fc" id="L62">      this.timeUnit = requireNonNull(timeUnit);</span>
+<span class="fc" id="L63">      return this;</span>
+    }
+
+    @Override
+    public Retry build() {
+<span class="fc" id="L68">      return new Retry() {</span>
+        @Override
+        public Action perform() {
+<span class="fc" id="L71">          return Builder.this.perform;</span>
+        }
+
+        @Override
+        public int times() {
+<span class="fc" id="L76">          return Builder.this.times;</span>
+        }
+
+        @Override
+        public Class&lt;? extends Throwable&gt; targetExceptionClass() {
+<span class="fc" id="L81">          return Builder.this.targetExceptionClass;</span>
+        }
+
+        @Override
+        public long intervalInNanoseconds() {
+<span class="fc" id="L86">          return timeUnit.toNanos(Builder.this.interval);</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L91">          return String.format(&quot;retry(%sx%dtimes)&quot;,</span>
+<span class="nc" id="L92">              formatDuration(intervalInNanoseconds()),</span>
+<span class="nc" id="L93">              times</span>
+          );
+        }
+      };
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

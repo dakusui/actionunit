@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommandLineComposer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">CommandLineComposer.java</span></div><h1>CommandLineComposer.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
+
+import java.util.ArrayList;
+import java.util.Formattable;
+import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
+
+public interface CommandLineComposer extends Function&lt;String[], BiFunction&lt;Context, Object[], String&gt;&gt;, Formattable {
+  @Override
+  default BiFunction&lt;Context, Object[], String&gt; apply(String[] variableNames) {
+<span class="fc" id="L23">    return (context, argValues) -&gt; StableTemplatingUtils.template(</span>
+<span class="fc" id="L24">        compose(context),</span>
+<span class="fc" id="L25">        StableTemplatingUtils.toMapping(this.parameterPlaceHolderFactory().apply(variableNames), argValues)</span>
+    );
+  }
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="nc" id="L31">    formatter.format(format());</span>
+<span class="nc" id="L32">  }</span>
+
+  Function&lt;String[], IntFunction&lt;String&gt;&gt; parameterPlaceHolderFactory();
+
+  String format();
+
+  String compose(Context context);
+
+  class Builder implements Cloneable {
+    private Function&lt;String[], IntFunction&lt;String&gt;&gt; parameterPlaceHolderFactory;
+    private List&lt;String&gt;                            knownVariableNames;
+    private List&lt;ContextFunction&lt;String&gt;&gt;           tokens;
+
+<span class="fc" id="L45">    public Builder(Function&lt;String[], IntFunction&lt;String&gt;&gt; parameterPlaceHolderFactory) {</span>
+<span class="fc" id="L46">      this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);</span>
+<span class="fc" id="L47">      this.tokens = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L48">      this.knownVariableNames = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L49">    }</span>
+
+    public Builder append(String text, boolean quoted) {
+<span class="fc" id="L52">      requireNonNull(text);</span>
+<span class="fc" id="L53">      ContextFunction&lt;String&gt; func = ContextFunction.of(() -&gt; text, c -&gt; text);</span>
+<span class="fc" id="L54">      return append(func, quoted);</span>
+    }
+
+    public Builder append(ContextFunction&lt;String&gt; func, boolean quoted) {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">      if (quoted)</span>
+<span class="fc" id="L59">        func = quoteWithApostrophe(func);</span>
+<span class="fc" id="L60">      this.tokens.add(func);</span>
+<span class="fc" id="L61">      return this;</span>
+    }
+
+    public Builder appendVariable(String variableName, boolean quoted) {
+<span class="fc" id="L65">      ContextFunction&lt;String&gt; func = ContextFunction.of(</span>
+<span class="fc" id="L66">          () -&gt; &quot;${&quot; + variableName + &quot;}&quot;,</span>
+<span class="fc" id="L67">          c -&gt; c.valueOf(variableName)</span>
+      );
+<span class="fc bfc" id="L69" title="All 2 branches covered.">      if (quoted) {</span>
+<span class="fc" id="L70">        func = quoteWithApostrophe(func);</span>
+      }
+<span class="fc" id="L72">      this.tokens.add(func);</span>
+<span class="fc" id="L73">      return this.declareVariable(variableName);</span>
+    }
+
+    public Builder declareVariable(String variableName) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">      if (!knownVariableNames.contains(variableName))</span>
+<span class="fc" id="L78">        this.knownVariableNames.add(variableName);</span>
+<span class="fc" id="L79">      return this;</span>
+    }
+
+    public CommandLineComposer build() {
+<span class="fc" id="L83">      return new CommandLineComposer() {</span>
+        @Override
+        public Function&lt;String[], IntFunction&lt;String&gt;&gt; parameterPlaceHolderFactory() {
+<span class="fc" id="L86">          return parameterPlaceHolderFactory;</span>
+        }
+
+        @Override
+        public String format() {
+<span class="fc" id="L91">          return tokens.stream().map(Object::toString).collect(joining());</span>
+        }
+
+        @Override
+        public String compose(Context context) {
+<span class="fc" id="L96">          return tokens.stream().map(each -&gt; each.apply(context)).collect(joining());</span>
+        }
+      };
+    }
+
+    public String[] knownVariables() {
+<span class="fc" id="L102">      return knownVariableNames.toArray(new String[0]);</span>
+    }
+
+    @Override
+    public CommandLineComposer.Builder clone() {
+      try {
+<span class="fc" id="L108">        CommandLineComposer.Builder ret = (Builder) super.clone();</span>
+<span class="fc" id="L109">        ret.knownVariableNames = new ArrayList&lt;&gt;(this.knownVariableNames);</span>
+<span class="fc" id="L110">        ret.tokens = new ArrayList&lt;&gt;(this.tokens);</span>
+<span class="fc" id="L111">        return ret;</span>
+<span class="nc" id="L112">      } catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L113">        throw ActionException.wrap(e);</span>
+      }
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L119">      return String.format(&quot;Builder:%s(vars=%s)&quot;, tokens, knownVariableNames);</span>
+    }
+
+
+    private static ContextFunction&lt;String&gt; quoteWithApostrophe(ContextFunction&lt;String&gt; func) {
+<span class="fc" id="L124">      return func.andThen(new Function&lt;String, String&gt;() {</span>
+        @Override
+        public String apply(String s) {
+<span class="fc" id="L127">          return CommanderUtils.quoteWithApostropheForShell(s);</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc" id="L132">          return &quot;quoteWith[']&quot;;</span>
+        }
+      });
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

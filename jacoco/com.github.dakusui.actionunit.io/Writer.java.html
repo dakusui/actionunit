@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Writer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.io</a> &gt; <span class="el_source">Writer.java</span></div><h1>Writer.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.io;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * An interface that abstracts various destinations to which {@link com.github.dakusui.actionunit.visitors.ActionPrinter}'s
+ * output goes.
+ */
+public interface Writer {
+  void writeLine(String s);
+
+<span class="fc" id="L17">  class Impl implements Writer, Iterable&lt;String&gt; {</span>
+<span class="fc" id="L18">    List&lt;String&gt; arr = new ArrayList&lt;&gt;();</span>
+
+    @Override
+    public void writeLine(String s) {
+<span class="fc" id="L22">      arr.add(s);</span>
+<span class="fc" id="L23">    }</span>
+
+    @Override
+    public Iterator&lt;String&gt; iterator() {
+<span class="fc" id="L27">      return this.arr.iterator();</span>
+    }
+  }
+
+<span class="fc" id="L31">  enum Std implements Writer {</span>
+<span class="fc" id="L32">    OUT {</span>
+      @Override
+      public void writeLine(String s) {
+<span class="fc" id="L35">        System.out.println(s);</span>
+<span class="fc" id="L36">      }</span>
+    },
+<span class="fc" id="L38">    ERR {</span>
+      @Override
+      public void writeLine(String s) {
+<span class="fc" id="L41">        System.err.println(s);</span>
+<span class="fc" id="L42">      }</span>
+    };
+
+    @Override
+    public abstract void writeLine(String s);
+  }
+
+<span class="fc" id="L49">  enum Slf4J implements Writer {</span>
+<span class="fc" id="L50">    TRACE {</span>
+      @Override
+      public void writeLine(String s) {
+<span class="fc" id="L53">        LOGGER.trace(s);</span>
+<span class="fc" id="L54">      }</span>
+    },
+<span class="fc" id="L56">    DEBUG {</span>
+      @Override
+      public void writeLine(String s) {
+<span class="fc" id="L59">        LOGGER.debug(s);</span>
+<span class="fc" id="L60">      }</span>
+    },
+<span class="fc" id="L62">    INFO {</span>
+      @Override
+      public void writeLine(String s) {
+<span class="fc" id="L65">        LOGGER.info(s);</span>
+<span class="fc" id="L66">      }</span>
+    },
+<span class="fc" id="L68">    WARN {</span>
+      @Override
+      public void writeLine(String s) {
+<span class="fc" id="L71">        LOGGER.warn(s);</span>
+<span class="fc" id="L72">      }</span>
+    },
+<span class="fc" id="L74">    ERROR {</span>
+      @Override
+      public void writeLine(String s) {
+<span class="fc" id="L77">        LOGGER.error(s);</span>
+<span class="fc" id="L78">      }</span>
+    };
+<span class="fc" id="L80">    private static final Logger LOGGER = LoggerFactory.getLogger(Slf4J.class);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

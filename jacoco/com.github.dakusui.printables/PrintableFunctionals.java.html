@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrintableFunctionals.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.printables</a> &gt; <span class="el_source">PrintableFunctionals.java</span></div><h1>PrintableFunctionals.java</h1><pre class="source lang-java linenums">package com.github.dakusui.printables;
+
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.actionunit.utils.InternalUtils.summary;
+
+<span class="fc" id="L10">public enum PrintableFunctionals {</span>
+  ;
+
+  public static &lt;T&gt; PrintablePredicate.Builder&lt;T&gt; printablePredicate(Predicate&lt;T&gt; predicate) {
+<span class="fc" id="L14">    return new PrintablePredicate.Builder&lt;&gt;(predicate);</span>
+  }
+
+  public static &lt;T&gt; PrintableConsumer.Builder&lt;T&gt; printableConsumer(Consumer&lt;T&gt; consumer) {
+<span class="fc" id="L18">    return new PrintableConsumer.Builder&lt;&gt;(consumer);</span>
+  }
+
+  public static &lt;T, R&gt; PrintableFunction.Builder&lt;T, R&gt; printableFunction(Function&lt;T, R&gt; function) {
+<span class="fc" id="L22">    return new PrintableFunction.Builder&lt;&gt;(function);</span>
+  }
+
+  public static &lt;T&gt; Predicate&lt;T&gt; isKeyOf(Map&lt;T, Object&gt; values) {
+<span class="fc" id="L26">    return printablePredicate((Predicate&lt;T&gt;) values::containsKey)</span>
+<span class="pc" id="L27">        .describe(() -&gt; String.format(&quot;isKeyOf[%s]&quot;, summary(values.toString())));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

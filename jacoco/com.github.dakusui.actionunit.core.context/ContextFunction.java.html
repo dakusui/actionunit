@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContextFunction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.core.context</a> &gt; <span class="el_source">ContextFunction.java</span></div><h1>ContextFunction.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.core.context;
+
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.printables.PrintableFunction;
+import com.github.dakusui.printables.PrintableFunctionals;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
+
+@FunctionalInterface
+public interface ContextFunction&lt;R&gt; extends Function&lt;Context, R&gt;, Printable {
+  default &lt;V&gt; Function&lt;V, R&gt; compose(Function&lt;? super V, ? extends Context&gt; before) {
+<span class="nc" id="L15">    return v -&gt; ContextFunction.this.apply(before.apply(v));</span>
+  }
+
+  default &lt;V&gt; ContextFunction&lt;V&gt; andThen(Function&lt;? super R, ? extends V&gt; after) {
+<span class="nc" id="L19">    requireNonNull(after);</span>
+<span class="nc" id="L20">    return (Context r) -&gt; after.apply(apply(r));</span>
+  }
+
+  static &lt;R&gt; ContextFunction&lt;R&gt; of(Supplier&lt;String&gt; formatter, Function&lt;Context, R&gt; function) {
+<span class="fc" id="L24">    return new ContextFunction.Impl&lt;&gt;(formatter, function);</span>
+  }
+
+  class Impl&lt;R&gt; extends PrintableFunction&lt;Context, R&gt; implements ContextFunction&lt;R&gt; {
+    public Impl(Supplier&lt;String&gt; formatter, Function&lt;Context, R&gt; function) {
+<span class="fc" id="L29">      super(formatter, function);</span>
+<span class="fc" id="L30">    }</span>
+
+    @Override
+    public &lt;V&gt; Function&lt;V, R&gt; compose(Function&lt;? super V, ? extends Context&gt; before) {
+<span class="nc" id="L34">      return PrintableFunctionals.&lt;V, R&gt;printableFunction(ContextFunction.super.compose(before))</span>
+<span class="nc" id="L35">          .describe(() -&gt; String.format(&quot;%s(%s)&quot;, getFormatter().get(), before));</span>
+    }
+
+    @Override
+    public &lt;V&gt; ContextFunction&lt;V&gt; andThen(Function&lt;? super R, ? extends V&gt; after) {
+<span class="fc" id="L40">      return new ContextFunction.Impl&lt;&gt;(</span>
+<span class="fc" id="L41">          () -&gt; String.format(&quot;%s(%s)&quot;, after, getFormatter().get()),</span>
+<span class="fc" id="L42">          toContextFunction(getFunction().andThen(after))</span>
+      );
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private static &lt;R&gt; ContextFunction&lt;R&gt; toContextFunction(Function&lt;? super Context, ? extends R&gt; function) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">      if (function instanceof ContextFunction)</span>
+<span class="fc" id="L49">        return (ContextFunction&lt;R&gt;) function;</span>
+<span class="fc" id="L50">      return new ContextFunction.Impl&lt;&gt;(function::toString, (Function&lt;Context, R&gt;) function);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

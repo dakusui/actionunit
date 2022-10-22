@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Curl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd.unix</a> &gt; <span class="el_source">Curl.java</span></div><h1>Curl.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd.unix;
+
+import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.core.context.ContextFunction;
+
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
+import static java.util.Objects.requireNonNull;
+
+public class Curl extends Commander&lt;Curl&gt; {
+<span class="fc" id="L11">  public enum DataFormat {</span>
+<span class="fc" id="L12">    ASCII(&quot;--data&quot;),</span>
+<span class="fc" id="L13">    BINARY(&quot;--data-binary&quot;),</span>
+<span class="fc" id="L14">    RAW(&quot;--data-raw&quot;),</span>
+<span class="fc" id="L15">    URL_ENCODE(&quot;--data-urlencode&quot;),</span>
+    ;
+
+    private final String format;
+
+<span class="fc" id="L20">    DataFormat(String format) {</span>
+<span class="fc" id="L21">      this.format = format;</span>
+<span class="fc" id="L22">    }</span>
+
+    String getFormat() {
+<span class="fc" id="L25">      return this.format;</span>
+    }
+  }
+
+  public Curl(CommanderInitializer initializer) {
+<span class="fc" id="L30">    super(initializer);</span>
+<span class="fc" id="L31">    initializer.init(this);</span>
+<span class="fc" id="L32">  }</span>
+
+  public Curl post() {
+<span class="fc" id="L35">    return this.addOption(&quot;-X&quot;).addOption(&quot;POST&quot;);</span>
+  }
+
+  public Curl put() {
+<span class="fc" id="L39">    return this.addOption(&quot;-X&quot;).addOption(&quot;PUT&quot;);</span>
+  }
+
+  public Curl get() {
+<span class="fc" id="L43">    return this.addOption(&quot;-X&quot;).addOption(&quot;GET&quot;);</span>
+  }
+
+  public Curl delete() {
+<span class="fc" id="L47">    return this.addOption(&quot;-X&quot;).addOption(&quot;DELETE&quot;);</span>
+  }
+
+  public Curl url(String url) {
+<span class="fc" id="L51">    return this.add(url);</span>
+  }
+
+  public Curl url(ContextFunction&lt;String&gt; url) {
+<span class="fc" id="L55">    return this.add(url);</span>
+  }
+
+  public Curl insecure() {
+<span class="fc" id="L59">    return this.addOption(&quot;--insecure&quot;);</span>
+  }
+
+  public Curl silent() {
+<span class="fc" id="L63">    return this.addOption(&quot;-s&quot;);</span>
+  }
+
+  public Curl asciiData(String content) {
+<span class="fc" id="L67">    return this.asciiData(immediateOf(content));</span>
+  }
+
+  public Curl asciiData(ContextFunction&lt;String&gt; content) {
+<span class="fc" id="L71">    return this.data(DataFormat.ASCII, content);</span>
+  }
+
+  public Curl binaryData(String content) {
+<span class="fc" id="L75">    return this.binaryData(immediateOf(content));</span>
+  }
+
+  public Curl binaryData(ContextFunction&lt;String&gt; content) {
+<span class="fc" id="L79">    return this.data(DataFormat.BINARY, content);</span>
+  }
+
+  public Curl rawData(String content) {
+<span class="fc" id="L83">    return this.rawData(immediateOf(content));</span>
+  }
+
+  public Curl rawData(ContextFunction&lt;String&gt; content) {
+<span class="fc" id="L87">    return this.data(DataFormat.RAW, content);</span>
+  }
+
+  public Curl urlEncodedData(String content) {
+<span class="fc" id="L91">    return this.urlEncodedData(immediateOf(content));</span>
+  }
+
+  public Curl urlEncodedData(ContextFunction&lt;String&gt; content) {
+<span class="fc" id="L95">    return this.data(DataFormat.URL_ENCODE, content);</span>
+  }
+
+  public Curl data(DataFormat format, ContextFunction&lt;String&gt; content) {
+<span class="fc" id="L99">    return this.addOption(format.getFormat()).add(requireNonNull(content));</span>
+  }
+
+  public Curl includeHeader() {
+<span class="fc" id="L103">    return this.addOption(&quot;-i&quot;);</span>
+  }
+
+  public Curl headerOnly() {
+<span class="fc" id="L107">    return this.addOption(&quot;-I&quot;);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
