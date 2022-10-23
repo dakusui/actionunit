@@ -12,7 +12,7 @@ import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverri
 import static com.github.dakusui.printables.PrintableFunctionals.*;
 import static java.util.Objects.requireNonNull;
 
-public interface Contextful<S> extends Action {
+public interface Contextful<S> extends Action, ContextVariable {
   /**
    * A function to provide a value referenced from inside an action returned by the
    * {@link Contextful#action()} method.
@@ -28,18 +28,10 @@ public interface Contextful<S> extends Action {
    */
   Action action();
 
-  /**
-   * A name of the variable.
-   * The string returned by this method is used only for printing an action tree.
-   * To identify a variable, a string returned by {@link Contextful#internalVariableName()}.
-   *
-   * @return A human-readable variable name.
-   */
+  @Override
   String variableName();
 
-  /**
-   * @return An internal context variable name.
-   */
+  @Override
   String internalVariableName();
 
   abstract class Base<V, S> implements Contextful<S> {

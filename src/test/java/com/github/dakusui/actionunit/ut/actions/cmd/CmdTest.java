@@ -58,28 +58,27 @@ public class CmdTest {
 
     void performAsContextConsumerInsideLoop(Cmd cmd) {
       performAction(
-          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+          compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
               leaf(initCmd(cmd).toContextConsumer())
           ));
     }
 
     void performAsActionInsideHelloWorldLoop(Cmd cmd) {
       performAction(
-          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
-              initCmd(cmd).toAction()
-          ));
+          compatForEach("i", StreamGenerator.fromArray("hello", "world"))
+              .perform(initCmd(cmd).toAction()));
     }
 
     void performAsContextFunctionInsideHelloWorldLoop(Cmd cmd) {
       performAction(
-          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+          compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
               leaf(c -> System.out.println("out=<" + initCmd(cmd).toContextFunction().apply(c) + ">"))
           ));
     }
 
     void performAsContextPredicateInsideHelloWorldLoop(Cmd cmd) {
       performAction(
-          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world"))
+          compatForEach("i", StreamGenerator.fromArray("hello", "world"))
               .perform(
                   when(cmd.toContextPredicate())
                       .perform(leaf(c -> out.add("MET")))
@@ -90,7 +89,7 @@ public class CmdTest {
   public static class AsCommander extends Base {
     @Test
     public void givenCommanderObject$whenExcerciseGetters$thenNoExceptionThrown() {
-      Commander commander = initCmd(cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world"));
+      Commander<?> commander = initCmd(cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world"));
       requireThat(commander.retryOption(), asObject().isNotNull().$());
       requireThat(commander.checkerFactory(), asObject().isNotNull().$());
       requireThat(commander.downstreamConsumerFactory(), asObject().isNotNull().$());
@@ -381,7 +380,7 @@ public class CmdTest {
     @Test
     public void givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput() {
       performAction(
-          ActionSupport.compatForEach("i",
+          compatForEach("i",
               initCmd(cmd("echo hello && echo world")).toStreamGenerator()
           ).perform(
               leaf(ContextConsumer.of(
@@ -399,8 +398,8 @@ public class CmdTest {
       String keyword = "UNKNOWN";
       try {
         performAction(
-            ActionSupport.compatForEach("i",
-                initCmd(cmd("echo hello && echo world")).checker(createProcessStreamerCheckerForCmdTest(keyword)).toStreamGenerator())
+            compatForEach("i",
+                    initCmd(cmd("echo hello && echo world")).checker(createProcessStreamerCheckerForCmdTest(keyword)).toStreamGenerator())
                 .perform(
                     leaf(ContextConsumer.of(
                         () -> "print 'i'",

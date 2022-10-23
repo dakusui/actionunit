@@ -12,17 +12,17 @@ import static java.util.Objects.requireNonNull;
 
 public class MultiParamsContextPredicateBuilder {
   private final String[]                                variableNames;
-  private final BiFunction<Predicate, String[], String> descriptionFormatter;
+  private final BiFunction<Predicate<?>, String[], String> descriptionFormatter;
 
   public MultiParamsContextPredicateBuilder(String... variableNames) {
     this(
-        (Predicate f, String[] v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
+        (Predicate<?> f, String[] v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
         variableNames
     );
   }
 
   private MultiParamsContextPredicateBuilder(
-      BiFunction<Predicate, String[], String> descriptionFormatter,
+      BiFunction<Predicate<?>, String[], String> descriptionFormatter,
       String... variableNames) {
     this.variableNames = requireNonNull(variableNames);
     this.descriptionFormatter = requireNonNull(descriptionFormatter);

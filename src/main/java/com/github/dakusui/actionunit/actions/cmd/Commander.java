@@ -27,6 +27,11 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A builder class to construct an action that issues a command line.
+ *
+ * @param <C> A class refers to itself.
+ */
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
   private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
   CommandLineComposer.Builder commandLineComposerBuilder;

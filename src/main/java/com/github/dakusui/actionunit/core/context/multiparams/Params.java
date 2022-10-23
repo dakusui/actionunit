@@ -1,7 +1,9 @@
 package com.github.dakusui.actionunit.core.context.multiparams;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.Context;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

@@ -11,8 +11,8 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.descri
 import static java.util.Objects.requireNonNull;
 
 public class MultiParamsContextFunctionBuilder<R> {
-  private final String[]                               variableNames;
-  private final BiFunction<Function, String[], String> descriptionFormatter;
+  private final String[]                                     variableNames;
+  private final BiFunction<Function<?, ?>, String[], String> descriptionFormatter;
 
   public MultiParamsContextFunctionBuilder(String... variableNames) {
     this(
@@ -22,7 +22,7 @@ public class MultiParamsContextFunctionBuilder<R> {
   }
 
   private MultiParamsContextFunctionBuilder(
-      BiFunction<Function, String[], String> descriptionFormatter,
+      BiFunction<Function<?, ?>, String[], String> descriptionFormatter,
       String... variableNames) {
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
     this.variableNames = requireNonNull(variableNames);

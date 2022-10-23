@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 
 public class MultiParamsContextConsumerBuilder {
   private final String[]                               variableNames;
-  private final BiFunction<Consumer, String[], String> descriptionFormatter;
+  private final BiFunction<Consumer<?>, String[], String> descriptionFormatter;
 
   public MultiParamsContextConsumerBuilder(String... variableNames) {
     this(
@@ -22,7 +22,7 @@ public class MultiParamsContextConsumerBuilder {
   }
 
   private MultiParamsContextConsumerBuilder(
-      BiFunction<Consumer, String[], String> descriptionFormatter,
+      BiFunction<Consumer<?>, String[], String> descriptionFormatter,
       String... variableNames) {
     this.variableNames = requireNonNull(variableNames);
     this.descriptionFormatter = requireNonNull(descriptionFormatter);

@@ -37,7 +37,7 @@ public enum CommanderUtils {
     return requireNonNull(s).replaceAll("('+)", "'\"$1\"'");
   }
 
-  static Action createAction(Commander commander) {
+  static Action createAction(Commander<?> commander) {
     return RetryOption.retryAndTimeOut(
         leaf(createContextConsumer(commander)),
         commander.retryOption());
@@ -78,8 +78,7 @@ public enum CommanderUtils {
                 .describe(() -> commander.buildCommandLineComposer().format()));
   }
 
-  static ContextPredicate createContextPredicate(
-      Commander<?> commander) {
+  static ContextPredicate createContextPredicate(Commander<?> commander) {
     return multiParamsPredicateFor(commander.variableNames())
         .toContextPredicate(printablePredicate(
             (Params params) -> {
@@ -127,7 +126,10 @@ public enum CommanderUtils {
   }
 
   static ProcessStreamer.Builder createProcessStreamerBuilder(
-      Stream<String> stdin, Shell shell, File cwd, Map<String, String> envvars,
+      Stream<String> stdin,
+      Shell shell,
+      File cwd,
+      Map<String, String> envvars,
       CommandLineComposer commandLineComposer,
       Params params) {
     String[] variableNames = params.paramNames().toArray(new String[0]);

@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.core.context;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextConsumerBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
@@ -17,6 +18,7 @@ import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -59,10 +61,12 @@ public enum ContextFunctions {
             .collect(joining(", ", "(", ")"));
   }
 
-  public static <R> ContextConsumer assignTo(String variableName, ContextFunction<R> value) {
+  public static <R> ContextConsumer assignTo(ContextVariable contextVariable, Function<Context, R> value) {
+    requireNonNull(contextVariable);
+    requireNonNull(value);
     return ContextConsumer.of(
-        () -> format("assignTo[%s](%s)", variableName, value),
-        (c) -> c.assignTo(variableName, value.apply(c)));
+        () -> format("assignTo[%s](%s)", contextVariable.variableName(), toStringIfOverriddenOrNoname(value)),
+        (c) -> c.assignTo(contextVariable.internalVariableName(), value.apply(c)));
   }
 
   public static <R> ContextFunction<R> immediateOf(R value) {
@@ -76,7 +80,7 @@ public enum ContextFunctions {
     requireNonNull(variableName);
     return ContextFunction.of(
         () -> format("valueOf[%s]", variableName),
-        c -> c.valueOf(variableName)
+        c -> c.valueOf(ContextVariable.createGlobal(variableName).internalVariableName())
     );
   }
 

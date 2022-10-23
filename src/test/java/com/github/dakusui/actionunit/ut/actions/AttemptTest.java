@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
@@ -28,20 +29,22 @@ public class AttemptTest extends TestUtils.TestBase {
         allOf(
             asInteger("size").equalTo(2).$(),
             asString("get", 0).equalTo("UPDATED").$(),
-            asString("get", 1).equalTo("UPDATED").$()
-            )
-    );
+            asString("get", 1).equalTo("UPDATED").$()));
   }
 
   private Action buildAttemptAction(Consumer<String> sink) {
     return sequential(
-        leaf(ContextFunctions.assignTo("i", ContextFunctions.immediateOf("INITIAL"))),
+        leaf(ContextFunctions.assignTo(
+            ContextVariable.createGlobal("i"),
+            ContextFunctions.immediateOf("INITIAL"))),
         attempt(
             leaf(ContextFunctions.throwIllegalArgument())
         ).recover(
             IllegalArgumentException.class,
             leaf(
-                ContextFunctions.assignTo("i", ContextFunctions.immediateOf("UPDATED"))
+                ContextFunctions.assignTo(
+                        ContextVariable.createGlobal("i"),
+                        ContextFunctions.immediateOf("UPDATED"))
                     .andThen(
                         ContextFunctions.writeTo(sink, ContextFunctions.contextValueOf("i")).andThen(
                             ContextFunctions.printTo(System.out, ContextFunctions.contextValueOf("i"))
