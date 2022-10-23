@@ -27,7 +27,7 @@ public interface ForEach2<V> extends Contextful<Stream<V>> {
 
     public Builder(String variableName, Function<Context, Stream<V>> function) {
       super(variableName, function);
-      sequentially();
+      this.sequentially();
     }
 
     public Builder<V> parallely() {

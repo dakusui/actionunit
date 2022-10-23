@@ -1,12 +1,16 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
+import com.github.dakusui.actionunit.actions.ForEach2;
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
 import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
+import com.github.dakusui.printables.PrintableFunctionals;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
+import java.util.function.Function;
+
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.assumeRunningOnLinux;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Collections.singletonList;
@@ -96,10 +100,10 @@ public class EchoTest extends CommanderTestBase {
   @Test
   public void givenEchoHelloWorldWithContextFunction$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
     performAction(
-        ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
-            initCommander(newEcho())
+        ActionSupport.forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+            b -> initCommander(newEcho())
                 .noTrailingNewLine()
-                .message(contextValueOf("i")).toAction()
+                .message(contextVariable(b)).toAction()
         )
     );
     assertThat(
@@ -108,13 +112,17 @@ public class EchoTest extends CommanderTestBase {
     );
   }
 
+  private static Function<Context, String> contextVariable(ForEach2.Builder<String> b) {
+    return PrintableFunctionals.printableFunction(b::contextVariable).describe("con");
+  }
+
   @Test
   public void givenEchoHelloWorldWithContextFunctionQuoted$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
     performAction(
-        ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "'world'")).perform(
-            initCommander(newEcho())
+        ActionSupport.forEach("i", StreamGenerator.fromArray("hello", "'world'")).perform(
+            b -> initCommander(newEcho())
                 .noTrailingNewLine()
-                .message(contextValueOf("i")).toAction()
+                .message(contextVariable(b)).toAction()
         )
     );
     assertThat(

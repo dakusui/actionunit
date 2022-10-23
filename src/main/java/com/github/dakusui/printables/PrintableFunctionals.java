@@ -46,4 +46,5 @@ public enum PrintableFunctionals {
     return printableConsumer(function::apply)
         .describe(toStringIfOverriddenOrNoname(function));
   }
+
 }

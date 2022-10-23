@@ -85,18 +85,15 @@ public class ActionVisitorTest extends TestUtils.TestBase {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = compatForEach(
-        "i", (c) -> Stream.of("hello")
-    ).perform(
-        nop()
-    );
+    Action action = forEach("i", (c) -> Stream.of("hello"))
+        .perform(nop());
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
         allOf(
-            asString("get", 0).startsWith("for each").$(),
+            asString("get", 0).startsWith("forEach").$(),
             asInteger("size").equalTo(1).$()
         )
     );

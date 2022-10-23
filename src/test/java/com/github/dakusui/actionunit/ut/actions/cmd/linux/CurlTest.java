@@ -2,12 +2,14 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
 import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.printables.PrintableFunctionals;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.*;
 import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.printables.PrintableFunctionals.printableFunction;
 
 public class CurlTest extends CommanderTestBase {
   @Ignore
@@ -16,8 +18,8 @@ public class CurlTest extends CommanderTestBase {
     Curl curl = curl().get().url("https://www.github.com/").urlEncodedData(immediateOf("Hello world"));
     System.out.println(curl.buildCommandLineComposer().format());
     performAction(
-        ActionSupport.compatForEach("i", curl.toStreamGenerator())
-            .perform(leaf(writeTo(System.out::println, contextValueOf("i"))))
+        ActionSupport.forEach("i", curl.toStreamGenerator())
+            .perform(b -> leaf(writeTo(System.out::println, printableFunction(b::contextVariable).describe("contextVariable"))))
     );
   }
 

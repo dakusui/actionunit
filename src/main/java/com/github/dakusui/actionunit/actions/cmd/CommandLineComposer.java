@@ -38,9 +38,9 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
   String compose(Context context);
 
   class Builder implements Cloneable {
-    private Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
-    private List<String>                            knownVariableNames;
-    private List<ContextFunction<String>>           tokens;
+    private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
+    private       List<String>                            knownVariableNames;
+    private       List<Function<Context, String>>         tokens;
 
     public Builder(Function<String[], IntFunction<String>> parameterPlaceHolderFactory) {
       this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
@@ -54,7 +54,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
       return append(func, quoted);
     }
 
-    public Builder append(ContextFunction<String> func, boolean quoted) {
+    public Builder append(Function<Context, String> func, boolean quoted) {
       if (quoted)
         func = quoteWithApostrophe(func);
       this.tokens.add(func);
@@ -62,7 +62,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
     }
 
     public Builder appendVariable(String variableName, boolean quoted) {
-      ContextFunction<String> func = ContextFunction.of(
+      Function<Context, String> func = ContextFunction.of(
           () -> "${" + variableName + "}",
           c -> c.valueOf(variableName)
       );
@@ -120,7 +120,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
     }
 
 
-    private static ContextFunction<String> quoteWithApostrophe(ContextFunction<String> func) {
+    private static Function<Context, String> quoteWithApostrophe(Function<Context, String> func) {
       return func.andThen(new Function<String, String>() {
         @Override
         public String apply(String s) {

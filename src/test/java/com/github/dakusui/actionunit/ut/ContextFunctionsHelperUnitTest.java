@@ -25,11 +25,7 @@ import static com.github.dakusui.printables.PrintableFunctionals.printableFuncti
 public class ContextFunctionsHelperUnitTest {
   private static <T, R> ContextFunction<R> toMultiParamsContextFunction(String variableName, Function<T, R> function) {
     return ContextFunctions.<R>multiParamsFunctionFor(variableName)
-        .toContextFunction(printableFunction(
-            (Params params) -> function.apply(params.valueOf(variableName))
-        ).describe(
-            function.toString()
-        ));
+        .toContextFunction(printableFunction((Params params) -> function.apply(params.valueOf(variableName))).describe(function.toString()));
   }
 
   static <T> ContextConsumer toMultiParamsContextConsumer(String variableName, Consumer<T> consumer) {
@@ -86,10 +82,10 @@ public class ContextFunctionsHelperUnitTest {
   @Test
   public void test3_fromBuilder() {
     ReportingActionPerformer.create().perform(
-        ActionSupport.compatForEach("i", StreamGenerator.fromArray("A", "B", "C"))
-            .perform(leaf(multiParamsConsumerFor("i").toContextConsumer(
+        ActionSupport.forEach("i", StreamGenerator.fromArray("A", "B", "C"))
+            .perform(b -> leaf(multiParamsConsumerFor("i").toContextConsumer(
                 params -> ContextFunctions.printTo(
-                    System.out, contextValueOf("i"))))
+                    System.out, b::contextVariable)))
             ));
   }
 

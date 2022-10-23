@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.core.context;
 
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextConsumerBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextPredicateBuilder;
@@ -88,7 +89,7 @@ public enum ContextFunctions {
     );
   }
 
-  public static <R> ContextConsumer printTo(PrintStream ps, ContextFunction<R> value) {
+  public static <R> ContextConsumer printTo(PrintStream ps, Function<Context, R> value) {
     requireNonNull(ps);
     return ContextConsumer.of(
         () -> format("printTo[%s](%s)", prettyClassName(ps.getClass()), value),
@@ -96,7 +97,7 @@ public enum ContextFunctions {
     );
   }
 
-  public static <R> ContextConsumer writeTo(Consumer<R> sink, ContextFunction<R> value) {
+  public static <R> ContextConsumer writeTo(Consumer<R> sink, Function<Context, R> value) {
     requireNonNull(sink);
     return ContextConsumer.of(
         () -> format("writeTo[%s](%s)", prettyClassName(sink.getClass()), value),

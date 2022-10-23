@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
+import com.github.dakusui.actionunit.actions.ForEach2;
 import com.github.dakusui.actionunit.actions.cmd.unix.Git;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
@@ -12,13 +13,14 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.printTo;
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
+import static com.github.dakusui.printables.PrintableFunctionals.printableFunction;
 
 @RunWith(Enclosed.class)
 public class GitTest {
@@ -97,9 +99,13 @@ public class GitTest {
           .repo(immediateOf("https://github.com/dakusui/jcunit.git"));
 
       performAction(
-          ActionSupport.compatForEach("i", gitLsRemote.remoteBranchNames())
-              .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
+          forEach("i", gitLsRemote.remoteBranchNames()).perform(
+              b -> leaf(printTo(System.out, contextVariable(b))))
       );
+    }
+
+    private static Function<Context, String> contextVariable(ForEach2.Builder<String> b) {
+      return printableFunction(b::contextVariable).describe("contextVariable");
     }
 
     @Ignore
@@ -109,8 +115,8 @@ public class GitTest {
           .repo("https://github.com/dakusui/jcunit.git");
 
       performAction(
-          ActionSupport.compatForEach("i", gitLsRemote.remoteBranchNames())
-              .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
+          forEach("i", gitLsRemote.remoteBranchNames()).perform(
+              b -> leaf(printTo(System.out, contextVariable(b))))
       );
     }
 
@@ -119,8 +125,8 @@ public class GitTest {
     public void test2() {
       Git.LsRemote gitLsRemote = git().lsRemote();
       performAction(
-          ActionSupport.compatForEach("i", gitLsRemote.remoteBranchNames())
-              .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
+          forEach("i", gitLsRemote.remoteBranchNames())
+              .perform(b -> leaf(printTo(System.out, contextVariable(b))))
       );
     }
 
@@ -173,7 +179,7 @@ public class GitTest {
 
   public static class ForCheckout extends CommanderTestBase {
     @Ignore
-    public static class ActuallyPerformingActions extends CommanderTestBase{
+    public static class ActuallyPerformingActions extends CommanderTestBase {
       @Ignore
       @Test(expected = RuntimeException.class)
       public void test1() {
@@ -207,6 +213,7 @@ public class GitTest {
             git().checkout().newBranch(immediateOf("master-indexof-feature")).cwd(repoDir())
         );
       }
+
       @Override
       @Before
       public void setUp() throws IOException {

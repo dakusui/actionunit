@@ -210,7 +210,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
    * @param target A target string
    * @return This object
    */
-  public C add(ContextFunction<String> target) {
+  public C add(Function<Context, String> target) {
     return this.append(" ").appendq(requireNonNull(target));
   }
 
@@ -228,16 +228,16 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return this.append(" ").appendq(requireNonNull(target));
   }
 
-  public C append(ContextFunction<String> func) {
+  public C append(Function<Context, String> func) {
     return append(func, false);
   }
 
-  public C appendq(ContextFunction<String> func) {
+  public C appendq(Function<Context, String> func) {
     return append(func, true);
   }
 
   @SuppressWarnings("unchecked")
-  public C append(ContextFunction<String> func, boolean b) {
+  public C append(Function<Context, String> func, boolean b) {
     commandLineComposerBuilderIfSet().append(func, b);
     return (C) this;
   }

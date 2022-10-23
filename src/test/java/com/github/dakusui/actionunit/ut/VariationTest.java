@@ -7,8 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
@@ -16,13 +16,13 @@ public class VariationTest extends TestUtils.TestBase {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();
-    compatForEach("i", (c) -> Stream.of("a", "b")).perform(
-        compatForEach("j", (c) -> Stream.of("1", "2")).perform(
+    forEach("i", (c) -> Stream.of("a", "b")).perform(b ->
+        forEach("j", (c) -> Stream.of("1", "2")).perform(bb ->
             simple(
                 "add string",
                 (context) -> list.add(String.format("%s-%s",
-                    context.valueOf("i"),
-                    context.valueOf("j")
+                    b.contextVariable(context),
+                    bb.contextVariable(context)
                 ))))
     ).accept(createActionPerformer());
     assertEquals(
@@ -38,7 +38,7 @@ public class VariationTest extends TestUtils.TestBase {
 
   @Test
   public void forEachAndPipedAction() {
-    compatForEach(
+    forEach(
         "i",
         (c) -> Stream.of("a", "b")
     ).perform(
