@@ -82,11 +82,10 @@ public class ContextFunctionsHelperUnitTest {
   @Test
   public void test3_fromBuilder() {
     ReportingActionPerformer.create().perform(
-        ActionSupport.forEach("i", StreamGenerator.fromArray("A", "B", "C"))
-            .perform(b -> leaf(multiParamsConsumerFor("i").toContextConsumer(
+        ActionSupport.compatForEach("i", StreamGenerator.fromArray("A", "B", "C"))
+            .perform(leaf(multiParamsConsumerFor("i").toContextConsumer(
                 params -> ContextFunctions.printTo(
-                    System.out, b::contextVariable)))
-            ));
+                    System.out, contextValueOf("i"))))));
   }
 
   @Test
