@@ -3,18 +3,23 @@ package com.github.dakusui.actionunit.actions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.*;
 import static java.util.Objects.requireNonNull;
 
-public interface Contextful<V> extends Action {
+public interface Contextful<S> extends Action {
   /**
    * A function to provide a value referenced from inside an action returned by the
    * {@link Contextful#action()} method.
    *
    * @return A function to provide a value for an action.
    */
-  Function<Context, V> valueSource();
+  Function<Context, S> valueSource();
 
   /**
    * Returns a main action.
@@ -37,17 +42,17 @@ public interface Contextful<V> extends Action {
    */
   String internalVariableName();
 
-  abstract class Base<V> implements Contextful<V> {
+  abstract class Base<V, S> implements Contextful<S> {
     private final String variableName;
 
     private final String internalVariableName;
 
-    private final Function<Context, V> valueSource;
+    private final Function<Context, S> valueSource;
 
     private final Action action;
 
 
-    public Base(String variableName, final String internalVariableName, Function<Context, V> valueSource, Action action) {
+    public Base(String variableName, final String internalVariableName, Function<Context, S> valueSource, Action action) {
       this.variableName = variableName;
       this.internalVariableName = internalVariableName;
       this.valueSource = valueSource;
@@ -55,7 +60,7 @@ public interface Contextful<V> extends Action {
     }
 
     @Override
-    public Function<Context, V> valueSource() {
+    public Function<Context, S> valueSource() {
       return valueSource;
     }
 
@@ -76,14 +81,19 @@ public interface Contextful<V> extends Action {
 
   }
 
-  abstract class Builder<B extends Builder<B, A, V>, A extends Contextful<V>, V> extends Action.Builder<A> {
-    private final Function<Context, V> valueSource;
+  abstract class Builder<
+      B extends Builder<B, A, V, S>,
+      A extends Contextful<S>,
+      V,
+      S>
+      extends Action.Builder<A> {
+    private final Function<Context, S> valueSource;
     private final String               internalVariableName;
     private final String               variableName;
 
     private Action action;
 
-    protected Builder(String variableName, Function<Context, V> function) {
+    protected Builder(String variableName, Function<Context, S> function) {
       this.variableName = requireNonNull(variableName);
       this.internalVariableName = composeInternalVariableName(variableName);
       this.valueSource = requireNonNull(function);
@@ -125,23 +135,61 @@ public interface Contextful<V> extends Action {
       return this.internalVariableName;
     }
 
-    public Function<Context, V> valueSource() {
+    public Function<Context, S> valueSource() {
       return this.valueSource;
+    }
+
+    /**
+     * Creates an action that consumes the context variable.
+     *
+     * @param consumer A consumer that processes the context variable.
+     * @return A created action.
+     */
+    public Action toAction(Consumer<V> consumer) {
+      return simple("action:" + variableName(),
+          printableConsumer((Context c) -> variableReferenceConsumer(consumer).accept(c)).describe(toStringIfOverriddenOrNoname(consumer)));
+    }
+
+    public <W> Function<Context, W> function(Function<V, W> function) {
+      return toContextFunction(this, function);
+
+    }
+
+    public Consumer<Context> consumer(Consumer<V> consumer) {
+      return toContextConsumer(this, consumer);
+    }
+
+    public Predicate<Context> predicate(Predicate<V> predicate) {
+      return toContextPredicate(this, predicate);
+    }
+
+    public V contextVariable(Context context) {
+      return contextVariableValue(context);
     }
 
     protected <VV> VV contextVariableValue(Context context) {
       return context.valueOf(internalVariableName());
     }
 
-    protected static String nextVariableName(String variableName) {
-      requireNonNull(variableName);
-      if (variableName.length() == 1 && 'a' <= variableName.charAt(0) && variableName.charAt(0) <= 'z')
-        return Character.toString((char) (variableName.charAt(0) + 1));
-      if (variableName.matches(".*_[1-9][0-9]*$")) {
-        int index = Integer.parseInt(variableName.replaceAll(".*_", "")) + 1;
-        return variableName.replaceAll("_[1-9][0-9]*$", "_" + index);
-      }
-      return variableName + "_1";
+    private Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
+      return (Context context) -> consumer.accept(context.valueOf(internalVariableName()));
     }
+
+    private static <V, W> Function<Context, W> toContextFunction(Builder<?, ?, V, ?> builder, Function<V, W> function) {
+      return printableFunction((Context context) -> function.apply(context.valueOf(builder.internalVariableName())))
+          .describe(toStringIfOverriddenOrNoname(function));
+    }
+
+    private static <V> Consumer<Context> toContextConsumer(Builder<?, ?, V, ?> builder, Consumer<V> consumer) {
+      return printableConsumer((Context context) -> consumer.accept(context.valueOf(builder.internalVariableName())))
+          .describe(toStringIfOverriddenOrNoname(consumer));
+    }
+
+    private static <V> Predicate<Context> toContextPredicate(Builder<?, ?, V, ?> builder, Predicate<V> predicate) {
+      return printablePredicate(
+          (Context context) -> predicate.test(context.valueOf(builder.internalVariableName())))
+          .describe(() -> builder.variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
+    }
+
   }
 }

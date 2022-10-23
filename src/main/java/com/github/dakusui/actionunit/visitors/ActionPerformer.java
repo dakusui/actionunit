@@ -58,7 +58,7 @@ public abstract class ActionPerformer implements Action.Visitor {
     };
     if (action.isParallel()) {
       data = data.parallel();
-      visitorFactory = v -> newInstance(this.context.assignTo(action.internalVariableName(), v));
+      visitorFactory = v -> newInstance(this.context.createChild().assignTo(action.internalVariableName(), v));
     }
     Function<E, Action.Visitor> finalVisitorFactory = visitorFactory;
     data.forEach(each -> callAccept(

@@ -7,12 +7,12 @@ import java.util.Formatter;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static com.github.dakusui.printables.PrintableFunctionals.*;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An interface to access a context variable safely.
@@ -39,7 +39,7 @@ public interface With<V> extends Contextful<V> {
     formatter.format("with:" + variableName() + ":" + toStringIfOverriddenOrNoname(valueSource()));
   }
 
-  class Builder<V> extends Contextful.Builder<Builder<V>, With<V>, V> {
+  class Builder<V> extends Contextful.Builder<Builder<V>, With<V>, V, V> {
 
     public Builder(String variableName, Function<Context, V> function) {
       super(variableName, function);
@@ -59,37 +59,6 @@ public interface With<V> extends Contextful<V> {
           printableConsumer((Context c) -> variableUpdateFunction(function).apply(c)).describe(toStringIfOverriddenOrNoname(function)));
     }
 
-    /**
-     * Creates an action that consumes the context variable.
-     *
-     * @param consumer A consumer that processes the context variable.
-     * @return A created action.
-     */
-    public Action toAction(Consumer<V> consumer) {
-      return simple("action:" + variableName(),
-          printableConsumer((Context c) -> variableReferenceConsumer(consumer).accept(c)).describe(toStringIfOverriddenOrNoname(consumer)));
-    }
-
-    public <W> Builder<W> nest(Function<V, W> function) {
-      return new Builder<>(nextVariableName(variableName()), function(function));
-    }
-
-    public <W> Function<Context, W> function(Function<V, W> function) {
-      return toContextFunction(this, function);
-
-    }
-
-    public Consumer<Context> consumer(Consumer<V> consumer) {
-      return toContextConsumer(this, consumer);
-    }
-
-    public Predicate<Context> predicate(Predicate<V> predicate) {
-      return toContextPredicate(this, predicate);
-    }
-
-    public V contextVariable(Context context) {
-      return contextVariableValue(context);
-    }
 
     public With<V> build() {
       return build(nopConsumer());
@@ -99,6 +68,19 @@ public interface With<V> extends Contextful<V> {
       return new Impl<>(this.variableName(), this.internalVariableName(), this.valueSource(), this.action(), finisher);
     }
 
+    public <W> Builder<W> nest(Function<V, W> function) {
+      return new Builder<>(nextVariableName(variableName()), function(function));
+    }
+    protected static String nextVariableName(String variableName) {
+      requireNonNull(variableName);
+      if (variableName.length() == 1 && 'a' <= variableName.charAt(0) && variableName.charAt(0) <= 'z')
+        return Character.toString((char) (variableName.charAt(0) + 1));
+      if (variableName.matches(".*_[1-9][0-9]*$")) {
+        int index = Integer.parseInt(variableName.replaceAll(".*_", "")) + 1;
+        return variableName.replaceAll("_[1-9][0-9]*$", "_" + index);
+      }
+      return variableName + "_1";
+    }
     private Function<Context, V> variableUpdateFunction(Function<V, V> function) {
       return printableFunction(
           (Context context) -> {
@@ -109,27 +91,7 @@ public interface With<V> extends Contextful<V> {
           .describe(toStringIfOverriddenOrNoname(function));
     }
 
-    private Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
-      return (Context context) -> consumer.accept(context.valueOf(internalVariableName()));
-    }
-
-    private static <V, W> Function<Context, W> toContextFunction(Builder<V> builder, Function<V, W> function) {
-      return printableFunction((Context context) -> function.apply(context.valueOf(builder.internalVariableName())))
-          .describe(toStringIfOverriddenOrNoname(function));
-    }
-
-    private static <V> Consumer<Context> toContextConsumer(Builder<V> builder, Consumer<V> consumer) {
-      return printableConsumer((Context context) -> consumer.accept(context.valueOf(builder.internalVariableName())))
-          .describe(toStringIfOverriddenOrNoname(consumer));
-    }
-
-    private static <V> Predicate<Context> toContextPredicate(Builder<V> builder, Predicate<V> predicate) {
-      return printablePredicate(
-          (Context context) -> predicate.test(context.valueOf(builder.internalVariableName())))
-          .describe(() -> builder.variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
-    }
-
-    private static class Impl<V> extends Base<V> implements With<V> {
+    private static class Impl<V> extends Base<V, V> implements With<V> {
       private final Action end;
 
       public Impl(String variableName, String internalVariableName, Function<Context, V> valueSource, Action action, Consumer<V> finisher) {

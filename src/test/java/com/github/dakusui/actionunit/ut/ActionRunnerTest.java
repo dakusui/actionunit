@@ -17,7 +17,7 @@ import static com.github.dakusui.crest.Crest.asString;
 
 @RunWith(Enclosed.class)
 public class ActionRunnerTest {
-  public abstract static class Base extends ActionRunnerTestBase {
+  public abstract static class Base extends ActionRunnerTestBase<Action.Visitor, Action.Visitor> {
     @Override
     protected Action.Visitor createRunner() {
       return TestUtils.createActionPerformer();
@@ -43,7 +43,6 @@ public class ActionRunnerTest {
         ////
         // then
         getWriter().forEach(System.out::println);
-        //noinspection unchecked
         Crest.assertThat(
             getWriter(),
             Crest.allOf(
@@ -61,30 +60,19 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return compatForEach(
-          "i",
-          (c) -> Stream.of("A", "B")
-      ).perform(
-          sequential(
-              simple(
-                  "Prefix env 'outer-'",
-                  (c) -> getWriter().writeLine("outer-" + c.valueOf("i"))
-              ),
-              compatForEach(
-                  "j",
-                  (c) -> Stream.of("a", "b")
-              ).perform(
+      return forEach("i", (c) -> Stream.of("A", "B"))
+          .perform(b ->
+              sequential(
                   simple(
-                      "Prefix env '\\_inner-'",
-                      (c) -> getWriter().writeLine("\\_inner-" + c.valueOf("j"))
-                  )
-              ),
-              simple(
-                  "Prefix env 'outer-'",
-                  (cc) -> getWriter().writeLine("outer-" + cc.valueOf("i"))
-              )
-          )
-      );
+                      "Prefix env 'outer-'",
+                      (c) -> getWriter().writeLine("outer-" + b.contextVariable(c))),
+                  forEach("j", (c) -> Stream.of("a", "b"))
+                      .perform(bb -> simple(
+                          "Prefix env '\\_inner-'",
+                          (c) -> getWriter().writeLine("\\_inner-" + bb.contextVariable(c)))),
+                  simple(
+                      "Prefix env 'outer-'",
+                      (cc) -> getWriter().writeLine("outer-" + b.contextVariable(cc)))));
     }
   }
 }

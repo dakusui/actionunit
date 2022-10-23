@@ -45,7 +45,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
                       }),
                       simple("simple3", (context) -> {
                       }),
-                      compatForEach(
+                      forEach(
                           "i",
                           (c) -> Stream.of("hello1", "hello2", "hello3")).perform(
                           nop()
@@ -103,7 +103,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
               asString("next").containsString("simple1:(noname)").$(),
               asString("next").containsString("simple2:(noname)").$(),
               asString("next").containsString("simple3:(noname)").$(),
-              asString("next").containsString("for each of (noname) sequentially").$(),
+              asString("next").containsString("forEach:i:(noname)").$(),
               asString("next").containsString("(nop)").$()
           )
       );
@@ -127,15 +127,10 @@ public class ActionPrinterTest extends TestUtils.TestBase {
       @Test
       public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
         final TestUtils.Out out1 = new TestUtils.Out();
-        Action action = compatForEach(
-            "i",
-            (c) -> Stream.of("A", "B")
-        ).perform(
-            sequential(
-                simple("+0", (c) -> out1.writeLine(c.valueOf("i") + "0")),
-                simple("+1", (c) -> out1.writeLine(c.valueOf("i") + "1"))
-            )
-        );
+        Action action = forEach("i", (c) -> Stream.of("A", "B")).perform(
+            b -> sequential(
+                simple("+0", (c) -> out1.writeLine(b.contextVariable(c) + "0")),
+                simple("+1", (c) -> out1.writeLine(b.contextVariable(c) + "1"))));
         action.accept(TestUtils.createActionPerformer());
         assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 
@@ -144,7 +139,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         Crest.assertThat(
             removeSpentTimeFromResultColumn(out2),
             Crest.allOf(
-                asString("get", 0).containsString("[o]").containsString("for each").$(),
+                asString("get", 0).containsString("[o]").containsString("forEach").$(),
                 asString("get", 1).containsString("[oo]").containsString("+0:(noname)").$(),
                 asString("get", 2).containsString("[oo]").containsString("+1:(noname)").$(),
                 asInteger("size").equalTo(3).$()

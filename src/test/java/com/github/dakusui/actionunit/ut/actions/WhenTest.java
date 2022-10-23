@@ -19,51 +19,35 @@ import static com.github.dakusui.crest.Crest.assertThat;
 public class WhenTest extends TestUtils.TestBase {
   @Test
   public void test() {
-    Action action = compatForEach(
-        "v",
-        (c) -> Stream.of(1, 2, 3, 4)
-    ).perform(
-        when(
-            c -> v(c) > 2
-        ).perform(
+    Action action = forEach("v", (c) -> Stream.of(1, 2, 3, 4)).perform(b ->
+        when(c -> b.contextVariable(c) > 2).perform(
             simple(
                 "hello",
-                (c) -> System.out.println("hello" + v(c))
-            )
-        ).build()
-    );
+                (c) -> System.out.println("hello" + b.contextVariable(c)))).build());
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 
   @Test
   public void givenOneValue$when_MatchingWhen_$thenWorksFine() {
     List<String> out = new LinkedList<>();
-    Action action = when(
-        c -> true
-    ).perform(
-        simple("meets", (c) -> out.add("Condition met"))
-    ).otherwise(
-        simple("not meets", (c) -> out.add("Condition not met"))
-    );
+    Action action = when(c -> true).perform(
+            simple("meets", (c) -> out.add("Condition met")))
+        .otherwise(
+            simple("not meets", (c) -> out.add("Condition not met")));
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
     assertThat(
         out,
         asListOf(String.class).containsExactly(
-            Collections.singleton("Condition met")
-        ).$()
-    );
+            Collections.singleton("Condition met")).$());
   }
 
   @Test
   public void givenOneValue$when_NotMatchingWhen_$thenWorksFine() {
     List<String> out = new LinkedList<>();
-    Action action = when(
-        c -> false
-    ).perform(
-        simple("meets", (c) -> out.add("Condition met"))
-    ).otherwise(
-        simple("not meets", (c) -> out.add("Condition not met"))
-    );
+    Action action = when(c -> false).perform(
+            simple("meets", (c) -> out.add("Condition met")))
+        .otherwise(
+            simple("not meets", (c) -> out.add("Condition not met")));
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
 
     assertThat(
@@ -72,9 +56,5 @@ public class WhenTest extends TestUtils.TestBase {
             Collections.singleton("Condition not met")
         ).$()
     );
-  }
-
-  private static int v(Context c) {
-    return c.valueOf("v");
   }
 }

@@ -24,43 +24,30 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @RunWith(JUnit4.class)
 public class ActionSupportTest extends TestUtils.TestBase {
 
-  private static final Action EXAMPLE_ACTION = compatForEach(
-      "i",
-      (c) -> Stream.of("a", "b", "c", "d", "e")
-  ).parallelly(
-  ).perform(
-      attempt(
-          sequential(
-              timeout(
-                  leaf(
-                      $ -> System.out.println("hello"))
-              ).in(10, SECONDS),
-              retry(
-                  leaf(
-                      $ -> System.out.println("i=" + $.valueOf("i")))
-              ).on(
-                  Exception.class
-              ).withIntervalOf(
-                  500, MILLISECONDS
-              ).$(),
-              nop(),
-              compatForEach("i", (c) -> Stream.of(1, 2, 3)).perform(
-                  leaf(
-                      $ -> {
-                        throw new IllegalStateException("err");
-                      })))
-      ).recover(
-          Exception.class,
-          simple(
-              "let's recover",
-              context -> System.out.println("Exception was caught:" + context.thrownException().getMessage()))
-      ).ensure(
-          simple(
-              "a simple action",
-              $ -> System.out.println("bye: ensured : " + $.valueOf("i"))
-          )
-      )
-  );
+  private static final Action EXAMPLE_ACTION = forEach("i", (c) -> Stream.of("a", "b", "c", "d", "e"))
+      .parallely()
+      .perform(b ->
+          attempt(
+              sequential(
+                  timeout(
+                      leaf($ -> System.out.println("hello"))).in(10, SECONDS),
+                  retry(leaf($ -> System.out.println("i=" + b.contextVariable($))))
+                      .on(Exception.class)
+                      .withIntervalOf(500, MILLISECONDS)
+                      .$(),
+                  nop(),
+                  forEach("j", (c) -> Stream.of(1, 2, 3)).perform(
+                      leaf(
+                          $ -> {
+                            throw new IllegalStateException("err");
+                          })))).recover(
+              Exception.class,
+              simple(
+                  "let's recover",
+                  context -> System.out.println("Exception was caught:" + context.thrownException().getMessage()))).ensure(
+              simple(
+                  "a simple action",
+                  $ -> System.out.println("bye: ensured : " + b.contextVariable($)))));
 
   @Ignore // This feature is not implemented yet.
   @Test(timeout = 10_000)

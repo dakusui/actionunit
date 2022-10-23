@@ -141,7 +141,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
     public void givenPassingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = compatForEach(
+      Action action = forEach(
           "i",
           (c) -> Stream.of("ItemA", "ItemB", "ItemC")
       ).perform(
@@ -161,7 +161,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
       assertThat(
           TestUtils.removeSpentTimeFromResultColumn(getWriter()),
           allOf(
-              asString("get", 0).startsWith("[o]for each of (noname) sequentially").$(),
+              asString("get", 0).startsWith("[o]forEach:i:(noname)").$(),
               asString("get", 1).equalTo("  +-[ooo]Sink-1:(noname)").$(),
               asString("get", 2).equalTo("  +-[ooo]Sink-2:(noname)").$(),
               asInteger("size").equalTo(3).$()
@@ -172,10 +172,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
     public void givenFailingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = compatForEach(
-          "i",
-          (c) -> Stream.of("ItemA", "ItemB", "ItemC")
-      ).perform(
+      Action action = forEach("i", (c) -> Stream.of("ItemA", "ItemB", "ItemC")).perform(
           sequential(
               simple("Sink-1", (c) -> {
                 throw new RuntimeException("Failing");
@@ -193,7 +190,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
         assertThat(
             TestUtils.removeSpentTimeFromResultColumn(getWriter()),
             allOf(
-                asString("get", 0).startsWith("[E]for each of (noname) sequentially").$(),
+                asString("get", 0).startsWith("[E]forEach:i:(noname)").$(),
                 asString("get", 1).startsWith("  +-[E]Sink-1:(noname)").$(),
                 asString("get", 2).startsWith("  +-[]Sink-2:(noname)").$(),
                 asInteger("size").equalTo(3).$()

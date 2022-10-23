@@ -27,10 +27,10 @@ public class ForEachTest extends TestUtils.TestBase {
   public void givenForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = new LinkedList<>();
     // Given
-    Action action = compatForEach("i", (c) -> Stream.of("Hello", "world", "!"))
-        .perform(sequential(
-            simple("print {s}", (c) -> System.out.println("<" + c.valueOf("i") + ">")),
-            simple("add {s} to 'out'", (c) -> out.add("'" + c.valueOf("i") + "'"))));
+    Action action = forEach("i", (c) -> Stream.of("Hello", "world", "!")).perform(b ->
+        sequential(
+            simple("print {s}", (c) -> System.out.println("<" + b.contextVariable(c) + ">")),
+            simple("add {s} to 'out'", (c) -> out.add("'" + b.contextVariable(c) + "'"))));
     // When
     createReportingActionPerformer().performAndReport(action, Writer.Std.OUT);
     // Then
@@ -68,7 +68,7 @@ public class ForEachTest extends TestUtils.TestBase {
                 .perform(sequential(
                     b.toAction(printVariable()),
                     b.updateContextVariableWith(increment())
-                    )))
+                )))
         .build(printVariable());
     withAction.accept(new ActionPrinter(Writer.Std.OUT));
     createReportingActionPerformer().performAndReport(withAction, Writer.Std.OUT);
@@ -79,22 +79,20 @@ public class ForEachTest extends TestUtils.TestBase {
   public void givenConcurrentForEachAction$whenPerformWithReporting$worksCorrectly() {
     List<String> out = Collections.synchronizedList(new LinkedList<>());
     // Given
-    Action action = compatForEach(
+    Action action = forEach(
         "i",
-        (c) -> Stream.of("Hello", "world", "!")
-    ).parallelly(
-    ).perform(
-        sequential(
-            simple(
-                "print {s}",
-                (c) -> System.out.println("<" + c.valueOf("i") + ">")
-            ),
-            simple(
-                "add {s} to 'out'",
-                (c) -> out.add("'" + c.valueOf("i") + "'")
+        (c) -> Stream.of("Hello", "world", "!"))
+        .parallely()
+        .perform(b ->
+            sequential(
+                simple(
+                    "print {s}",
+                    (c) -> System.out.println("<" + b.contextVariable(c) + ">")),
+                simple(
+                    "add {s} to 'out'",
+                    (c) -> out.add("'" + b.contextVariable(c) + "'"))
             )
-        )
-    );
+        );
     // When3
     ReportingActionPerformer.create().performAndReport(
         action,
