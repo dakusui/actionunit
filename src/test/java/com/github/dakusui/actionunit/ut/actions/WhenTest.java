@@ -19,7 +19,7 @@ import static com.github.dakusui.crest.Crest.assertThat;
 public class WhenTest extends TestUtils.TestBase {
   @Test
   public void test() {
-    Action action = forEach(
+    Action action = compatForEach(
         "v",
         (c) -> Stream.of(1, 2, 3, 4)
     ).perform(

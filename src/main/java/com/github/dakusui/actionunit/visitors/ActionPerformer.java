@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -30,9 +31,9 @@ public abstract class ActionPerformer implements Action.Visitor {
     Stream<Action> actionStream = action.isParallel()
         ? action.children().parallelStream()
         : action.children().stream();
-    actionStream.forEach(
-        a -> callAccept(a, this)
-    );
+    actionStream.forEach(a -> callAccept(a, action.isParallel() ?
+        newInstance(this.context.createChild()) :
+        this));
   }
 
   @Override
@@ -51,9 +52,18 @@ public abstract class ActionPerformer implements Action.Visitor {
 
   public <E> void visit(ForEach2<E> action) {
     Stream<E> data = action.valueSource().apply(this.context);
+    Function<E, Action.Visitor> visitorFactory = v -> {
+      this.context.assignTo(action.internalVariableName(), v);
+      return this;
+    };
+    if (action.isParallel()) {
+      data = data.parallel();
+      visitorFactory = v -> newInstance(this.context.assignTo(action.internalVariableName(), v));
+    }
+    Function<E, Action.Visitor> finalVisitorFactory = visitorFactory;
     data.forEach(each -> callAccept(
         action.action(),
-        newInstance(this.context.createChild().assignTo(action.internalVariableName(), each))));
+        finalVisitorFactory.apply(each)));
   }
 
   @Override
@@ -85,6 +95,7 @@ public abstract class ActionPerformer implements Action.Visitor {
     }
   }
 
+  @Override
   public void visit(Attempt action) {
     Context originalContext = this.context;
     try {

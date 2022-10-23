@@ -24,7 +24,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @RunWith(JUnit4.class)
 public class ActionSupportTest extends TestUtils.TestBase {
 
-  private static final Action EXAMPLE_ACTION = forEach(
+  private static final Action EXAMPLE_ACTION = compatForEach(
       "i",
       (c) -> Stream.of("a", "b", "c", "d", "e")
   ).parallelly(
@@ -44,7 +44,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
                   500, MILLISECONDS
               ).$(),
               nop(),
-              forEach("i", (c) -> Stream.of(1, 2, 3)).perform(
+              compatForEach("i", (c) -> Stream.of(1, 2, 3)).perform(
                   leaf(
                       $ -> {
                         throw new IllegalStateException("err");

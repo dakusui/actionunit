@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
@@ -27,19 +28,9 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.when;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asListOf;
-import static com.github.dakusui.crest.Crest.asObject;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.Crest.requireThat;
-import static com.github.dakusui.crest.Crest.sublistAfterElement;
-import static com.github.dakusui.crest.Crest.substringAfterRegex;
+import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -67,28 +58,28 @@ public class CmdTest {
 
     void performAsContextConsumerInsideLoop(Cmd cmd) {
       performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
               leaf(initCmd(cmd).toContextConsumer())
           ));
     }
 
     void performAsActionInsideHelloWorldLoop(Cmd cmd) {
       performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
               initCmd(cmd).toAction()
           ));
     }
 
     void performAsContextFunctionInsideHelloWorldLoop(Cmd cmd) {
       performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
               leaf(c -> System.out.println("out=<" + initCmd(cmd).toContextFunction().apply(c) + ">"))
           ));
     }
 
     void performAsContextPredicateInsideHelloWorldLoop(Cmd cmd) {
       performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world"))
+          ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world"))
               .perform(
                   when(cmd.toContextPredicate())
                       .perform(leaf(c -> out.add("MET")))
@@ -390,7 +381,7 @@ public class CmdTest {
     @Test
     public void givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput() {
       performAction(
-          forEach("i",
+          ActionSupport.compatForEach("i",
               initCmd(cmd("echo hello && echo world")).toStreamGenerator()
           ).perform(
               leaf(ContextConsumer.of(
@@ -408,7 +399,7 @@ public class CmdTest {
       String keyword = "UNKNOWN";
       try {
         performAction(
-            forEach("i",
+            ActionSupport.compatForEach("i",
                 initCmd(cmd("echo hello && echo world")).checker(createProcessStreamerCheckerForCmdTest(keyword)).toStreamGenerator())
                 .perform(
                     leaf(ContextConsumer.of(

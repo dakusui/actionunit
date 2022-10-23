@@ -42,7 +42,7 @@ public class HelloActionUnit {
   @Test
   public void helloActionUnit() {
     List<String> out = new LinkedList<>();
-    Action action = forEach(
+    Action action = compatForEach(
         "i",
         () -> Stream.of("Hello", "world", "!")
     ).perform(

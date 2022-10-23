@@ -141,7 +141,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
     public void givenPassingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = forEach(
+      Action action = compatForEach(
           "i",
           (c) -> Stream.of("ItemA", "ItemB", "ItemC")
       ).perform(
@@ -172,7 +172,7 @@ public class ReportingActionPerformerTest extends TestUtils.TestBase {
     public void givenFailingConcurrentAction$whenPerformed$thenWorksFine() {
       ////
       // Given concurrent action
-      Action action = forEach(
+      Action action = compatForEach(
           "i",
           (c) -> Stream.of("ItemA", "ItemB", "ItemC")
       ).perform(

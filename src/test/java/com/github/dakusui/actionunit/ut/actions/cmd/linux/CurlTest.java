@@ -1,10 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.*;
 import static com.github.dakusui.crest.Crest.*;
@@ -16,7 +16,7 @@ public class CurlTest extends CommanderTestBase {
     Curl curl = curl().get().url("https://www.github.com/").urlEncodedData(immediateOf("Hello world"));
     System.out.println(curl.buildCommandLineComposer().format());
     performAction(
-        forEach("i", curl.toStreamGenerator())
+        ActionSupport.compatForEach("i", curl.toStreamGenerator())
             .perform(leaf(writeTo(System.out::println, contextValueOf("i"))))
     );
   }

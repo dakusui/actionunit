@@ -1,11 +1,11 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import org.junit.Test;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.assumeRunningOnLinux;
 import static com.github.dakusui.crest.Crest.*;
@@ -96,7 +96,7 @@ public class EchoTest extends CommanderTestBase {
   @Test
   public void givenEchoHelloWorldWithContextFunction$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
     performAction(
-        forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+        ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
             initCommander(newEcho())
                 .noTrailingNewLine()
                 .message(contextValueOf("i")).toAction()
@@ -111,7 +111,7 @@ public class EchoTest extends CommanderTestBase {
   @Test
   public void givenEchoHelloWorldWithContextFunctionQuoted$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten() {
     performAction(
-        forEach("i", StreamGenerator.fromArray("hello", "'world'")).perform(
+        ActionSupport.compatForEach("i", StreamGenerator.fromArray("hello", "'world'")).perform(
             initCommander(newEcho())
                 .noTrailingNewLine()
                 .message(contextValueOf("i")).toAction()

@@ -85,7 +85,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEach(
+    Action action = compatForEach(
         "i", (c) -> Stream.of("hello")
     ).perform(
         nop()

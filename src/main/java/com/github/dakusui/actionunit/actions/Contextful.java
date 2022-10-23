@@ -37,60 +37,6 @@ public interface Contextful<V> extends Action {
    */
   String internalVariableName();
 
-
-  abstract class Builder<B extends Builder<B, A, V>, A extends Contextful<V>, V> extends Action.Builder<A> {
-    private final Function<Context, V> valueSource;
-    private final String internalVariableName;
-    private final String variableName;
-
-    private Action action;
-
-    protected Builder(String variableName, Function<Context, V> function) {
-      this.variableName = requireNonNull(variableName);
-      this.internalVariableName = variableName + ":" + System.identityHashCode(this);
-      this.valueSource = requireNonNull(function);
-    }
-
-    @SuppressWarnings("unchecked")
-    public B action(Action action) {
-      this.action = requireNonNull(action);
-      return (B) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public B action(Function<B, Action> action) {
-      return this.action(action.apply((B) this));
-    }
-
-
-    public Action action() {
-      return this.action;
-    }
-
-    public String variableName() {
-      return this.variableName;
-    }
-
-    public String internalVariableName() {
-      return this.internalVariableName;
-    }
-
-    protected static String nextVariableName(String variableName) {
-      requireNonNull(variableName);
-      if (variableName.length() == 1 && 'a' <= variableName.charAt(0) && variableName.charAt(0) <= 'z')
-        return Character.toString((char) (variableName.charAt(0) + 1));
-      if (variableName.matches(".*_[1-9][0-9]*$")) {
-        int index = Integer.parseInt(variableName.replaceAll(".*_", "")) + 1;
-        return variableName.replaceAll("_[1-9][0-9]*$", "_" + index);
-      }
-      return variableName + "_1";
-    }
-
-    public Function<Context, V> valueSource() {
-      return this.valueSource;
-    }
-  }
-
   abstract class Base<V> implements Contextful<V> {
     private final String variableName;
 
@@ -128,5 +74,74 @@ public interface Contextful<V> extends Action {
       return internalVariableName;
     }
 
+  }
+
+  abstract class Builder<B extends Builder<B, A, V>, A extends Contextful<V>, V> extends Action.Builder<A> {
+    private final Function<Context, V> valueSource;
+    private final String               internalVariableName;
+    private final String               variableName;
+
+    private Action action;
+
+    protected Builder(String variableName, Function<Context, V> function) {
+      this.variableName = requireNonNull(variableName);
+      this.internalVariableName = composeInternalVariableName(variableName);
+      this.valueSource = requireNonNull(function);
+    }
+
+    protected String composeInternalVariableName(String variableName) {
+      return this.getClass().getEnclosingClass().getCanonicalName() + ":" + variableName + ":" + System.identityHashCode(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public B action(Action action) {
+      this.action = requireNonNull(action);
+      return (B) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public B action(Function<B, Action> action) {
+      return this.action(action.apply((B) this));
+    }
+
+    public A perform(Action action) {
+      return action(action).build();
+    }
+
+    public A perform(Function<B, Action> action) {
+      return this.action(action).build();
+    }
+
+
+    public Action action() {
+      return this.action;
+    }
+
+    public String variableName() {
+      return this.variableName;
+    }
+
+    public String internalVariableName() {
+      return this.internalVariableName;
+    }
+
+    public Function<Context, V> valueSource() {
+      return this.valueSource;
+    }
+
+    protected <VV> VV contextVariableValue(Context context) {
+      return context.valueOf(internalVariableName());
+    }
+
+    protected static String nextVariableName(String variableName) {
+      requireNonNull(variableName);
+      if (variableName.length() == 1 && 'a' <= variableName.charAt(0) && variableName.charAt(0) <= 'z')
+        return Character.toString((char) (variableName.charAt(0) + 1));
+      if (variableName.matches(".*_[1-9][0-9]*$")) {
+        int index = Integer.parseInt(variableName.replaceAll(".*_", "")) + 1;
+        return variableName.replaceAll("_[1-9][0-9]*$", "_" + index);
+      }
+      return variableName + "_1";
+    }
   }
 }

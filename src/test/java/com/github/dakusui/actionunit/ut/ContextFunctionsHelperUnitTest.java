@@ -1,22 +1,22 @@
 package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
-import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
@@ -86,7 +86,7 @@ public class ContextFunctionsHelperUnitTest {
   @Test
   public void test3_fromBuilder() {
     ReportingActionPerformer.create().perform(
-        forEach("i", StreamGenerator.fromArray("A", "B", "C"))
+        ActionSupport.compatForEach("i", StreamGenerator.fromArray("A", "B", "C"))
             .perform(leaf(multiParamsConsumerFor("i").toContextConsumer(
                 params -> ContextFunctions.printTo(
                     System.out, contextValueOf("i"))))

@@ -53,10 +53,10 @@ public interface With<V> extends Contextful<V> {
      * @param function A function to compute a new value of the context variable.
      * @return An action that updates the context variable.
      */
-    public Action updateVariableWith(Function<V, V> function) {
+    public Action updateContextVariableWith(Function<V, V> function) {
       return simple(
-          toStringIfOverriddenOrNoname(function) + ":" + variableName() + "*",
-          (Context c) -> variableUpdateFunction(function).apply(c));
+          "update:" + variableName() + "*",
+          printableConsumer((Context c) -> variableUpdateFunction(function).apply(c)).describe(toStringIfOverriddenOrNoname(function)));
     }
 
     /**
@@ -65,9 +65,9 @@ public interface With<V> extends Contextful<V> {
      * @param consumer A consumer that processes the context variable.
      * @return A created action.
      */
-    public Action createAction(Consumer<V> consumer) {
-      return simple(toStringIfOverriddenOrNoname(consumer) + ":" + variableName(),
-          (Context c) -> variableReferenceConsumer(consumer).accept(c));
+    public Action toAction(Consumer<V> consumer) {
+      return simple("action:" + variableName(),
+          printableConsumer((Context c) -> variableReferenceConsumer(consumer).accept(c)).describe(toStringIfOverriddenOrNoname(consumer)));
     }
 
     public <W> Builder<W> nest(Function<V, W> function) {
@@ -87,6 +87,10 @@ public interface With<V> extends Contextful<V> {
       return toContextPredicate(this, predicate);
     }
 
+    public V contextVariable(Context context) {
+      return contextVariableValue(context);
+    }
+
     public With<V> build() {
       return build(nopConsumer());
     }
@@ -98,11 +102,11 @@ public interface With<V> extends Contextful<V> {
     private Function<Context, V> variableUpdateFunction(Function<V, V> function) {
       return printableFunction(
           (Context context) -> {
-            V ret = function.apply(context.valueOf(internalVariableName()));
+            V ret = function.apply(contextVariable(context));
             context.assignTo(internalVariableName(), ret);
             return ret;
           })
-          .describe("XYZ");
+          .describe(toStringIfOverriddenOrNoname(function));
     }
 
     private Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {

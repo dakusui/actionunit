@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.Git;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import org.junit.Before;
@@ -12,15 +13,11 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.printTo;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.Crest.call;
-import static com.github.dakusui.crest.Crest.substringAfterRegex;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
 
 @RunWith(Enclosed.class)
@@ -100,7 +97,7 @@ public class GitTest {
           .repo(immediateOf("https://github.com/dakusui/jcunit.git"));
 
       performAction(
-          forEach("i", gitLsRemote.remoteBranchNames())
+          ActionSupport.compatForEach("i", gitLsRemote.remoteBranchNames())
               .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
       );
     }
@@ -112,7 +109,7 @@ public class GitTest {
           .repo("https://github.com/dakusui/jcunit.git");
 
       performAction(
-          forEach("i", gitLsRemote.remoteBranchNames())
+          ActionSupport.compatForEach("i", gitLsRemote.remoteBranchNames())
               .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
       );
     }
@@ -122,7 +119,7 @@ public class GitTest {
     public void test2() {
       Git.LsRemote gitLsRemote = git().lsRemote();
       performAction(
-          forEach("i", gitLsRemote.remoteBranchNames())
+          ActionSupport.compatForEach("i", gitLsRemote.remoteBranchNames())
               .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
       );
     }

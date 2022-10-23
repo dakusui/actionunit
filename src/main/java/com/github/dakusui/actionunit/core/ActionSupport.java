@@ -4,13 +4,12 @@ import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
-import com.github.dakusui.actionunit.utils.InternalUtils;
-import com.github.dakusui.printables.PrintableFunctionals;
 
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CONSUMER;
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
@@ -38,12 +37,16 @@ public enum ActionSupport {
     return new Attempt.Builder(action);
   }
 
-  public static <E> ForEach.Builder<E> forEach(StreamGenerator<E> streamGenerator) {
+  public static <E> ForEach.Builder<E> compatForEach(String variableName, StreamGenerator<E> streamGenerator) {
+    return new ForEach.Builder<>(variableName, streamGenerator);
+  }
+
+  public static <E> ForEach2.Builder<E> forEach(Function<Context, Stream<E>> streamGenerator) {
     return forEach("i", streamGenerator);
   }
 
-  public static <E> ForEach.Builder<E> forEach(String variableName, StreamGenerator<E> streamGenerator) {
-    return new ForEach.Builder<>(variableName, streamGenerator);
+  public static <E> ForEach2.Builder<E> forEach(String variableName, Function<Context, Stream<E>> streamGenerator) {
+    return new ForEach2.Builder<>(variableName, streamGenerator);
   }
 
   public static While.Builder repeatWhile(Predicate<Context> condition) {

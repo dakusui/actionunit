@@ -56,9 +56,13 @@ public interface While extends Action {
       this.predicate = requireNonNull(predicate);
     }
 
-    public Builder perform(Action action) {
+    public Builder action(Action action) {
       this.action = requireNonNull(action);
       return this;
+    }
+
+    public While perform(Action action) {
+      return this.action(action).build();
     }
 
     public While build() {

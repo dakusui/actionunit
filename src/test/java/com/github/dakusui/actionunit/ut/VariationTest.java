@@ -16,8 +16,8 @@ public class VariationTest extends TestUtils.TestBase {
   @Test
   public void doubleLoop() {
     final List<String> list = new LinkedList<>();
-    forEach("i", (c) -> Stream.of("a", "b")).perform(
-        forEach("j", (c) -> Stream.of("1", "2")).perform(
+    compatForEach("i", (c) -> Stream.of("a", "b")).perform(
+        compatForEach("j", (c) -> Stream.of("1", "2")).perform(
             simple(
                 "add string",
                 (context) -> list.add(String.format("%s-%s",
@@ -38,7 +38,7 @@ public class VariationTest extends TestUtils.TestBase {
 
   @Test
   public void forEachAndPipedAction() {
-    forEach(
+    compatForEach(
         "i",
         (c) -> Stream.of("a", "b")
     ).perform(

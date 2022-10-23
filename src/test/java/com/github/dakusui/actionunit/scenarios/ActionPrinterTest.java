@@ -45,7 +45,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
                       }),
                       simple("simple3", (context) -> {
                       }),
-                      forEach(
+                      compatForEach(
                           "i",
                           (c) -> Stream.of("hello1", "hello2", "hello3")).perform(
                           nop()
@@ -127,7 +127,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
       @Test
       public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
         final TestUtils.Out out1 = new TestUtils.Out();
-        Action action = forEach(
+        Action action = compatForEach(
             "i",
             (c) -> Stream.of("A", "B")
         ).perform(

@@ -52,6 +52,17 @@ public abstract class ActionScanner implements Action.Visitor {
   }
 
   @Override
+  public <E> void visit(ForEach2<E> action) {
+    this.handleAction(action);
+    this.enter(action);
+    try {
+      action.action().accept(this);
+    } finally {
+      this.leave(action);
+    }
+  }
+
+  @Override
   public void visit(While action) {
     this.handleAction(action);
     this.enter(action);

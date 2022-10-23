@@ -46,7 +46,7 @@ public class ContextFunctionsUnitTest {
     public void whenPerformInsideLoop$thenConsumerIsPerformedCorrectly() {
 
       ReportingActionPerformer.create().performAndReport(
-          forEach("i", c -> Stream.of("Hello", "world"))
+          compatForEach("i", c -> Stream.of("Hello", "world"))
               .perform(leaf(cc)),
           Writer.Std.OUT
       );
@@ -61,7 +61,7 @@ public class ContextFunctionsUnitTest {
     @Test
     public void whenPerformInsideLoop$thenConsumerIsFormattedCorrectly() {
       ReportingActionPerformer.create().performAndReport(
-          forEach("i", c -> Stream.of("Hello", "world"))
+          compatForEach("i", c -> Stream.of("Hello", "world"))
               .perform(leaf(cc)),
           Writer.Std.OUT
       );
@@ -114,9 +114,9 @@ public class ContextFunctionsUnitTest {
     @Test
     public void whenPerformedNestedLoop$thenWorksCorrectly() {
       ReportingActionPerformer.create().performAndReport(
-          forEach("i", c -> Stream.of("Hello", "world"))
+          compatForEach("i", c -> Stream.of("Hello", "world"))
               .perform(
-                  forEach("j", c -> Stream.of(-1, 0, 1, 2, 100)).perform(
+                  compatForEach("j", c -> Stream.of(-1, 0, 1, 2, 100)).perform(
                       when(cp)
                           .perform(leaf(cc))
                           .otherwise(nop())

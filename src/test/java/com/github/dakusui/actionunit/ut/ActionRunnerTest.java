@@ -61,7 +61,7 @@ public class ActionRunnerTest {
     }
 
     private Action composeAction() {
-      return forEach(
+      return compatForEach(
           "i",
           (c) -> Stream.of("A", "B")
       ).perform(
@@ -70,7 +70,7 @@ public class ActionRunnerTest {
                   "Prefix env 'outer-'",
                   (c) -> getWriter().writeLine("outer-" + c.valueOf("i"))
               ),
-              forEach(
+              compatForEach(
                   "j",
                   (c) -> Stream.of("a", "b")
               ).perform(
