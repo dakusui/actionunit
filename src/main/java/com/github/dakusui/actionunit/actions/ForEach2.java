@@ -33,11 +33,11 @@ public interface ForEach2<V> extends Contextful<Stream<V>> {
     }
 
     public Builder<V> parallely() {
-      return this.parallelism(false);
+      return this.parallelism(true);
     }
 
     public Builder<V> sequentially() {
-      return this.parallelism(true);
+      return this.parallelism(false);
     }
 
     public Builder<V> parallelism(boolean parallelism) {
