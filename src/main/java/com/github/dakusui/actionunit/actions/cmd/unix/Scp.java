@@ -3,6 +3,7 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.printables.PrintableFunction;
@@ -20,7 +21,7 @@ import static java.util.Objects.requireNonNull;
 
 public class Scp extends Commander<Scp> {
   private ContextFunction<Target>       destination;
-  private List<ContextFunction<Target>> files;
+  private List<Function<Context, Target>> files;
   private SshOptions                    sshOptions;
 
   public Scp(CommanderInitializer initializer) {
@@ -38,7 +39,7 @@ public class Scp extends Commander<Scp> {
     return this.addOption("-r");
   }
 
-  public Scp file(ContextFunction<Target> target) {
+  public Scp file(Function<Context, Target> target) {
     this.files.add(requireNonNull(target));
     return this;
   }
@@ -57,7 +58,7 @@ public class Scp extends Commander<Scp> {
     Scp cloned = this.clone();
     CommandLineComposer.Builder commandLineComposerBuilder = cloned.commandLineComposerBuilderIfSet();
     Function<Target, String> formatTarget = PrintableFunction.of(Target::format).describe("Target::format");
-    for (ContextFunction<Target> each : files) {
+    for (Function<Context, Target> each : files) {
       commandLineComposerBuilder
           .append(" ", false)
           .append(each.andThen(formatTarget), true);

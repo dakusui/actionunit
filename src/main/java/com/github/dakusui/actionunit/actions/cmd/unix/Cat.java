@@ -2,10 +2,11 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static java.lang.String.format;
@@ -66,7 +67,7 @@ public class Cat extends Commander<Cat> {
     return add(fileName);
   }
 
-  public Cat file(ContextFunction<String> fileName) {
+  public Cat file(Function<Context, String> fileName) {
     return add(fileName);
   }
 }

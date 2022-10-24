@@ -3,8 +3,10 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
+
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static java.util.Objects.requireNonNull;
@@ -49,7 +51,7 @@ public interface Git extends CommanderFactory {
       return this.addOption("-b").add(branchName);
     }
 
-    public Clone branch(ContextFunction<String> branchName) {
+    public Clone branch(Function<Context, String> branchName) {
       return this.addOption("-b").add(branchName);
     }
 
@@ -57,7 +59,7 @@ public interface Git extends CommanderFactory {
       return this.add(repo);
     }
 
-    public Clone repo(ContextFunction<String> repo) {
+    public Clone repo(Function<Context, String> repo) {
       return this.add(repo);
     }
   }
@@ -72,8 +74,7 @@ public interface Git extends CommanderFactory {
     public LsRemote repo(String repo) {
       return this.add(repo);
     }
-
-    public LsRemote repo(ContextFunction<String> repo) {
+    public LsRemote repo(Function<Context, String> repo) {
       return this.add(requireNonNull(repo));
     }
 
@@ -93,7 +94,7 @@ public interface Git extends CommanderFactory {
       return this.add(branch);
     }
 
-    public Checkout branch(ContextFunction<String> branch) {
+    public Checkout branch(Function<Context, String> branch) {
       return this.add(branch);
     }
 
@@ -101,7 +102,7 @@ public interface Git extends CommanderFactory {
       return this.newBranch(immediateOf(branch));
     }
 
-    public Checkout newBranch(ContextFunction<String> branch) {
+    public Checkout newBranch(Function<Context, String> branch) {
       return this.addOption("-b").add(branch);
     }
   }
@@ -117,15 +118,15 @@ public interface Git extends CommanderFactory {
       return add(repo);
     }
 
-    public Push repo(ContextFunction<String> repo) {
-      return add(repo);
+    public Push repo(Function<Context, String> repo) {
+      return this.add(repo);
     }
 
     public Push refspec(String spec) {
       return add(spec);
     }
 
-    public Push refspec(ContextFunction<String> spec) {
+    public Push refspec(Function<Context, String> spec) {
       return add(spec);
     }
   }

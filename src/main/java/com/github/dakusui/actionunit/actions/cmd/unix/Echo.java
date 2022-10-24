@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.util.function.Function;
 

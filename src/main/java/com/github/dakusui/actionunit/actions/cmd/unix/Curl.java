@@ -2,7 +2,9 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.Context;
+
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static java.util.Objects.requireNonNull;
@@ -51,7 +53,7 @@ public class Curl extends Commander<Curl> {
     return this.add(url);
   }
 
-  public Curl url(ContextFunction<String> url) {
+  public Curl url(Function<Context, String> url) {
     return this.add(url);
   }
 
@@ -67,7 +69,7 @@ public class Curl extends Commander<Curl> {
     return this.asciiData(immediateOf(content));
   }
 
-  public Curl asciiData(ContextFunction<String> content) {
+  public Curl asciiData(Function<Context, String> content) {
     return this.data(DataFormat.ASCII, content);
   }
 
@@ -75,7 +77,7 @@ public class Curl extends Commander<Curl> {
     return this.binaryData(immediateOf(content));
   }
 
-  public Curl binaryData(ContextFunction<String> content) {
+  public Curl binaryData(Function<Context, String> content) {
     return this.data(DataFormat.BINARY, content);
   }
 
@@ -83,7 +85,7 @@ public class Curl extends Commander<Curl> {
     return this.rawData(immediateOf(content));
   }
 
-  public Curl rawData(ContextFunction<String> content) {
+  public Curl rawData(Function<Context, String> content) {
     return this.data(DataFormat.RAW, content);
   }
 
@@ -91,11 +93,11 @@ public class Curl extends Commander<Curl> {
     return this.urlEncodedData(immediateOf(content));
   }
 
-  public Curl urlEncodedData(ContextFunction<String> content) {
+  public Curl urlEncodedData(Function<Context, String> content) {
     return this.data(DataFormat.URL_ENCODE, content);
   }
 
-  public Curl data(DataFormat format, ContextFunction<String> content) {
+  public Curl data(DataFormat format, Function<Context, String> content) {
     return this.addOption(format.getFormat()).add(requireNonNull(content));
   }
 

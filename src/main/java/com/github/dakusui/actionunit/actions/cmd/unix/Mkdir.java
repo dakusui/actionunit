@@ -2,9 +2,10 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
@@ -26,7 +27,7 @@ public class Mkdir extends Commander<Mkdir> {
     return this.dir(requireNonNull(path).getAbsolutePath());
   }
 
-  public Mkdir dir(ContextFunction<String> path) {
+  public Mkdir dir(Function<Context, String> path) {
     return this.add(requireNonNull(path));
   }
 }
