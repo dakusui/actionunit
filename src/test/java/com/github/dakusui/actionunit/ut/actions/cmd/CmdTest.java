@@ -67,7 +67,7 @@ public class CmdTest extends TestUtils.TestBase {
     void performAsActionInsideHelloWorldLoop(Function<ContextVariable, Cmd> cmd) {
       performAction(
           forEach("i", StreamGenerator.fromArray("hello", "world")).perform(b ->
-              initCmd(cmd.apply(b)).toAction()));
+              initCmd(cmd.apply(b)).$()));
     }
 
     void performAsContextFunctionInsideHelloWorldLoop(Function<ForEach.Builder<?>, Cmd> cmd) {

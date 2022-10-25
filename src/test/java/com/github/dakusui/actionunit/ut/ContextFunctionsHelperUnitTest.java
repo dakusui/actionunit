@@ -3,8 +3,6 @@ package com.github.dakusui.actionunit.ut;
 import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
@@ -25,13 +23,13 @@ import static com.github.dakusui.printables.PrintableFunctionals.printableConsum
 import static com.github.dakusui.printables.PrintableFunctionals.printableFunction;
 
 public class ContextFunctionsHelperUnitTest {
-  private static <T, R> ContextFunction<R> toMultiParamsContextFunction(String variableName, Function<T, R> function) {
+  private static <T, R> Function<Context, R> toMultiParamsContextFunction(String variableName, Function<T, R> function) {
     ContextVariable variable = ContextVariable.createGlobal(variableName);
     return ContextFunctions.<R>multiParamsFunctionFor(variable)
         .toContextFunction(printableFunction((Params params) -> function.apply(params.valueOf(variable))).describe(function.toString()));
   }
 
-  static <T> ContextConsumer toMultiParamsContextConsumer(ContextVariable variable, Consumer<T> consumer) {
+  static <T> Consumer<Context> toMultiParamsContextConsumer(ContextVariable variable, Consumer<T> consumer) {
     return multiParamsConsumerFor(variable)
         .toContextConsumer(printableConsumer(
             (Params params) -> consumer.accept(params.valueOf(variable))
@@ -42,7 +40,7 @@ public class ContextFunctionsHelperUnitTest {
 
   @Test
   public void test() {
-    ContextFunction<Integer> function = new MultiParamsContextFunctionBuilder<Integer>(ContextVariable.createGlobal("i"))
+    Function<Context, Integer> function = new MultiParamsContextFunctionBuilder<Integer>(ContextVariable.createGlobal("i"))
         .toContextFunction((Params params) -> params.<Integer>valueOf(ContextVariable.createGlobal("i")) + 1);
     System.out.println(function.toString());
 
@@ -56,7 +54,7 @@ public class ContextFunctionsHelperUnitTest {
   public void test2() {
     ContextVariable iVariable = ContextVariable.createGlobal("i");
     Context context = Context.create().assignTo(iVariable.internalVariableName(), 0);
-    ContextFunction<Integer> function = toMultiParamsContextFunction(
+    Function<Context, Integer> function = toMultiParamsContextFunction(
         "i",
         printableFunction((Integer i) -> i + 1).describe("inc({{0}})"));
     System.out.println(function);
@@ -71,7 +69,7 @@ public class ContextFunctionsHelperUnitTest {
   public void test3() {
     ContextVariable iVariable = ContextVariable.createGlobal("x");
     Context context = Context.create().assignTo(iVariable.internalVariableName(), 0);
-    ContextFunction<Integer> function = toMultiParamsContextFunction("x",
+    Function<Context, Integer> function = toMultiParamsContextFunction("x",
         printableFunction((Integer i) -> i + 1).describe("inc({{0}})")
     ).andThen(
         printableFunction((Integer j) -> j * 2).describe("double")

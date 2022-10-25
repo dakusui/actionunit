@@ -29,7 +29,7 @@ public class MultiParamsContextConsumerBuilder {
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
   }
 
-  public ContextConsumer toContextConsumer(Consumer<Params> consumer) {
+  public Consumer<Context> toContextConsumer(Consumer<Params> consumer) {
     requireNonNull(consumer);
     return new ContextConsumer.Impl(
         () -> descriptionFormatter.apply(consumer, contextVariables),

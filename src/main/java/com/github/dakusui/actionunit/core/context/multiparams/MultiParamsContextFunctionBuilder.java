@@ -12,27 +12,26 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.descri
 import static java.util.Objects.requireNonNull;
 
 public class MultiParamsContextFunctionBuilder<R> {
-  private final ContextVariable[]                                     variableNames;
+  private final ContextVariable[]                                     variables;
   private final BiFunction<Function<?, ?>, ContextVariable[], String> descriptionFormatter;
 
-  public MultiParamsContextFunctionBuilder(ContextVariable... variableNames) {
+  public MultiParamsContextFunctionBuilder(ContextVariable... variables) {
     this(
         (f, v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
-        variableNames
+        variables
     );
   }
 
   private MultiParamsContextFunctionBuilder(
-      BiFunction<Function<?, ?>, ContextVariable[], String> descriptionFormatter,
-      ContextVariable... variableNames) {
+      BiFunction<Function<?, ?>, ContextVariable[], String> descriptionFormatter, ContextVariable... variables) {
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
-    this.variableNames = requireNonNull(variableNames);
+    this.variables = requireNonNull(variables);
   }
 
-  public ContextFunction<R> toContextFunction(Function<Params, R> function) {
+  public Function<Context, R> toContextFunction(Function<Params, R> function) {
     requireNonNull(function);
     return new ContextFunction.Impl<>(
-        () -> descriptionFormatter.apply(function, variableNames),
-        (Context c) -> function.apply(Params.create(c, variableNames)));
+        () -> descriptionFormatter.apply(function, variables),
+        (Context c) -> function.apply(Params.create(c, variables)));
   }
 }

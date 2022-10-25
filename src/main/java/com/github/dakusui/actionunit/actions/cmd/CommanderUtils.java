@@ -3,7 +3,9 @@ package com.github.dakusui.actionunit.actions.cmd;
 import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.*;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
@@ -12,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
@@ -66,7 +70,7 @@ public enum CommanderUtils {
     );
   }
 
-  static ContextConsumer createContextConsumer(Commander<?> commander) {
+  static Consumer<Context> createContextConsumer(Commander<?> commander) {
     requireNonNull(commander);
     return multiParamsConsumerFor(commander.variables())
         .toContextConsumer(
@@ -79,7 +83,7 @@ public enum CommanderUtils {
                 .describe(() -> commander.buildCommandLineComposer().format()));
   }
 
-  static ContextPredicate createContextPredicate(Commander<?> commander) {
+  static Predicate<Context> createContextPredicate(Commander<?> commander) {
     return multiParamsPredicateFor(commander.variables())
         .toContextPredicate(printablePredicate(
             (Params params) -> {
@@ -104,7 +108,7 @@ public enum CommanderUtils {
                 toStringIfOverriddenOrNoname(commander.checker()))));
   }
 
-  static ContextFunction<String> createContextFunction(Commander<?> commander) {
+  static Function<Context, String> createContextFunction(Commander<?> commander) {
     return ContextFunctions.<String>multiParamsFunctionFor(commander.variables())
         .toContextFunction(params ->
             createProcessStreamerBuilder(commander, params)

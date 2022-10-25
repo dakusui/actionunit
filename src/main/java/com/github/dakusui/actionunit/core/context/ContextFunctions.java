@@ -30,26 +30,26 @@ public enum ContextFunctions {
 
   public static final Function<ContextVariable[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = variables -> i -> String.format("{{%s}}", variables[i]);
 
-  public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(ContextVariable... variableNames) {
-    return new MultiParamsContextPredicateBuilder(variableNames);
+  public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(ContextVariable... variables) {
+    return new MultiParamsContextPredicateBuilder(variables);
   }
 
-  public static MultiParamsContextConsumerBuilder multiParamsConsumerFor(ContextVariable... variableNames) {
-    return new MultiParamsContextConsumerBuilder(variableNames);
+  public static MultiParamsContextConsumerBuilder multiParamsConsumerFor(ContextVariable... variables) {
+    return new MultiParamsContextConsumerBuilder(variables);
   }
 
-  public static <R> MultiParamsContextFunctionBuilder<R> multiParamsFunctionFor(ContextVariable... variableNames) {
-    return new MultiParamsContextFunctionBuilder<>(variableNames);
+  public static <R> MultiParamsContextFunctionBuilder<R> multiParamsFunctionFor(ContextVariable... variables) {
+    return new MultiParamsContextFunctionBuilder<>(variables);
   }
 
-  public static String describeFunctionalObject(Object f, final IntFunction<String> placeHolderFormatter, ContextVariable... v) {
+  public static String describeFunctionalObject(Object f, final IntFunction<String> placeHolderFormatter, ContextVariable... variables) {
     return String.format("(%s)->%s",
-        String.join(",", Arrays.stream(v).map(each -> each.variableName()).toArray(String[]::new)),
+        String.join(",", Arrays.stream(variables).map(ContextVariable::variableName).toArray(String[]::new)),
         summarize(StableTemplatingUtils.template(
-            objectToStringIfOverridden(f, obj -> formatPlaceHolders(obj, placeHolderFormatter, v)),
+            objectToStringIfOverridden(f, obj -> formatPlaceHolders(obj, placeHolderFormatter, variables)),
             new TreeMap<String, Object>() {{
-              IntStream.range(0, v.length).forEach(
-                  i -> put(placeHolderFormatter.apply(i), String.format("${%s}", v[i]))
+              IntStream.range(0, variables.length).forEach(
+                  i -> put(placeHolderFormatter.apply(i), String.format("${%s}", variables[i]))
               );
             }}), 60));
   }
@@ -117,7 +117,7 @@ public enum ContextFunctions {
         ret = Arrays.stream(c.getInterfaces()).map(Class::getSimpleName).collect(joining
             (",", "(anon:", ")"));
     }
-    return ret.replaceFirst("\\$\\$Lambda\\$[\\d]+/(0x)?[\\d]+$", ".lambda");
+    return ret.replaceFirst("\\$\\$Lambda\\$\\d+/(0x)?\\d+$", ".lambda");
   }
 
   private static Class<?> mostRecentNamedSuperOf(Class<?> c) {

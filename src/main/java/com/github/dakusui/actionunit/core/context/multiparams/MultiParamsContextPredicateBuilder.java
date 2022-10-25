@@ -29,7 +29,7 @@ public class MultiParamsContextPredicateBuilder {
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
   }
 
-  public ContextPredicate toContextPredicate(Predicate<Params> predicate) {
+  public Predicate<Context> toContextPredicate(Predicate<Params> predicate) {
     requireNonNull(predicate);
     return new ContextPredicate.Impl(
         () -> descriptionFormatter.apply(predicate, contextVariables),

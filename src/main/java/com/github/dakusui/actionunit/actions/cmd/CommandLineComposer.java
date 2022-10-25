@@ -20,10 +20,10 @@ import static java.util.stream.Collectors.joining;
 
 public interface CommandLineComposer extends Function<ContextVariable[], BiFunction<Context, Object[], String>>, Formattable {
   @Override
-  default BiFunction<Context, Object[], String> apply(ContextVariable[] variableNames) {
+  default BiFunction<Context, Object[], String> apply(ContextVariable[] variables) {
     return (context, argValues) -> StableTemplatingUtils.template(
         compose(context),
-        StableTemplatingUtils.toMapping(this.parameterPlaceHolderFactory().apply(variableNames), argValues)
+        StableTemplatingUtils.toMapping(this.parameterPlaceHolderFactory().apply(variables), argValues)
     );
   }
 
@@ -62,6 +62,7 @@ public interface CommandLineComposer extends Function<ContextVariable[], BiFunct
       return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Builder appendVariable(ContextVariable variable, boolean quoted) {
       Function<Context, String> func = ContextFunction.of(
           () -> "${" + variable.variableName() + "}",

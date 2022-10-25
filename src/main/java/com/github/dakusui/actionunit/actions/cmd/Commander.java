@@ -4,9 +4,6 @@ import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
@@ -29,9 +26,10 @@ import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 
 /**
- * A builder class to construct an action that issues a command line.
+ * A base builder class to construct an action that runs a command line program.
  *
  * @param <C> A class refers to itself.
+ * @see com.github.dakusui.actionunit.actions.cmd.unix.Cmd
  */
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
   private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
@@ -164,24 +162,32 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
         action;
   }
 
+  public Action build() {
+    return toAction();
+  }
+
+  public Action $() {
+    return build();
+  }
+
   /**
    * A building method that returns {@link StreamGenerator} object.
    *
    * @return A stream generator object.
    */
-  public StreamGenerator<String> toStreamGenerator() {
+  public Function<Context, Stream<String>> toStreamGenerator() {
     return CommanderUtils.createStreamGenerator(this);
   }
 
-  public ContextConsumer toContextConsumer() {
+  public Consumer<Context> toContextConsumer() {
     return CommanderUtils.createContextConsumer(this);
   }
 
-  public ContextPredicate toContextPredicate() {
+  public Predicate<Context> toContextPredicate() {
     return CommanderUtils.createContextPredicate(this);
   }
 
-  public ContextFunction<String> toContextFunction() {
+  public Function<Context, String> toContextFunction() {
     return CommanderUtils.createContextFunction(this);
   }
 
@@ -314,10 +320,6 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return Optional.ofNullable(this.cwd);
   }
 
-  public Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory() {
-    return this.parameterPlaceHolderFactory;
-  }
-
   @Override
   public String toString() {
     return format(
@@ -356,5 +358,9 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   Optional<CommandLineComposer.Builder> commandLineComposerBuilder() {
     return Optional.ofNullable(commandLineComposerBuilder);
+  }
+
+  private Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory() {
+    return this.parameterPlaceHolderFactory;
   }
 }

@@ -1,16 +1,12 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.ContextVariable;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.dakusui.pcond.TestAssertions;
-import com.github.dakusui.pcond.fluent.Fluents;
-import com.github.dakusui.pcond.forms.Functions;
-import com.github.dakusui.pcond.forms.Predicates;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -18,6 +14,7 @@ import org.junit.runner.RunWith;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -31,7 +28,7 @@ import static com.github.dakusui.printables.PrintableFunctionals.printablePredic
 
 @RunWith(Enclosed.class)
 public class ContextFunctionsUnitTest {
-  public static <T> ContextPredicate createContextPredicate(ContextVariable variable, Predicate<T> predicate) {
+  public static <T> Predicate<Context> createContextPredicate(ContextVariable variable, Predicate<T> predicate) {
     return multiParamsPredicateFor(variable)
         .toContextPredicate(
             printablePredicate((Params params) -> predicate.test(params.valueOf(variable)))
@@ -41,7 +38,7 @@ public class ContextFunctionsUnitTest {
   public static class GivenPrintableContextConsumer {
     List<String> out = new LinkedList<>();
 
-    private static ContextConsumer createContextConsumer(GivenPrintableContextConsumer printableContextConsumer, ContextVariable variable) {
+    private static Consumer<Context> createContextConsumer(GivenPrintableContextConsumer printableContextConsumer, ContextVariable variable) {
       return ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
               variable, printableConsumer((String each) -> printableContextConsumer.out.add(each)).describe("out.add({{0}}.toString())"))
           .andThen(ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
@@ -79,7 +76,7 @@ public class ContextFunctionsUnitTest {
 
   public static class GivenPrintablePredicate {
     Integer boundary = 100;
-    private final ContextPredicate cp = createContextPredicate(
+    private final Predicate<Context> cp = createContextPredicate(
         ContextVariable.createGlobal("j"), printablePredicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
     ).or(multiParamsPredicateFor(ContextVariable.createGlobal("j")).toContextPredicate(
         printablePredicate((Params params) -> params.<Integer>valueOf(ContextVariable.createGlobal("i")) > 0).describe("{{0}}>0")
@@ -101,7 +98,7 @@ public class ContextFunctionsUnitTest {
     Integer      boundary = 100;
     List<Object> out      = new LinkedList<>();
 
-    private ContextPredicate not_$_i_ge_0_and_i_lt_boundary_$(ContextVariable variable) {
+    private Predicate<Context> not_$_i_ge_0_and_i_lt_boundary_$(ContextVariable variable) {
       return createContextPredicate(
           variable, printablePredicate((Integer x) -> Objects.equals(x, 0)).describe("{0}==0")
               .or(printablePredicate((Integer x) -> x > 0).describe("{0}>0"))
@@ -109,7 +106,7 @@ public class ContextFunctionsUnitTest {
               )).negate();
     }
 
-    private static ContextConsumer createContextConsumer(GivenPrintablePredicateAndConsumer printableConsumer, ContextVariable i, ContextVariable j) {
+    private static Consumer<Context> createContextConsumer(GivenPrintablePredicateAndConsumer printableConsumer, ContextVariable i, ContextVariable j) {
       return multiParamsConsumerFor(i).toContextConsumer(
           printableConsumer((Params params) -> printableConsumer.out.add(params.valueOf(i)))
               .describe("out.add({0}.toString)")
