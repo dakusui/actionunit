@@ -74,6 +74,7 @@ public interface Git extends CommanderFactory {
     public LsRemote repo(String repo) {
       return this.add(repo);
     }
+
     public LsRemote repo(Function<Context, String> repo) {
       return this.add(requireNonNull(repo));
     }
@@ -142,7 +143,7 @@ public interface Git extends CommanderFactory {
     @SuppressWarnings("WeakerAccess")
     public GitBase(CommanderConfig config) {
       super(config);
-      this.commandName("git");
+      config.setCommandNameFor(this);
     }
   }
 }

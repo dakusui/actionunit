@@ -7,8 +7,7 @@ import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
  * A simple action builder class for actions that run command line program.
  */
 public class Cmd extends Commander<Cmd> {
-  public Cmd(CommanderConfig initializer) {
-    super(initializer);
-    initializer.setCommandNameFor(this);
+  public Cmd(CommanderConfig con) {
+    super(con);
   }
 }

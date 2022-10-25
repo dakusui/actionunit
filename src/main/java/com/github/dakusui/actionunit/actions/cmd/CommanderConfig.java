@@ -53,9 +53,6 @@ public interface CommanderConfig {
     git.commandName("git");
   }
 
-  default void setCommandNameFor(Cmd cmd) {
-  }
-
   default Shell shell() {
     return Shell.LOCAL_SHELL;
   }
