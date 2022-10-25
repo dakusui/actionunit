@@ -46,12 +46,12 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   private       String                     description = null;
 
 
-  protected Commander(CommanderInitializer initializer) {
-    this.parameterPlaceHolderFactory = initializer.variablePlaceHolderFormatter();
+  protected Commander(CommanderConfig config) {
+    this.parameterPlaceHolderFactory = config.variablePlaceHolderFormatter();
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(RetryOption.none())
-        .shell(Shell.local())
+        .shell(config.shell())
         .checker(createCheckerForExitCode(0))
         .downstreamConsumer(LOGGER::trace);
   }
@@ -330,7 +330,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   @SuppressWarnings("unchecked")
-  public C command(String command) {
+  public C commandName(String command) {
     this.commandLineComposerBuilder = new CommandLineComposer.Builder(this.parameterPlaceHolderFactory())
         .append(command, false);
     return (C) this;

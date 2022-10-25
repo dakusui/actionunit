@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
@@ -19,10 +19,10 @@ public class Cat extends Commander<Cat> {
    */
   private String tag;
 
-  public Cat(CommanderInitializer initializer) {
+  public Cat(CommanderConfig initializer) {
     super(initializer);
     this.tag = null;
-    initializer.init(this);
+    initializer.setCommandNameFor(this);
   }
 
   public Cat hereDocument(String tag, Consumer<Cat> b) {

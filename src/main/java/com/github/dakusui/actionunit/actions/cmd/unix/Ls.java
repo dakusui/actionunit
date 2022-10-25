@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 
 import java.io.File;
@@ -9,9 +9,9 @@ import java.io.File;
 import static java.util.Objects.requireNonNull;
 
 public class Ls extends Commander<Ls> {
-  public Ls(CommanderInitializer initializer) {
+  public Ls(CommanderConfig initializer) {
     super(initializer);
-    initializer.init(this);
+    initializer.setCommandNameFor(this);
   }
 
   public Ls longListing() {

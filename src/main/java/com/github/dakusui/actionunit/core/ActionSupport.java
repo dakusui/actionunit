@@ -1,9 +1,8 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -96,11 +95,11 @@ public enum ActionSupport {
   }
 
   public static Cmd cmd(String program, ContextVariable... knownVariables) {
-    return cmd(program, CommanderInitializer.DEFAULT_INSTANCE, knownVariables);
+    return cmd(program, CommanderConfig.DEFAULT, knownVariables);
   }
 
-  public static Cmd cmd(String program, CommanderInitializer initializer, ContextVariable... knownVariables) {
-    Cmd ret = new Cmd(initializer).command(program);
+  public static Cmd cmd(String program, CommanderConfig initializer, ContextVariable... knownVariables) {
+    Cmd ret = new Cmd(initializer).commandName(program);
     for (ContextVariable each : knownVariables)
       ret = ret.declareVariable(each);
     return ret;

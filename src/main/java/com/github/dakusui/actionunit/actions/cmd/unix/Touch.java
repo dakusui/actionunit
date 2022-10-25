@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
@@ -10,9 +10,9 @@ import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
 
 public class Touch extends Commander<Touch> {
-  public Touch(CommanderInitializer initializer) {
+  public Touch(CommanderConfig initializer) {
     super(initializer);
-    initializer.init(this);
+    initializer.setCommandNameFor(this);
   }
 
   public Touch noCreate() {

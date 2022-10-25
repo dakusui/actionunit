@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
@@ -104,7 +104,7 @@ public class CmdTest extends TestUtils.TestBase {
     public void whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles() {
       // This test only makes sure buildCommandLineComposer can be overridden.
       requireThat(
-          new Cmd(CommanderInitializer.DEFAULT_INSTANCE) {
+          new Cmd(CommanderConfig.DEFAULT) {
             public CommandLineComposer buildCommandLineComposer() {
               return super.buildCommandLineComposer();
             }
@@ -356,7 +356,7 @@ public class CmdTest extends TestUtils.TestBase {
       performAsActionInsideHelloWorldLoop(i ->
           initCmd(cmd(
               "echo {{i}}",
-              new CommanderInitializer() {
+              new CommanderConfig() {
                 @Override
                 public Function<ContextVariable[], IntFunction<String>> variablePlaceHolderFormatter() {
                   return ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;

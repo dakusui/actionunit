@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.function.Function;
@@ -34,7 +34,7 @@ public interface Git extends CommanderFactory {
   }
 
   @Override
-  default CommanderInitializer initializer() {
+  default CommanderConfig initializer() {
     return parent().initializer();
   }
 
@@ -42,8 +42,8 @@ public interface Git extends CommanderFactory {
 
   class Clone extends GitBase<Clone> {
     @SuppressWarnings("WeakerAccess")
-    public Clone(CommanderInitializer initializer) {
-      super(initializer);
+    public Clone(CommanderConfig config) {
+      super(config);
       this.addOption("clone");
     }
 
@@ -66,8 +66,8 @@ public interface Git extends CommanderFactory {
 
   class LsRemote extends GitBase<LsRemote> {
     @SuppressWarnings("WeakerAccess")
-    public LsRemote(CommanderInitializer initializer) {
-      super(initializer);
+    public LsRemote(CommanderConfig config) {
+      super(config);
       this.addOption("ls-remote");
     }
 
@@ -85,7 +85,7 @@ public interface Git extends CommanderFactory {
 
   class Checkout extends GitBase<Checkout> {
     @SuppressWarnings("WeakerAccess")
-    public Checkout(CommanderInitializer initializer) {
+    public Checkout(CommanderConfig initializer) {
       super(initializer);
       this.addOption("checkout");
     }
@@ -109,8 +109,8 @@ public interface Git extends CommanderFactory {
 
   class Push extends GitBase<Push> {
     @SuppressWarnings("WeakerAccess")
-    public Push(CommanderInitializer initializer) {
-      super(initializer);
+    public Push(CommanderConfig config) {
+      super(config);
       this.addOption("push");
     }
 
@@ -133,16 +133,16 @@ public interface Git extends CommanderFactory {
 
   class Plain extends GitBase<Plain> {
     @SuppressWarnings("WeakerAccess")
-    public Plain(CommanderInitializer initializer) {
-      super(initializer);
+    public Plain(CommanderConfig config) {
+      super(config);
     }
   }
 
   abstract class GitBase<C extends GitBase<C>> extends Commander<C> {
     @SuppressWarnings("WeakerAccess")
-    public GitBase(CommanderInitializer initializer) {
-      super(initializer);
-      this.command("git");
+    public GitBase(CommanderConfig config) {
+      super(config);
+      this.commandName("git");
     }
   }
 }

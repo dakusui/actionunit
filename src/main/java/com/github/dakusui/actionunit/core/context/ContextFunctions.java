@@ -117,7 +117,7 @@ public enum ContextFunctions {
         ret = Arrays.stream(c.getInterfaces()).map(Class::getSimpleName).collect(joining
             (",", "(anon:", ")"));
     }
-    return ret.replaceFirst("\\$\\$Lambda\\$\\d+/(0x)?\\d+$", ".lambda");
+    return ret.replaceFirst("\\$\\$Lambda\\$\\d+/(0x)?[\\da-f]+$", ".lambda");
   }
 
   private static Class<?> mostRecentNamedSuperOf(Class<?> c) {

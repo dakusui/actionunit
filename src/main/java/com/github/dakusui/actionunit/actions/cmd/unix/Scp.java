@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
@@ -24,10 +24,10 @@ public class Scp extends Commander<Scp> {
   private List<Function<Context, Target>> files;
   private SshOptions                    sshOptions;
 
-  public Scp(CommanderInitializer initializer) {
+  public Scp(CommanderConfig initializer) {
     super(initializer);
     this.files = new LinkedList<>();
-    initializer.init(this);
+    initializer.setCommandNameFor(this);
   }
 
   public Scp options(SshOptions sshOptions) {

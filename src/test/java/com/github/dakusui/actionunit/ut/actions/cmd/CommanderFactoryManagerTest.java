@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactoryManager;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
 import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
 import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
@@ -130,10 +130,10 @@ public class CommanderFactoryManagerTest {
 
   public static class WithoutUsername extends Base {
     @Override
-    public CommanderInitializer initializerFor(String host) {
+    public CommanderConfig initializerFor(String host) {
       return "localhost".equals(host) ?
-          CommanderInitializer.DEFAULT_INSTANCE :
-          new CommanderInitializer() {
+          CommanderConfig.DEFAULT :
+          new CommanderConfig() {
             @Override
             public Shell shell() {
               return new SshShellBuilder(host)
@@ -168,10 +168,10 @@ public class CommanderFactoryManagerTest {
 
   public static class WithUsername extends Base {
     @Override
-    public CommanderInitializer initializerFor(String host) {
+    public CommanderConfig initializerFor(String host) {
       return "localhost".equals(host) ?
-          CommanderInitializer.DEFAULT_INSTANCE :
-          new CommanderInitializer() {
+          CommanderConfig.DEFAULT :
+          new CommanderConfig() {
             @Override
             public Shell shell() {
               return new SshShellBuilder(host)
@@ -265,15 +265,15 @@ public class CommanderFactoryManagerTest {
     };
 
     @Override
-    public CommanderInitializer initializerFor(String host) {
+    public CommanderConfig initializerFor(String host) {
       return "localhost".equals(host) ?
-          new CommanderInitializer() {
+          new CommanderConfig() {
             @Override
             public SshOptions sshOptions() {
               return sshOptions;
             }
           } :
-          new CommanderInitializer() {
+          new CommanderConfig() {
             @Override
             public Shell shell() {
               return new SshShellBuilder(host)
@@ -377,15 +377,15 @@ public class CommanderFactoryManagerTest {
     };
 
     @Override
-    public CommanderInitializer initializerFor(String host) {
+    public CommanderConfig initializerFor(String host) {
       return "localhost".equals(host) ?
-          new CommanderInitializer() {
+          new CommanderConfig() {
             @Override
             public SshOptions sshOptions() {
               return sshOptions;
             }
           } :
-          new CommanderInitializer() {
+          new CommanderConfig() {
             @Override
             public Shell shell() {
               return new SshShellBuilder(host)

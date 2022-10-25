@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.function.Function;
@@ -28,9 +28,9 @@ public class Curl extends Commander<Curl> {
     }
   }
 
-  public Curl(CommanderInitializer initializer) {
+  public Curl(CommanderConfig initializer) {
     super(initializer);
-    initializer.init(this);
+    initializer.setCommandNameFor(this);
   }
 
   public Curl post() {

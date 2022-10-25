@@ -13,9 +13,9 @@ public interface CommanderFactoryManager {
     return () -> initializerManager().apply(host);
   }
 
-  default Function<String, CommanderInitializer> initializerManager() {
+  default Function<String, CommanderConfig> initializerManager() {
     return memoize(this::initializerFor);
   }
 
-  CommanderInitializer initializerFor(String host);
+  CommanderConfig initializerFor(String host);
 }
