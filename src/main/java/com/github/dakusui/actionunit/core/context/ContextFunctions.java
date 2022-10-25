@@ -78,7 +78,7 @@ public enum ContextFunctions {
     requireNonNull(contextVariable);
     return ContextFunction.of(
         () -> format("valueOf[%s]", contextVariable.variableName()),
-        c -> c.valueOf(contextVariable.internalVariableName())
+        contextVariable::resolve
     );
   }
 
@@ -117,7 +117,7 @@ public enum ContextFunctions {
         ret = Arrays.stream(c.getInterfaces()).map(Class::getSimpleName).collect(joining
             (",", "(anon:", ")"));
     }
-    return ret.replaceFirst("\\$\\$Lambda\\$[\\d]+/[\\d]+$", ".lambda");
+    return ret.replaceFirst("\\$\\$Lambda\\$[\\d]+/(0x)?[\\d]+$", ".lambda");
   }
 
   private static Class<?> mostRecentNamedSuperOf(Class<?> c) {

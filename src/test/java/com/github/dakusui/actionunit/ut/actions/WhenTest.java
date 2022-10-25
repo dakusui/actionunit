@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut.actions;
 
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
@@ -20,10 +19,10 @@ public class WhenTest extends TestUtils.TestBase {
   @Test
   public void test() {
     Action action = forEach("v", (c) -> Stream.of(1, 2, 3, 4)).perform(b ->
-        when(c -> b.contextVariable(c) > 2).perform(
+        when(c -> b.resolveValue(c) > 2).perform(
             simple(
                 "hello",
-                (c) -> System.out.println("hello" + b.contextVariable(c)))).build());
+                (c) -> System.out.println("hello" + b.resolveValue(c)))).build());
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 

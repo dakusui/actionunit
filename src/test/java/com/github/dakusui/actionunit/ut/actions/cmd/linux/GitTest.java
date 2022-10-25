@@ -103,7 +103,7 @@ public class GitTest {
     }
 
     private static Function<Context, String> contextVariable(ForEach.Builder<String> b) {
-      return printableFunction(b::contextVariable).describe("contextVariable");
+      return printableFunction(b::resolveValue).describe("contextVariable");
     }
 
     @Ignore

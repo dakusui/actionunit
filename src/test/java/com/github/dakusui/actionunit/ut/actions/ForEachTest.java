@@ -29,8 +29,8 @@ public class ForEachTest extends TestUtils.TestBase {
     // Given
     Action action = forEach("i", (c) -> Stream.of("Hello", "world", "!")).perform(b ->
         sequential(
-            simple("print {s}", (c) -> System.out.println("<" + b.contextVariable(c) + ">")),
-            simple("add {s} to 'out'", (c) -> out.add("'" + b.contextVariable(c) + "'"))));
+            simple("print {s}", (c) -> System.out.println("<" + b.resolveValue(c) + ">")),
+            simple("add {s} to 'out'", (c) -> out.add("'" + b.resolveValue(c) + "'"))));
     // When
     createReportingActionPerformer().performAndReport(action, Writer.Std.OUT);
     // Then
@@ -87,10 +87,10 @@ public class ForEachTest extends TestUtils.TestBase {
             sequential(
                 simple(
                     "print {s}",
-                    (c) -> System.out.println("<" + b.contextVariable(c) + ">")),
+                    (c) -> System.out.println("<" + b.resolveValue(c) + ">")),
                 simple(
                     "add {s} to 'out'",
-                    (c) -> out.add("'" + b.contextVariable(c) + "'"))
+                    (c) -> out.add("'" + b.resolveValue(c) + "'"))
             )
         );
     // When3

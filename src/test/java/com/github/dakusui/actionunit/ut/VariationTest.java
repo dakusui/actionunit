@@ -21,8 +21,8 @@ public class VariationTest extends TestUtils.TestBase {
             simple(
                 "add string",
                 (context) -> list.add(String.format("%s-%s",
-                    b.contextVariable(context),
-                    bb.contextVariable(context)
+                    b.resolveValue(context),
+                    bb.resolveValue(context)
                 ))))
     ).accept(createActionPerformer());
     assertEquals(

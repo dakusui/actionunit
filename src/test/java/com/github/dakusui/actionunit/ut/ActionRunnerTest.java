@@ -65,14 +65,14 @@ public class ActionRunnerTest {
               sequential(
                   simple(
                       "Prefix env 'outer-'",
-                      (c) -> getWriter().writeLine("outer-" + b.contextVariable(c))),
+                      (c) -> getWriter().writeLine("outer-" + b.resolveValue(c))),
                   forEach("j", (c) -> Stream.of("a", "b"))
                       .perform(bb -> simple(
                           "Prefix env '\\_inner-'",
-                          (c) -> getWriter().writeLine("\\_inner-" + bb.contextVariable(c)))),
+                          (c) -> getWriter().writeLine("\\_inner-" + bb.resolveValue(c)))),
                   simple(
                       "Prefix env 'outer-'",
-                      (cc) -> getWriter().writeLine("outer-" + b.contextVariable(cc)))));
+                      (cc) -> getWriter().writeLine("outer-" + b.resolveValue(cc)))));
     }
   }
 }

@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.printables.PrintableFunctionals;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class CurlTest extends CommanderTestBase {
     System.out.println(curl.buildCommandLineComposer().format());
     performAction(
         ActionSupport.forEach("i", curl.toStreamGenerator())
-            .perform(b -> leaf(writeTo(System.out::println, printableFunction(b::contextVariable).describe("contextVariable"))))
+            .perform(b -> leaf(writeTo(System.out::println, printableFunction(b::resolveValue).describe("contextVariable"))))
     );
   }
 

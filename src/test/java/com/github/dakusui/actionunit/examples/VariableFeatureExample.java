@@ -1,6 +1,5 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
@@ -23,7 +22,7 @@ public class VariableFeatureExample extends TestUtils.TestBase {
                 bb -> sequential(
                     simple(
                         "print i",
-                        (cc) -> System.out.printf("x=%d i=%s%n", b.contextVariable(cc), bb.contextVariable(cc))),
+                        (cc) -> System.out.printf("x=%d i=%s%n", b.resolveValue(cc), bb.resolveValue(cc))),
                     b.updateContextVariableWith(increment())))))
     ;
   }

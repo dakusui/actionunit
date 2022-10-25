@@ -31,7 +31,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
               sequential(
                   timeout(
                       leaf($ -> System.out.println("hello"))).in(10, SECONDS),
-                  retry(leaf($ -> System.out.println("i=" + b.contextVariable($))))
+                  retry(leaf($ -> System.out.println("i=" + b.resolveValue($))))
                       .on(Exception.class)
                       .withIntervalOf(500, MILLISECONDS)
                       .$(),
@@ -47,7 +47,7 @@ public class ActionSupportTest extends TestUtils.TestBase {
                   context -> System.out.println("Exception was caught:" + context.thrownException().getMessage()))).ensure(
               simple(
                   "a simple action",
-                  $ -> System.out.println("bye: ensured : " + b.contextVariable($)))));
+                  $ -> System.out.println("bye: ensured : " + b.resolveValue($)))));
 
   @Ignore // This feature is not implemented yet.
   @Test(timeout = 10_000)

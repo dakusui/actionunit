@@ -7,6 +7,10 @@ import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.pcond.TestAssertions;
+import com.github.dakusui.pcond.fluent.Fluents;
+import com.github.dakusui.pcond.forms.Functions;
+import com.github.dakusui.pcond.forms.Predicates;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -95,7 +99,7 @@ public class ContextFunctionsUnitTest {
 
   public static class GivenPrintablePredicateAndConsumer extends TestUtils.TestBase {
     Integer      boundary = 100;
-    List<String> out      = new LinkedList<>();
+    List<Object> out      = new LinkedList<>();
 
     private ContextPredicate not_$_i_ge_0_and_i_lt_boundary_$(ContextVariable variable) {
       return createContextPredicate(
@@ -138,9 +142,7 @@ public class ContextFunctionsUnitTest {
               asInteger("get", 5).equalTo(-1).$(),
               asString("get", 6).equalTo("world").$(),
               asInteger("get", 7).equalTo(100).$(),
-              asInteger("size").equalTo(8).$()
-          )
-      );
+              asInteger("size").equalTo(8).$()));
     }
   }
 }

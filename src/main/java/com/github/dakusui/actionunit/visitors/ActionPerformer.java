@@ -36,20 +36,6 @@ public abstract class ActionPerformer implements Action.Visitor {
         this));
   }
 
-  @Override
-  public <E> void visit(CompatForEach<E> action) {
-    Stream<E> data = requireNonNull(action.data().apply(this.context));
-    data = action.isParallel()
-        ? data.parallel()
-        : data;
-    data.forEach(
-        e -> callAccept(action.perform(),
-            newInstance(this.context.createChild().assignTo(
-                action.loopVariableName(),
-                e
-            ))));
-  }
-
   public <E> void visit(ForEach<E> action) {
     Stream<E> data = action.valueSource().apply(this.context);
     Function<E, Action.Visitor> visitorFactory = v -> {

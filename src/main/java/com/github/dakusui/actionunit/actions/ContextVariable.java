@@ -1,5 +1,7 @@
 package com.github.dakusui.actionunit.actions;
 
+import com.github.dakusui.actionunit.core.Context;
+
 public interface ContextVariable {
   /**
    * A name of the variable.
@@ -14,6 +16,10 @@ public interface ContextVariable {
    * @return An internal context variable name.
    */
   String internalVariableName();
+
+  default <T> T resolve(Context context) {
+    return context.valueOf(this.internalVariableName());
+  }
 
   /**
    * @return Returns a global variable.

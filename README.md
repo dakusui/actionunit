@@ -36,7 +36,7 @@ Following is an example of actionunit.
 
 ```java
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public class HelloActionUnit {
   @Test
@@ -49,7 +49,7 @@ public class HelloActionUnit {
         sequential(
             simple(
                 "print {s}",
-                (c) -> System.out.println("<" + c.valueOf(i.internalVariableName()) + ">")
+                (c) -> System.out.println("<" + i.resolve(c) + ">")
             ),
             simple(
                 "add {s} to 'out'",

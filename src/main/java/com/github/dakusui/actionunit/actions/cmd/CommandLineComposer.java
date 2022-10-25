@@ -62,16 +62,16 @@ public interface CommandLineComposer extends Function<ContextVariable[], BiFunct
       return this;
     }
 
-    public Builder appendVariable(ContextVariable variableName, boolean quoted) {
+    public Builder appendVariable(ContextVariable variable, boolean quoted) {
       Function<Context, String> func = ContextFunction.of(
-          () -> "${" + variableName.variableName() + "}",
-          c -> c.valueOf(variableName.internalVariableName())
+          () -> "${" + variable.variableName() + "}",
+          variable::resolve
       );
       if (quoted) {
         func = quoteWithApostrophe(func);
       }
       this.tokens.add(func);
-      return this.declareVariable(variableName);
+      return this.declareVariable(variable);
     }
 
     public Builder declareVariable(ContextVariable contextVariable) {

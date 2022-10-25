@@ -385,7 +385,7 @@ public class CmdTest extends TestUtils.TestBase {
           ).perform(i ->
               leaf(ContextConsumer.of(
                   () -> "print 'i'",
-                  context -> System.out.println("i=" + context.valueOf(i.internalVariableName()))))
+                  context -> System.out.println("i=" + i.resolve(context))))
           ));
       assertThat(
           out,
@@ -402,7 +402,7 @@ public class CmdTest extends TestUtils.TestBase {
                 .perform(i ->
                     leaf(ContextConsumer.of(
                         () -> "print 'i'",
-                        context -> System.out.println("i=" + context.valueOf(i.internalVariableName()))))));
+                        context -> System.out.println("i=" + i.resolve(context))))));
       } catch (ProcessStreamer.Failure failure) {
         assertThat(
             failure.getMessage(),

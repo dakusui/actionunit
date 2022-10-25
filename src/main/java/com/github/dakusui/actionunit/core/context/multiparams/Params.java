@@ -57,7 +57,7 @@ public interface Params {
     return new Params() {
       final Map<ContextVariable, Object> values = new LinkedHashMap<ContextVariable, Object>() {{
         for (ContextVariable each : contextVariables) {
-          this.put(each, context.valueOf(each.internalVariableName()));
+          this.put(each, each.resolve(context));
         }
       }};
 

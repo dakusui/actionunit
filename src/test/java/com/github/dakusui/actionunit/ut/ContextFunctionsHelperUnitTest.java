@@ -54,7 +54,8 @@ public class ContextFunctionsHelperUnitTest {
 
   @Test
   public void test2() {
-    Context context = Context.create().assignTo("i", 0);
+    ContextVariable iVariable = ContextVariable.createGlobal("i");
+    Context context = Context.create().assignTo(iVariable.internalVariableName(), 0);
     ContextFunction<Integer> function = toMultiParamsContextFunction(
         "i",
         printableFunction((Integer i) -> i + 1).describe("inc({{0}})"));
@@ -68,8 +69,9 @@ public class ContextFunctionsHelperUnitTest {
 
   @Test
   public void test3() {
-    Context context = Context.create().assignTo("i", 0);
-    ContextFunction<Integer> function = toMultiParamsContextFunction("i",
+    ContextVariable iVariable = ContextVariable.createGlobal("x");
+    Context context = Context.create().assignTo(iVariable.internalVariableName(), 0);
+    ContextFunction<Integer> function = toMultiParamsContextFunction("x",
         printableFunction((Integer i) -> i + 1).describe("inc({{0}})")
     ).andThen(
         printableFunction((Integer j) -> j * 2).describe("double")
@@ -78,7 +80,7 @@ public class ContextFunctionsHelperUnitTest {
     System.out.println(function.apply(context));
     assertThat(
         function.toString(),
-        asString().equalTo("double((i)->inc(${i}))").$()
+        asString().equalTo("double((x)->inc(${x}))").$()
     );
   }
 

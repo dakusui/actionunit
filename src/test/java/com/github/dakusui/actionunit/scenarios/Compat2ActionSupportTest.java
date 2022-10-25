@@ -71,20 +71,20 @@ public class Compat2ActionSupportTest {
           forEach("i", (c) -> Stream.of("Hello", "World")).perform(
               b -> attempt(
                   leaf(context -> {
-                    String i = b.contextVariable(context);
+                    String i = b.resolveValue(context);
                     System.out.println("attempt:" + i);
                     throw new ActionException("exception");
                   }))
                   .recover(
                       ActionException.class,
                       leaf(context -> {
-                            String i = b.contextVariable(context);
+                            String i = b.resolveValue(context);
                             System.out.println("attempt:" + i);
                           }
                       ))
                   .ensure(
                       leaf(context -> {
-                            String i = b.contextVariable(context);
+                            String i = b.resolveValue(context);
                             System.out.println("ensure:" + i);
                           }
                       )
@@ -118,10 +118,10 @@ public class Compat2ActionSupportTest {
                       ))),
               forEach("i", (c) -> Stream.of("hello", "world", "everyone", "!")).perform(
                   b -> parallel(
-                      simple("step1", context -> print(b.contextVariable(context))),
-                      simple("step2", context -> print(b.contextVariable(context))),
-                      simple("step3", context -> print(b.contextVariable(context))),
-                      when(context -> "world".equals(b.contextVariable(context)))
+                      simple("step1", context -> print(b.resolveValue(context))),
+                      simple("step2", context -> print(b.resolveValue(context))),
+                      simple("step3", context -> print(b.resolveValue(context))),
+                      when(context -> "world".equals(b.resolveValue(context)))
                           .perform(simple("MET", context -> print("Condition is met")))
                           .otherwise(simple("NOT MET", context -> print("Condition was not met"))))),
               sequential(

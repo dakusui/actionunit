@@ -129,8 +129,8 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         final TestUtils.Out out1 = new TestUtils.Out();
         Action action = forEach("i", (c) -> Stream.of("A", "B")).perform(
             b -> sequential(
-                simple("+0", (c) -> out1.writeLine(b.contextVariable(c) + "0")),
-                simple("+1", (c) -> out1.writeLine(b.contextVariable(c) + "1"))));
+                simple("+0", (c) -> out1.writeLine(b.resolveValue(c) + "0")),
+                simple("+1", (c) -> out1.writeLine(b.resolveValue(c) + "1"))));
         action.accept(TestUtils.createActionPerformer());
         assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 

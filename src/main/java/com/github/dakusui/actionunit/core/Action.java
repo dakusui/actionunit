@@ -44,10 +44,6 @@ public interface Action extends Formattable {
       this.visit((Action) action);
     }
 
-    default <E> void visit(CompatForEach<E> action) {
-      this.visit((Action) action);
-    }
-
     default <E> void visit(ForEach<E> action) {
       this.visit((Action) action);
     }

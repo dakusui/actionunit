@@ -152,38 +152,35 @@ public interface Contextful<S> extends Action, ContextVariable {
       return toContextPredicate(this, predicate);
     }
 
-    public V contextVariable(Context context) {
-      return contextVariableValue(context);
+    public V resolveValue(Context context) {
+      return this.resolve(context);
     }
 
     public String toString() {
       return variableName();
     }
 
-    protected <VV> VV contextVariableValue(Context context) {
-      return context.valueOf(internalVariableName());
-    }
-
     protected String composeInternalVariableName(String variableName) {
       return this.getClass().getEnclosingClass().getCanonicalName() + ":" + variableName + ":" + System.identityHashCode(this);
     }
+
     private Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
-      return (Context context) -> consumer.accept(context.valueOf(internalVariableName()));
+      return (Context context) -> consumer.accept(this.resolveValue(context));
     }
 
     private static <V, W> Function<Context, W> toContextFunction(Builder<?, ?, V, ?> builder, Function<V, W> function) {
-      return printableFunction((Context context) -> function.apply(context.valueOf(builder.internalVariableName())))
+      return printableFunction((Context context) -> function.apply(builder.resolveValue(context)))
           .describe(toStringIfOverriddenOrNoname(function));
     }
 
     private static <V> Consumer<Context> toContextConsumer(Builder<?, ?, V, ?> builder, Consumer<V> consumer) {
-      return printableConsumer((Context context) -> consumer.accept(context.valueOf(builder.internalVariableName())))
+      return printableConsumer((Context context) -> consumer.accept(builder.resolveValue(context)))
           .describe(toStringIfOverriddenOrNoname(consumer));
     }
 
     private static <V> Predicate<Context> toContextPredicate(Builder<?, ?, V, ?> builder, Predicate<V> predicate) {
       return printablePredicate(
-          (Context context) -> predicate.test(context.valueOf(builder.internalVariableName())))
+          (Context context) -> predicate.test(builder.resolveValue(context)))
           .describe(() -> builder.variableName() + ":" + toStringIfOverriddenOrNoname(predicate));
     }
 

@@ -59,7 +59,7 @@ public class PracticalExample extends TestUtils.TestBase {
                 retry(
                     simple(
                         "Try to figure out physical ip address",
-                        (c) -> toBackendIpAddress.apply(b.contextVariable(c))))
+                        (c) -> toBackendIpAddress.apply(b.resolveValue(c))))
                     .on(UnluckyException.class)
                     .times(10)
                     .withIntervalOf(2, MILLISECONDS)
@@ -123,6 +123,6 @@ public class PracticalExample extends TestUtils.TestBase {
   }
 
   private String hostName(Context c, ForEach.Builder<String> builder) {
-    return builder.contextVariable(c);
+    return builder.resolveValue(c);
   }
 }

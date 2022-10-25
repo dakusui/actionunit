@@ -113,7 +113,7 @@ public class EchoTest extends CommanderTestBase {
   }
 
   private static Function<Context, String> contextVariable(ForEach.Builder<String> b) {
-    return PrintableFunctionals.printableFunction(b::contextVariable).describe("con");
+    return PrintableFunctionals.printableFunction(b::resolveValue).describe("con");
   }
 
   @Test

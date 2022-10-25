@@ -84,7 +84,7 @@ public interface With<V> extends Contextful<V> {
     private Function<Context, V> variableUpdateFunction(Function<V, V> function) {
       return printableFunction(
           (Context context) -> {
-            V ret = function.apply(contextVariable(context));
+            V ret = function.apply(resolveValue(context));
             context.assignTo(internalVariableName(), ret);
             return ret;
           })
