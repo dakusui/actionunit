@@ -50,9 +50,9 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     this.parameterPlaceHolderFactory = config.variablePlaceHolderFormatter();
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
-        .retryOption(RetryOption.none())
+        .retryOption(config.retryOption())
         .shell(config.shell())
-        .checker(createCheckerForExitCode(0))
+        .checker(config.checker())
         .downstreamConsumer(LOGGER::trace);
   }
 

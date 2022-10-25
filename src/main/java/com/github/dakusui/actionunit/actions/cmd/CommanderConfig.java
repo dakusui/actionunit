@@ -1,12 +1,16 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.ContextVariable;
+import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.actions.cmd.unix.*;
 import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
 import java.util.function.Function;
 import java.util.function.IntFunction;
+
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 
 public interface CommanderConfig {
   CommanderConfig DEFAULT = new CommanderConfig() {
@@ -64,7 +68,15 @@ public interface CommanderConfig {
         .build();
   }
 
+  default RetryOption retryOption() {
+    return RetryOption.none();
+  }
+
   default Function<ContextVariable[], IntFunction<String>> variablePlaceHolderFormatter() {
     return ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
+  }
+
+  default ProcessStreamer.Checker checker() {
+    return createCheckerForExitCode(0);
   }
 }
