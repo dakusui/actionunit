@@ -86,8 +86,8 @@ public interface Git extends CommanderFactory {
 
   class Checkout extends GitBase<Checkout> {
     @SuppressWarnings("WeakerAccess")
-    public Checkout(CommanderConfig initializer) {
-      super(initializer);
+    public Checkout(CommanderConfig config) {
+      super(config);
       this.addOption("checkout");
     }
 

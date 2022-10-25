@@ -7,9 +7,9 @@ import com.github.dakusui.actionunit.core.Context;
 import java.util.function.Function;
 
 public class Echo extends Commander<Echo> {
-  public Echo(CommanderConfig initializer) {
-    super(initializer);
-    initializer.setCommandNameFor(this);
+  public Echo(CommanderConfig config) {
+    super(config);
+    config.setCommandNameFor(this);
   }
 
   public Echo noTrailingNewLine() {

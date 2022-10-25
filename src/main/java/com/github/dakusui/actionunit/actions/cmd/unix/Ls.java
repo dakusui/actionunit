@@ -9,9 +9,9 @@ import java.io.File;
 import static java.util.Objects.requireNonNull;
 
 public class Ls extends Commander<Ls> {
-  public Ls(CommanderConfig initializer) {
-    super(initializer);
-    initializer.setCommandNameFor(this);
+  public Ls(CommanderConfig config) {
+    super(config);
+    config.setCommandNameFor(this);
   }
 
   public Ls longListing() {

@@ -28,9 +28,9 @@ public class Curl extends Commander<Curl> {
     }
   }
 
-  public Curl(CommanderConfig initializer) {
-    super(initializer);
-    initializer.setCommandNameFor(this);
+  public Curl(CommanderConfig config) {
+    super(config);
+    config.setCommandNameFor(this);
   }
 
   public Curl post() {

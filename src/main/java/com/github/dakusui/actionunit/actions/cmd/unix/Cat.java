@@ -19,10 +19,10 @@ public class Cat extends Commander<Cat> {
    */
   private String tag;
 
-  public Cat(CommanderConfig initializer) {
-    super(initializer);
+  public Cat(CommanderConfig config) {
+    super(config);
     this.tag = null;
-    initializer.setCommandNameFor(this);
+    config.setCommandNameFor(this);
   }
 
   public Cat hereDocument(String tag, Consumer<Cat> b) {
