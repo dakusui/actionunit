@@ -6,6 +6,7 @@ import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
@@ -24,6 +25,12 @@ public class Cat extends Commander<Cat> {
     initializer.init(this);
   }
 
+  public Cat hereDocument(String tag, Consumer<Cat> b) {
+    this.beginHereDocument(tag);
+    b.accept(this);
+    return this.newLine().endHereDocument();
+  }
+
   public Cat beginHereDocument(String tag) {
     requireState(Objects::isNull, this.tag);
     this.tag = requireNonNull(tag);
@@ -31,7 +38,7 @@ public class Cat extends Commander<Cat> {
   }
 
   /**
-   * This method should only be used inside a here document.
+   * This method should only be used inside a here-document.
    *
    * @return This object.
    */

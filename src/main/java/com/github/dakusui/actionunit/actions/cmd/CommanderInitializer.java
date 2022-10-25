@@ -83,7 +83,7 @@ public interface CommanderInitializer {
     return Shell.LOCAL_SHELL;
   }
 
-  default void initialize(Commander commander) {
+  default void initialize(Commander<?> commander) {
     commander.shell(shell());
   }
 
