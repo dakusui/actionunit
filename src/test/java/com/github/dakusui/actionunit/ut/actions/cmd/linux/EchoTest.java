@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.ForEach2;
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
@@ -112,7 +112,7 @@ public class EchoTest extends CommanderTestBase {
     );
   }
 
-  private static Function<Context, String> contextVariable(ForEach2.Builder<String> b) {
+  private static Function<Context, String> contextVariable(ForEach.Builder<String> b) {
     return PrintableFunctionals.printableFunction(b::contextVariable).describe("con");
   }
 

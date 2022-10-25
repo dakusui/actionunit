@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
@@ -26,9 +27,9 @@ import static com.github.dakusui.printables.PrintableFunctionals.printablePredic
 @RunWith(Enclosed.class)
 public class ContextFunctionsUnitTest {
   public static <T> ContextPredicate createContextPredicate(String variableName, Predicate<T> predicate) {
-    return multiParamsPredicateFor(variableName)
+    return multiParamsPredicateFor(ContextVariable.createGlobal(variableName))
         .toContextPredicate(
-            printablePredicate((Params params) -> predicate.test(params.valueOf(variableName)))
+            printablePredicate((Params params) -> predicate.test(params.valueOf(ContextVariable.createGlobal(variableName))))
                 .describe(() -> objectToStringIfOverridden(predicate, (v) -> "(noname)({{0}})")));
   }
 
@@ -78,10 +79,10 @@ public class ContextFunctionsUnitTest {
     Integer boundary = 100;
     private final ContextPredicate cp = createContextPredicate("j",
         printablePredicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
-    ).or(multiParamsPredicateFor("j").toContextPredicate(
-        printablePredicate((Params params) -> params.<Integer>valueOf("i") > 0).describe("{{0}}>0")
-    ).and(multiParamsPredicateFor("j").toContextPredicate(
-        printablePredicate((Params params) -> params.<Integer>valueOf("j") < boundary).describe(() -> "{{0}}<" + boundary)
+    ).or(multiParamsPredicateFor(ContextVariable.createGlobal("j")).toContextPredicate(
+        printablePredicate((Params params) -> params.<Integer>valueOf(ContextVariable.createGlobal("i")) > 0).describe("{{0}}>0")
+    ).and(multiParamsPredicateFor(ContextVariable.createGlobal("j")).toContextPredicate(
+        printablePredicate((Params params) -> params.<Integer>valueOf(ContextVariable.createGlobal("j")) < boundary).describe(() -> "{{0}}<" + boundary)
     ))).negate();
 
     @Test
@@ -103,11 +104,11 @@ public class ContextFunctionsUnitTest {
             .and(printablePredicate((Integer x) -> x < boundary).describe(() -> "{0}<" + boundary)
             )).negate();
 
-    ContextConsumer cc = multiParamsConsumerFor("i").toContextConsumer(
-        printableConsumer((Params params) -> out.add(params.valueOf("i")))
+    ContextConsumer cc = multiParamsConsumerFor(ContextVariable.createGlobal("i")).toContextConsumer(
+        printableConsumer((Params params) -> out.add(params.valueOf(ContextVariable.createGlobal("i"))))
             .describe("out.add({0}.toString)")
-    ).andThen(multiParamsConsumerFor("j").toContextConsumer(
-        printableConsumer((Params params) -> out.add(params.valueOf("j")))
+    ).andThen(multiParamsConsumerFor(ContextVariable.createGlobal("j")).toContextConsumer(
+        printableConsumer((Params params) -> out.add(params.valueOf(ContextVariable.createGlobal("j"))))
             .describe("out.add({0}.toString)")
     ));
 

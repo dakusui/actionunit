@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.*;
@@ -61,13 +62,13 @@ public enum CommanderUtils {
             return format("(%s)", commander.buildCommandLineComposer().format());
           }
         },
-        commander.variableNames()
+        commander.variables()
     );
   }
 
   static ContextConsumer createContextConsumer(Commander<?> commander) {
     requireNonNull(commander);
-    return multiParamsConsumerFor(commander.variableNames())
+    return multiParamsConsumerFor(commander.variables())
         .toContextConsumer(
             printableConsumer(
                 (Params params) -> createProcessStreamerBuilder(commander, params)
@@ -79,7 +80,7 @@ public enum CommanderUtils {
   }
 
   static ContextPredicate createContextPredicate(Commander<?> commander) {
-    return multiParamsPredicateFor(commander.variableNames())
+    return multiParamsPredicateFor(commander.variables())
         .toContextPredicate(printablePredicate(
             (Params params) -> {
               ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);
@@ -104,7 +105,7 @@ public enum CommanderUtils {
   }
 
   static ContextFunction<String> createContextFunction(Commander<?> commander) {
-    return ContextFunctions.<String>multiParamsFunctionFor(commander.variableNames())
+    return ContextFunctions.<String>multiParamsFunctionFor(commander.variables())
         .toContextFunction(params ->
             createProcessStreamerBuilder(commander, params)
                 .checker(commander.checker())
@@ -132,13 +133,13 @@ public enum CommanderUtils {
       Map<String, String> envvars,
       CommandLineComposer commandLineComposer,
       Params params) {
-    String[] variableNames = params.paramNames().toArray(new String[0]);
-    Object[] variableValues = params.paramNames()
+    ContextVariable[] variables = params.parameters().toArray(new ContextVariable[0]); // values
+    Object[] variableValues = params.parameters()// values
         .stream()
         .map(params::valueOf)
         .toArray();
     String commandLine = commandLineComposer
-        .apply(variableNames)
+        .apply(variables)
         .apply(params.context(), variableValues);
     LOGGER.info("Command Line:{}", commandLine);
     LOGGER.trace("Shell:{}", shell);

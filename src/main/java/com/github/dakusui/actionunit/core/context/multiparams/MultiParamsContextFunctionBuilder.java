@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.core.context.multiparams;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 
@@ -11,10 +12,10 @@ import static com.github.dakusui.actionunit.core.context.ContextFunctions.descri
 import static java.util.Objects.requireNonNull;
 
 public class MultiParamsContextFunctionBuilder<R> {
-  private final String[]                                     variableNames;
-  private final BiFunction<Function<?, ?>, String[], String> descriptionFormatter;
+  private final ContextVariable[]                                     variableNames;
+  private final BiFunction<Function<?, ?>, ContextVariable[], String> descriptionFormatter;
 
-  public MultiParamsContextFunctionBuilder(String... variableNames) {
+  public MultiParamsContextFunctionBuilder(ContextVariable... variableNames) {
     this(
         (f, v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
         variableNames
@@ -22,8 +23,8 @@ public class MultiParamsContextFunctionBuilder<R> {
   }
 
   private MultiParamsContextFunctionBuilder(
-      BiFunction<Function<?, ?>, String[], String> descriptionFormatter,
-      String... variableNames) {
+      BiFunction<Function<?, ?>, ContextVariable[], String> descriptionFormatter,
+      ContextVariable... variableNames) {
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
     this.variableNames = requireNonNull(variableNames);
   }

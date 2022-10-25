@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
@@ -35,7 +36,7 @@ import static java.util.Objects.requireNonNull;
 public abstract class Commander<C extends Commander<C>> implements Cloneable {
   private static final Logger LOGGER = LoggerFactory.getLogger(Commander.class);
   CommandLineComposer.Builder commandLineComposerBuilder;
-  private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
+  private final Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory;
 
   private       RetryOption                retryOption;
   private       Supplier<Consumer<String>> downstreamConsumerFactory;
@@ -265,22 +266,22 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return this.append(" ").append(option);
   }
 
-  public C appendVariable(String variableName) {
+  public C appendVariable(ContextVariable variableName) {
     return appendVariable(variableName, false);
   }
 
-  public C appendQuotedVariable(String variableName) {
+  public C appendQuotedVariable(ContextVariable variableName) {
     return appendVariable(variableName, true);
   }
 
   @SuppressWarnings("unchecked")
-  public C appendVariable(String variableName, boolean b) {
+  public C appendVariable(ContextVariable variableName, boolean b) {
     commandLineComposerBuilderIfSet().appendVariable(variableName, b);
     return (C) this;
   }
 
   @SuppressWarnings("unchecked")
-  public C declareVariable(String variableName) {
+  public C declareVariable(ContextVariable variableName) {
     this.commandLineComposerBuilderIfSet().declareVariable(variableName);
     return (C) this;
   }
@@ -313,7 +314,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return Optional.ofNullable(this.cwd);
   }
 
-  public Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
+  public Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory() {
     return this.parameterPlaceHolderFactory;
   }
 
@@ -349,7 +350,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return this.downstreamConsumerFactory.get();
   }
 
-  String[] variableNames() {
+  ContextVariable[] variables() {
     return commandLineComposerBuilderIfSet().knownVariables();
   }
 

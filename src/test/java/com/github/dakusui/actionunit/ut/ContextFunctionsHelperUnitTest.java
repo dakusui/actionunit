@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
@@ -24,14 +25,16 @@ import static com.github.dakusui.printables.PrintableFunctionals.printableFuncti
 
 public class ContextFunctionsHelperUnitTest {
   private static <T, R> ContextFunction<R> toMultiParamsContextFunction(String variableName, Function<T, R> function) {
-    return ContextFunctions.<R>multiParamsFunctionFor(variableName)
-        .toContextFunction(printableFunction((Params params) -> function.apply(params.valueOf(variableName))).describe(function.toString()));
+    ContextVariable variable = ContextVariable.createGlobal(variableName);
+    return ContextFunctions.<R>multiParamsFunctionFor(variable)
+        .toContextFunction(printableFunction((Params params) -> function.apply(params.valueOf(variable))).describe(function.toString()));
   }
 
   static <T> ContextConsumer toMultiParamsContextConsumer(String variableName, Consumer<T> consumer) {
-    return multiParamsConsumerFor(variableName)
+    ContextVariable variable = ContextVariable.createGlobal(variableName);
+    return multiParamsConsumerFor(variable)
         .toContextConsumer(printableConsumer(
-            (Params params) -> consumer.accept(params.valueOf(variableName))
+            (Params params) -> consumer.accept(params.valueOf(variable))
         ).describe(
             consumer.toString()
         ));
@@ -39,8 +42,8 @@ public class ContextFunctionsHelperUnitTest {
 
   @Test
   public void test() {
-    ContextFunction<Integer> function = new MultiParamsContextFunctionBuilder<Integer>("i")
-        .toContextFunction((Params params) -> params.<Integer>valueOf("i") + 1);
+    ContextFunction<Integer> function = new MultiParamsContextFunctionBuilder<Integer>(ContextVariable.createGlobal("i"))
+        .toContextFunction((Params params) -> params.<Integer>valueOf(ContextVariable.createGlobal("i")) + 1);
     System.out.println(function.toString());
 
     assertThat(
@@ -83,7 +86,7 @@ public class ContextFunctionsHelperUnitTest {
   public void test3_fromBuilder() {
     ReportingActionPerformer.create().perform(
         ActionSupport.compatForEach("i", StreamGenerator.fromArray("A", "B", "C"))
-            .perform(leaf(multiParamsConsumerFor("i").toContextConsumer(
+            .perform(leaf(multiParamsConsumerFor(ContextVariable.createGlobal("i")).toContextConsumer(
                 params -> ContextFunctions.printTo(
                     System.out, contextValueOf("i"))))));
   }

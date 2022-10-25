@@ -26,25 +26,25 @@ import static java.util.stream.Collectors.joining;
 public enum ContextFunctions {
   ;
 
-  public static final Function<String[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = varnames -> i -> String.format("{{%s}}", i);
+  public static final Function<ContextVariable[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = variables -> i -> String.format("{{%s}}", i);
 
-  public static final Function<String[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = varnames -> i -> String.format("{{%s}}", varnames[i]);
+  public static final Function<ContextVariable[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = variables -> i -> String.format("{{%s}}", variables[i]);
 
-  public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(String... variableNames) {
+  public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(ContextVariable... variableNames) {
     return new MultiParamsContextPredicateBuilder(variableNames);
   }
 
-  public static MultiParamsContextConsumerBuilder multiParamsConsumerFor(String... variableNames) {
+  public static MultiParamsContextConsumerBuilder multiParamsConsumerFor(ContextVariable... variableNames) {
     return new MultiParamsContextConsumerBuilder(variableNames);
   }
 
-  public static <R> MultiParamsContextFunctionBuilder<R> multiParamsFunctionFor(String... variableNames) {
+  public static <R> MultiParamsContextFunctionBuilder<R> multiParamsFunctionFor(ContextVariable... variableNames) {
     return new MultiParamsContextFunctionBuilder<>(variableNames);
   }
 
-  public static String describeFunctionalObject(Object f, final IntFunction<String> placeHolderFormatter, String... v) {
+  public static String describeFunctionalObject(Object f, final IntFunction<String> placeHolderFormatter, ContextVariable... v) {
     return String.format("(%s)->%s",
-        String.join(",", v),
+        String.join(",", Arrays.stream(v).map(each -> each.variableName()).toArray(String[]::new)),
         summarize(StableTemplatingUtils.template(
             objectToStringIfOverridden(f, obj -> formatPlaceHolders(obj, placeHolderFormatter, v)),
             new TreeMap<String, Object>() {{
@@ -54,7 +54,7 @@ public enum ContextFunctions {
             }}), 60));
   }
 
-  private static String formatPlaceHolders(Object obj, IntFunction<String> placeHolderFormatter, String[] v) {
+  private static String formatPlaceHolders(Object obj, IntFunction<String> placeHolderFormatter, ContextVariable[] v) {
     return InternalUtils.fallbackFormatter().apply(obj) +
         IntStream.range(0, v.length)
             .mapToObj(placeHolderFormatter)

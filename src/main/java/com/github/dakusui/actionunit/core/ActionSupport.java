@@ -37,16 +37,25 @@ public enum ActionSupport {
     return new Attempt.Builder(action);
   }
 
-  public static <E> ForEach.Builder<E> compatForEach(String variableName, StreamGenerator<E> streamGenerator) {
-    return new ForEach.Builder<>(variableName, streamGenerator);
+  public static <E> CompatForEach.Builder<E> compatForEach(String variableName, StreamGenerator<E> streamGenerator) {
+    return new CompatForEach.Builder<>(variableName, streamGenerator);
   }
 
-  public static <E> ForEach2.Builder<E> forEach(Function<Context, Stream<E>> streamGenerator) {
+  public static <E> ForEach.Builder<E> forEach(Function<Context, Stream<E>> streamGenerator) {
     return forEach("i", streamGenerator);
   }
 
-  public static <E> ForEach2.Builder<E> forEach(String variableName, Function<Context, Stream<E>> streamGenerator) {
-    return new ForEach2.Builder<>(variableName, streamGenerator);
+  /**
+   * Note that the `variableName` is only used for printing the variable in an action tree.
+   * Not used for identifying a corresponding entry in the context.
+   *
+   * @param variableName    A name of variable.
+   * @param streamGenerator A function to return stream.
+   * @param <E>             The type of the loop variable.
+   * @return A builder for `ForEach2` action
+   */
+  public static <E> ForEach.Builder<E> forEach(String variableName, Function<Context, Stream<E>> streamGenerator) {
+    return new ForEach.Builder<>(variableName, streamGenerator);
   }
 
   public static While.Builder repeatWhile(Predicate<Context> condition) {
@@ -90,13 +99,13 @@ public enum ActionSupport {
     return new Composite.Builder(actions).parallel().build();
   }
 
-  public static Cmd cmd(String program, String... knownVariables) {
+  public static Cmd cmd(String program, ContextVariable... knownVariables) {
     return cmd(program, CommanderInitializer.DEFAULT_INSTANCE, knownVariables);
   }
 
-  public static Cmd cmd(String program, CommanderInitializer initializer, String... knownVariables) {
+  public static Cmd cmd(String program, CommanderInitializer initializer, ContextVariable... knownVariables) {
     Cmd ret = new Cmd(initializer).command(program);
-    for (String each : knownVariables)
+    for (ContextVariable each : knownVariables)
       ret = ret.declareVariable(each);
     return ret;
   }

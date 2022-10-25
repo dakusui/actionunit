@@ -41,7 +41,7 @@ public abstract class ActionScanner implements Action.Visitor {
   }
 
   @Override
-  public <E> void visit(ForEach<E> action) {
+  public <E> void visit(CompatForEach<E> action) {
     this.handleAction(action);
     this.enter(action);
     try {
@@ -52,7 +52,7 @@ public abstract class ActionScanner implements Action.Visitor {
   }
 
   @Override
-  public <E> void visit(ForEach2<E> action) {
+  public <E> void visit(ForEach<E> action) {
     this.handleAction(action);
     this.enter(action);
     try {

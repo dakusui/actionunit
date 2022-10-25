@@ -1,6 +1,6 @@
 package com.github.dakusui.actionunit.examples;
 
-import com.github.dakusui.actionunit.actions.ForEach2;
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
@@ -122,7 +122,7 @@ public class PracticalExample extends TestUtils.TestBase {
   private static class UnluckyException extends RuntimeException {
   }
 
-  private String hostName(Context c, ForEach2.Builder<String> builder) {
+  private String hostName(Context c, ForEach.Builder<String> builder) {
     return builder.contextVariable(c);
   }
 }

@@ -1,81 +1,64 @@
 package com.github.dakusui.actionunit.actions;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.util.Formatter;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-import static java.util.Objects.requireNonNull;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 
-public interface ForEach<E> extends Action {
-  String loopVariableName();
-
-  StreamGenerator<E> data();
-
-  Action perform();
-
-  boolean isParallel();
-
+public interface ForEach<V> extends Contextful<Stream<V>> {
+  @Override
   default void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("for each of %s %s", data(), isParallel() ? "parallely" : "sequentially");
+    formatter.format("forEach:" + variableName() + ":" + toStringIfOverriddenOrNoname(valueSource()));
   }
 
-  class Builder<E> extends Action.Builder<ForEach<E>> {
-    private final StreamGenerator<E> streamGenerator;
-    private final String             loopVariableName;
-    private       Action             perform = ActionSupport.nop();
-    private       boolean            parallel;
+  boolean isParallel();
 
-    public Builder(String loopVariableName, StreamGenerator<E> streamGenerator) {
-      this.loopVariableName = requireNonNull(loopVariableName);
-      this.streamGenerator = requireNonNull(streamGenerator);
+  class Builder<V> extends Contextful.Builder<Builder<V>, ForEach<V>, V, Stream<V>> {
+    private boolean parallelism;
+
+    public Builder(String variableName, Function<Context, Stream<V>> function) {
+      super(variableName, function);
       this.sequentially();
     }
 
-    public Action perform(Action perform) {
-      this.perform = requireNonNull(perform);
-      return this.$();
+    public Builder<V> parallely() {
+      return this.parallelism(true);
     }
 
-    public Builder<E> parallelly() {
-      this.parallel = true;
+    public Builder<V> sequentially() {
+      return this.parallelism(false);
+    }
+
+    public Builder<V> parallelism(boolean parallelism) {
+      this.parallelism = parallelism;
       return this;
     }
 
-    public Builder<E> sequentially() {
-      this.parallel = false;
-      return this;
+    public ForEach<V> build() {
+      return new Impl<>(this.variableName(), this.internalVariableName(), this.valueSource(), this.parallelism, this.action());
     }
 
-    public ForEach<E> build() {
-      return new ForEach<E>() {
-        @Override
-        public String loopVariableName() {
-          return Builder.this.loopVariableName;
-        }
+    private static class Impl<V> extends Contextful.Base<V, Stream<V>> implements ForEach<V> {
+      private final boolean parallelism;
 
-        @Override
-        public StreamGenerator<E> data() {
-          return Builder.this.streamGenerator;
-        }
+      public Impl(String variableName, String internalVariableName, Function<Context, Stream<V>> valueSource, boolean parallelism, Action action) {
+        super(variableName, internalVariableName, valueSource, action);
+        this.parallelism = parallelism;
+      }
 
-        @Override
-        public Action perform() {
-          return Builder.this.perform;
-        }
-
-        @Override
-        public boolean isParallel() {
-          return Builder.this.parallel;
-        }
-      };
+      @Override
+      public boolean isParallel() {
+        return this.parallelism;
+      }
     }
   }
-
 }

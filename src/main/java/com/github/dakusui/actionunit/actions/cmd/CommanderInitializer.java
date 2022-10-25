@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cat;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
@@ -93,7 +94,7 @@ public interface CommanderInitializer {
         .build();
   }
 
-  default Function<String[], IntFunction<String>> variablePlaceHolderFormatter() {
+  default Function<ContextVariable[], IntFunction<String>> variablePlaceHolderFormatter() {
     return ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
   }
 }

@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
 import com.github.dakusui.actionunit.exceptions.ActionException;
@@ -17,9 +18,9 @@ import java.util.function.IntFunction;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
-public interface CommandLineComposer extends Function<String[], BiFunction<Context, Object[], String>>, Formattable {
+public interface CommandLineComposer extends Function<ContextVariable[], BiFunction<Context, Object[], String>>, Formattable {
   @Override
-  default BiFunction<Context, Object[], String> apply(String[] variableNames) {
+  default BiFunction<Context, Object[], String> apply(ContextVariable[] variableNames) {
     return (context, argValues) -> StableTemplatingUtils.template(
         compose(context),
         StableTemplatingUtils.toMapping(this.parameterPlaceHolderFactory().apply(variableNames), argValues)
@@ -31,21 +32,21 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
     formatter.format(format());
   }
 
-  Function<String[], IntFunction<String>> parameterPlaceHolderFactory();
+  Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory();
 
   String format();
 
   String compose(Context context);
 
   class Builder implements Cloneable {
-    private final Function<String[], IntFunction<String>> parameterPlaceHolderFactory;
-    private       List<String>                            knownVariableNames;
-    private       List<Function<Context, String>>         tokens;
+    private final Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory;
+    private       List<ContextVariable>                            knownVariables;
+    private       List<Function<Context, String>>                  tokens;
 
-    public Builder(Function<String[], IntFunction<String>> parameterPlaceHolderFactory) {
+    public Builder(Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory) {
       this.parameterPlaceHolderFactory = requireNonNull(parameterPlaceHolderFactory);
       this.tokens = new LinkedList<>();
-      this.knownVariableNames = new LinkedList<>();
+      this.knownVariables = new LinkedList<>();
     }
 
     public Builder append(String text, boolean quoted) {
@@ -61,10 +62,10 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
       return this;
     }
 
-    public Builder appendVariable(String variableName, boolean quoted) {
+    public Builder appendVariable(ContextVariable variableName, boolean quoted) {
       Function<Context, String> func = ContextFunction.of(
-          () -> "${" + variableName + "}",
-          c -> c.valueOf(variableName)
+          () -> "${" + variableName.variableName() + "}",
+          c -> c.valueOf(variableName.internalVariableName())
       );
       if (quoted) {
         func = quoteWithApostrophe(func);
@@ -73,16 +74,16 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
       return this.declareVariable(variableName);
     }
 
-    public Builder declareVariable(String variableName) {
-      if (!knownVariableNames.contains(variableName))
-        this.knownVariableNames.add(variableName);
+    public Builder declareVariable(ContextVariable contextVariable) {
+      if (!knownVariables.contains(contextVariable))
+        this.knownVariables.add(contextVariable);
       return this;
     }
 
     public CommandLineComposer build() {
       return new CommandLineComposer() {
         @Override
-        public Function<String[], IntFunction<String>> parameterPlaceHolderFactory() {
+        public Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory() {
           return parameterPlaceHolderFactory;
         }
 
@@ -98,15 +99,15 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
       };
     }
 
-    public String[] knownVariables() {
-      return knownVariableNames.toArray(new String[0]);
+    public ContextVariable[] knownVariables() {
+      return knownVariables.toArray(new ContextVariable[0]);
     }
 
     @Override
     public CommandLineComposer.Builder clone() {
       try {
         CommandLineComposer.Builder ret = (Builder) super.clone();
-        ret.knownVariableNames = new ArrayList<>(this.knownVariableNames);
+        ret.knownVariables = new ArrayList<>(this.knownVariables);
         ret.tokens = new ArrayList<>(this.tokens);
         return ret;
       } catch (CloneNotSupportedException e) {
@@ -116,7 +117,7 @@ public interface CommandLineComposer extends Function<String[], BiFunction<Conte
 
     @Override
     public String toString() {
-      return String.format("Builder:%s(vars=%s)", tokens, knownVariableNames);
+      return String.format("Builder:%s(vars=%s)", tokens, knownVariables);
     }
 
 

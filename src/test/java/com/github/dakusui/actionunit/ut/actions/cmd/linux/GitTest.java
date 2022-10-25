@@ -1,10 +1,8 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
-import com.github.dakusui.actionunit.actions.ForEach2;
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.cmd.unix.Git;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -104,7 +102,7 @@ public class GitTest {
       );
     }
 
-    private static Function<Context, String> contextVariable(ForEach2.Builder<String> b) {
+    private static Function<Context, String> contextVariable(ForEach.Builder<String> b) {
       return printableFunction(b::contextVariable).describe("contextVariable");
     }
 

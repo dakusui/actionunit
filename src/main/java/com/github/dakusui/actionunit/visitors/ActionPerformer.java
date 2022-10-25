@@ -37,7 +37,7 @@ public abstract class ActionPerformer implements Action.Visitor {
   }
 
   @Override
-  public <E> void visit(ForEach<E> action) {
+  public <E> void visit(CompatForEach<E> action) {
     Stream<E> data = requireNonNull(action.data().apply(this.context));
     data = action.isParallel()
         ? data.parallel()
@@ -50,7 +50,7 @@ public abstract class ActionPerformer implements Action.Visitor {
             ))));
   }
 
-  public <E> void visit(ForEach2<E> action) {
+  public <E> void visit(ForEach<E> action) {
     Stream<E> data = action.valueSource().apply(this.context);
     Function<E, Action.Visitor> visitorFactory = v -> {
       this.context.assignTo(action.internalVariableName(), v);
