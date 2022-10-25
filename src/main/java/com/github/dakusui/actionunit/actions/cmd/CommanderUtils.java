@@ -48,7 +48,7 @@ public enum CommanderUtils {
         commander.retryOption());
   }
 
-  static StreamGenerator<String> createStreamGenerator(
+  static Function<Context, Stream<String>> createStreamGenerator(
       Commander<?> commander) {
     return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {

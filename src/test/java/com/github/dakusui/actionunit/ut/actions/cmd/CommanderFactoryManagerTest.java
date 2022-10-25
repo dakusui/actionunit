@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactoryManager;
+import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
 import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
 import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
@@ -23,14 +23,10 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.Crest.call;
-import static com.github.dakusui.crest.Crest.substringAfterRegex;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 @RunWith(Enclosed.class)
 public class CommanderFactoryManagerTest {
@@ -211,7 +207,7 @@ public class CommanderFactoryManagerTest {
 
   public static class WithCustomSshOptions1 extends Base {
 
-    private SshOptions sshOptions = new SshOptions() {
+    private final SshOptions sshOptions = new SshOptions() {
       @Override
       public boolean ipv4() {
         return true;
@@ -323,7 +319,7 @@ public class CommanderFactoryManagerTest {
   }
 
   public static class WithCustomSshOptions2 extends Base {
-    private SshOptions sshOptions = new SshOptions() {
+    private final SshOptions sshOptions = new SshOptions() {
       @Override
       public boolean ipv4() {
         return false;
@@ -341,7 +337,7 @@ public class CommanderFactoryManagerTest {
 
       @Override
       public List<String> jumpHosts() {
-        return asList("jumphost1,jumphost2");
+        return singletonList("jumphost1,jumphost2");
       }
 
       @Override
@@ -379,7 +375,6 @@ public class CommanderFactoryManagerTest {
         return false;
       }
     };
-    ;
 
     @Override
     public CommanderInitializer initializerFor(String host) {

@@ -17,11 +17,11 @@ import static java.util.stream.Collectors.toMap;
 public interface StreamGenerator<T> extends ContextFunction<Stream<T>> {
 
   @SafeVarargs
-  static <T> StreamGenerator<T> fromArray(T... elements) {
+  static <T> Function<Context, Stream<T>> fromArray(T... elements) {
     return fromCollection(asList(elements));
   }
 
-  static <T> StreamGenerator<T> fromCollection(Collection<T> collection) {
+  static <T> Function<Context, Stream<T>> fromCollection(Collection<T> collection) {
     requireNonNull(collection);
     return fromContextWith(new Function<Params, Stream<T>>() {
       @Override
@@ -30,12 +30,12 @@ public interface StreamGenerator<T> extends ContextFunction<Stream<T>> {
       }
 
       public String toString() {
-        return String.format("%s.stream()", collection.toString());
+        return String.format("%s.stream()", collection);
       }
     });
   }
 
-  static <T> StreamGenerator<T> fromContextWith(Function<Params, Stream<T>> func, ContextVariable... variables) {
+  static <T> Function<Context, Stream<T>> fromContextWith(Function<Params, Stream<T>> func, ContextVariable... variables) {
     requireNonNull(func);
     return new StreamGenerator<T>() {
       @Override

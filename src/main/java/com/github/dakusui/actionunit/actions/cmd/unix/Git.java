@@ -4,9 +4,9 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static java.util.Objects.requireNonNull;
@@ -78,7 +78,7 @@ public interface Git extends CommanderFactory {
       return this.add(requireNonNull(repo));
     }
 
-    public StreamGenerator<String> remoteBranchNames() {
+    public Function<Context, Stream<String>> remoteBranchNames() {
       return c -> toStreamGenerator().apply(c).map(line -> line.trim().split("\\s+")[1]);
     }
   }
