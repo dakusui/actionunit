@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.ContextVariable;
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
@@ -56,31 +57,31 @@ public class CmdTest extends TestUtils.TestBase {
       );
     }
 
-    void performAsContextConsumerInsideLoop(Cmd cmd) {
+    void performAsContextConsumerInsideLoop(Function<ContextVariable, Cmd> cmd) {
       performAction(
-          compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
-              leaf(initCmd(cmd).toContextConsumer())
+          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(v ->
+              leaf(initCmd(cmd.apply(v)).toContextConsumer())
           ));
     }
 
-    void performAsActionInsideHelloWorldLoop(Cmd cmd) {
+    void performAsActionInsideHelloWorldLoop(Function<ContextVariable, Cmd> cmd) {
       performAction(
-          compatForEach("i", StreamGenerator.fromArray("hello", "world"))
-              .perform(initCmd(cmd).toAction()));
+          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(b ->
+              initCmd(cmd.apply(b)).toAction()));
     }
 
-    void performAsContextFunctionInsideHelloWorldLoop(Cmd cmd) {
+    void performAsContextFunctionInsideHelloWorldLoop(Function<ForEach.Builder<?>, Cmd> cmd) {
       performAction(
-          compatForEach("i", StreamGenerator.fromArray("hello", "world")).perform(
-              leaf(c -> System.out.println("out=<" + initCmd(cmd).toContextFunction().apply(c) + ">"))
+          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(v ->
+              leaf(c -> System.out.println("out=<" + initCmd(cmd.apply(v)).toContextFunction().apply(c) + ">"))
           ));
     }
 
-    void performAsContextPredicateInsideHelloWorldLoop(Cmd cmd) {
+    void performAsContextPredicateInsideHelloWorldLoop(Function<ContextVariable, Cmd> cmd) {
       performAction(
-          compatForEach("i", StreamGenerator.fromArray("hello", "world"))
-              .perform(
-                  when(cmd.toContextPredicate())
+          forEach("i", StreamGenerator.fromArray("hello", "world"))
+              .perform(i ->
+                  when(cmd.apply(i).toContextPredicate())
                       .perform(leaf(c -> out.add("MET")))
                       .otherwise(leaf(c -> out.add("NOTMET")))));
     }
@@ -104,7 +105,6 @@ public class CmdTest extends TestUtils.TestBase {
       // This test only makes sure buildCommandLineComposer can be overridden.
       requireThat(
           new Cmd(CommanderInitializer.DEFAULT_INSTANCE) {
-            @Test
             public CommandLineComposer buildCommandLineComposer() {
               return super.buildCommandLineComposer();
             }
@@ -191,8 +191,7 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoHelloUsingAppendVariableMethod$whenPerformAsAction$thenPrinted() {
-      performAsActionInsideHelloWorldLoop(
-          initCmd(cmd("echo").append(" ").appendVariable(ContextVariable.createGlobal("i"), false)));
+      performAsActionInsideHelloWorldLoop(b -> initCmd(cmd("echo").append(" ").appendVariable(b, false)));
       assertThat(
           out,
           asListOf(String.class).equalTo(asList("hello", "world")).$()
@@ -333,7 +332,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenUnknownCommand$whenPerformAsAction$thenFailureIsThrown() {
       try {
-        performAsActionInsideHelloWorldLoop(cmd("UNKNOWN_COMMAND").append(" ").appendVariable(ContextVariable.createGlobal("i")));
+        performAsActionInsideHelloWorldLoop(i -> cmd("UNKNOWN_COMMAND").append(" ").appendVariable(i));
       } catch (ProcessStreamer.Failure failure) {
         assertThat(
             failure.getMessage(),
@@ -345,7 +344,7 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(initCmd(cmd("echo {{0}}", ContextVariable.createGlobal("i"))));
+      performAsActionInsideHelloWorldLoop(i -> initCmd(cmd("echo {{0}}", i)));
       assertThat(
           out,
           asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
@@ -354,7 +353,7 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(
+      performAsActionInsideHelloWorldLoop(i ->
           initCmd(cmd(
               "echo {{i}}",
               new CommanderInitializer() {
@@ -363,7 +362,7 @@ public class CmdTest extends TestUtils.TestBase {
                   return ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;
                 }
               },
-              ContextVariable.createGlobal("i"))));
+              i)));
       assertThat(
           out,
           asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
@@ -372,21 +371,22 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(cmd("echo").append(" ").appendQuotedVariable(ContextVariable.createGlobal("i")));
+      performAsActionInsideHelloWorldLoop(i -> cmd("echo").append(" ").appendQuotedVariable(i));
     }
+
   }
 
   public static class AsStreamGenerator extends Base {
     @Test
     public void givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput() {
       performAction(
-          compatForEach("i",
+          forEach("i",
               initCmd(cmd("echo hello && echo world")).toStreamGenerator()
-          ).perform(
+          ).perform(i ->
               leaf(ContextConsumer.of(
                   () -> "print 'i'",
-                  context -> System.out.println("i=" + context.valueOf("i")))))
-      );
+                  context -> System.out.println("i=" + context.valueOf(i.internalVariableName()))))
+          ));
       assertThat(
           out,
           asListOf(String.class).contains("hello").contains("world").$()
@@ -398,12 +398,11 @@ public class CmdTest extends TestUtils.TestBase {
       String keyword = "UNKNOWN";
       try {
         performAction(
-            compatForEach("i",
-                initCmd(cmd("echo hello && echo world")).checker(createProcessStreamerCheckerForCmdTest(keyword)).toStreamGenerator())
-                .perform(
+            forEach("i", initCmd(cmd("echo hello && echo world")).checker(createProcessStreamerCheckerForCmdTest(keyword)).toStreamGenerator())
+                .perform(i ->
                     leaf(ContextConsumer.of(
                         () -> "print 'i'",
-                        context -> System.out.println("i=" + context.valueOf("i"))))));
+                        context -> System.out.println("i=" + context.valueOf(i.internalVariableName()))))));
       } catch (ProcessStreamer.Failure failure) {
         assertThat(
             failure.getMessage(),
@@ -417,16 +416,15 @@ public class CmdTest extends TestUtils.TestBase {
   public static class AsContextConsumer extends Base {
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoop$thenFinishesNormally() {
-      performAsContextConsumerInsideLoop(
-          initCmd(cmd("echo {{0}}")));
+      performAsContextConsumerInsideLoop(v -> initCmd(cmd("echo {{0}}")));
     }
 
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown() {
       String keyword = "UNKNOWN";
       try {
-        performAsContextConsumerInsideLoop(
-            initCmd(cmd("echo {{0}}", ContextVariable.createGlobal("i")))
+        performAsContextConsumerInsideLoop(i ->
+            initCmd(cmd("echo {{0}}", i))
                 .checker(createProcessStreamerCheckerForCmdTest(keyword)));
       } catch (ProcessStreamer.Failure failure) {
         failure.printStackTrace();
@@ -442,17 +440,17 @@ public class CmdTest extends TestUtils.TestBase {
   public static class AsContextFunction extends Base {
     @Test
     public void givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoop$thenFinishesNormally() {
-      performAsContextFunctionInsideHelloWorldLoop(initCmd(cmd("echo").append(" ").appendVariable(ContextVariable.createGlobal("i"))));
+      performAsContextFunctionInsideHelloWorldLoop(b -> initCmd(cmd("echo").append(" ").appendVariable(b)));
     }
 
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown() {
       String keyword = "UNKNOWN";
       try {
-        performAsContextFunctionInsideHelloWorldLoop(initCmd(
+        performAsContextFunctionInsideHelloWorldLoop(i -> initCmd(
             cmd("echo")
                 .append(" ")
-                .appendVariable(ContextVariable.createGlobal("i"))
+                .appendVariable(i)
                 .checker(createProcessStreamerCheckerForCmdTest(keyword))));
       } catch (ProcessStreamer.Failure failure) {
         assertThat(
@@ -468,7 +466,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoVariable_i$whenPerformAsContextPredicateExpectingHelloInsideHelloWorldLoop$thenMetAndNotMet() {
       String keyword = "hello";
-      performAsContextPredicateInsideHelloWorldLoop(cmd("echo").append(" ").appendVariable(ContextVariable.createGlobal("i")).checkerFactory(() -> createProcessStreamerCheckerForCmdTest(keyword)));
+      performAsContextPredicateInsideHelloWorldLoop(i -> cmd("echo").append(" ").appendVariable(i).checkerFactory(() -> createProcessStreamerCheckerForCmdTest(keyword)));
       System.out.println(out);
       assertThat(
           out,
@@ -479,7 +477,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoVariable_i$whenPerformAsContextPredicateExpectingWorldInsideHelloWorldLoop$thenNotMetAndMet() {
       String keyword = "world";
-      performAsContextPredicateInsideHelloWorldLoop(cmd("echo").append(" ").appendVariable(ContextVariable.createGlobal("i")).checkerFactory(() -> createProcessStreamerCheckerForCmdTest(keyword)));
+      performAsContextPredicateInsideHelloWorldLoop(i -> cmd("echo").append(" ").appendVariable(i).checkerFactory(() -> createProcessStreamerCheckerForCmdTest(keyword)));
       System.out.println(out);
       assertThat(
           out,
@@ -490,7 +488,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoVariable_i$whenPerformAsContextPredicateExpectingUnknownKeywordInsideHelloWorldLoop$thenNotMetAndNotMet() {
       String keyword = "UNKNOWN";
-      performAsContextPredicateInsideHelloWorldLoop(cmd("echo").append(" ").appendVariable(ContextVariable.createGlobal("i")).checkerFactory(() -> createProcessStreamerCheckerForCmdTest(keyword)));
+      performAsContextPredicateInsideHelloWorldLoop(i -> cmd("echo").append(" ").appendVariable(i).checkerFactory(() -> createProcessStreamerCheckerForCmdTest(keyword)));
       System.out.println(out);
       assertThat(
           out,

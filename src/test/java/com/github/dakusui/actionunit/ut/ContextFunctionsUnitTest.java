@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -26,31 +27,30 @@ import static com.github.dakusui.printables.PrintableFunctionals.printablePredic
 
 @RunWith(Enclosed.class)
 public class ContextFunctionsUnitTest {
-  public static <T> ContextPredicate createContextPredicate(String variableName, Predicate<T> predicate) {
-    return multiParamsPredicateFor(ContextVariable.createGlobal(variableName))
+  public static <T> ContextPredicate createContextPredicate(ContextVariable variable, Predicate<T> predicate) {
+    return multiParamsPredicateFor(variable)
         .toContextPredicate(
-            printablePredicate((Params params) -> predicate.test(params.valueOf(ContextVariable.createGlobal(variableName))))
+            printablePredicate((Params params) -> predicate.test(params.valueOf(variable)))
                 .describe(() -> objectToStringIfOverridden(predicate, (v) -> "(noname)({{0}})")));
   }
 
   public static class GivenPrintableContextConsumer {
-    List<String>    out = new LinkedList<>();
-    ContextConsumer cc  = ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
-        "i",
-        printableConsumer((String each) -> out.add(each)).describe("out.add({{0}}.toString())")
-    ).andThen(ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
-        "i",
-        printableConsumer(System.out::println).describe("System.out.println({{0}})")
-    ));
+    List<String> out = new LinkedList<>();
+
+    private static ContextConsumer createContextConsumer(GivenPrintableContextConsumer printableContextConsumer, ContextVariable variable) {
+      return ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
+              variable, printableConsumer((String each) -> printableContextConsumer.out.add(each)).describe("out.add({{0}}.toString())"))
+          .andThen(ContextFunctionsHelperUnitTest.toMultiParamsContextConsumer(
+              variable, printableConsumer(System.out::println).describe("System.out.println({{0}})")));
+    }
 
     @Test
     public void whenPerformInsideLoop$thenConsumerIsPerformedCorrectly() {
 
       ReportingActionPerformer.create().performAndReport(
-          compatForEach("i", c -> Stream.of("Hello", "world"))
-              .perform(leaf(cc)),
-          Writer.Std.OUT
-      );
+          forEach("i", c -> Stream.of("Hello", "world"))
+              .perform(b -> leaf(createContextConsumer(this, b))),
+          Writer.Std.OUT);
       out.forEach(System.out::println);
       assertThat(
           out,
@@ -62,23 +62,21 @@ public class ContextFunctionsUnitTest {
     @Test
     public void whenPerformInsideLoop$thenConsumerIsFormattedCorrectly() {
       ReportingActionPerformer.create().performAndReport(
-          compatForEach("i", c -> Stream.of("Hello", "world"))
-              .perform(leaf(cc)),
+          forEach(c -> Stream.of("Hello", "world")).perform(b ->
+              leaf(createContextConsumer(this, b))),
           Writer.Std.OUT
       );
-      System.out.println(cc.toString());
       assertThat(
-          cc,
-          asString("toString")
-              .equalTo("(i)->out.add(${i}.toString());(i)->System.out.println(${i})").$()
+          createContextConsumer(this, ContextVariable.createGlobal("i")),
+          asString("toString").equalTo("(i)->out.add(${i}.toString());(i)->System.out.println(${i})").$()
       );
     }
   }
 
   public static class GivenPrintablePredicate {
     Integer boundary = 100;
-    private final ContextPredicate cp = createContextPredicate("j",
-        printablePredicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
+    private final ContextPredicate cp = createContextPredicate(
+        ContextVariable.createGlobal("j"), printablePredicate(i -> Objects.equals(i, 0)).describe("{{0}}==0")
     ).or(multiParamsPredicateFor(ContextVariable.createGlobal("j")).toContextPredicate(
         printablePredicate((Params params) -> params.<Integer>valueOf(ContextVariable.createGlobal("i")) > 0).describe("{{0}}>0")
     ).and(multiParamsPredicateFor(ContextVariable.createGlobal("j")).toContextPredicate(
@@ -95,33 +93,39 @@ public class ContextFunctionsUnitTest {
     }
   }
 
-  public static class GivenPrintablePredicateAndConsumer {
-    Integer          boundary = 100;
-    List<String>     out      = new LinkedList<>();
-    ContextPredicate cp       = createContextPredicate("j",
-        printablePredicate((Integer x) -> Objects.equals(x, 0)).describe("{0}==0")
-            .or(printablePredicate((Integer x) -> x > 0).describe("{0}>0"))
-            .and(printablePredicate((Integer x) -> x < boundary).describe(() -> "{0}<" + boundary)
-            )).negate();
+  public static class GivenPrintablePredicateAndConsumer extends TestUtils.TestBase {
+    Integer      boundary = 100;
+    List<String> out      = new LinkedList<>();
 
-    ContextConsumer cc = multiParamsConsumerFor(ContextVariable.createGlobal("i")).toContextConsumer(
-        printableConsumer((Params params) -> out.add(params.valueOf(ContextVariable.createGlobal("i"))))
-            .describe("out.add({0}.toString)")
-    ).andThen(multiParamsConsumerFor(ContextVariable.createGlobal("j")).toContextConsumer(
-        printableConsumer((Params params) -> out.add(params.valueOf(ContextVariable.createGlobal("j"))))
-            .describe("out.add({0}.toString)")
-    ));
+    private ContextPredicate not_$_i_ge_0_and_i_lt_boundary_$(ContextVariable variable) {
+      return createContextPredicate(
+          variable, printablePredicate((Integer x) -> Objects.equals(x, 0)).describe("{0}==0")
+              .or(printablePredicate((Integer x) -> x > 0).describe("{0}>0"))
+              .and(printablePredicate((Integer x) -> x < boundary).describe(() -> "{0}<" + boundary)
+              )).negate();
+    }
+
+    private static ContextConsumer createContextConsumer(GivenPrintablePredicateAndConsumer printableConsumer, ContextVariable i, ContextVariable j) {
+      return multiParamsConsumerFor(i).toContextConsumer(
+          printableConsumer((Params params) -> printableConsumer.out.add(params.valueOf(i)))
+              .describe("out.add({0}.toString)")
+      ).andThen(multiParamsConsumerFor(j).toContextConsumer(
+          printableConsumer((Params params) -> printableConsumer.out.add(params.valueOf(j)))
+              .describe("out.add({0}.toString)")
+      ));
+    }
 
     @Test
     public void whenPerformedNestedLoop$thenWorksCorrectly() {
+      System.out.print("<" + out + ">");
       ReportingActionPerformer.create().performAndReport(
-          compatForEach("i", c -> Stream.of("Hello", "world"))
-              .perform(
-                  compatForEach("j", c -> Stream.of(-1, 0, 1, 2, 100)).perform(
-                      when(cp)
-                          .perform(leaf(cc))
-                          .otherwise(nop())
-                  )), Writer.Std.OUT);
+          forEach("i", c -> Stream.of("Hello", "world")).perform(i ->
+              forEach("j", c -> Stream.of(-1, 0, 1, 2, 100)).perform(j ->
+                  when(not_$_i_ge_0_and_i_lt_boundary_$(j))
+                      .perform(leaf(createContextConsumer(this, i, j)))
+                      .otherwise(nop())
+              )), Writer.Std.OUT);
+      System.out.print("<" + out + ">");
 
       assertThat(
           out,

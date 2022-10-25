@@ -1,7 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.ContextVariable;
-import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
@@ -9,14 +9,15 @@ import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import org.junit.Test;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.contextValueOf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
@@ -30,8 +31,7 @@ public class ContextFunctionsHelperUnitTest {
         .toContextFunction(printableFunction((Params params) -> function.apply(params.valueOf(variable))).describe(function.toString()));
   }
 
-  static <T> ContextConsumer toMultiParamsContextConsumer(String variableName, Consumer<T> consumer) {
-    ContextVariable variable = ContextVariable.createGlobal(variableName);
+  static <T> ContextConsumer toMultiParamsContextConsumer(ContextVariable variable, Consumer<T> consumer) {
     return multiParamsConsumerFor(variable)
         .toContextConsumer(printableConsumer(
             (Params params) -> consumer.accept(params.valueOf(variable))
@@ -84,11 +84,11 @@ public class ContextFunctionsHelperUnitTest {
 
   @Test
   public void test3_fromBuilder() {
-    ReportingActionPerformer.create().perform(
-        ActionSupport.compatForEach("i", StreamGenerator.fromArray("A", "B", "C"))
-            .perform(leaf(multiParamsConsumerFor(ContextVariable.createGlobal("i")).toContextConsumer(
-                params -> ContextFunctions.printTo(
-                    System.out, contextValueOf("i"))))));
+    ReportingActionPerformer.create().performAndReport(
+        forEach("i", StreamGenerator.fromArray("A", "B", "C")).perform(
+            (ForEach.Builder<String> b) -> leaf(multiParamsConsumerFor(b).toContextConsumer(
+                params -> System.out.printf("%s:%s%n", b.variableName(), params.valueOf(b).toString())))),
+        Writer.Std.OUT);
   }
 
   @Test

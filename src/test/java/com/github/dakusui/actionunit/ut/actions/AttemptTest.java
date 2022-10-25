@@ -46,12 +46,12 @@ public class AttemptTest extends TestUtils.TestBase {
                         ContextVariable.createGlobal("i"),
                         ContextFunctions.immediateOf("UPDATED"))
                     .andThen(
-                        ContextFunctions.writeTo(sink, ContextFunctions.contextValueOf("i")).andThen(
-                            ContextFunctions.printTo(System.out, ContextFunctions.contextValueOf("i"))
+                        ContextFunctions.writeTo(sink, ContextFunctions.contextValueOf(ContextVariable.createGlobal("i"))).andThen(
+                            ContextFunctions.printTo(System.out, ContextFunctions.contextValueOf(ContextVariable.createGlobal("i")))
                         )))
         ).ensure(
-            leaf(ContextFunctions.writeTo(sink, ContextFunctions.contextValueOf("i")).andThen(
-                ContextFunctions.printTo(System.out, ContextFunctions.contextValueOf("i"))
+            leaf(ContextFunctions.writeTo(sink, ContextFunctions.contextValueOf(ContextVariable.createGlobal("i"))).andThen(
+                ContextFunctions.printTo(System.out, ContextFunctions.contextValueOf(ContextVariable.createGlobal("i")))
             ))
         )
     );

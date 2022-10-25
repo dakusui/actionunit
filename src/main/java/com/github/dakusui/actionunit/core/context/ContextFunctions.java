@@ -70,17 +70,15 @@ public enum ContextFunctions {
   }
 
   public static <R> ContextFunction<R> immediateOf(R value) {
-    return ContextFunction.of(
-        () -> format("%s", value),
-        c -> value
+    return ContextFunction.of(() -> format("%s", value), c -> value
     );
   }
 
-  public static <R> ContextFunction<R> contextValueOf(String variableName) {
-    requireNonNull(variableName);
+  public static <R> ContextFunction<R> contextValueOf(ContextVariable contextVariable) {
+    requireNonNull(contextVariable);
     return ContextFunction.of(
-        () -> format("valueOf[%s]", variableName),
-        c -> c.valueOf(ContextVariable.createGlobal(variableName).internalVariableName())
+        () -> format("valueOf[%s]", contextVariable.variableName()),
+        c -> c.valueOf(contextVariable.internalVariableName())
     );
   }
 

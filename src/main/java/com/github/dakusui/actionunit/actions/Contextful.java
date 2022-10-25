@@ -78,7 +78,8 @@ public interface Contextful<S> extends Action, ContextVariable {
       A extends Contextful<S>,
       V,
       S>
-      extends Action.Builder<A> {
+      extends Action.Builder<A>
+      implements ContextVariable {
     private final Function<Context, S> valueSource;
     private final String               internalVariableName;
     private final String               variableName;
@@ -89,10 +90,6 @@ public interface Contextful<S> extends Action, ContextVariable {
       this.variableName = requireNonNull(variableName);
       this.internalVariableName = composeInternalVariableName(variableName);
       this.valueSource = requireNonNull(function);
-    }
-
-    protected String composeInternalVariableName(String variableName) {
-      return this.getClass().getEnclosingClass().getCanonicalName() + ":" + variableName + ":" + System.identityHashCode(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -159,10 +156,17 @@ public interface Contextful<S> extends Action, ContextVariable {
       return contextVariableValue(context);
     }
 
+    public String toString() {
+      return variableName();
+    }
+
     protected <VV> VV contextVariableValue(Context context) {
       return context.valueOf(internalVariableName());
     }
 
+    protected String composeInternalVariableName(String variableName) {
+      return this.getClass().getEnclosingClass().getCanonicalName() + ":" + variableName + ":" + System.identityHashCode(this);
+    }
     private Consumer<Context> variableReferenceConsumer(Consumer<V> consumer) {
       return (Context context) -> consumer.accept(context.valueOf(internalVariableName()));
     }

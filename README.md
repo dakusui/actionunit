@@ -42,14 +42,14 @@ public class HelloActionUnit {
   @Test
   public void helloActionUnit() {
     List<String> out = new LinkedList<>();
-    Action action = compatForEach(
+    Action action = forEach(
         "i",
         () -> Stream.of("Hello", "world", "!")
-    ).perform(
+    ).perform(i ->
         sequential(
             simple(
                 "print {s}",
-                (c) -> System.out.println("<" + c.valueOf("i") + ">")
+                (c) -> System.out.println("<" + c.valueOf(i.internalVariableName()) + ">")
             ),
             simple(
                 "add {s} to 'out'",

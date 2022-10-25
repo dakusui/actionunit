@@ -37,10 +37,6 @@ public enum ActionSupport {
     return new Attempt.Builder(action);
   }
 
-  public static <E> CompatForEach.Builder<E> compatForEach(String variableName, StreamGenerator<E> streamGenerator) {
-    return new CompatForEach.Builder<>(variableName, streamGenerator);
-  }
-
   public static <E> ForEach.Builder<E> forEach(Function<Context, Stream<E>> streamGenerator) {
     return forEach("i", streamGenerator);
   }
