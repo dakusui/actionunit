@@ -131,7 +131,7 @@ public interface CommandLineComposer extends Function<ContextVariable[], BiFunct
 
         @Override
         public String toString() {
-          return "quoteWith[']";
+          return "'";
         }
       });
     }

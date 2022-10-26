@@ -14,6 +14,7 @@ import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CON
 import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 
 public enum ActionSupport {
   ;
@@ -99,10 +100,10 @@ public enum ActionSupport {
   }
 
   public static Cmd cmd(String program, CommanderConfig config, ContextVariable... knownVariables) {
-    Cmd ret = new Cmd(config).commandName(program);
+    Cmd ret = new Cmd(config).commandName(requireNonNull(program).trim());
     for (ContextVariable each : knownVariables)
       ret = ret.declareVariable(each);
-    return ret;
+    return ret.append(" ");
   }
 
   public static Action simple(String name, Consumer<Context> consumer) {
