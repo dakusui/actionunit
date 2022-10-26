@@ -2,13 +2,10 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -54,12 +51,75 @@ public interface SshOptions {
   }
 
   class Builder {
+    private final SshOptions   base;
     private       String       identity;
     private final List<String> sshOptions = new LinkedList<>();
     private final List<String> jumpHosts  = new LinkedList<>();
 
     public Builder() {
+      this(new SshOptions() {
+
+        @Override
+        public boolean ipv4() {
+          return false;
+        }
+
+        @Override
+        public boolean ipv6() {
+          return false;
+        }
+
+        @Override
+        public boolean compression() {
+          return false;
+        }
+
+        @Override
+        public List<String> jumpHosts() {
+          return emptyList();
+        }
+
+        @Override
+        public Optional<String> cipherSpec() {
+          return Optional.empty();
+        }
+
+        @Override
+        public Optional<String> configFile() {
+          return Optional.empty();
+        }
+
+        @Override
+        public Optional<String> identity() {
+          return Optional.empty();
+        }
+
+        @Override
+        public List<String> sshOptions() {
+          return emptyList();
+        }
+
+        @Override
+        public OptionalInt port() {
+          return OptionalInt.empty();
+        }
+
+        @Override
+        public boolean quiet() {
+          return false;
+        }
+
+        @Override
+        public boolean verbose() {
+          return false;
+        }
+      });
     }
+
+    public Builder(SshOptions base) {
+      this.base = requireNonNull(base);
+    }
+
 
     public Builder identity(String identity) {
       this.identity = requireNonNull(identity);
@@ -93,17 +153,17 @@ public interface SshOptions {
 
         @Override
         public boolean ipv4() {
-          return false;
+          return base.ipv4();
         }
 
         @Override
         public boolean ipv6() {
-          return false;
+          return base.ipv6();
         }
 
         @Override
         public boolean compression() {
-          return false;
+          return base.compression();
         }
 
         @Override
