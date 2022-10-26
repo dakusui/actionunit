@@ -8,7 +8,6 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
@@ -30,8 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.*;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -48,10 +46,6 @@ public class CmdTest extends TestUtils.TestBase {
     List<String> report = new LinkedList<>();
     List<String> out    = new LinkedList<>();
 
-    Cmd initCmd(Cmd cmd) {
-      return cmd.downstreamConsumer(toStdoutAndGivenList(out));
-    }
-
     void performAction(Action action) {
       ReportingActionPerformer.create().performAndReport(
           action,
@@ -64,21 +58,18 @@ public class CmdTest extends TestUtils.TestBase {
 
     void performAsContextConsumerInsideLoop(Function<ContextVariable, Cmd> cmd) {
       performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(v ->
-              leaf(initCmd(cmd.apply(v)).toContextConsumer())
-          ));
-    }
-
-    void performAsActionInsideHelloWorldLoop(Function<ContextVariable, Cmd> cmd) {
-      performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(b ->
-              initCmd(cmd.apply(b)).$()));
+          forEach("i", StreamGenerator.fromArray("hello", "world"))
+              .perform(i -> leaf(
+                  cmd.apply(i)
+                      .downstreamConsumer(toStdoutAndGivenList(out))
+                      .toContextConsumer())
+              ));
     }
 
     void performAsContextFunctionInsideHelloWorldLoop(Function<ForEach.Builder<?>, Cmd> cmd) {
       performAction(
           forEach("i", StreamGenerator.fromArray("hello", "world")).perform(v ->
-              leaf(c -> System.out.println("out=<" + initCmd(cmd.apply(v)).toContextFunction().apply(c) + ">"))
+              leaf(c -> System.out.println("out=<" + cmd.apply(v).downstreamConsumer(toStdoutAndGivenList(out)).toContextFunction().apply(c) + ">"))
           ));
     }
 
@@ -95,7 +86,7 @@ public class CmdTest extends TestUtils.TestBase {
   public static class AsCommander extends Base {
     @Test
     public void givenCommanderObject$whenExcerciseGetters$thenNoExceptionThrown() {
-      Commander<?> commander = initCmd(cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world"));
+      Commander<?> commander = cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world").downstreamConsumer(toStdoutAndGivenList(out));
       requireThat(commander.retryOption(), asObject().isNotNull().$());
       requireThat(commander.checkerFactory(), asObject().isNotNull().$());
       requireThat(commander.downstreamConsumerFactory(), asObject().isNotNull().$());
@@ -120,7 +111,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoEnvVar$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world"))
+          cmd("echo ${ENVVAR_HELLO}").setenv("ENVVAR_HELLO", "world").downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -131,7 +122,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloWithSh$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo hello").shell(sh()))
+          cmd("echo hello").shell(sh()).downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -142,7 +133,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloUsingAddMethod$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo").add("hello"))
+          cmd("echo").add("hello").downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -153,7 +144,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloUsingAppendqMethod$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo").append(" ").appendq(immediateOf("hello")))
+          cmd("echo").append(" ").appendq(immediateOf("hello")).downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -164,7 +155,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloUsingAppendContextFunctionMethod$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo").append(" ").append(immediateOf("hello")))
+          cmd("echo").append(" ").append(immediateOf("hello")).downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -175,7 +166,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo").append(" ").append(immediateOf("hello"), false))
+          cmd("echo").append(" ").append(immediateOf("hello"), false).downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -186,7 +177,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloUsingAppendStringMethod$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo").append(" ").append("hello", false))
+          cmd("echo").append(" ").append("hello", false).downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -197,8 +188,11 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloUsingAppendVariableMethod$whenPerformAsAction$thenPrinted() {
       performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(b1 ->
-              initCmd(((Function<ContextVariable, Cmd>) b -> initCmd(cmd("echo").append(" ").appendVariable(b, false))).apply(b1)).$()));
+          forEach("i", StreamGenerator.fromArray("hello", "world"))
+              .perform(i -> cmd("echo")
+                  .append(" ")
+                  .appendVariable(i, false)
+                  .downstreamConsumer(toStdoutAndGivenList(out)).$()));
       assertThat(
           out,
           asListOf(String.class).equalTo(asList("hello", "world")).$()
@@ -208,7 +202,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenCatStreamOfHelloWorld$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("cat").stdin(Stream.of("hello", "world")))
+          cmd("cat").stdin(Stream.of("hello", "world")).downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -219,7 +213,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenPwd$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("pwd").cwd(getCwd()))
+          cmd("pwd").cwd(getCwd()).downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(
           out,
@@ -231,7 +225,9 @@ public class CmdTest extends TestUtils.TestBase {
     public void givenEchoHelloWithDownstreamConsumerFactory$whenPerformAsAction$thenPrintedBySpecifiedDownstreamConsumer() {
       List<String> downstream = new LinkedList<>();
       performAction(
-          initCmd(cmd("echo hello")).downstreamConsumerFactory(() -> downstream::add)
+          cmd("echo hello")
+              .downstreamConsumer(toStdoutAndGivenList(out))
+              .downstreamConsumerFactory(() -> downstream::add)
               .toAction());
       assertThat(
           downstream,
@@ -242,7 +238,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloWithTimeoutInOneSecond$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo hello").retryOption(RetryOption.timeoutInSeconds(1))).toAction()
+          cmd("echo hello").retryOption(RetryOption.timeoutInSeconds(1)).downstreamConsumer(toStdoutAndGivenList(out)).toAction()
       );
       assertThat(
           out,
@@ -253,12 +249,14 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoHelloWithTimeoutInOneMinutesAndRetryingTwice$whenPerformAsAction$thenPrinted() {
       performAction(
-          initCmd(cmd("echo hello").retryOption(
-              RetryOption.builder()
+          cmd("echo hello")
+              .retryOption(RetryOption.builder()
                   .timeoutIn(1, MINUTES)
                   .retries(2)
                   .retryOn(Exception.class)
-                  .retryInterval(1, SECONDS).build())).toAction()
+                  .retryInterval(1, SECONDS).build())
+              .downstreamConsumer(toStdoutAndGivenList(out))
+              .toAction()
       );
       assertThat(
           out,
@@ -288,7 +286,9 @@ public class CmdTest extends TestUtils.TestBase {
   public static class AsAction extends Base {
     @Test
     public void givenEchoHello$whenPerformAction$thenFinishNormally() {
-      performAction(initCmd(cmd("echo hello")).toAction());
+      performAction(cmd("echo hello")
+          .downstreamConsumer(toStdoutAndGivenList(out))
+          .toAction());
       assertThat(
           out,
           asListOf(String.class).contains("hello").$()
@@ -297,7 +297,10 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoHello$whenExpectHelloInStdout$thenFinishNormally() {
-      performAction(initCmd(cmd("echo hello")).checker(createProcessStreamerCheckerForCmdTest("hello")).toAction());
+      performAction(cmd("echo hello")
+          .downstreamConsumer(toStdoutAndGivenList(out))
+          .checker(createProcessStreamerCheckerForCmdTest("hello"))
+          .toAction());
       assertThat(
           report,
           asListOf(String.class).anyMatch(Printable.predicate("contains[hello]", s -> s.contains("echo hello"))).$()
@@ -307,7 +310,10 @@ public class CmdTest extends TestUtils.TestBase {
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenEchoWorld$whenExpectHelloInStdout$thenFailureIsThrown() {
       try {
-        performAction(initCmd(cmd("echo world")).checker(createProcessStreamerCheckerForCmdTest("hello")).toAction());
+        performAction(cmd("echo world")
+            .downstreamConsumer(toStdoutAndGivenList(out))
+            .checker(createProcessStreamerCheckerForCmdTest("hello"))
+            .toAction());
       } catch (ProcessStreamer.Failure failure) {
         String keywordSearchedFor = "hello";
         String actualOutput = "world";
@@ -322,7 +328,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenEchoHelloAndUnknownCommand$whenExpectHelloInStdout$thenFailureIsThrown() {
       try {
-        performAction(initCmd(cmd("echo hello && __unknownCommand__")).checker(createProcessStreamerCheckerForCmdTest("hello")).toAction());
+        performAction(cmd("echo hello && __unknownCommand__").downstreamConsumer(toStdoutAndGivenList(out)).checker(createProcessStreamerCheckerForCmdTest("hello")).toAction());
       } catch (ProcessStreamer.Failure failure) {
         System.out.println(failure.getMessage());
         assertThat(
@@ -370,8 +376,8 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
       performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
-              i -> cmd("echo {{i}}", config(PLACE_HOLDER_FORMATTER_BY_NAME), i)
+          forEach("i", StreamGenerator.fromArray("hello", "world"))
+              .perform(i -> cmd("echo {{i}}", config(PLACE_HOLDER_FORMATTER_BY_NAME), i)
                   .downstreamConsumer(toStdoutAndGivenList(out))
                   .$()));
       assertThat(
@@ -391,9 +397,12 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAction(
-          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(b ->
-              initCmd(((Function<ContextVariable, Cmd>) i -> cmd("echo").append(" ").appendQuotedVariable(i)).apply(b)).$()));
+      performAction(forEach("i", StreamGenerator.fromArray("hello", "world"))
+          .perform(i -> cmd("echo", config(DEFAULT_PLACE_HOLDER_FORMATTER))
+              .append(" ")
+              .appendQuotedVariable(i)
+              .downstreamConsumer(toStdoutAndGivenList(out))
+              .$()));
     }
 
   }
@@ -403,7 +412,7 @@ public class CmdTest extends TestUtils.TestBase {
     public void givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput() {
       performAction(
           forEach("i",
-              initCmd(cmd("echo hello && echo world")).toStreamGenerator()
+              cmd("echo hello && echo world").downstreamConsumer(toStdoutAndGivenList(out)).toStreamGenerator()
           ).perform(i ->
               leaf(ContextConsumer.of(
                   () -> "print 'i'",
@@ -420,7 +429,7 @@ public class CmdTest extends TestUtils.TestBase {
       String keyword = "UNKNOWN";
       try {
         performAction(
-            forEach("i", initCmd(cmd("echo hello && echo world")).checker(createProcessStreamerCheckerForCmdTest(keyword)).toStreamGenerator())
+            forEach("i", cmd("echo hello && echo world").downstreamConsumer(toStdoutAndGivenList(out)).checker(createProcessStreamerCheckerForCmdTest(keyword)).toStreamGenerator())
                 .perform(i ->
                     leaf(ContextConsumer.of(
                         () -> "print 'i'",
@@ -438,15 +447,16 @@ public class CmdTest extends TestUtils.TestBase {
   public static class AsContextConsumer extends Base {
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoop$thenFinishesNormally() {
-      performAsContextConsumerInsideLoop(v -> initCmd(cmd("echo {{0}}")));
+      performAsContextConsumerInsideLoop(v -> cmd("echo {{0}}").downstreamConsumer(toStdoutAndGivenList(out)));
     }
 
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown() {
       String keyword = "UNKNOWN";
       try {
-        performAsContextConsumerInsideLoop(i ->
-            initCmd(cmd("echo {{0}}", i))
+        performAsContextConsumerInsideLoop(
+            i -> cmd("echo {{0}}", i)
+                .downstreamConsumer(toStdoutAndGivenList(out))
                 .checker(createProcessStreamerCheckerForCmdTest(keyword)));
       } catch (ProcessStreamer.Failure failure) {
         failure.printStackTrace();
@@ -462,18 +472,18 @@ public class CmdTest extends TestUtils.TestBase {
   public static class AsContextFunction extends Base {
     @Test
     public void givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoop$thenFinishesNormally() {
-      performAsContextFunctionInsideHelloWorldLoop(b -> initCmd(cmd("echo").append(" ").appendVariable(b)));
+      performAsContextFunctionInsideHelloWorldLoop(b -> cmd("echo").append(" ").appendVariable(b).downstreamConsumer(toStdoutAndGivenList(out)));
     }
 
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown() {
       String keyword = "UNKNOWN";
       try {
-        performAsContextFunctionInsideHelloWorldLoop(i -> initCmd(
-            cmd("echo")
-                .append(" ")
-                .appendVariable(i)
-                .checker(createProcessStreamerCheckerForCmdTest(keyword))));
+        performAsContextFunctionInsideHelloWorldLoop(i -> cmd("echo")
+            .append(" ")
+            .appendVariable(i)
+            .checker(createProcessStreamerCheckerForCmdTest(keyword))
+            .downstreamConsumer(toStdoutAndGivenList(out)));
       } catch (ProcessStreamer.Failure failure) {
         assertThat(
             failure.getMessage(),
