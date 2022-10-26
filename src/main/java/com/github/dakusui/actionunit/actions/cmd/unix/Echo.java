@@ -9,7 +9,7 @@ import java.util.function.Function;
 public class Echo extends Commander<Echo> {
   public Echo(CommanderConfig config) {
     super(config);
-    config.setCommandNameFor(this);
+    commandName("/bin/echo");
   }
 
   public Echo noTrailingNewLine() {

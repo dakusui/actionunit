@@ -13,35 +13,35 @@ import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
 
 public interface UnixCommanderFactory extends CommanderFactory {
   default Echo echo() {
-    return new Echo(initializer());
+    return new Echo(config());
   }
 
   default Cat cat() {
-    return new Cat(initializer());
+    return new Cat(config());
   }
 
   default Ls ls() {
-    return new Ls(initializer());
+    return new Ls(config());
   }
 
   default Mkdir mkdir() {
-    return new Mkdir(initializer());
+    return new Mkdir(config());
   }
 
   default Rm rm() {
-    return new Rm(initializer());
+    return new Rm(config());
   }
 
   default Touch touch() {
-    return new Touch(initializer());
+    return new Touch(config());
   }
 
   default Scp scp() {
-    return  new Scp(initializer());
+    return new Scp(config());
   }
 
   default Curl curl() {
-    return new Curl(initializer());
+    return new Curl(config());
   }
 
   default Git git() {
@@ -49,6 +49,6 @@ public interface UnixCommanderFactory extends CommanderFactory {
   }
 
   default Cmd cmd() {
-    return new Cmd(initializer());
+    return new Cmd(config());
   }
 }

@@ -327,7 +327,7 @@ public class GitTest {
       Git.Push gitPush = git().push().repo("origin").refspec("master:master");
       assertThat(
           gitPush.buildCommandLineComposer().format(),
-          asString().equalTo("git push quoteWith['](origin) quoteWith['](master:master)").$()
+          asString().equalTo("git push '(origin) '(master:master)").$()
       );
     }
 
@@ -336,7 +336,7 @@ public class GitTest {
       Git.Push gitPush = git().push().repo(immediateOf("origin")).refspec(immediateOf("master:master"));
       assertThat(
           gitPush.buildCommandLineComposer().format(),
-          asString().equalTo("git push quoteWith['](origin) quoteWith['](master:master)").$()
+          asString().equalTo("git push '(origin) '(master:master)").$()
       );
     }
   }
@@ -347,7 +347,7 @@ public class GitTest {
       Git.Plain git = git().plain().add("hello").add("world");
       assertThat(
           git.buildCommandLineComposer().format(),
-          asString().equalTo("git quoteWith['](hello) quoteWith['](world)").$()
+          asString().equalTo("git '(hello) '(world)").$()
       );
     }
 
@@ -356,7 +356,7 @@ public class GitTest {
       Git.Plain git = git().plain().add("hello").add("world");
       assertThat(
           git.buildCommandLineComposer().format(),
-          asString().equalTo("git quoteWith['](hello) quoteWith['](world)").$()
+          asString().equalTo("git '(hello) '(world)").$()
       );
     }
   }

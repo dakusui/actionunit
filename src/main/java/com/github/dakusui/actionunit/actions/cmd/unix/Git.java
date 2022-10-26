@@ -14,28 +14,28 @@ import static java.util.Objects.requireNonNull;
 @FunctionalInterface
 public interface Git extends CommanderFactory {
   default LsRemote lsRemote() {
-    return new LsRemote(initializer());
+    return new LsRemote(config());
   }
 
   default Clone cloneRepo() {
-    return new Clone(initializer());
+    return new Clone(config());
   }
 
   default Checkout checkout() {
-    return new Checkout(initializer());
+    return new Checkout(config());
   }
 
   default Push push() {
-    return new Push(initializer());
+    return new Push(config());
   }
 
   default GitBase<Plain> plain() {
-    return new Plain(initializer());
+    return new Plain(config());
   }
 
   @Override
-  default CommanderConfig initializer() {
-    return parent().initializer();
+  default CommanderConfig config() {
+    return parent().config();
   }
 
   CommanderFactory parent();
@@ -143,7 +143,7 @@ public interface Git extends CommanderFactory {
     @SuppressWarnings("WeakerAccess")
     public GitBase(CommanderConfig config) {
       super(config);
-      config.setCommandNameFor(this);
+      ((GitBase<?>) this).commandName("git");
     }
   }
 }

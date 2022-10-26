@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 public class Rm extends Commander<Rm> {
   public Rm(CommanderConfig initializer) {
     super(initializer);
-    initializer.setCommandNameFor(this);
+    commandName("rm");
   }
 
   public Rm recursive() {

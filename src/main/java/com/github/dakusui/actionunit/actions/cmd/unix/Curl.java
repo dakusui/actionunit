@@ -30,7 +30,7 @@ public class Curl extends Commander<Curl> {
 
   public Curl(CommanderConfig config) {
     super(config);
-    config.setCommandNameFor(this);
+    commandName("curl");
   }
 
   public Curl post() {

@@ -9,7 +9,8 @@ import com.github.dakusui.actionunit.actions.cmd.unix.SshShellBuilder;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.dakusui.processstreamer.core.process.Shell;
+import com.github.dakusui.pcond.TestAssertions;
+import com.github.dakusui.pcond.forms.Predicates;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -30,6 +31,63 @@ import static java.util.Collections.singletonList;
 
 @RunWith(Enclosed.class)
 public class CommanderFactoryManagerTest {
+  final static SshOptions SSH_OPTIONS = new SshOptions() {
+    @Override
+    public boolean ipv4() {
+      return true;
+    }
+
+    @Override
+    public boolean ipv6() {
+      return false;
+    }
+
+    @Override
+    public boolean compression() {
+      return true;
+    }
+
+    @Override
+    public List<String> jumpHosts() {
+      return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<String> cipherSpec() {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> configFile() {
+      return Optional.of("ssh_config");
+    }
+
+    @Override
+    public Optional<String> identity() {
+      return Optional.empty();
+    }
+
+    @Override
+    public List<String> sshOptions() {
+      return emptyList();
+    }
+
+    @Override
+    public OptionalInt port() {
+      return OptionalInt.of(9999);
+    }
+
+    @Override
+    public boolean quiet() {
+      return false;
+    }
+
+    @Override
+    public boolean verbose() {
+      return true;
+    }
+  };
+
   static abstract class Base implements CommanderFactoryManager {
     @Ignore
     @Test
@@ -74,16 +132,9 @@ public class CommanderFactoryManagerTest {
               asString(
                   call("buildCommandLineComposer")
                       .andThen("compose", Context.create()).$())
-                  .check(
-                      substringAfterRegex("echo").after("'hello world'").$(),
-                      isEmptyString()
-                  ).$(),
-              asString(
-                  call("shell").andThen("format").$()
-              ).check(
-                  substringAfterExpectedRegexesForSshOptions(),
-                  isEmptyString()
-              ).$()
+                  .check(substringAfterRegex("echo").after("'hello world'").$(), isEmptyString()).$(),
+              asString(call("shell").andThen("format").$())
+                  .check(substringAfterExpectedRegexesForSshOptions(), isEmptyString()).$()
           )
       );
     }
@@ -130,19 +181,16 @@ public class CommanderFactoryManagerTest {
 
   public static class WithoutUsername extends Base {
     @Override
-    public CommanderConfig initializerFor(String host) {
+    public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
-          new CommanderConfig() {
-            @Override
-            public Shell shell() {
-              return new SshShellBuilder(host)
-                  .program("ssh")
-                  .enableAuthAgentConnectionForwarding()
-                  .sshOptions(sshOptions())
-                  .build();
-            }
-          };
+          CommanderConfig.builder().shell(
+                  new SshShellBuilder(host)
+                      .program("ssh")
+                      .sshOptions(SSH_OPTIONS)
+                      .enableAuthAgentConnectionForwarding()
+                      .build())
+              .build();
     }
 
     @Override
@@ -168,21 +216,18 @@ public class CommanderFactoryManagerTest {
 
   public static class WithUsername extends Base {
     @Override
-    public CommanderConfig initializerFor(String host) {
+    public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
-          new CommanderConfig() {
-            @Override
-            public Shell shell() {
-              return new SshShellBuilder(host)
+          CommanderConfig.builder().shell(new SshShellBuilder(host)
                   .program("ssh")
                   .user(userName())
+                  .sshOptions(SSH_OPTIONS)
                   .enableAuthAgentConnectionForwarding()
-                  .sshOptions(sshOptions())
-                  .build();
-            }
-          };
+                  .build())
+              .build();
     }
+
 
     @Override
     public Function<String, String> substringAfterExpectedRegexesForSshOptions() {
@@ -206,90 +251,18 @@ public class CommanderFactoryManagerTest {
   }
 
   public static class WithCustomSshOptions1 extends Base {
-
-    private final SshOptions sshOptions = new SshOptions() {
-      @Override
-      public boolean ipv4() {
-        return true;
-      }
-
-      @Override
-      public boolean ipv6() {
-        return false;
-      }
-
-      @Override
-      public boolean compression() {
-        return true;
-      }
-
-      @Override
-      public List<String> jumpHosts() {
-        return Collections.emptyList();
-      }
-
-      @Override
-      public Optional<String> cipherSpec() {
-        return Optional.empty();
-      }
-
-      @Override
-      public Optional<String> configFile() {
-        return Optional.of("ssh_config");
-      }
-
-      @Override
-      public Optional<String> identity() {
-        return Optional.empty();
-      }
-
-      @Override
-      public List<String> sshOptions() {
-        return emptyList();
-      }
-
-      @Override
-      public OptionalInt port() {
-        return OptionalInt.of(9999);
-      }
-
-      @Override
-      public boolean quiet() {
-        return false;
-      }
-
-      @Override
-      public boolean verbose() {
-        return true;
-      }
-    };
-
     @Override
-    public CommanderConfig initializerFor(String host) {
+    public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
-          new CommanderConfig() {
-            @Override
-            public SshOptions sshOptions() {
-              return sshOptions;
-            }
-          } :
-          new CommanderConfig() {
-            @Override
-            public Shell shell() {
-              return new SshShellBuilder(host)
+          CommanderConfig.builder().sshOptions(SSH_OPTIONS).build() :
+          CommanderConfig.builder()
+              .shell(new SshShellBuilder(host)
                   .program("ssh")
                   .user(userName())
                   .enableAuthAgentConnectionForwarding()
-                  .sshOptions(sshOptions())
-                  .build();
-            }
-
-            @Override
-            public SshOptions sshOptions() {
-
-              return sshOptions;
-            }
-          };
+                  .sshOptions(SSH_OPTIONS)
+                  .build())
+              .build();
     }
 
     @Override
@@ -377,30 +350,15 @@ public class CommanderFactoryManagerTest {
     };
 
     @Override
-    public CommanderConfig initializerFor(String host) {
+    public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
-          new CommanderConfig() {
-            @Override
-            public SshOptions sshOptions() {
-              return sshOptions;
-            }
-          } :
-          new CommanderConfig() {
-            @Override
-            public Shell shell() {
-              return new SshShellBuilder(host)
-                  .program("ssh")
-                  .user(userName())
-                  .enableAuthAgentConnectionForwarding()
-                  .sshOptions(sshOptions())
-                  .build();
-            }
-
-            @Override
-            public SshOptions sshOptions() {
-              return sshOptions;
-            }
-          };
+          CommanderConfig.builder().sshOptions(sshOptions).build() :
+          CommanderConfig.builder().shell(new SshShellBuilder(host)
+              .program("ssh")
+              .sshOptions(sshOptions)
+              .user(userName())
+              .enableAuthAgentConnectionForwarding()
+              .build()).build();
     }
 
     @Override
@@ -426,6 +384,7 @@ public class CommanderFactoryManagerTest {
           .after("'user@host:/remote/file'")
           .$();
     }
+
   }
 
   public static String hostName() {

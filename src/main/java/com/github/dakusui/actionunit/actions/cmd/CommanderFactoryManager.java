@@ -6,16 +6,16 @@ import static com.github.dakusui.actionunit.utils.InternalUtils.memoize;
 
 public interface CommanderFactoryManager {
   default UnixCommanderFactory local() {
-    return () -> initializerManager().apply("localhost");
+    return () -> configManager().apply("localhost");
   }
 
   default UnixCommanderFactory remote(String host) {
-    return () -> initializerManager().apply(host);
+    return () -> configManager().apply(host);
   }
 
-  default Function<String, CommanderConfig> initializerManager() {
-    return memoize(this::initializerFor);
+  default Function<String, CommanderConfig> configManager() {
+    return memoize(this::configFor);
   }
 
-  CommanderConfig initializerFor(String host);
+  CommanderConfig configFor(String host);
 }

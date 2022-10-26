@@ -26,10 +26,6 @@ import static java.util.stream.Collectors.joining;
 public enum ContextFunctions {
   ;
 
-  public static final Function<ContextVariable[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = variables -> i -> String.format("{{%s}}", i);
-
-  public static final Function<ContextVariable[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = variables -> i -> String.format("{{%s}}", variables[i]);
-
   public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(ContextVariable... variables) {
     return new MultiParamsContextPredicateBuilder(variables);
   }

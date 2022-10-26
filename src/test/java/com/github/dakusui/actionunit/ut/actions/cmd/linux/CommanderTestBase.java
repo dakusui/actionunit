@@ -40,7 +40,7 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
   }
 
   @Override
-  public CommanderConfig initializer() {
+  public CommanderConfig config() {
     return CommanderConfig.DEFAULT;
   }
 

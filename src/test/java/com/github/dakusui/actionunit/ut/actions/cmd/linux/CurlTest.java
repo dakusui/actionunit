@@ -31,7 +31,7 @@ public class CurlTest extends CommanderTestBase {
     assertThat(
         curl,
         asString(call("buildCommandLineComposer").andThen("format").$())
-            .equalTo("curl -X GET quoteWith['](https://www.github.com) --data-urlencode quoteWith['](Hello world)")
+            .equalTo("curl -X GET '(https://www.github.com) --data-urlencode '(Hello world)")
             .$()
     );
   }
@@ -48,7 +48,7 @@ public class CurlTest extends CommanderTestBase {
     assertThat(
         curl,
         asString(call("buildCommandLineComposer").andThen("format").$())
-            .equalTo("curl -X PUT --insecure -s -i quoteWith['](https://www.github.com) --data-raw quoteWith['](Hello world)")
+            .equalTo("curl -X PUT --insecure -s -i '(https://www.github.com) --data-raw '(Hello world)")
             .$()
     );
   }
@@ -65,7 +65,7 @@ public class CurlTest extends CommanderTestBase {
     assertThat(
         curl,
         asString(call("buildCommandLineComposer").andThen("format").$())
-            .equalTo("curl -X POST --insecure -s -I quoteWith['](https://www.github.com) --data quoteWith['](Hello world)")
+            .equalTo("curl -X POST --insecure -s -I '(https://www.github.com) --data '(Hello world)")
             .$()
     );
   }
@@ -82,7 +82,7 @@ public class CurlTest extends CommanderTestBase {
     assertThat(
         curl,
         asString(call("buildCommandLineComposer").andThen("format").$())
-            .equalTo("curl -X POST --insecure -s -I quoteWith['](https://www.github.com) --data-binary quoteWith['](Hello world)")
+            .equalTo("curl -X POST --insecure -s -I '(https://www.github.com) --data-binary '(Hello world)")
             .$()
     );
   }
@@ -99,7 +99,7 @@ public class CurlTest extends CommanderTestBase {
     assertThat(
         curl,
         asString(call("buildCommandLineComposer").andThen("format").$())
-            .equalTo("curl -X DELETE --insecure -s -I quoteWith['](https://www.github.com) --data quoteWith['](Hello world)")
+            .equalTo("curl -X DELETE --insecure -s -I '(https://www.github.com) --data '(Hello world)")
             .$()
     );
   }

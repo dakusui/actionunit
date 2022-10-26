@@ -7,7 +7,7 @@ import com.github.dakusui.actionunit.core.context.ContextConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
+import static com.github.dakusui.actionunit.actions.cmd.CommanderConfig.DEFAULT_PLACE_HOLDER_FORMATTER;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static java.util.Objects.requireNonNull;
 

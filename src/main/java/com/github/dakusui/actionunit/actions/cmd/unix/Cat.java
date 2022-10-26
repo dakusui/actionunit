@@ -22,7 +22,7 @@ public class Cat extends Commander<Cat> {
   public Cat(CommanderConfig config) {
     super(config);
     this.tag = null;
-    config.setCommandNameFor(this);
+    commandName("cat");
   }
 
   public Cat hereDocument(String tag, Consumer<Cat> b) {

@@ -27,7 +27,8 @@ public class Scp extends Commander<Scp> {
   public Scp(CommanderConfig initializer) {
     super(initializer);
     this.files = new LinkedList<>();
-    initializer.setCommandNameFor(this);
+    commandName("scp");
+    options(initializer.sshOptions());
   }
 
   public Scp options(SshOptions sshOptions) {

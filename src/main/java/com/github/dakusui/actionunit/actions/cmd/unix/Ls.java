@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 public class Ls extends Commander<Ls> {
   public Ls(CommanderConfig config) {
     super(config);
-    config.setCommandNameFor(this);
+    commandName("ls");
   }
 
   public Ls longListing() {
