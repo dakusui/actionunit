@@ -8,8 +8,8 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -30,7 +30,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.crest.Crest.*;
@@ -197,7 +196,9 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoHelloUsingAppendVariableMethod$whenPerformAsAction$thenPrinted() {
-      performAsActionInsideHelloWorldLoop(b -> initCmd(cmd("echo").append(" ").appendVariable(b, false)));
+      performAction(
+          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(b1 ->
+              initCmd(((Function<ContextVariable, Cmd>) b -> initCmd(cmd("echo").append(" ").appendVariable(b, false))).apply(b1)).$()));
       assertThat(
           out,
           asListOf(String.class).equalTo(asList("hello", "world")).$()
@@ -338,7 +339,12 @@ public class CmdTest extends TestUtils.TestBase {
     @Test(expected = ProcessStreamer.Failure.class)
     public void givenUnknownCommand$whenPerformAsAction$thenFailureIsThrown() {
       try {
-        performAsActionInsideHelloWorldLoop(i -> cmd("UNKNOWN_COMMAND").append(" ").appendVariable(i));
+        performAction(
+            forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+                i -> cmd("UNKNOWN_COMMAND")
+                    .append(" ")
+                    .appendVariable(i)
+                    .downstreamConsumer(toStdoutAndGivenList(out)).$()));
       } catch (ProcessStreamer.Failure failure) {
         assertThat(
             failure.getMessage(),
@@ -350,7 +356,11 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(i -> initCmd(cmd("echo {{0}}", i)));
+      performAction(
+          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+              i -> cmd("echo {{0}}", i)
+                  .downstreamConsumer(toStdoutAndGivenList(out))
+                  .$()));
       assertThat(
           out,
           asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
@@ -362,7 +372,6 @@ public class CmdTest extends TestUtils.TestBase {
       performAction(
           forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
               i -> cmd("echo {{i}}", config(PLACE_HOLDER_FORMATTER_BY_NAME), i)
-                  .downstreamConsumer(toStdoutAndGivenList(out))
                   .downstreamConsumer(toStdoutAndGivenList(out))
                   .$()));
       assertThat(
@@ -382,7 +391,9 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(i -> cmd("echo").append(" ").appendQuotedVariable(i));
+      performAction(
+          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(b ->
+              initCmd(((Function<ContextVariable, Cmd>) i -> cmd("echo").append(" ").appendQuotedVariable(i)).apply(b)).$()));
     }
 
   }
