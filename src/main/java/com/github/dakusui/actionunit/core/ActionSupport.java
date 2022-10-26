@@ -98,8 +98,8 @@ public enum ActionSupport {
     return cmd(program, CommanderConfig.DEFAULT, knownVariables);
   }
 
-  public static Cmd cmd(String program, CommanderConfig initializer, ContextVariable... knownVariables) {
-    Cmd ret = new Cmd(initializer).commandName(program);
+  public static Cmd cmd(String program, CommanderConfig config, ContextVariable... knownVariables) {
+    Cmd ret = new Cmd(config).commandName(program);
     for (ContextVariable each : knownVariables)
       ret = ret.declareVariable(each);
     return ret;

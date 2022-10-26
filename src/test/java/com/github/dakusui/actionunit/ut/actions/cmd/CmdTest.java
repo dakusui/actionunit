@@ -30,6 +30,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.core.ActionSupport.cmd;
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
@@ -39,12 +41,16 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 @RunWith(Enclosed.class)
 public class CmdTest extends TestUtils.TestBase {
+  private static Consumer<String> toStdoutAndGivenList(List<String> out) {
+    return ((Consumer<String>) System.out::println).andThen(out::add);
+  }
+
   private static class Base extends TestUtils.TestBase {
     List<String> report = new LinkedList<>();
     List<String> out    = new LinkedList<>();
 
     Cmd initCmd(Cmd cmd) {
-      return cmd.downstreamConsumer(((Consumer<String>) System.out::println).andThen(out::add));
+      return cmd.downstreamConsumer(toStdoutAndGivenList(out));
     }
 
     void performAction(Action action) {
@@ -353,20 +359,25 @@ public class CmdTest extends TestUtils.TestBase {
 
     @Test
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
-      performAsActionInsideHelloWorldLoop(i ->
-          initCmd(cmd(
-              "echo {{i}}",
-              new CommanderConfig() {
-                @Override
-                public Function<ContextVariable[], IntFunction<String>> variablePlaceHolderFormatter() {
-                  return ContextFunctions.PLACE_HOLDER_FORMATTER_BY_NAME;
-                }
-              },
-              i)));
+      performAction(
+          forEach("i", StreamGenerator.fromArray("hello", "world")).perform(
+              i -> cmd("echo {{i}}", config(PLACE_HOLDER_FORMATTER_BY_NAME), i)
+                  .downstreamConsumer(toStdoutAndGivenList(out))
+                  .downstreamConsumer(toStdoutAndGivenList(out))
+                  .$()));
       assertThat(
           out,
           asListOf(String.class, sublistAfterElement("hello").afterElement("world").$()).isEmpty().$()
       );
+    }
+
+    private static CommanderConfig config(final Function<ContextVariable[], IntFunction<String>> placeHolderFormatterByName) {
+      return new CommanderConfig() {
+        @Override
+        public Function<ContextVariable[], IntFunction<String>> variablePlaceHolderFormatter() {
+          return placeHolderFormatterByName;
+        }
+      };
     }
 
     @Test
