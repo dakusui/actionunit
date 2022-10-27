@@ -216,7 +216,8 @@ public class CmdTest extends TestUtils.TestBase {
     public void givenEchoHelloWithDownstreamConsumerFactory$whenPerformAsAction$thenPrintedBySpecifiedDownstreamConsumer() {
       List<String> downstream = new LinkedList<>();
       performAction(
-          cmd("echo hello")
+          cmd("echo")
+              .append("hello")
               .downstreamConsumer(toStdoutAndGivenList(out))
               .downstreamConsumerFactory(() -> downstream::add)
               .toAction());

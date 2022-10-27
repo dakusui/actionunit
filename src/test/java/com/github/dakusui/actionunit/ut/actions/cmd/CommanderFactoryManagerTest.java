@@ -2,10 +2,7 @@ package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactoryManager;
-import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
-import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
-import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
-import com.github.dakusui.actionunit.actions.cmd.unix.SshShellBuilder;
+import com.github.dakusui.actionunit.actions.cmd.unix.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
@@ -16,16 +13,12 @@ import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.function.Function;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 @RunWith(Enclosed.class)
 public class CommanderFactoryManagerTest {
@@ -128,7 +121,7 @@ public class CommanderFactoryManagerTest {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
           CommanderConfig.builder().shell(
-                  new SshShellBuilder(host)
+                  new SshShell.Builder(host)
                       .program("ssh")
                       .sshOptions(new SshOptions.Builder(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST)
                           .disableStrictHostkeyChecking()
@@ -166,7 +159,7 @@ public class CommanderFactoryManagerTest {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
           CommanderConfig.builder()
-              .shell(new SshShellBuilder(host)
+              .shell(new SshShell.Builder(host)
                   .program("ssh")
                   .user(userName())
                   .sshOptions(createSshOptions())
@@ -210,7 +203,7 @@ public class CommanderFactoryManagerTest {
       return "localhost".equals(host) ?
           CommanderConfig.builder().sshOptions(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST).build() :
           CommanderConfig.builder()
-              .shell(new SshShellBuilder(host)
+              .shell(new SshShell.Builder(host)
                   .program("ssh")
                   .user(userName())
                   .enableAuthAgentConnectionForwarding()
@@ -252,7 +245,7 @@ public class CommanderFactoryManagerTest {
     public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
           CommanderConfig.builder().sshOptions(sshOptions).build() :
-          CommanderConfig.builder().shell(new SshShellBuilder(host)
+          CommanderConfig.builder().shell(new SshShell.Builder(host)
               .program("ssh")
               .sshOptions(sshOptions)
               .user(userName())
