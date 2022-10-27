@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -24,67 +23,13 @@ import java.util.function.Function;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 @RunWith(Enclosed.class)
 public class CommanderFactoryManagerTest {
-  final static SshOptions DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST = new SshOptions() {
-    @Override
-    public boolean ipv4() {
-      return true;
-    }
-
-    @Override
-    public boolean ipv6() {
-      return false;
-    }
-
-    @Override
-    public boolean compression() {
-      return true;
-    }
-
-    @Override
-    public List<String> jumpHosts() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public Optional<String> cipherSpec() {
-      return Optional.empty();
-    }
-
-    @Override
-    public Optional<String> configFile() {
-      return Optional.of("ssh_config");
-    }
-
-    @Override
-    public Optional<String> identity() {
-      return Optional.empty();
-    }
-
-    @Override
-    public List<String> sshOptions() {
-      return emptyList();
-    }
-
-    @Override
-    public OptionalInt port() {
-      return OptionalInt.of(9999);
-    }
-
-    @Override
-    public boolean quiet() {
-      return false;
-    }
-
-    @Override
-    public boolean verbose() {
-      return true;
-    }
-  };
+  final static SshOptions DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST = new SshOptions.Impl(true, false, true, emptyList(), null, "ssh_config", null, emptyList(), 9999, false, true);
 
   static abstract class Base implements CommanderFactoryManager {
     @Ignore
@@ -301,62 +246,7 @@ public class CommanderFactoryManagerTest {
   }
 
   public static class WithCustomSshOptions2 extends Base {
-    private final SshOptions sshOptions = new SshOptions() {
-      @Override
-      public boolean ipv4() {
-        return false;
-      }
-
-      @Override
-      public boolean ipv6() {
-        return true;
-      }
-
-      @Override
-      public boolean compression() {
-        return false;
-      }
-
-      @Override
-      public List<String> jumpHosts() {
-        return singletonList("jumphost1,jumphost2");
-      }
-
-      @Override
-      public Optional<String> cipherSpec() {
-        return Optional.of("cipher_spec");
-      }
-
-      @Override
-      public Optional<String> configFile() {
-        return Optional.empty();
-      }
-
-      @Override
-      public Optional<String> identity() {
-        return Optional.of("id_rsa");
-      }
-
-      @Override
-      public List<String> sshOptions() {
-        return emptyList();
-      }
-
-      @Override
-      public OptionalInt port() {
-        return OptionalInt.empty();
-      }
-
-      @Override
-      public boolean quiet() {
-        return true;
-      }
-
-      @Override
-      public boolean verbose() {
-        return false;
-      }
-    };
+    private final SshOptions sshOptions = new SshOptions.Impl(false, true, false, asList("jumphost1", "jumphost2"), "cipher_spec", null, "id_rsa", emptyList(), null, true, false);
 
     @Override
     public CommanderConfig configFor(String host) {

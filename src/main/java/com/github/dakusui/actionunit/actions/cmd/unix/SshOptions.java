@@ -8,7 +8,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Models options common to both {@code ssh} and {@code scp} commands. (see below).
- * <pre>
+ * ----
  * -4               : IPv4
  * -6               : IPv6
  * -C               : compression
@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  * -p (-P for scp)  : port
  * -q               : quiet
  * -v               : verbose
- * </pre>
+ * ----
  */
 public interface SshOptions {
   boolean ipv4();
