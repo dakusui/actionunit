@@ -1,11 +1,9 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
-import com.github.dakusui.actionunit.actions.cmd.Commander;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -50,6 +48,90 @@ public interface SshOptions {
     return requireNonNull(formatter).format(this);
   }
 
+  class Impl implements SshOptions {
+    final boolean      ipv4;
+    final boolean      ipv6;
+    final boolean      compression;
+    final List<String> jumpHosts;
+    final String       cipherSpec;
+    final String       configFile;
+    final String       identity;
+    final List<String> sshOptions;
+    final Integer      port;
+    final boolean      quiet;
+    final boolean      verbose;
+
+    public Impl(boolean ipv4, boolean ipv6, boolean compression, List<String> jumpHosts, String cipherSpec, String configFile, String identity, List<String> sshOptions, Integer port, boolean quiet, boolean verbose) {
+      this.ipv4 = ipv4;
+      this.ipv6 = ipv6;
+      this.compression = compression;
+      this.jumpHosts = unmodifiableList(new ArrayList<>(requireNonNull(jumpHosts)));
+      this.cipherSpec = cipherSpec;
+      this.configFile = configFile;
+      this.identity = identity;
+      this.sshOptions = unmodifiableList(new ArrayList<>(requireNonNull(sshOptions)));
+      this.port = port;
+      this.quiet = quiet;
+      this.verbose = verbose;
+    }
+
+
+    @Override
+    public boolean ipv4() {
+      return ipv4;
+    }
+
+    @Override
+    public boolean ipv6() {
+      return ipv6;
+    }
+
+    @Override
+    public boolean compression() {
+      return compression;
+    }
+
+    @Override
+    public List<String> jumpHosts() {
+      return jumpHosts;
+    }
+
+    @Override
+    public Optional<String> cipherSpec() {
+      return Optional.ofNullable(cipherSpec);
+    }
+
+    @Override
+    public Optional<String> configFile() {
+      return Optional.ofNullable(configFile);
+    }
+
+    @Override
+    public Optional<String> identity() {
+      return Optional.ofNullable(identity);
+    }
+
+    @Override
+    public List<String> sshOptions() {
+      return sshOptions;
+    }
+
+    @Override
+    public OptionalInt port() {
+      return port != null ? OptionalInt.of(port) : OptionalInt.empty();
+    }
+
+    @Override
+    public boolean quiet() {
+      return quiet;
+    }
+
+    @Override
+    public boolean verbose() {
+      return verbose;
+    }
+  }
+
   class Builder {
     private final SshOptions   base;
     private       String       identity;
@@ -57,63 +139,7 @@ public interface SshOptions {
     private final List<String> jumpHosts  = new LinkedList<>();
 
     public Builder() {
-      this(new SshOptions() {
-
-        @Override
-        public boolean ipv4() {
-          return false;
-        }
-
-        @Override
-        public boolean ipv6() {
-          return false;
-        }
-
-        @Override
-        public boolean compression() {
-          return false;
-        }
-
-        @Override
-        public List<String> jumpHosts() {
-          return emptyList();
-        }
-
-        @Override
-        public Optional<String> cipherSpec() {
-          return Optional.empty();
-        }
-
-        @Override
-        public Optional<String> configFile() {
-          return Optional.empty();
-        }
-
-        @Override
-        public Optional<String> identity() {
-          return Optional.empty();
-        }
-
-        @Override
-        public List<String> sshOptions() {
-          return emptyList();
-        }
-
-        @Override
-        public OptionalInt port() {
-          return OptionalInt.empty();
-        }
-
-        @Override
-        public boolean quiet() {
-          return false;
-        }
-
-        @Override
-        public boolean verbose() {
-          return false;
-        }
-      });
+      this(new Impl(false, false, false, emptyList(), null, null, null, emptyList(), null, false, false));
     }
 
     public Builder(SshOptions base) {
@@ -149,63 +175,18 @@ public interface SshOptions {
     }
 
     public SshOptions build() {
-      return new SshOptions() {
-
-        @Override
-        public boolean ipv4() {
-          return base.ipv4();
-        }
-
-        @Override
-        public boolean ipv6() {
-          return base.ipv6();
-        }
-
-        @Override
-        public boolean compression() {
-          return base.compression();
-        }
-
-        @Override
-        public List<String> jumpHosts() {
-          return jumpHosts;
-        }
-
-        @Override
-        public Optional<String> cipherSpec() {
-          return Optional.empty();
-        }
-
-        @Override
-        public Optional<String> configFile() {
-          return Optional.empty();
-        }
-
-        @Override
-        public Optional<String> identity() {
-          return Optional.ofNullable(identity);
-        }
-
-        @Override
-        public List<String> sshOptions() {
-          return sshOptions;
-        }
-
-        @Override
-        public OptionalInt port() {
-          return OptionalInt.empty();
-        }
-
-        @Override
-        public boolean quiet() {
-          return false;
-        }
-
-        @Override
-        public boolean verbose() {
-          return false;
-        }
-      };
+      return new SshOptions.Impl(
+          base.ipv4(),
+          base.ipv6(),
+          base.compression(),
+          jumpHosts,
+          base.cipherSpec().orElse(null),
+          base.configFile().orElse(null),
+          identity,
+          sshOptions,
+          base.port().isPresent() ? base.port().getAsInt() : null,
+          base.quiet(),
+          base.verbose());
     }
   }
 

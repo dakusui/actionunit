@@ -29,7 +29,7 @@ import static java.util.Collections.singletonList;
 
 @RunWith(Enclosed.class)
 public class CommanderFactoryManagerTest {
-  final static SshOptions DEFAULT_SSH_OPTIONS_IN_COMMANDFACTORYMANAGER_TEST = new SshOptions() {
+  final static SshOptions DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST = new SshOptions() {
     @Override
     public boolean ipv4() {
       return true;
@@ -185,7 +185,7 @@ public class CommanderFactoryManagerTest {
           CommanderConfig.builder().shell(
                   new SshShellBuilder(host)
                       .program("ssh")
-                      .sshOptions(new SshOptions.Builder(DEFAULT_SSH_OPTIONS_IN_COMMANDFACTORYMANAGER_TEST)
+                      .sshOptions(new SshOptions.Builder(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST)
                           .disableStrictHostkeyChecking()
                           .disablePasswordAuthentication()
                           .build())
@@ -231,7 +231,7 @@ public class CommanderFactoryManagerTest {
     }
 
     private static SshOptions createSshOptions() {
-      return new SshOptions.Builder(DEFAULT_SSH_OPTIONS_IN_COMMANDFACTORYMANAGER_TEST)
+      return new SshOptions.Builder(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST)
           .disableStrictHostkeyChecking()
           .disablePasswordAuthentication()
           .build();
@@ -263,13 +263,13 @@ public class CommanderFactoryManagerTest {
     @Override
     public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
-          CommanderConfig.builder().sshOptions(DEFAULT_SSH_OPTIONS_IN_COMMANDFACTORYMANAGER_TEST).build() :
+          CommanderConfig.builder().sshOptions(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST).build() :
           CommanderConfig.builder()
               .shell(new SshShellBuilder(host)
                   .program("ssh")
                   .user(userName())
                   .enableAuthAgentConnectionForwarding()
-                  .sshOptions(DEFAULT_SSH_OPTIONS_IN_COMMANDFACTORYMANAGER_TEST)
+                  .sshOptions(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST)
                   .build())
               .build();
     }
