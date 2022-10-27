@@ -22,8 +22,6 @@ import static java.util.Collections.emptyList;
 
 @RunWith(Enclosed.class)
 public class CommanderFactoryManagerTest {
-  final static SshOptions DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST = new SshOptions.Impl(true, false, true, emptyList(), null, "ssh_config", null, emptyList(), 9999, false, true);
-
   static abstract class Base implements CommanderFactoryManager {
     @Ignore
     @Test
@@ -121,12 +119,10 @@ public class CommanderFactoryManagerTest {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
           CommanderConfig.builder().shell(
-                  new SshShell.Builder(host)
+                  new SshShell.Builder(host, createDefaultSshOptionsInCommandFactoryManagerTest()
+                      .disableStrictHostkeyChecking()
+                      .disablePasswordAuthentication())
                       .program("ssh")
-                      .sshOptions(new SshOptions.Builder(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST)
-                          .disableStrictHostkeyChecking()
-                          .disablePasswordAuthentication()
-                          .build())
                       .enableAuthAgentConnectionForwarding()
                       .build())
               .build();
@@ -159,20 +155,18 @@ public class CommanderFactoryManagerTest {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
           CommanderConfig.builder()
-              .shell(new SshShell.Builder(host)
+              .shell(new SshShell.Builder(host, createSshOptionsBuilder())
                   .program("ssh")
                   .user(userName())
-                  .sshOptions(createSshOptions())
                   .enableAuthAgentConnectionForwarding()
                   .build())
               .build();
     }
 
-    private static SshOptions createSshOptions() {
-      return new SshOptions.Builder(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST)
+    private static SshOptions.Builder createSshOptionsBuilder() {
+      return createDefaultSshOptionsInCommandFactoryManagerTest()
           .disableStrictHostkeyChecking()
-          .disablePasswordAuthentication()
-          .build();
+          .disablePasswordAuthentication();
     }
 
 
@@ -201,13 +195,14 @@ public class CommanderFactoryManagerTest {
     @Override
     public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
-          CommanderConfig.builder().sshOptions(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST).build() :
           CommanderConfig.builder()
-              .shell(new SshShell.Builder(host)
+              .sshOptions(createDefaultSshOptionsInCommandFactoryManagerTest().build())
+              .build() :
+          CommanderConfig.builder()
+              .shell(new SshShell.Builder(host, createDefaultSshOptionsInCommandFactoryManagerTest())
                   .program("ssh")
                   .user(userName())
                   .enableAuthAgentConnectionForwarding()
-                  .sshOptions(DEFAULT_SSH_OPTIONS_IN_COMMAND_FACTORY_MANAGER_TEST)
                   .build())
               .build();
     }
@@ -247,7 +242,6 @@ public class CommanderFactoryManagerTest {
           CommanderConfig.builder().sshOptions(sshOptions).build() :
           CommanderConfig.builder().shell(new SshShell.Builder(host)
               .program("ssh")
-              .sshOptions(sshOptions)
               .user(userName())
               .enableAuthAgentConnectionForwarding()
               .build()).build();
@@ -289,5 +283,18 @@ public class CommanderFactoryManagerTest {
 
   public static String userName() {
     return System.getProperty("user.name");
+  }
+
+  private static SshOptions.Builder createDefaultSshOptionsInCommandFactoryManagerTest() {
+    return new SshOptions.Builder()
+        .ipv4(true)
+        .ipv6(false)
+        .compression(true)
+        .cipherSpec(null)
+        .configFile("ssh_config")
+        .identity(null)
+        .port(9999)
+        .quiet(false)
+        .verbose(true);
   }
 }

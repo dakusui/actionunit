@@ -2,7 +2,6 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import java.util.*;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
@@ -133,22 +132,73 @@ public interface SshOptions {
   }
 
   class Builder {
-    private final SshOptions   base;
     private       String       identity;
     private final List<String> sshOptions = new LinkedList<>();
     private final List<String> jumpHosts  = new LinkedList<>();
+    private       boolean      ipv4;
+    private       boolean      ipv6;
+    private       boolean      compression;
+    private       String       cipherSpec;
+    private       String       configFile;
+    private       Integer      port;
+    private       boolean      quiet;
+    private       boolean      verbose;
 
     public Builder() {
-      this(new Impl(false, false, false, emptyList(), null, null, null, emptyList(), null, false, false));
+      this.ipv4(false)
+          .ipv6(false)
+          .compression(false)
+          .cipherSpec(null)
+          .configFile(null)
+          .identity(null)
+          .port(null)
+          .quiet(false)
+          .verbose(false);
     }
 
-    public Builder(SshOptions base) {
-      this.base = requireNonNull(base);
+    public Builder ipv4(boolean enable) {
+      this.ipv4 = enable;
+      return this;
+    }
+
+    public Builder ipv6(boolean enable) {
+      this.ipv6 = enable;
+      return this;
+    }
+
+    public Builder compression(boolean enable) {
+      this.compression = enable;
+      return this;
+    }
+
+    public Builder cipherSpec(String cipherSpec) {
+      this.cipherSpec = cipherSpec;
+      return this;
+    }
+
+    public Builder configFile(String configFile) {
+      this.configFile = configFile;
+      return this;
+    }
+
+    public Builder port(Integer port) {
+      this.port = port;
+      return this;
+    }
+
+    public Builder quiet(boolean quiet) {
+      this.quiet = quiet;
+      return this;
+    }
+
+    public Builder verbose(boolean verbose) {
+      this.verbose = verbose;
+      return this;
     }
 
 
     public Builder identity(String identity) {
-      this.identity = requireNonNull(identity);
+      this.identity = identity;
       return this;
     }
 
@@ -176,17 +226,17 @@ public interface SshOptions {
 
     public SshOptions build() {
       return new SshOptions.Impl(
-          base.ipv4(),
-          base.ipv6(),
-          base.compression(),
+          ipv4,
+          ipv6,
+          compression,
           jumpHosts,
-          base.cipherSpec().orElse(null),
-          base.configFile().orElse(null),
+          cipherSpec,
+          configFile,
           identity,
           sshOptions,
-          base.port().isPresent() ? base.port().getAsInt() : null,
-          base.quiet(),
-          base.verbose());
+          port,
+          quiet,
+          verbose);
     }
   }
 

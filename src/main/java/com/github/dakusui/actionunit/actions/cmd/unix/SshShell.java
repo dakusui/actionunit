@@ -37,23 +37,24 @@ public interface SshShell extends Shell {
     /**
      * A name of ssh program. Usually just `ssh`.
      */
-    private       String       program;
-    private       String       user;
-    private final String       host;
+    private       String program;
+    private       String user;
+    private final String host;
+
     /**
      * Holds options specific to {@code ssh} command. That is, options supported
      * by {@code ssh} but not by {@code scp} should be stored in this field.
      */
-    private final List<String> options;
-    /**
-     * Holds options common to both {@code ssh} and {@code scp}.
-     */
-    private       SshOptions   sshOptions;
+    private final SshOptions.Builder optionsBuilder;
 
     public Builder(String host) {
+      this(host, new SshOptions.Builder());
+    }
+
+    public Builder(String host, SshOptions.Builder optionsBuilder) {
       this.program("ssh");
-      this.options = new LinkedList<>();
       this.host = requireNonNull(host);
+      this.optionsBuilder = requireNonNull(optionsBuilder);
     }
 
     public Builder program(String program) {
@@ -66,26 +67,14 @@ public interface SshShell extends Shell {
       return this;
     }
 
-    /**
-     * Sets standard ssh options to this object.
-     *
-     * @param sshOptions Options to be set.
-     * @return This object.
-     */
-    public Builder sshOptions(SshOptions sshOptions) {
-      this.sshOptions = sshOptions;
-      return this;
-    }
-
     public Builder enableAuthAgentConnectionForwarding() {
-      this.options.add("-A");
+      this.optionsBuilder.addSshOption("-A");
       return this;
     }
 
     public Shell build() {
       List<String> options = new LinkedList<String>() {{
-        this.addAll(Builder.this.options);
-        this.addAll(Builder.this.sshOptions.options(SshOptions.Formatter.forSsh()));
+        this.addAll(Builder.this.optionsBuilder.build().options(SshOptions.Formatter.forSsh()));
         this.add(
             user != null ?
                 String.format("%s@%s", user, host) :
