@@ -2,10 +2,16 @@ package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.CommanderFactoryManager;
-import com.github.dakusui.actionunit.actions.cmd.unix.*;
+import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
+import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshShell;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.pcond.TestAssertions;
+import com.github.dakusui.pcond.forms.Predicates;
+import com.github.dakusui.pcond.forms.Printables;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -14,9 +20,10 @@ import org.junit.runner.RunWith;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
+import static com.github.dakusui.pcond.forms.Predicates.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -37,40 +44,29 @@ public class CommanderFactoryManagerTest {
 
     @Test
     public void formatLocalEcho() {
-      assertThat(
+      TestAssertions.assertThat(
           localEcho(),
-          allOf(
-              asString(
-                  call("buildCommandLineComposer")
-                      .andThen("compose", Context.create()).$())
-                  .check(
-                      substringAfterRegex("echo")
-                          .after("'hello world'").$(),
-                      isEmptyString()
-                  ).$(),
-              asString(
-                  call("shell")
-                      .andThen("format").$())
-                  .check(
-                      substringAfterRegex("sh").after("-c").$(),
-                      isEmptyString()).$()
-          )
+          Predicates.allOf(
+              Predicates.transform(buildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
+              Predicates.transform(shellAndThenFormat()).check(findRegexes("sh", "-c$")))
       );
+    }
+
+    private Function<Echo, String> shellAndThenFormat() {
+      return (Echo v) -> v.shell().format();
+    }
+
+    private Function<Echo, String> buildCommandLineComposeAndThenCompose(Context context) {
+      return Printables.function("buildCommandLineComposerAndThenCompose", (Echo v) -> v.buildCommandLineComposer().compose(context));
     }
 
     @Test
     public void formatRemoteEcho() {
-      assertThat(
+      TestAssertions.assertThat(
           remoteEcho(),
-          allOf(
-              asString(
-                  call("buildCommandLineComposer")
-                      .andThen("compose", Context.create()).$())
-                  .check(substringAfterRegex("echo").after("'hello world'").$(), isEmptyString()).$(),
-              asString(call("shell").andThen("format").$())
-                  .check(substringAfterExpectedRegexesForSshOptions(), isEmptyString()).$()
-          )
-      );
+          Predicates.allOf(
+              Predicates.transform(buildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
+              Predicates.transform(shellAndThenFormat()).check(substringAfterExpectedRegexesForSshOptions_())));
     }
 
     @Test
@@ -87,9 +83,9 @@ public class CommanderFactoryManagerTest {
     }
 
 
-    abstract public Function<String, String> substringAfterExpectedRegexesForSshOptions();
-
     abstract Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp();
+
+    abstract Predicate<? super String> substringAfterExpectedRegexesForSshOptions_();
 
     private Echo remoteEcho() {
       return remote(hostName())
@@ -129,13 +125,8 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    public Function<String, String> substringAfterExpectedRegexesForSshOptions() {
-      return substringAfterRegex("ssh")
-          .after("-A")
-          .after("-o StrictHostkeyChecking=no")
-          .after("-o PasswordAuthentication=no")
-          .after(hostName())
-          .$();
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+      return findSubstrings("ssh", "-A", "-o StrictHostkeyChecking=no", "-o PasswordAuthentication=no", hostName());
     }
 
     @Override
@@ -170,14 +161,8 @@ public class CommanderFactoryManagerTest {
     }
 
 
-    @Override
-    public Function<String, String> substringAfterExpectedRegexesForSshOptions() {
-      return substringAfterRegex("ssh")
-          .after("-A")
-          .after("-o StrictHostkeyChecking=no")
-          .after("-o PasswordAuthentication=no")
-          .after(String.format("%s@%s", userName(), hostName()))
-          .$();
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+      return findSubstrings("ssh", "-A", "-o StrictHostkeyChecking=no", "-o PasswordAuthentication=no", String.format("%s@%s", userName(), hostName()));
     }
 
     @Override
@@ -208,15 +193,8 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    public Function<String, String> substringAfterExpectedRegexesForSshOptions() {
-      return substringAfterRegex("ssh")
-          .after("-A")
-          .after("-4")
-          .after("-F")
-          .after("-p 9999")
-          .after("-v")
-          .after(String.format("%s@%s", userName(), hostName()))
-          .$();
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+      return findSubstrings("ssh", "-A", "-4", "-F", "-p 9999", "-v", String.format("%s@%s", userName(), hostName()));
     }
 
     @Override
@@ -248,15 +226,8 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    public Function<String, String> substringAfterExpectedRegexesForSshOptions() {
-      return substringAfterRegex("ssh")
-          .after("-A")
-          .after("-6")
-          .after("-c cipher_spec")
-          .after("-i id_rsa")
-          .after("-q")
-          .after(String.format("%s@%s", userName(), hostName()))
-          .$();
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+      return findSubstrings("ssh", "-A", "-6", "-c cipher_spec", "-i id_rsa", "-q", String.format("%s@%s", userName(), hostName()));
     }
 
     @Override
