@@ -43,7 +43,7 @@ public interface SshOptions {
 
   boolean verbose();
 
-  default List<String> options(Formatter formatter) {
+  default List<String> formatOptionsWith(Formatter formatter) {
     return requireNonNull(formatter).format(this);
   }
 

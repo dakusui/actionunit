@@ -74,7 +74,7 @@ public class Scp extends Commander<Scp> {
   public Scp clone() {
     Scp ret = super.clone();
     if (ret.sshOptions != null)
-      ret.sshOptions.options(SshOptions.Formatter.forScp()).forEach(ret::addOption);
+      ret.sshOptions.formatOptionsWith(SshOptions.Formatter.forScp()).forEach(ret::addOption);
     ret.files = new ArrayList<>(ret.files);
     return ret;
   }

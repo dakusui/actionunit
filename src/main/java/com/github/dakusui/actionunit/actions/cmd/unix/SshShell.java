@@ -74,7 +74,7 @@ public interface SshShell extends Shell {
 
     public Shell build() {
       List<String> options = new LinkedList<String>() {{
-        this.addAll(Builder.this.optionsBuilder.build().options(SshOptions.Formatter.forSsh()));
+        this.addAll(Builder.this.optionsBuilder.build().formatOptionsWith(SshOptions.Formatter.forSsh()));
         this.add(
             user != null ?
                 String.format("%s@%s", user, host) :

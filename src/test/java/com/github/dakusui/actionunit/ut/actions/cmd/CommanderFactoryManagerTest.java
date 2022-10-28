@@ -22,8 +22,8 @@ import java.net.UnknownHostException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.pcond.forms.Predicates.*;
+import static com.github.dakusui.pcond.forms.Predicates.findRegexes;
+import static com.github.dakusui.pcond.forms.Predicates.findSubstrings;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -47,45 +47,33 @@ public class CommanderFactoryManagerTest {
       TestAssertions.assertThat(
           localEcho(),
           Predicates.allOf(
-              Predicates.transform(buildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
+              Predicates.transform(echoBuildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
               Predicates.transform(shellAndThenFormat()).check(findRegexes("sh", "-c$")))
       );
     }
 
-    private Function<Echo, String> shellAndThenFormat() {
-      return (Echo v) -> v.shell().format();
-    }
-
-    private Function<Echo, String> buildCommandLineComposeAndThenCompose(Context context) {
-      return Printables.function("buildCommandLineComposerAndThenCompose", (Echo v) -> v.buildCommandLineComposer().compose(context));
-    }
-
     @Test
     public void formatRemoteEcho() {
+      Echo remoteEcho = remoteEcho();
+      System.out.println(shellAndThenFormat().apply(remoteEcho));
       TestAssertions.assertThat(
-          remoteEcho(),
+          remoteEcho,
           Predicates.allOf(
-              Predicates.transform(buildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
-              Predicates.transform(shellAndThenFormat()).check(substringAfterExpectedRegexesForSshOptions_())));
+              Predicates.transform(echoBuildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
+              Predicates.transform(shellAndThenFormat()).check(substringAfterExpectedRegexesForSshOptions())));
     }
 
     @Test
     public void formatScp() {
-      assertThat(
+      TestAssertions.assertThat(
           scp(),
-          asString(
-              call("buildCommandLineComposer")
-                  .andThen("compose", Context.create()).$())
-              .check(
-                  substringAfterExpectedRegexesForSshOptions_Scp(),
-                  isEmptyString()
-              ).$());
+          Predicates.transform(scpBuildCommandLineComposeAndThenCompose(Context.create()))
+              .check(substringAfterExpectedRegexesForSshOptions_Scp_()));
     }
 
+    abstract Predicate<String> substringAfterExpectedRegexesForSshOptions_Scp_();
 
-    abstract Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp();
-
-    abstract Predicate<? super String> substringAfterExpectedRegexesForSshOptions_();
+    abstract Predicate<? super String> substringAfterExpectedRegexesForSshOptions();
 
     private Echo remoteEcho() {
       return remote(hostName())
@@ -107,6 +95,18 @@ public class CommanderFactoryManagerTest {
     private void perform(Action action) {
       ReportingActionPerformer.create().perform(action);
     }
+
+    private static Function<Echo, String> shellAndThenFormat() {
+      return Printables.function("shellAndThenFormat", (Echo v) -> v.shell().format());
+    }
+
+    private static Function<Echo, String> echoBuildCommandLineComposeAndThenCompose(Context context) {
+      return Printables.function("echoBuildCommandLineComposerAndThenCompose", (Echo v) -> v.buildCommandLineComposer().compose(context));
+    }
+
+    private static Function<Scp, String> scpBuildCommandLineComposeAndThenCompose(Context context) {
+      return Printables.function("scpBuildCommandLineComposerAndThenCompose", (Scp v) -> v.buildCommandLineComposer().compose(context));
+    }
   }
 
   public static class WithoutUsername extends Base {
@@ -125,18 +125,16 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions() {
       return findSubstrings("ssh", "-A", "-o StrictHostkeyChecking=no", "-o PasswordAuthentication=no", hostName());
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
-      return substringAfterRegex("scp")
-          .after("-o").after("StrictHostkeyChecking=no")
-          .after("-o").after("PasswordAuthentication=no")
-          .after("'/local/file'")
-          .after("'user@host:/remote/file'")
-          .$();
+    Predicate<String> substringAfterExpectedRegexesForSshOptions_Scp_() {
+      return findSubstrings("scp",
+          "-o", "StrictHostkeyChecking=no",
+          "-o", "PasswordAuthentication=no",
+          "'/local/file'", "'user@host:/remote/file'");
     }
   }
 
@@ -161,18 +159,16 @@ public class CommanderFactoryManagerTest {
     }
 
 
-    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions() {
       return findSubstrings("ssh", "-A", "-o StrictHostkeyChecking=no", "-o PasswordAuthentication=no", String.format("%s@%s", userName(), hostName()));
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
-      return substringAfterRegex("scp")
-          .after("-o").after("StrictHostkeyChecking=no")
-          .after("-o").after("PasswordAuthentication=no")
-          .after("'/local/file'")
-          .after("'user@host:/remote/file'")
-          .$();
+    Predicate<String> substringAfterExpectedRegexesForSshOptions_Scp_() {
+      return findSubstrings("scp",
+          "-o", "StrictHostkeyChecking=no",
+          "-o", "PasswordAuthentication=no",
+          "'/local/file'", "'user@host:/remote/file'");
     }
   }
 
@@ -193,21 +189,18 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions() {
       return findSubstrings("ssh", "-A", "-4", "-F", "-p 9999", "-v", String.format("%s@%s", userName(), hostName()));
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
-      return substringAfterRegex("scp")
-          .after("-4")
-          .after("-C")
-          .after("-F ssh_config")
-          .after("-P 9999")
-          .after("-v")
-          .after("'/local/file'")
-          .after("'user@host:/remote/file'")
-          .$();
+    Predicate<String> substringAfterExpectedRegexesForSshOptions_Scp_() {
+      return findSubstrings("scp",
+          "-4", "-C", "-F ssh_config",
+          "-P 9999",
+          "-v",
+          "'/local/file'",
+          "'user@host:/remote/file'");
     }
   }
 
@@ -226,20 +219,16 @@ public class CommanderFactoryManagerTest {
     }
 
     @Override
-    public Predicate<String> substringAfterExpectedRegexesForSshOptions_() {
+    public Predicate<String> substringAfterExpectedRegexesForSshOptions() {
       return findSubstrings("ssh", "-A", "-6", "-c cipher_spec", "-i id_rsa", "-q", String.format("%s@%s", userName(), hostName()));
     }
 
     @Override
-    Function<String, String> substringAfterExpectedRegexesForSshOptions_Scp() {
-      return substringAfterRegex("scp")
-          .after("-6")
-          .after("-c cipher_spec")
-          .after("-i id_rsa")
-          .after("-q")
-          .after("'/local/file'")
-          .after("'user@host:/remote/file'")
-          .$();
+    Predicate<String> substringAfterExpectedRegexesForSshOptions_Scp_() {
+      return findSubstrings("scp",
+          "-6", "-c cipher_spec", "-i id_rsa", "-q",
+          "'/local/file'",
+          "'user@host:/remote/file'");
     }
 
   }
