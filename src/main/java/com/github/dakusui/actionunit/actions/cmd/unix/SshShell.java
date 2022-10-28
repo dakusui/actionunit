@@ -45,16 +45,16 @@ public interface SshShell extends Shell {
      * Holds options specific to {@code ssh} command. That is, options supported
      * by {@code ssh} but not by {@code scp} should be stored in this field.
      */
-    private final SshOptions.Builder optionsBuilder;
+    private final SshOptions options;
 
     public Builder(String host) {
-      this(host, new SshOptions.Builder());
+      this(host, new SshOptions.Builder().build());
     }
 
-    public Builder(String host, SshOptions.Builder optionsBuilder) {
+    public Builder(String host, SshOptions optionsBuilder) {
       this.program("ssh");
       this.host = requireNonNull(host);
-      this.optionsBuilder = requireNonNull(optionsBuilder);
+      this.options = requireNonNull(optionsBuilder);
     }
 
     public Builder program(String program) {
@@ -67,14 +67,9 @@ public interface SshShell extends Shell {
       return this;
     }
 
-    public Builder enableAuthAgentConnectionForwarding() {
-      this.optionsBuilder.addSshOption("-A");
-      return this;
-    }
-
     public Shell build() {
       List<String> options = new LinkedList<String>() {{
-        this.addAll(Builder.this.optionsBuilder.build().formatOptionsWith(SshOptions.Formatter.forSsh()));
+        this.addAll(Builder.this.options.formatOptionsWith(SshOptions.Formatter.forSsh()));
         this.add(
             user != null ?
                 String.format("%s@%s", user, host) :

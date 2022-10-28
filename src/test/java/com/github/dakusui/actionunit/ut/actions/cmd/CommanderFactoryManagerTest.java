@@ -9,9 +9,6 @@ import com.github.dakusui.actionunit.actions.cmd.unix.SshShell;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.dakusui.pcond.TestAssertions;
-import com.github.dakusui.pcond.forms.Predicates;
-import com.github.dakusui.pcond.forms.Printables;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -22,8 +19,9 @@ import java.net.UnknownHostException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.pcond.forms.Predicates.findRegexes;
-import static com.github.dakusui.pcond.forms.Predicates.findSubstrings;
+import static com.github.dakusui.pcond.TestAssertions.assertThat;
+import static com.github.dakusui.pcond.forms.Predicates.*;
+import static com.github.dakusui.pcond.forms.Printables.function;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -44,11 +42,13 @@ public class CommanderFactoryManagerTest {
 
     @Test
     public void formatLocalEcho() {
-      TestAssertions.assertThat(
+      assertThat(
           localEcho(),
-          Predicates.allOf(
-              Predicates.transform(echoBuildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
-              Predicates.transform(shellAndThenFormat()).check(findRegexes("sh", "-c$")))
+          allOf(
+              transform(echoBuildCommandLineComposeAndThenCompose(Context.create()))
+                  .check(findRegexes("echo", "'hello world'$")),
+              transform(shellAndThenFormat())
+                  .check(findRegexes("sh", "-c$")))
       );
     }
 
@@ -56,18 +56,20 @@ public class CommanderFactoryManagerTest {
     public void formatRemoteEcho() {
       Echo remoteEcho = remoteEcho();
       System.out.println(shellAndThenFormat().apply(remoteEcho));
-      TestAssertions.assertThat(
+      assertThat(
           remoteEcho,
-          Predicates.allOf(
-              Predicates.transform(echoBuildCommandLineComposeAndThenCompose(Context.create())).check(findRegexes("echo", "'hello world'$")),
-              Predicates.transform(shellAndThenFormat()).check(substringAfterExpectedRegexesForSshOptions())));
+          allOf(
+              transform(echoBuildCommandLineComposeAndThenCompose(Context.create()))
+                  .check(findRegexes("echo", "'hello world'$")),
+              transform(shellAndThenFormat())
+                  .check(substringAfterExpectedRegexesForSshOptions())));
     }
 
     @Test
     public void formatScp() {
-      TestAssertions.assertThat(
+      assertThat(
           scp(),
-          Predicates.transform(scpBuildCommandLineComposeAndThenCompose(Context.create()))
+          transform(scpBuildCommandLineComposeAndThenCompose(Context.create()))
               .check(substringAfterExpectedRegexesForSshOptions_Scp_()));
     }
 
@@ -97,15 +99,15 @@ public class CommanderFactoryManagerTest {
     }
 
     private static Function<Echo, String> shellAndThenFormat() {
-      return Printables.function("shellAndThenFormat", (Echo v) -> v.shell().format());
+      return function("shellAndThenFormat", (Echo v) -> v.shell().format());
     }
 
     private static Function<Echo, String> echoBuildCommandLineComposeAndThenCompose(Context context) {
-      return Printables.function("echoBuildCommandLineComposerAndThenCompose", (Echo v) -> v.buildCommandLineComposer().compose(context));
+      return function("echoBuildCommandLineComposerAndThenCompose", (Echo v) -> v.buildCommandLineComposer().compose(context));
     }
 
     private static Function<Scp, String> scpBuildCommandLineComposeAndThenCompose(Context context) {
-      return Printables.function("scpBuildCommandLineComposerAndThenCompose", (Scp v) -> v.buildCommandLineComposer().compose(context));
+      return function("scpBuildCommandLineComposerAndThenCompose", (Scp v) -> v.buildCommandLineComposer().compose(context));
     }
   }
 
@@ -115,11 +117,14 @@ public class CommanderFactoryManagerTest {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
           CommanderConfig.builder().shell(
-                  new SshShell.Builder(host, createDefaultSshOptionsInCommandFactoryManagerTest()
-                      .disableStrictHostkeyChecking()
-                      .disablePasswordAuthentication())
+                  new SshShell.Builder(
+                      host,
+                      createDefaultSshOptionsInCommandFactoryManagerTest()
+                          .authAgentConnectionForwarding(true)
+                          .disableStrictHostkeyChecking()
+                          .disablePasswordAuthentication()
+                          .build())
                       .program("ssh")
-                      .enableAuthAgentConnectionForwarding()
                       .build())
               .build();
     }
@@ -144,10 +149,12 @@ public class CommanderFactoryManagerTest {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
           CommanderConfig.builder()
-              .shell(new SshShell.Builder(host, createSshOptionsBuilder())
+              .shell(new SshShell.Builder(host,
+                  createSshOptionsBuilder()
+                      .authAgentConnectionForwarding(true)
+                      .build())
                   .program("ssh")
                   .user(userName())
-                  .enableAuthAgentConnectionForwarding()
                   .build())
               .build();
     }
@@ -180,17 +187,24 @@ public class CommanderFactoryManagerTest {
               .sshOptions(createDefaultSshOptionsInCommandFactoryManagerTest().build())
               .build() :
           CommanderConfig.builder()
-              .shell(new SshShell.Builder(host, createDefaultSshOptionsInCommandFactoryManagerTest())
+              .shell(new SshShell.Builder(
+                  host,
+                  createDefaultSshOptionsInCommandFactoryManagerTest()
+                      .authAgentConnectionForwarding(true)
+                      .build())
                   .program("ssh")
                   .user(userName())
-                  .enableAuthAgentConnectionForwarding()
                   .build())
               .build();
     }
 
     @Override
     public Predicate<String> substringAfterExpectedRegexesForSshOptions() {
-      return findSubstrings("ssh", "-A", "-4", "-F", "-p 9999", "-v", String.format("%s@%s", userName(), hostName()));
+      return findSubstrings("ssh",
+          "-A",
+          "-4", "-F", "-p 9999",
+          "-v",
+          String.format("%s@%s", userName(), hostName()));
     }
 
     @Override
@@ -205,16 +219,15 @@ public class CommanderFactoryManagerTest {
   }
 
   public static class WithCustomSshOptions2 extends Base {
-    private final SshOptions sshOptions = new SshOptions.Impl(false, true, false, asList("jumphost1", "jumphost2"), "cipher_spec", null, "id_rsa", emptyList(), null, true, false);
+    private final SshOptions sshOptions = new SshOptions.Impl(true, false, true, false, asList("jumphost1", "jumphost2"), "cipher_spec", null, "id_rsa", emptyList(), null, true, false);
 
     @Override
     public CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
           CommanderConfig.builder().sshOptions(sshOptions).build() :
-          CommanderConfig.builder().shell(new SshShell.Builder(host)
+          CommanderConfig.builder().shell(new SshShell.Builder(host, sshOptions)
               .program("ssh")
               .user(userName())
-              .enableAuthAgentConnectionForwarding()
               .build()).build();
     }
 
@@ -247,6 +260,7 @@ public class CommanderFactoryManagerTest {
 
   private static SshOptions.Builder createDefaultSshOptionsInCommandFactoryManagerTest() {
     return new SshOptions.Builder()
+        .authAgentConnectionForwarding(true)
         .ipv4(true)
         .ipv6(false)
         .compression(true)

@@ -21,6 +21,8 @@ import static java.util.Objects.requireNonNull;
  * ----
  */
 public interface SshOptions {
+  boolean authAgentConnectionForwardingEnabled();
+
   boolean ipv4();
 
   boolean ipv6();
@@ -59,8 +61,10 @@ public interface SshOptions {
     final Integer      port;
     final boolean      quiet;
     final boolean      verbose;
+    final boolean      authAgentConnectionForwarding;
 
-    public Impl(boolean ipv4, boolean ipv6, boolean compression, List<String> jumpHosts, String cipherSpec, String configFile, String identity, List<String> sshOptions, Integer port, boolean quiet, boolean verbose) {
+    public Impl(boolean authAgentConnectionForwardingEnabled, boolean ipv4, boolean ipv6, boolean compression, List<String> jumpHosts, String cipherSpec, String configFile, String identity, List<String> sshOptions, Integer port, boolean quiet, boolean verbose) {
+      this.authAgentConnectionForwarding = authAgentConnectionForwardingEnabled;
       this.ipv4 = ipv4;
       this.ipv6 = ipv6;
       this.compression = compression;
@@ -74,6 +78,11 @@ public interface SshOptions {
       this.verbose = verbose;
     }
 
+
+    @Override
+    public boolean authAgentConnectionForwardingEnabled() {
+      return authAgentConnectionForwarding;
+    }
 
     @Override
     public boolean ipv4() {
@@ -143,6 +152,7 @@ public interface SshOptions {
     private       Integer      port;
     private       boolean      quiet;
     private       boolean      verbose;
+    private       boolean      authAgentConnectionForwarding;
 
     public Builder() {
       this.ipv4(false)
@@ -154,6 +164,11 @@ public interface SshOptions {
           .port(null)
           .quiet(false)
           .verbose(false);
+    }
+
+    public Builder authAgentConnectionForwarding(boolean enable) {
+      this.authAgentConnectionForwarding = enable;
+      return this;
     }
 
     public Builder ipv4(boolean enable) {
@@ -226,6 +241,7 @@ public interface SshOptions {
 
     public SshOptions build() {
       return new SshOptions.Impl(
+          authAgentConnectionForwarding,
           ipv4,
           ipv6,
           compression,
@@ -246,6 +262,8 @@ public interface SshOptions {
 
     static Formatter forSsh() {
       return sshOptions -> new LinkedList<String>() {{
+        if (sshOptions.authAgentConnectionForwardingEnabled())
+          add("-A");
         if (sshOptions.ipv4())
           add("-4");
         if (sshOptions.ipv6())
@@ -283,6 +301,8 @@ public interface SshOptions {
 
     static Formatter forScp() {
       return sshOptions -> new LinkedList<String>() {{
+        if (sshOptions.authAgentConnectionForwardingEnabled())
+          add("-A");
         if (sshOptions.ipv4())
           add("-4");
         if (sshOptions.ipv6())
