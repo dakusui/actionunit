@@ -8,6 +8,7 @@ import com.github.dakusui.actionunit.actions.cmd.unix.SshShell;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -37,6 +38,7 @@ public class UnixCommanderFactoryManagerTest {
       perform(localEcho().toAction());
     }
 
+    @Ignore
     @Test
     public void performRemotely() {
       assumeThat(isRunOnLinux(), isTrue());
@@ -48,31 +50,32 @@ public class UnixCommanderFactoryManagerTest {
       assertThat(
           localEcho(),
           allOf(
-              transform(UnixCommanderFactoryManagerTest.Base.<Echo>buildCommandLineComposeAndThenCompose(Context.create()))
+              transform(echoBuildCommandLineComposeAndThenCompose())
                   .check(findRegexes("echo", "'hello world'$")),
-              transform(shellAndThenFormat())
+              transform(echoShellAndThenFormat())
                   .check(findRegexes("sh", "-c$")))
       );
     }
 
     @Test
-    public void formatRemoteEcho() {
+    public void composeCommandLineForRemoteEcho() {
       Echo remoteEcho = remoteEcho();
-      System.out.println(shellAndThenFormat().apply(remoteEcho));
       assertThat(
           remoteEcho,
           allOf(
-              transform(UnixCommanderFactoryManagerTest.Base.<Echo>buildCommandLineComposeAndThenCompose(Context.create()))
+              transform(echoBuildCommandLineComposeAndThenCompose())
                   .check(findRegexes("echo", "'hello world'$")),
-              transform(shellAndThenFormat())
+              transform(echoShellAndThenFormat())
                   .check(substringAfterExpectedRegexesForSshOptions())));
     }
 
     @Test
-    public void formatScp() {
+    public void composeCommandLineForScp() {
+      Scp scp = scp();
+      System.out.println(scpShellAndThenFormat().apply(scp));
       assertThat(
-          scp(),
-          transform(UnixCommanderFactoryManagerTest.Base.<Scp>buildCommandLineComposeAndThenCompose(Context.create()))
+          scp,
+          transform(scpBuildCommandLineComposerAndThenCompose())
               .check(substringAfterExpectedRegexesForSshOptions_Scp()));
     }
 
@@ -80,17 +83,17 @@ public class UnixCommanderFactoryManagerTest {
 
     abstract Predicate<String> substringAfterExpectedRegexesForSshOptions();
 
+    abstract UnixCommanderFactoryManager manager();
+
+    private Echo localEcho() {
+      return manager().local().echo().message("hello world").downstreamConsumer(System.out::println);
+    }
+
     private Echo remoteEcho() {
       return manager().remote(hostName())
           .echo()
           .message("hello world")
           .downstreamConsumer(System.out::println);
-    }
-
-    abstract UnixCommanderFactoryManager manager();
-
-    private Echo localEcho() {
-      return manager().local().echo().message("hello world").downstreamConsumer(System.out::println);
     }
 
     private Scp scp() {
@@ -103,11 +106,27 @@ public class UnixCommanderFactoryManagerTest {
       ReportingActionPerformer.create().perform(action);
     }
 
-    private static Function<Echo, String> shellAndThenFormat() {
-      return function("shellAndThenFormat", (Echo v) -> v.shell().format());
+    private static Function<? super Echo, String> echoShellAndThenFormat() {
+      return shellAndThenFormat();
     }
 
-    private static <T extends Commander<T>> Function<? super T, String> buildCommandLineComposeAndThenCompose(Context context) {
+    private static Function<? super Scp, String> scpShellAndThenFormat() {
+      return shellAndThenFormat();
+    }
+
+    private static <T extends Commander<T>> Function<? super T, String> shellAndThenFormat() {
+      return function("shellAndThenFormat", (T v) -> v.shell().format());
+    }
+
+    private static Function<? super Echo, String> echoBuildCommandLineComposeAndThenCompose() {
+      return buildCommandLineComposerAndThenCompose(Context.create());
+    }
+
+    private static Function<? super Scp, String> scpBuildCommandLineComposerAndThenCompose() {
+      return buildCommandLineComposerAndThenCompose(Context.create());
+    }
+
+    private static <T extends Commander<T>> Function<? super T, String> buildCommandLineComposerAndThenCompose(Context context) {
       return function("buildCommandLineComposerAndThenCompose", (T v) -> v.buildCommandLineComposer().compose(context));
     }
   }
@@ -136,7 +155,11 @@ public class UnixCommanderFactoryManagerTest {
 
     @Override
     public Predicate<String> substringAfterExpectedRegexesForSshOptions() {
-      return findSubstrings("ssh", "-A", "-o StrictHostkeyChecking=no", "-o PasswordAuthentication=no", hostName());
+      return findSubstrings(
+          "ssh", "-A",
+          "-o StrictHostkeyChecking=no",
+          "-o PasswordAuthentication=no",
+          hostName());
     }
 
     @Override

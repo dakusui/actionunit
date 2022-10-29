@@ -16,7 +16,7 @@ public interface CommanderConfig {
   Function<ContextVariable[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = variables -> i -> String.format("{{%s}}", i);
   Function<ContextVariable[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = variables -> i -> String.format("{{%s}}", variables[i]);
 
-  CommanderConfig                                  DEFAULT                        = CommanderConfig.builder().placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER).build();
+  CommanderConfig DEFAULT = CommanderConfig.builder().placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER).build();
 
   Shell shell();
 
