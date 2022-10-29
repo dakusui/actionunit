@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
@@ -128,5 +129,10 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
 
   private Consumer<String> downstreamConsumer() {
     return ((Consumer<String>) System.out::println).andThen(out::add);
+  }
+
+  @Override
+  public SshOptions sshOptions() {
+    return new SshOptions.Builder().build();
   }
 }

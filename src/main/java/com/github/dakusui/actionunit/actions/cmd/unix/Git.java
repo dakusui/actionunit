@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static java.util.Objects.requireNonNull;
 
-@FunctionalInterface
 public interface Git extends CommanderFactory {
   default LsRemote lsRemote() {
     return new LsRemote(config());
@@ -39,6 +38,25 @@ public interface Git extends CommanderFactory {
   }
 
   CommanderFactory parent();
+
+  class Impl extends CommanderFactory.Base implements Git {
+    protected Impl(CommanderConfig commanderConfig, SshOptions sshOptions) {
+      super(commanderConfig, sshOptions);
+    }
+
+    @Override
+    public Git parent() {
+      return this;
+    }
+  }
+
+  class Builder extends CommanderFactory.Builder<Builder, Git> {
+
+    @Override
+    protected Git createCommanderFactory(CommanderConfig config, SshOptions sshOptions) {
+      return new Impl(config, sshOptions);
+    }
+  }
 
   class Clone extends GitBase<Clone> {
     @SuppressWarnings("WeakerAccess")

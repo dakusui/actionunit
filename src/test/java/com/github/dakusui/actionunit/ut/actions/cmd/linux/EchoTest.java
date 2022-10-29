@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;

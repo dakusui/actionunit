@@ -37,7 +37,7 @@ public interface SshOptions {
 
   Optional<String> identity();
 
-  List<String> sshOptions();
+  List<String> options();
 
   OptionalInt port();
 
@@ -120,7 +120,7 @@ public interface SshOptions {
     }
 
     @Override
-    public List<String> sshOptions() {
+    public List<String> options() {
       return sshOptions;
     }
 
@@ -284,7 +284,7 @@ public interface SshOptions {
           add("-i");
           add(v);
         });
-        sshOptions.sshOptions().forEach(v -> {
+        sshOptions.options().forEach(v -> {
           add("-o");
           add(v);
         });
@@ -323,7 +323,7 @@ public interface SshOptions {
           add("-i");
           add(v);
         });
-        sshOptions.sshOptions().forEach(v -> {
+        sshOptions.options().forEach(v -> {
           add("-o");
           add(v);
         });

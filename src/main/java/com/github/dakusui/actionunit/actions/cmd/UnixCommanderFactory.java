@@ -1,15 +1,6 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.unix.Cat;
-import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
-import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
-import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
-import com.github.dakusui.actionunit.actions.cmd.unix.Git;
-import com.github.dakusui.actionunit.actions.cmd.unix.Ls;
-import com.github.dakusui.actionunit.actions.cmd.unix.Mkdir;
-import com.github.dakusui.actionunit.actions.cmd.unix.Rm;
-import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
-import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
+import com.github.dakusui.actionunit.actions.cmd.unix.*;
 
 public interface UnixCommanderFactory extends CommanderFactory {
   default Echo echo() {
@@ -37,7 +28,7 @@ public interface UnixCommanderFactory extends CommanderFactory {
   }
 
   default Scp scp() {
-    return new Scp(config());
+    return new Scp(config(), config().sshOptions());
   }
 
   default Curl curl() {
@@ -45,10 +36,24 @@ public interface UnixCommanderFactory extends CommanderFactory {
   }
 
   default Git git() {
-    return () -> UnixCommanderFactory.this;
+    return new Git.Builder().build();
   }
 
   default Cmd cmd() {
     return new Cmd(config());
+  }
+
+  class Impl extends CommanderFactory.Base implements UnixCommanderFactory {
+    protected Impl(CommanderConfig commanderConfig, SshOptions sshOptions) {
+      super(commanderConfig, sshOptions);
+    }
+  }
+
+  class Builder extends CommanderFactory.Builder<Builder, UnixCommanderFactory> {
+
+    @Override
+    protected UnixCommanderFactory createCommanderFactory(CommanderConfig config, SshOptions sshOptions) {
+      return new Impl(config, sshOptions);
+    }
   }
 }
