@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.cmd.*;
 import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
 import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
@@ -72,7 +73,7 @@ public class UnixCommanderFactoryManagerTest {
     @Test
     public void composeCommandLineForScp() {
       Scp scp = scp();
-      System.out.println(scpShellAndThenFormat().apply(scp));
+      System.out.println(scp.buildCommandLineComposer().apply(new ContextVariable[0]).apply(Context.create(), new Object[0]));
       assertThat(
           scp,
           transform(scpBuildCommandLineComposerAndThenCompose())
@@ -107,10 +108,6 @@ public class UnixCommanderFactoryManagerTest {
     }
 
     private static Function<? super Echo, String> echoShellAndThenFormat() {
-      return shellAndThenFormat();
-    }
-
-    private static Function<? super Scp, String> scpShellAndThenFormat() {
       return shellAndThenFormat();
     }
 
