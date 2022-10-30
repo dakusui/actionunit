@@ -229,9 +229,7 @@ public class UnixCommanderFactoryManagerTest {
 
     private static CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
-          CommanderConfig.builder()
-              .sshOptions(createDefaultSshOptionsInCommandFactoryManagerTest().build())
-              .build() :
+          CommanderConfig.builder().build() :
           CommanderConfig.builder()
               .shell(new SshShell.Builder(
                   host,
@@ -286,7 +284,7 @@ public class UnixCommanderFactoryManagerTest {
 
     private static CommanderConfig configFor(String host, SshOptions sshOptions) {
       return "localhost".equals(host) ?
-          CommanderConfig.builder().sshOptions(sshOptions).build() :
+          CommanderConfig.builder().build() :
           CommanderConfig.builder().shell(new SshShell.Builder(host, sshOptions)
               .program("ssh")
               .user(userName())

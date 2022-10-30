@@ -2,7 +2,7 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.RetryOption;
-import com.github.dakusui.actionunit.actions.cmd.unix.*;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
@@ -20,8 +20,6 @@ public interface CommanderConfig {
 
   Shell shell();
 
-  SshOptions sshOptions();
-
   RetryOption retryOption();
 
   Function<ContextVariable[], IntFunction<String>> variablePlaceHolderFormatter();
@@ -33,7 +31,6 @@ public interface CommanderConfig {
   }
 
   class Impl implements CommanderConfig {
-    final SshOptions              sshOptions;
     final Shell                   shell;
     final RetryOption             retryOption;
     final ProcessStreamer.Checker processStreamerChecker;
@@ -46,7 +43,6 @@ public interface CommanderConfig {
         RetryOption retryOption,
         ProcessStreamer.Checker processStreamerChecker,
         Function<ContextVariable[], IntFunction<String>> placeHolderFormatter) {
-      this.sshOptions = requireNonNull(sshOptions);
       this.shell = requireNonNull(shell);
       this.retryOption = requireNonNull(retryOption);
       this.processStreamerChecker = requireNonNull(processStreamerChecker);
@@ -56,11 +52,6 @@ public interface CommanderConfig {
     @Override
     public Shell shell() {
       return this.shell;
-    }
-
-    @Override
-    public SshOptions sshOptions() {
-      return this.sshOptions;
     }
 
     @Override
@@ -87,19 +78,10 @@ public interface CommanderConfig {
     Function<ContextVariable[], IntFunction<String>> placeHolderFormatter;
 
     public Builder() {
-      this.sshOptions(new SshOptions.Builder()
-              .disableStrictHostkeyChecking()
-              .disablePasswordAuthentication()
-              .build())
-          .processStreamerChecker(createCheckerForExitCode(0))
+      this.processStreamerChecker(createCheckerForExitCode(0))
           .shell(Shell.LOCAL_SHELL)
           .retryOption(RetryOption.none())
           .placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER);
-    }
-
-    public Builder sshOptions(SshOptions sshOptions) {
-      this.sshOptions = requireNonNull(sshOptions);
-      return this;
     }
 
     public Builder shell(Shell shell) {

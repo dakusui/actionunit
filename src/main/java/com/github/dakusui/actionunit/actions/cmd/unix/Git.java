@@ -40,8 +40,8 @@ public interface Git extends CommanderFactory {
   CommanderFactory parent();
 
   class Impl extends CommanderFactory.Base implements Git {
-    protected Impl(CommanderConfig commanderConfig, SshOptions sshOptions) {
-      super(commanderConfig, sshOptions);
+    protected Impl(CommanderConfig commanderConfig) {
+      super(commanderConfig, h -> SshOptions.emptySshOptions());
     }
 
     @Override
@@ -53,8 +53,8 @@ public interface Git extends CommanderFactory {
   class Builder extends CommanderFactory.Builder<Builder, Git> {
 
     @Override
-    protected Git createCommanderFactory(CommanderConfig config, SshOptions sshOptions) {
-      return new Impl(config, sshOptions);
+    protected Git createCommanderFactory(CommanderConfig config, Function<String, SshOptions> sshOptionsResolver) {
+      return new Impl(config);
     }
   }
 

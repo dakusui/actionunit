@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.printables.PrintableFunction;
 
 import java.util.ArrayList;
@@ -20,19 +19,19 @@ import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static java.util.Objects.requireNonNull;
 
 public class Scp extends Commander<Scp> {
-  private ContextFunction<Target>       destination;
+  private ContextFunction<Target>         destination;
   private List<Function<Context, Target>> files;
-  private SshOptions                    sshOptions;
+  private Function<String, SshOptions>    sshOptionsResolver;
 
-  public Scp(CommanderConfig config, SshOptions sshOptions) {
+  public Scp(CommanderConfig config, Function<String, SshOptions> sshOptionsResolver) {
     super(config);
     this.files = new LinkedList<>();
     commandName("scp");
-    options(sshOptions);
+    sshOptionsResolver(sshOptionsResolver);
   }
 
-  public Scp options(SshOptions sshOptions) {
-    this.sshOptions = requireNonNull(sshOptions);
+  public Scp sshOptionsResolver(Function<String, SshOptions> resolver) {
+    this.sshOptionsResolver = requireNonNull(resolver);
     return this;
   }
 
@@ -73,8 +72,7 @@ public class Scp extends Commander<Scp> {
   @Override
   public Scp clone() {
     Scp ret = super.clone();
-    if (ret.sshOptions != null)
-      ret.sshOptions.formatOptionsWith(SshOptions.Formatter.forScp()).forEach(ret::addOption);
+    ret.sshOptionsResolver.apply("{remotehost}").formatOptionsWith(SshOptions.Formatter.forScp()).forEach(ret::addOption);
     ret.files = new ArrayList<>(ret.files);
     return ret;
   }

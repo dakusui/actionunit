@@ -31,8 +31,11 @@ public class ScpTest extends CommanderTestBase {
   @Test
   @Ignore
   public void test3() {
-    Scp scp = newScp().options(
-        new SshOptions.Builder().disablePasswordAuthentication().disableStrictHostkeyChecking().identity("~/.ssh/id_rsa").build()).to(Scp.Target.of("hello"));
+    Scp scp = newScp().sshOptionsResolver(h -> new SshOptions.Builder()
+            .disablePasswordAuthentication()
+            .disableStrictHostkeyChecking()
+            .identity("~/.ssh/id_rsa").build())
+        .to(Scp.Target.of("hello"));
     System.out.printf("%s%n", scp.toAction());
     performAction(scp.toAction());
   }
@@ -40,8 +43,8 @@ public class ScpTest extends CommanderTestBase {
   @Test
   public void givenScpWithOptions$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect() {
     Scp scp = newScp()
-        .options(
-            new SshOptions.Builder()
+        .sshOptionsResolver(
+            h -> new SshOptions.Builder()
                 .disablePasswordAuthentication()
                 .disableStrictHostkeyChecking()
                 .identity("~/.ssh/id_rsa")
@@ -64,7 +67,7 @@ public class ScpTest extends CommanderTestBase {
 
   @Test
   public void tryJumpHostOption() {
-    Scp scp = newScp().options(new SshOptions.Builder()
+    Scp scp = newScp().sshOptionsResolver(h -> new SshOptions.Builder()
             .addJumpHost("alexios.local")
             .build())
         .file(Scp.Target.of("user", "remotehost1", "/remote/path"))

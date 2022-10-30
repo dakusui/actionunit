@@ -2,22 +2,24 @@ package com.github.dakusui.actionunit.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 
+import java.util.function.Function;
+
 import static java.util.Objects.requireNonNull;
 
 public interface CommanderFactory {
   CommanderConfig config();
 
-  SshOptions sshOptions();
+  SshOptions sshOptionsFor(String host);
 
 
   abstract class Base implements CommanderFactory {
-    final CommanderConfig commanderConfig;
-    final SshOptions      sshOptions;
+    final CommanderConfig              commanderConfig;
+    final Function<String, SshOptions> sshOptionsResolver;
 
 
-    protected Base(CommanderConfig commanderConfig, SshOptions sshOptions) {
+    protected Base(CommanderConfig commanderConfig, Function<String, SshOptions> sshOptionsResolver) {
       this.commanderConfig = requireNonNull(commanderConfig);
-      this.sshOptions = requireNonNull(sshOptions);
+      this.sshOptionsResolver = requireNonNull(sshOptionsResolver);
     }
 
     @Override
@@ -26,17 +28,17 @@ public interface CommanderFactory {
     }
 
     @Override
-    public SshOptions sshOptions() {
-      return this.sshOptions;
+    public SshOptions sshOptionsFor(String host) {
+      return this.sshOptionsResolver.apply(host);
     }
   }
 
   abstract class Builder<B extends Builder<B, C>, C extends CommanderFactory> {
-    CommanderConfig config;
-    SshOptions      sshOptions;
+    CommanderConfig              config;
+    Function<String, SshOptions> sshOptionsResolver;
 
     protected Builder() {
-      this.sshOptions(new SshOptions.Builder().build())
+      this.sshOptionsResolver(h -> new SshOptions.Builder().build())
           .config(new CommanderConfig.Builder().build());
     }
 
@@ -47,15 +49,15 @@ public interface CommanderFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public B sshOptions(SshOptions sshOptions) {
-      this.sshOptions = requireNonNull(sshOptions);
+    public B sshOptionsResolver(Function<String, SshOptions> sshOptionsResolver) {
+      this.sshOptionsResolver = requireNonNull(sshOptionsResolver);
       return (B) this;
     }
 
     public C build() {
-      return createCommanderFactory(config, sshOptions);
+      return createCommanderFactory(config, sshOptionsResolver);
     }
 
-    protected abstract C createCommanderFactory(CommanderConfig config, SshOptions sshOptions);
+    protected abstract C createCommanderFactory(CommanderConfig config, Function<String, SshOptions> sshOptions);
   }
 }

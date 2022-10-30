@@ -45,6 +45,11 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
     return CommanderConfig.DEFAULT;
   }
 
+  @Override
+  public SshOptions sshOptionsFor(String host) {
+    return SshOptions.emptySshOptions();
+  }
+
   List<String> out() {
     return Collections.unmodifiableList(out);
   }
@@ -129,10 +134,5 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
 
   private Consumer<String> downstreamConsumer() {
     return ((Consumer<String>) System.out::println).andThen(out::add);
-  }
-
-  @Override
-  public SshOptions sshOptions() {
-    return new SshOptions.Builder().build();
   }
 }

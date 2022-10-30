@@ -14,9 +14,7 @@ public interface ShellManager {
 
   String userForRemote(String host);
 
-  Optional<SshOptions> sshOptionsFor(String host);
-
-
+  
   interface Default extends ShellManager {
     default Shell shellForLocal() {
       return shellFor("localhost");
