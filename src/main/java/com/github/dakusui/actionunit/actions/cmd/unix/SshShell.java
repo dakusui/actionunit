@@ -51,10 +51,10 @@ public interface SshShell extends Shell {
       this(host, new SshOptions.Builder().build());
     }
 
-    public Builder(String host, SshOptions optionsBuilder) {
+    public Builder(String host, SshOptions options) {
       this.program("ssh");
       this.host = requireNonNull(host);
-      this.options = requireNonNull(optionsBuilder);
+      this.options = requireNonNull(options);
     }
 
     public Builder program(String program) {

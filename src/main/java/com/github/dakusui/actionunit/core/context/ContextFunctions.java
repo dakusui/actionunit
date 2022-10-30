@@ -66,8 +66,7 @@ public enum ContextFunctions {
   }
 
   public static <R> ContextFunction<R> immediateOf(R value) {
-    return ContextFunction.of(() -> format("%s", value), c -> value
-    );
+    return ContextFunction.of(() -> format("%s", value), c -> value);
   }
 
   public static <R> ContextFunction<R> contextValueOf(ContextVariable contextVariable) {

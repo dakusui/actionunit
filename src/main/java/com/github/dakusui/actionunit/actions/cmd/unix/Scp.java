@@ -46,7 +46,7 @@ public class Scp extends Commander<Scp> {
   }
 
   public Scp file(Target target) {
-    return this.file(ContextFunctions.immediateOf(requireNonNull(target)));
+    return this.file(immediateOf(requireNonNull(target)));
   }
 
   public Scp to(Target target) {

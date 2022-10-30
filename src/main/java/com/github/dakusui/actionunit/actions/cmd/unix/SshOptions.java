@@ -21,6 +21,10 @@ import static java.util.Objects.requireNonNull;
  * ----
  */
 public interface SshOptions {
+  static SshOptions emptySshOptions() {
+    return new Builder().build();
+  }
+
   boolean authAgentConnectionForwardingEnabled();
 
   boolean ipv4();
