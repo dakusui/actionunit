@@ -6,7 +6,7 @@ import java.util.function.Function;
 import static com.github.dakusui.actionunit.utils.InternalUtils.memoize;
 import static java.util.Objects.requireNonNull;
 
-public interface UnixCommanderFactoryManager extends CommanderFactoryManager<UnixCommanderFactoryManager, UnixCommanderFactory> {
+public interface UnixCommanderFactoryManager extends CommanderFactoryManager<UnixCommanderFactory> {
 
   default Function<String, CommanderConfig> configManager() {
     return memoize(this::configFor);

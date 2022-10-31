@@ -5,13 +5,13 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public interface CommanderFactoryManager<M extends CommanderFactoryManager<M, C>, C extends CommanderFactory> {
+public interface CommanderFactoryManager<C extends CommanderFactory> {
   C local();
 
   C remote(String host);
 
-  class Base<M extends CommanderFactoryManager<M, C>, C extends CommanderFactory>
-      implements CommanderFactoryManager<M, C> {
+  class Base<M extends CommanderFactoryManager<C>, C extends CommanderFactory>
+      implements CommanderFactoryManager<C> {
     final private Function<M, C>           localCommanderFactory;
     final private BiFunction<M, String, C> remoteCommanderFactory;
 
@@ -35,7 +35,7 @@ public interface CommanderFactoryManager<M extends CommanderFactoryManager<M, C>
 
   abstract class Builder<
       B extends Builder<B, M, C>,
-      M extends CommanderFactoryManager<M, C>,
+      M extends CommanderFactoryManager<C>,
       C extends CommanderFactory> {
 
     private Function<M, C>           localCommanderFactory;
