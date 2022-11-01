@@ -23,11 +23,11 @@ public class Scp extends Commander<Scp> {
   private List<Function<Context, Target>> files;
   private Function<String, SshOptions>    sshOptionsResolver;
 
-  public Scp(CommanderConfig config, Function<String, SshOptions> sshOptionsResolver) {
+  public Scp(CommanderConfig config) {
     super(config);
     this.files = new LinkedList<>();
     commandName("scp");
-    sshOptionsResolver(sshOptionsResolver);
+    sshOptionsResolver(config.sshOptionsResolver());
   }
 
   public Scp sshOptionsResolver(Function<String, SshOptions> resolver) {

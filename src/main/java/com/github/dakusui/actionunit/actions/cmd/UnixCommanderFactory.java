@@ -14,6 +14,7 @@ public interface UnixCommanderFactory extends CommanderFactory {
     return new Builder()
         .config(CommanderConfig.builder()
             .shell(manager.shellFor(host))
+            .sshOptionsResolver(manager::sshOptionsFor)
             .build())
         .build();
   }
@@ -43,7 +44,7 @@ public interface UnixCommanderFactory extends CommanderFactory {
   }
 
   default Scp scp() {
-    return new Scp(config(), this::sshOptionsFor);
+    return new Scp(config());
   }
 
   default Curl curl() {

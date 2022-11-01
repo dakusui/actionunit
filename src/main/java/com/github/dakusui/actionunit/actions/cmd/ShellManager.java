@@ -14,7 +14,8 @@ public interface ShellManager {
 
   String userForRemote(String host);
 
-  
+  SshOptions sshOptionsFor(String host);
+
   interface Default extends ShellManager {
     default Shell shellForLocal() {
       return shellFor("localhost");
@@ -25,16 +26,14 @@ public interface ShellManager {
       if (isLocal(host))
         return Shell.LOCAL_SHELL;
 
-      return new SshShell.Builder(host, sshOptionsFor(host).orElseGet(SshOptions::emptySshOptions))
+      return new SshShell.Builder(host, sshOptionsFor(host))
           .user(userForRemote(host))
           .program("ssh")
           .build();
     }
 
-    default Optional<SshOptions> sshOptionsFor(String host) {
-      if (isLocal(host))
-        return Optional.empty();
-      return Optional.of(sshOptionForRemote(host));
+    default SshOptions sshOptionsFor(String host) {
+      return sshOptionForRemote(host);
     }
 
     SshOptions sshOptionForRemote(String remoteHost);
