@@ -34,27 +34,25 @@ public class UnixCommanderFactoryTest {
 
     @Test
     public void performLocalEcho() {
-      String h = "localhost";
       assumeThat(isRunOnLinux(), isTrue());
-      perform(localEcho(configFor(h)).toAction());
+      perform(echo(configFor("localhost")).toAction());
     }
 
     @Test
     public void performRemoteEcho() {
-      String h = hostName();
       assumeThat(isRunOnLinux(), isTrue());
-      perform(remoteEcho(configFor(h), hostName()).toAction());
+      perform(remoteEcho(hostName()).toAction());
     }
 
     @Test
     public void composeLocalEchoCommandLine() {
       String h = "127.0.0.1";
       assertThat(
-          localEcho(configFor(h)),
+          echo(configFor(h)),
           allOf(
-              transform(echoBuildCommandLineComposeAndThenCompose())
+              transform(composeEchoCommandLine())
                   .check(findRegexes("echo", "'hello world'$")),
-              transform(echoShellAndThenFormat())
+              transform(composeShellCommandLineOfEchoCommand())
                   .check(findRegexes("sh", "-c$")))
       );
     }
@@ -62,14 +60,12 @@ public class UnixCommanderFactoryTest {
     @Test
     public void composeRemoteEchoCommandLine() {
       String h = hostName();
-      Echo remoteEcho = remoteEcho(configFor(h), h);
+      Echo remoteEcho = remoteEcho(h);
       assertThat(
           remoteEcho,
           allOf(
-              transform(echoBuildCommandLineComposeAndThenCompose())
-                  .check(findRegexes("echo", "'hello world'$")),
-              transform(echoShellAndThenFormat())
-                  .check(substringAfterExpectedRegexesForSshOptions())));
+              transform(composeEchoCommandLine()).check(findRegexes("echo", "'hello world'$")),
+              transform(composeShellCommandLineOfEchoCommand()).check(substringAfterExpectedRegexesForSshOptions())));
     }
 
     @Test
@@ -89,19 +85,27 @@ public class UnixCommanderFactoryTest {
 
     abstract UnixCommanderFactoryManager createUnixCommanderFactoryManager(CommanderConfig config);
 
-    abstract CommanderConfig configFor(String host);
+    abstract CommanderConfig configForRemote(String host);
+
+    abstract CommanderConfig configForLocal();
+
+    final CommanderConfig configFor(String host) {
+      if ("localhost".equals(host))
+        return configForLocal();
+      return configForRemote(host);
+    }
 
     final UnixCommanderFactoryManager factoryManager(CommanderConfig commanderConfig) {
       return createUnixCommanderFactoryManager(commanderConfig);
     }
 
 
-    private Echo localEcho(CommanderConfig commanderConfig) {
+    private Echo echo(CommanderConfig commanderConfig) {
       return factoryManager(commanderConfig).local().echo().message("hello world").downstreamConsumer(System.out::println);
     }
 
-    private Echo remoteEcho(CommanderConfig commanderConfig, String host) {
-      return factoryManager(commanderConfig).remote(host)
+    private Echo remoteEcho(String host) {
+      return UnixCommanderFactory.create(ShellManager.createShellManager(), host)
           .echo()
           .message("hello world")
           .downstreamConsumer(System.out::println);
@@ -117,7 +121,7 @@ public class UnixCommanderFactoryTest {
       ReportingActionPerformer.create().perform(action);
     }
 
-    private static Function<? super Echo, String> echoShellAndThenFormat() {
+    private static Function<? super Echo, String> composeShellCommandLineOfEchoCommand() {
       return shellAndThenFormat();
     }
 
@@ -125,7 +129,7 @@ public class UnixCommanderFactoryTest {
       return function("shellAndThenFormat", (T v) -> v.shell().format());
     }
 
-    private static Function<? super Echo, String> echoBuildCommandLineComposeAndThenCompose() {
+    private static Function<? super Echo, String> composeEchoCommandLine() {
       return buildCommandLineComposerAndThenCompose(Context.create());
     }
 
@@ -139,20 +143,23 @@ public class UnixCommanderFactoryTest {
   }
 
   public static class WithoutUsername extends Base {
-    CommanderConfig configFor(String host) {
-      return "localhost".equals(host) ?
-          CommanderConfig.DEFAULT :
-          CommanderConfig.builder().shell(
-                  new SshShell.Builder(
-                      host,
-                      createDefaultSshOptionsInCommandFactoryManagerTest()
-                          .authAgentConnectionForwarding(true)
-                          .disableStrictHostkeyChecking()
-                          .disablePasswordAuthentication()
-                          .build())
-                      .program("ssh")
+    CommanderConfig configForRemote(String host) {
+      return CommanderConfig.builder().shell(
+              new SshShell.Builder(
+                  host,
+                  createDefaultSshOptionsInCommandFactoryManagerTest()
+                      .authAgentConnectionForwarding(true)
+                      .disableStrictHostkeyChecking()
+                      .disablePasswordAuthentication()
                       .build())
-              .build();
+                  .program("ssh")
+                  .build())
+          .build();
+    }
+
+    @Override
+    CommanderConfig configForLocal() {
+      return CommanderConfig.DEFAULT;
     }
 
     @Override
@@ -182,18 +189,21 @@ public class UnixCommanderFactoryTest {
   }
 
   public static class WithUsername extends Base {
-    public CommanderConfig configFor(String host) {
-      return "localhost".equals(host) ?
-          CommanderConfig.DEFAULT :
-          CommanderConfig.builder()
-              .shell(new SshShell.Builder(host,
-                  createSshOptionsBuilder()
-                      .authAgentConnectionForwarding(true)
-                      .build())
-                  .program("ssh")
-                  .user(userName())
+    @Override
+    CommanderConfig configForLocal() {
+      return CommanderConfig.DEFAULT;
+    }
+
+    CommanderConfig configForRemote(String host) {
+      return CommanderConfig.builder()
+          .shell(new SshShell.Builder(host,
+              createSshOptionsBuilder()
+                  .authAgentConnectionForwarding(true)
                   .build())
-              .build();
+              .program("ssh")
+              .user(userName())
+              .build())
+          .build();
     }
 
     private static SshOptions.Builder createSshOptionsBuilder() {
@@ -225,19 +235,22 @@ public class UnixCommanderFactoryTest {
   }
 
   public static class WithCustomSshOptions1 extends Base {
-    CommanderConfig configFor(String host) {
-      return "localhost".equals(host) ?
-          CommanderConfig.builder().build() :
-          CommanderConfig.builder()
-              .shell(new SshShell.Builder(
-                  host,
-                  createDefaultSshOptionsInCommandFactoryManagerTest()
-                      .authAgentConnectionForwarding(true)
-                      .build())
-                  .program("ssh")
-                  .user(userName())
+    CommanderConfig configForRemote(String host) {
+      return CommanderConfig.builder()
+          .shell(new SshShell.Builder(
+              host,
+              createDefaultSshOptionsInCommandFactoryManagerTest()
+                  .authAgentConnectionForwarding(true)
                   .build())
-              .build();
+              .program("ssh")
+              .user(userName())
+              .build())
+          .build();
+    }
+
+    @Override
+    CommanderConfig configForLocal() {
+      return CommanderConfig.builder().build();
     }
 
     @Override
@@ -277,13 +290,16 @@ public class UnixCommanderFactoryTest {
         emptyList(),
         null, true, false);
 
-    CommanderConfig configFor(String host) {
-      return "localhost".equals(host) ?
-          CommanderConfig.builder().build() :
-          CommanderConfig.builder().shell(new SshShell.Builder(host, sshOptions)
-              .program("ssh")
-              .user(userName())
-              .build()).build();
+    CommanderConfig configForRemote(String host) {
+      return CommanderConfig.builder().shell(new SshShell.Builder(host, sshOptions)
+          .program("ssh")
+          .user(userName())
+          .build()).build();
+    }
+
+    @Override
+    CommanderConfig configForLocal() {
+      return CommanderConfig.builder().build();
     }
 
     @Override

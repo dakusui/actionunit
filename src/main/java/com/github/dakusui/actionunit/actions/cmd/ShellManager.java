@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 import com.github.dakusui.actionunit.actions.cmd.unix.SshShell;
 import com.github.dakusui.processstreamer.core.process.Shell;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
@@ -82,5 +81,20 @@ public interface ShellManager {
         };
       }
     }
+  }
+
+  static ShellManager createShellManager() {
+    return createShellManager(SshOptions.emptySshOptions());
+  }
+
+  static ShellManager createShellManager(SshOptions sshOptions) {
+    return createShellManager(h -> sshOptions);
+  }
+
+  static ShellManager createShellManager(Function<String, SshOptions> stringSshOptionsFunction) {
+    return new ShellManager.Default.Builder()
+        .userNameResolver(h -> System.getProperty("user.name"))
+        .sshOptionsResolver(stringSshOptionsFunction)
+        .build();
   }
 }
