@@ -29,27 +29,28 @@ import static java.util.Collections.emptyList;
 @RunWith(Enclosed.class)
 public class UnixCommanderFactoryTest {
   public static abstract class Base {
-    final UnixCommanderFactoryManager manager;
     public Base() {
-      manager = createUnixCommanderFactoryManager();
     }
 
     @Test
     public void performLocalEcho() {
+      String h = "localhost";
       assumeThat(isRunOnLinux(), isTrue());
-      perform(localEcho().toAction());
+      perform(localEcho(configFor(h)).toAction());
     }
 
     @Test
     public void performRemoteEcho() {
+      String h = hostName();
       assumeThat(isRunOnLinux(), isTrue());
-      perform(remoteEcho().toAction());
+      perform(remoteEcho(configFor(h), hostName()).toAction());
     }
 
     @Test
     public void composeLocalEchoCommandLine() {
+      String h = "127.0.0.1";
       assertThat(
-          localEcho(),
+          localEcho(configFor(h)),
           allOf(
               transform(echoBuildCommandLineComposeAndThenCompose())
                   .check(findRegexes("echo", "'hello world'$")),
@@ -60,7 +61,8 @@ public class UnixCommanderFactoryTest {
 
     @Test
     public void composeRemoteEchoCommandLine() {
-      Echo remoteEcho = remoteEcho();
+      String h = hostName();
+      Echo remoteEcho = remoteEcho(configFor(h), h);
       assertThat(
           remoteEcho,
           allOf(
@@ -72,7 +74,8 @@ public class UnixCommanderFactoryTest {
 
     @Test
     public void composeLocalScpCommandLine() {
-      Scp scp = scp();
+      String h = "localhost";
+      Scp scp = scp(configFor(h));
       System.out.println(scp.buildCommandLineComposer().apply(new ContextVariable[0]).apply(Context.create(), new Object[0]));
       assertThat(
           scp,
@@ -84,25 +87,28 @@ public class UnixCommanderFactoryTest {
 
     abstract Predicate<String> substringAfterExpectedRegexesForSshOptions();
 
-    abstract UnixCommanderFactoryManager createUnixCommanderFactoryManager();
+    abstract UnixCommanderFactoryManager createUnixCommanderFactoryManager(CommanderConfig config);
 
-    final UnixCommanderFactoryManager factoryManager() {
-      return this.manager;
+    abstract CommanderConfig configFor(String host);
+
+    final UnixCommanderFactoryManager factoryManager(CommanderConfig commanderConfig) {
+      return createUnixCommanderFactoryManager(commanderConfig);
     }
 
-    private Echo localEcho() {
-      return factoryManager().local().echo().message("hello world").downstreamConsumer(System.out::println);
+
+    private Echo localEcho(CommanderConfig commanderConfig) {
+      return factoryManager(commanderConfig).local().echo().message("hello world").downstreamConsumer(System.out::println);
     }
 
-    private Echo remoteEcho() {
-      return factoryManager().remote(hostName())
+    private Echo remoteEcho(CommanderConfig commanderConfig, String host) {
+      return factoryManager(commanderConfig).remote(host)
           .echo()
           .message("hello world")
           .downstreamConsumer(System.out::println);
     }
 
-    private Scp scp() {
-      return factoryManager().local()
+    private Scp scp(CommanderConfig commanderConfig) {
+      return factoryManager(commanderConfig).local()
           .scp().file(Scp.Target.of("/local/file"))
           .to(Scp.Target.of("user", "host", "/remote/file"));
     }
@@ -133,7 +139,7 @@ public class UnixCommanderFactoryTest {
   }
 
   public static class WithoutUsername extends Base {
-    private CommanderConfig configFor(String host) {
+    CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
           CommanderConfig.DEFAULT :
           CommanderConfig.builder().shell(
@@ -159,8 +165,8 @@ public class UnixCommanderFactoryTest {
     }
 
     @Override
-    UnixCommanderFactoryManager createUnixCommanderFactoryManager() {
-      return  new UnixCommanderFactoryManager.Builder()
+    UnixCommanderFactoryManager createUnixCommanderFactoryManager(CommanderConfig config) {
+      return new UnixCommanderFactoryManager.Builder()
           .localCommanderFactory(m -> new UnixCommanderFactory.Builder().build())
           .remoteCommanderFactory((m, h) -> new UnixCommanderFactory.Builder().config(configFor(h)).build())
           .build();
@@ -202,8 +208,8 @@ public class UnixCommanderFactoryTest {
     }
 
     @Override
-    UnixCommanderFactoryManager createUnixCommanderFactoryManager() {
-      return  new UnixCommanderFactoryManager.Builder()
+    UnixCommanderFactoryManager createUnixCommanderFactoryManager(CommanderConfig config) {
+      return new UnixCommanderFactoryManager.Builder()
           .localCommanderFactory(m -> new UnixCommanderFactory.Builder().build())
           .remoteCommanderFactory((m, h) -> new UnixCommanderFactory.Builder().config(configFor(h)).build())
           .build();
@@ -219,7 +225,7 @@ public class UnixCommanderFactoryTest {
   }
 
   public static class WithCustomSshOptions1 extends Base {
-    private CommanderConfig configFor(String host) {
+    CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
           CommanderConfig.builder().build() :
           CommanderConfig.builder()
@@ -244,10 +250,10 @@ public class UnixCommanderFactoryTest {
     }
 
     @Override
-    UnixCommanderFactoryManager createUnixCommanderFactoryManager() {
+    UnixCommanderFactoryManager createUnixCommanderFactoryManager(CommanderConfig config) {
       return new UnixCommanderFactoryManager.Builder()
           .localCommanderFactory(m -> new UnixCommanderFactory.Builder().build())
-          .remoteCommanderFactory((m, h) -> new UnixCommanderFactory.Builder().config(configFor(h)).build())
+          .remoteCommanderFactory((m, h) -> new UnixCommanderFactory.Builder().config(config).build())
           .build();
     }
 
@@ -271,7 +277,7 @@ public class UnixCommanderFactoryTest {
         emptyList(),
         null, true, false);
 
-    private CommanderConfig configFor(String host, SshOptions sshOptions) {
+    CommanderConfig configFor(String host) {
       return "localhost".equals(host) ?
           CommanderConfig.builder().build() :
           CommanderConfig.builder().shell(new SshShell.Builder(host, sshOptions)
@@ -286,10 +292,10 @@ public class UnixCommanderFactoryTest {
     }
 
     @Override
-    UnixCommanderFactoryManager createUnixCommanderFactoryManager() {
+    UnixCommanderFactoryManager createUnixCommanderFactoryManager(CommanderConfig config) {
       return new UnixCommanderFactoryManager.Builder()
           .localCommanderFactory(m -> new UnixCommanderFactory.Builder().build())
-          .remoteCommanderFactory((m, h) -> new UnixCommanderFactory.Builder().config(configFor(h, sshOptions)).build())
+          .remoteCommanderFactory((m, h) -> new UnixCommanderFactory.Builder().config(configFor(h)).build())
           .build();
     }
 
