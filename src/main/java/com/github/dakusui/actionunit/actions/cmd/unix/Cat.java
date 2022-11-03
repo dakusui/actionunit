@@ -20,7 +20,7 @@ public class Cat extends Commander<Cat> {
   private String tag;
 
   public Cat(CommanderConfig config) {
-    super(config);
+    super(config, "cat");
     this.tag = null;
     commandName("cat");
   }

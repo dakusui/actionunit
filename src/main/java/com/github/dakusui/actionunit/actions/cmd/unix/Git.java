@@ -160,8 +160,7 @@ public interface Git extends CommanderFactory {
   abstract class GitBase<C extends GitBase<C>> extends Commander<C> {
     @SuppressWarnings("WeakerAccess")
     public GitBase(CommanderConfig config) {
-      super(config);
-      ((GitBase<?>) this).commandName("git");
+      super(config, "git");
     }
   }
 }

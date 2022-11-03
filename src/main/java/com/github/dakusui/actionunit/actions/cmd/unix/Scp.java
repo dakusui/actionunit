@@ -24,9 +24,8 @@ public class Scp extends Commander<Scp> {
   private Function<String, SshOptions>    sshOptionsResolver;
 
   public Scp(CommanderConfig config) {
-    super(config);
+    super(config, "scp");
     this.files = new LinkedList<>();
-    commandName("scp");
     sshOptionsResolver(config.sshOptionsResolver());
   }
 

@@ -41,13 +41,13 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   private ShellManager shellManager;
 
-  private       File                               cwd         = null;
-  private final Map<String, String>                envvars;
-  private       String                             description = null;
-  private       String                             host;
+  private       File                cwd         = null;
+  private final Map<String, String> envvars;
+  private       String              description = null;
+  private       String              host;
 
 
-  protected Commander(CommanderConfig config) {
+  protected Commander(CommanderConfig config, String commandName) {
     this.parameterPlaceHolderFactory = config.variablePlaceHolderFormatter();
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
@@ -56,6 +56,11 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
         .host("localhost")
         .checker(config.checker())
         .downstreamConsumer(LOGGER::trace);
+    this.commandName(resolveCommandName(config, commandName));
+  }
+
+  String resolveCommandName(CommanderConfig config, String commandName) {
+    return config.programNameResolver().apply(this.host(), commandName);
   }
 
   @SuppressWarnings("unchecked")

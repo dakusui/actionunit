@@ -11,8 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 public class Touch extends Commander<Touch> {
   public Touch(CommanderConfig initializer) {
-    super(initializer);
-    commandName("touch");
+    super(initializer, "touch");
   }
 
   public Touch noCreate() {

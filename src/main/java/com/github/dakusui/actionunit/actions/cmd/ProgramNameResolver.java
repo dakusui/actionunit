@@ -35,7 +35,7 @@ public interface ProgramNameResolver extends BiFunction<String, String, String> 
     }
 
     public Builder register(BiPredicate<String, String> matcher, Function<String, String> programNameResolver) {
-      this.entries.add(Entry.create(matcher, programNameResolver));
+      this.entries.add(0, Entry.create(matcher, programNameResolver));
       return this;
     }
 
@@ -56,6 +56,9 @@ public interface ProgramNameResolver extends BiFunction<String, String, String> 
   }
 
   static ProgramNameResolver create() {
-    return new Builder().register((h, c) -> true, c -> c).build();
+    return new Builder()
+        .register((h, c) -> true, c -> c)
+        .register((h, c) -> "echo".equals(c), c -> "/bin/echo")
+        .build();
   }
 }

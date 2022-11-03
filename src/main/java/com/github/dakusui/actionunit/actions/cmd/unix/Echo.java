@@ -8,9 +8,9 @@ import java.util.function.Function;
 
 public class Echo extends Commander<Echo> {
   public Echo(CommanderConfig config) {
-    super(config);
-    commandName("/bin/echo");
+    super(config, "echo");
   }
+
 
   public Echo noTrailingNewLine() {
     return this.append(" ").append("-n");

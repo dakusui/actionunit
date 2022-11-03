@@ -139,7 +139,7 @@ public class TimeoutTest extends TestUtils.TestBase {
             try {
               Thread.sleep(2000);
             } catch (InterruptedException e) {
-              e.getMessage();
+              System.err.println(e.getMessage());
             }
           }
         }))

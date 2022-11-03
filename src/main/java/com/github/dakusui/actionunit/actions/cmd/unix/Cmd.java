@@ -8,6 +8,6 @@ import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
  */
 public class Cmd extends Commander<Cmd> {
   public Cmd(CommanderConfig config) {
-    super(config);
+    super(config, "echo");
   }
 }

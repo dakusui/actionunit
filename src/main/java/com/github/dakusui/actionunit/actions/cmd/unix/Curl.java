@@ -29,8 +29,7 @@ public class Curl extends Commander<Curl> {
   }
 
   public Curl(CommanderConfig config) {
-    super(config);
-    commandName("curl");
+    super(config, "curl");
   }
 
   public Curl post() {

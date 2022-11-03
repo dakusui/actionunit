@@ -11,8 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 public class Mkdir extends Commander<Mkdir> {
   public Mkdir(CommanderConfig initializer) {
-    super(initializer);
-    commandName("mkdir");
+    super(initializer, "mkdir");
   }
 
   public Mkdir recursive() {

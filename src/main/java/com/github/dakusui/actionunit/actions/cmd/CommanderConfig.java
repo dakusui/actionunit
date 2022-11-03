@@ -59,16 +59,18 @@ public interface CommanderConfig {
 
     final Function<ContextVariable[], IntFunction<String>> placeHolderFormatter;
 
-    final Function<String, SshOptions>         sshOptionsResolver;
+    final   Function<String, SshOptions>       sshOptionsResolver;
     private BiFunction<String, String, String> programNameResolver;
 
     public Impl(
         ShellManager shellManager,
+        BiFunction<String, String, String> programNameResolver,
         Function<String, SshOptions> sshOptionsResolver,
         RetryOption retryOption,
         ProcessStreamer.Checker processStreamerChecker,
         Function<ContextVariable[], IntFunction<String>> placeHolderFormatter) {
       this.shellManager = requireNonNull(shellManager);
+      this.programNameResolver = requireNonNull(programNameResolver);
       this.retryOption = requireNonNull(retryOption);
       this.processStreamerChecker = requireNonNull(processStreamerChecker);
       this.placeHolderFormatter = requireNonNull(placeHolderFormatter);
@@ -109,6 +111,8 @@ public interface CommanderConfig {
   class Builder {
     ShellManager shellManager;
 
+    BiFunction<String, String, String> programNameResolver;
+
     Function<String, SshOptions> sshOptionsResolver;
 
     RetryOption                                      retryOption;
@@ -118,9 +122,15 @@ public interface CommanderConfig {
     public Builder() {
       this.processStreamerChecker(createCheckerForExitCode(0))
           .shellManager(ShellManager.createShellManager())
+          .programNameResolver(ProgramNameResolver.create())
           .retryOption(RetryOption.none())
           .sshOptionsResolver(h -> emptySshOptions())
           .placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER);
+    }
+
+    private Builder programNameResolver(BiFunction<String, String, String> programNameResolver) {
+      this.programNameResolver = requireNonNull(programNameResolver);
+      return this;
     }
 
     public Builder shellManager(ShellManager shellManager) {
@@ -149,7 +159,7 @@ public interface CommanderConfig {
     }
 
     public CommanderConfig build() {
-      return new CommanderConfig.Impl(shellManager, sshOptionsResolver, retryOption, processStreamerChecker, placeHolderFormatter);
+      return new CommanderConfig.Impl(shellManager, programNameResolver, sshOptionsResolver, retryOption, processStreamerChecker, placeHolderFormatter);
     }
   }
 }

@@ -10,8 +10,7 @@ import static java.util.Objects.requireNonNull;
 
 public class Ls extends Commander<Ls> {
   public Ls(CommanderConfig config) {
-    super(config);
-    commandName("ls");
+    super(config, "ls");
   }
 
   public Ls longListing() {
