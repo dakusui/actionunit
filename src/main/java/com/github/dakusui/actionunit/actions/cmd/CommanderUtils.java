@@ -122,7 +122,7 @@ public enum CommanderUtils {
   static ProcessStreamer.Builder createProcessStreamerBuilder(Commander<?> commander, Params params) {
     return createProcessStreamerBuilder(
         commander.stdin(),
-        commander.shell(),
+        commander.shellManager().shellFor(commander.host()),
         commander.cwd().orElse(null),
         commander.envvars(),
         commander.buildCommandLineComposer(),

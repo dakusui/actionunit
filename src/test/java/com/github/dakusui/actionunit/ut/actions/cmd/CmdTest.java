@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
+import com.github.dakusui.actionunit.actions.cmd.ShellManager;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
@@ -63,7 +64,7 @@ public class CmdTest extends TestUtils.TestBase {
       requireThat(commander.checkerFactory(), asObject().isNotNull().$());
       requireThat(commander.downstreamConsumerFactory(), asObject().isNotNull().$());
       requireThat(commander.stdin(), asObject().isNotNull().$());
-      requireThat(commander.shell(), asObject().isNotNull().$());
+      requireThat(commander.shellManager(), asObject().isNotNull().$());
       requireThat(commander.envvars(), asObject().isNotNull().$());
       requireThat(commander.cwd(), asObject().isNotNull().$());
     }
@@ -99,7 +100,7 @@ public class CmdTest extends TestUtils.TestBase {
       performAction(
           cmd("echo")
               .append("hello")
-              .shell(sh())
+              .shellManager(ShellManager.createShellManager())
               .downstreamConsumer(toStdoutAndGivenList(out))
               .toAction());
       assertThat(

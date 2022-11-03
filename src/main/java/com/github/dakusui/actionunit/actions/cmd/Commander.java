@@ -7,7 +7,6 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
-import com.github.dakusui.processstreamer.core.process.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +34,17 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   CommandLineComposer.Builder commandLineComposerBuilder;
   private final Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory;
 
-  private       RetryOption                retryOption;
-  private       Supplier<Consumer<String>> downstreamConsumerFactory;
-  private       Supplier<Checker>          checkerFactory;
-  private       Stream<String>             stdin;
-  private       Shell                      shell;
-  private       File                       cwd         = null;
-  private final Map<String, String>        envvars;
-  private       String                     description = null;
+  private RetryOption                retryOption;
+  private Supplier<Consumer<String>> downstreamConsumerFactory;
+  private Supplier<Checker>          checkerFactory;
+  private Stream<String>             stdin;
+
+  private ShellManager shellManager;
+
+  private       File                               cwd         = null;
+  private final Map<String, String>                envvars;
+  private       String                             description = null;
+  private       String                             host;
 
 
   protected Commander(CommanderConfig config) {
@@ -50,7 +52,8 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     this.envvars = new LinkedHashMap<>();
     this.stdin(Stream.empty())
         .retryOption(config.retryOption())
-        .shell(config.shell())
+        .shellManager(config.shellManager())
+        .host("localhost")
         .checker(config.checker())
         .downstreamConsumer(LOGGER::trace);
   }
@@ -58,6 +61,12 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   @SuppressWarnings("unchecked")
   public C describe(String description) {
     this.description = description;
+    return (C) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public C host(String host) {
+    this.host = requireNonNull(host);
     return (C) this;
   }
 
@@ -132,8 +141,8 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
   }
 
   @SuppressWarnings("unchecked")
-  public C shell(Shell shell) {
-    this.shell = requireNonNull(shell);
+  public C shellManager(ShellManager shellManager) {
+    this.shellManager = requireNonNull(shellManager);
     return (C) this;
   }
 
@@ -307,8 +316,8 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return this.stdin;
   }
 
-  public Shell shell() {
-    return this.shell;
+  public ShellManager shellManager() {
+    return this.shellManager;
   }
 
   public Map<String, String> envvars() {
@@ -324,7 +333,7 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
     return format(
         "%s:Shell:(%s), CommandLine(%s)",
         this.getClass().getSimpleName(),
-        shell(),
+        shellManager(),
         commandLineComposerBuilder);
   }
 
@@ -361,5 +370,9 @@ public abstract class Commander<C extends Commander<C>> implements Cloneable {
 
   private Function<ContextVariable[], IntFunction<String>> parameterPlaceHolderFactory() {
     return this.parameterPlaceHolderFactory;
+  }
+
+  public String host() {
+    return this.host;
   }
 }

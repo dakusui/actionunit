@@ -17,7 +17,7 @@ public class UnixCommanderFactoryExample {
             .build())
         .build();
 
-    UnixCommanderFactory commanderFactory = UnixCommanderFactory.create(shellManager, "localhost");
+    UnixCommanderFactory commanderFactory = UnixCommanderFactory.create(shellManager);
 
     commanderFactory.cat().beginHereDocument("HELLO")
         .writeln("hello")

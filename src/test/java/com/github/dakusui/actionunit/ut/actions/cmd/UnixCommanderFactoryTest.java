@@ -86,21 +86,21 @@ public class UnixCommanderFactoryTest {
     abstract Predicate<String> substringAfterExpectedRegexesForSshOptions();
 
     private Echo localEcho() {
-      return UnixCommanderFactory.create(ShellManager.createShellManager(), "localhost")
+      return UnixCommanderFactory.create(ShellManager.createShellManager())
           .echo()
           .message("hello world")
           .downstreamConsumer(System.out::println);
     }
 
     private Echo remoteEcho(String host, ShellManager shellManager) {
-      return UnixCommanderFactory.create(shellManager, host)
+      return UnixCommanderFactory.create(shellManager)
           .echo()
           .message("hello world")
           .downstreamConsumer(System.out::println);
     }
 
     private Scp scp(ShellManager shellManager) {
-      return UnixCommanderFactory.create(shellManager, "localhost")
+      return UnixCommanderFactory.create(shellManager)
           .scp().file(Scp.Target.of("/local/file"))
           .to(Scp.Target.of("user", "host", "/remote/file"));
     }
@@ -114,7 +114,7 @@ public class UnixCommanderFactoryTest {
     }
 
     private static <T extends Commander<T>> Function<? super T, String> shellAndThenFormat() {
-      return function("shellAndThenFormat", (T v) -> v.shell().format());
+      return function("shellAndThenFormat", (T v) -> v.shellManager().shellFor("").format());
     }
 
     private static Function<? super Echo, String> composeEchoCommandLine() {

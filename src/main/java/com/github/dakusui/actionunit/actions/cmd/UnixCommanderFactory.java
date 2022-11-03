@@ -7,13 +7,13 @@ import java.util.function.Function;
 public interface UnixCommanderFactory extends CommanderFactory {
 
   static UnixCommanderFactory createForLocal(ShellManager manager) {
-    return create(manager, "localhost");
+    return create(manager);
   }
 
-  static UnixCommanderFactory create(ShellManager manager, String host) {
+  static UnixCommanderFactory create(ShellManager manager) {
     return new Builder()
         .config(CommanderConfig.builder()
-            .shell(manager.shellFor(host))
+            .shellManager(manager)
             .sshOptionsResolver(manager::sshOptionsFor)
             .build())
         .build();
