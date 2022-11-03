@@ -9,27 +9,17 @@ import static java.util.Objects.requireNonNull;
 public interface CommanderFactory {
   CommanderConfig config();
 
-  SshOptions sshOptionsFor(String host);
-
-
   abstract class Base implements CommanderFactory {
     final CommanderConfig              commanderConfig;
-    final Function<String, SshOptions> sshOptionsResolver;
 
 
-    protected Base(CommanderConfig commanderConfig, Function<String, SshOptions> sshOptionsResolver) {
+    protected Base(CommanderConfig commanderConfig) {
       this.commanderConfig = requireNonNull(commanderConfig);
-      this.sshOptionsResolver = requireNonNull(sshOptionsResolver);
     }
 
     @Override
     public CommanderConfig config() {
       return this.commanderConfig;
-    }
-
-    @Override
-    public SshOptions sshOptionsFor(String host) {
-      return this.sshOptionsResolver.apply(host);
     }
   }
 

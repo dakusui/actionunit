@@ -45,11 +45,6 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
     return CommanderConfig.DEFAULT;
   }
 
-  @Override
-  public SshOptions sshOptionsFor(String host) {
-    return SshOptions.emptySshOptions();
-  }
-
   List<String> out() {
     return Collections.unmodifiableList(out);
   }

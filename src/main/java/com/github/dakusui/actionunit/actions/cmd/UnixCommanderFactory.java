@@ -59,12 +59,9 @@ public interface UnixCommanderFactory extends CommanderFactory {
     return new Cmd(config());
   }
 
-
-  SshOptions sshOptionsFor(String host);
-
   class Impl extends CommanderFactory.Base implements UnixCommanderFactory {
-    protected Impl(CommanderConfig commanderConfig, Function<String, SshOptions> sshOptionsResolver) {
-      super(commanderConfig, sshOptionsResolver);
+    protected Impl(CommanderConfig commanderConfig) {
+      super(commanderConfig);
     }
   }
 
@@ -72,7 +69,7 @@ public interface UnixCommanderFactory extends CommanderFactory {
 
     @Override
     protected UnixCommanderFactory createCommanderFactory(CommanderConfig config, Function<String, SshOptions> sshOptionsResolver) {
-      return new Impl(config, sshOptionsResolver);
+      return new Impl(config);
     }
   }
 }

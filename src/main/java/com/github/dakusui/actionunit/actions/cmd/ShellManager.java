@@ -91,10 +91,10 @@ public interface ShellManager {
     return createShellManager(h -> sshOptions);
   }
 
-  static ShellManager createShellManager(Function<String, SshOptions> stringSshOptionsFunction) {
+  static ShellManager createShellManager(Function<String, SshOptions> sshOptionsResolver) {
     return new ShellManager.Default.Builder()
         .userNameResolver(h -> System.getProperty("user.name"))
-        .sshOptionsResolver(stringSshOptionsFunction)
+        .sshOptionsResolver(sshOptionsResolver)
         .build();
   }
 }

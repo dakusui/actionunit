@@ -41,7 +41,7 @@ public interface Git extends CommanderFactory {
 
   class Impl extends CommanderFactory.Base implements Git {
     protected Impl(CommanderConfig commanderConfig) {
-      super(commanderConfig, h -> SshOptions.emptySshOptions());
+      super(commanderConfig);
     }
 
     @Override
