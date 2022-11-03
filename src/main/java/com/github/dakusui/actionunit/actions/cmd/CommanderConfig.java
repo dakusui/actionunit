@@ -17,11 +17,13 @@ public interface CommanderConfig {
   Function<ContextVariable[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = variables -> i -> String.format("{{%s}}", i);
   Function<ContextVariable[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = variables -> i -> String.format("{{%s}}", variables[i].variableName());
 
-  CommanderConfig DEFAULT = CommanderConfig.builder().placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER)
-      .sshOptionsResolver(h -> new SshOptions.Builder()
+  CommanderConfig DEFAULT = CommanderConfig.builder()
+      .shellManager(ShellManager.createShellManager(h -> new SshOptions.Builder()
           .disableStrictHostkeyChecking()
           .disablePasswordAuthentication()
-          .build())
+          .build()))
+      .programNameResolver(ProgramNameResolver.createForUnix())
+      .placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER)
       .build();
 
   ShellManager shellManager();
@@ -59,8 +61,8 @@ public interface CommanderConfig {
 
     final Function<ContextVariable[], IntFunction<String>> placeHolderFormatter;
 
-    final   Function<String, SshOptions>       sshOptionsResolver;
-    private BiFunction<String, String, String> programNameResolver;
+    final Function<String, SshOptions>       sshOptionsResolver;
+    final BiFunction<String, String, String> programNameResolver;
 
     public Impl(
         ShellManager shellManager,
@@ -122,7 +124,7 @@ public interface CommanderConfig {
     public Builder() {
       this.processStreamerChecker(createCheckerForExitCode(0))
           .shellManager(ShellManager.createShellManager())
-          .programNameResolver(ProgramNameResolver.create())
+          .programNameResolver(ProgramNameResolver.createForUnix())
           .retryOption(RetryOption.none())
           .sshOptionsResolver(h -> emptySshOptions())
           .placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER);
@@ -135,7 +137,7 @@ public interface CommanderConfig {
 
     public Builder shellManager(ShellManager shellManager) {
       this.shellManager = requireNonNull(shellManager);
-      return this;
+      return this.sshOptionsResolver(h -> this.shellManager.sshOptionsFor(h));
     }
 
     public Builder sshOptionsResolver(Function<String, SshOptions> sshOptionsResolver) {

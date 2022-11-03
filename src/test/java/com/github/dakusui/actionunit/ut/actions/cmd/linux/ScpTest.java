@@ -87,6 +87,7 @@ public class ScpTest extends CommanderTestBase {
     String expectedString = "scp -o StrictHostkeyChecking=no -o PasswordAuthentication=no "
         + "'(Target::format(localfile)) "
         + "'(Target::format(remotehost1:hello))";
+    System.out.println("expected: <" + expectedString + ">");
     try {
       assertThat(
           scp.buildCommandLineComposer(),
@@ -94,7 +95,6 @@ public class ScpTest extends CommanderTestBase {
               transform(commandLineComposer$format()).check(isEqualTo(expectedString)),
               transform(commandLineComposer$format()).check(Predicates.equalTo(expectedString))));
     } finally {
-      System.out.println("expected: <" + expectedString + ">");
       System.out.println("1:        <" + scp.buildCommandLineComposer().format() + ">");
       System.out.println("2:" + scp.buildCommandLineComposer().format());
       System.out.println("3:" + scp.buildCommandLineComposer().format());
@@ -107,6 +107,7 @@ public class ScpTest extends CommanderTestBase {
     String expectedString = "scp -o StrictHostkeyChecking=no -o PasswordAuthentication=no "
         + "'(Target::format(localfile)) "
         + "'(Target::format(remotehost1:hello))";
+    System.out.println("expected:" + expectedString);
     try {
       assertThat(
           scp.buildCommandLineComposer(),
@@ -114,7 +115,6 @@ public class ScpTest extends CommanderTestBase {
               transform(commandLineComposer$format()).check(Predicates.equalTo(expectedString)),
               transform(commandLineComposer$format()).check(Predicates.equalTo(expectedString))));
     } finally {
-      System.out.println("expected:" + expectedString);
       System.out.println("1:" + scp.buildCommandLineComposer().format());
       System.out.println("2:" + scp.buildCommandLineComposer().format());
       System.out.println("3:" + scp.buildCommandLineComposer().format());

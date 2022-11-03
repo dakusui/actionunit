@@ -16,10 +16,6 @@ public interface ShellManager {
   SshOptions sshOptionsFor(String host);
 
   interface Default extends ShellManager {
-    default Shell shellForLocal() {
-      return shellFor("localhost");
-    }
-
     @Override
     default Shell shellFor(String host) {
       if (isLocal(host))
