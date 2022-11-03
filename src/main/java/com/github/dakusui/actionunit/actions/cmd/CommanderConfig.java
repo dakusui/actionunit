@@ -39,9 +39,9 @@ public interface CommanderConfig {
   }
 
   class Impl implements CommanderConfig {
-    final Shell                   shell;
-    final RetryOption             retryOption;
-    final ProcessStreamer.Checker processStreamerChecker;
+    final Shell                              shell;
+    final RetryOption                        retryOption;
+    final ProcessStreamer.Checker            processStreamerChecker;
 
     final Function<ContextVariable[], IntFunction<String>> placeHolderFormatter;
 
@@ -49,7 +49,8 @@ public interface CommanderConfig {
 
     public Impl(
         Shell shell,
-        Function<String, SshOptions> sshOptionsResolver, RetryOption retryOption,
+        Function<String, SshOptions> sshOptionsResolver,
+        RetryOption retryOption,
         ProcessStreamer.Checker processStreamerChecker,
         Function<ContextVariable[], IntFunction<String>> placeHolderFormatter) {
       this.shell = requireNonNull(shell);
