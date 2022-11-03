@@ -37,14 +37,14 @@ public class UnixCommanderFactoryTest {
     @Test
     public void performLocalEcho() {
       assumeThat(isRunOnLinux(), isTrue());
-      perform(localEcho().toAction());
+      perform(echo(createShellManager()).toAction());
     }
 
     @Ignore
     @Test
     public void performRemoteEcho() {
       assumeThat(isRunOnLinux(), isTrue());
-      perform(remoteEcho(hostName(), ShellManager.createShellManager(h -> createSshOptions())).toAction());
+      perform(echo(createShellManager()).toAction());
     }
 
     abstract SshOptions createSshOptions();
@@ -52,28 +52,31 @@ public class UnixCommanderFactoryTest {
     @Test
     public void composeLocalEchoCommandLine() {
       assertThat(
-          localEcho(),
+          echo(createShellManager()),
           allOf(
               transform(composeEchoCommandLine())
                   .check(findRegexes("echo", "'hello world'$")),
-              transform(composeShellCommandLineOfEchoCommand())
+              transform(composeShellCommandLineOfEchoCommand("localhost"))
                   .check(findRegexes("sh", "-c$")))
       );
     }
 
+    private ShellManager createShellManager() {
+      return ShellManager.createShellManager(h -> createSshOptions());
+    }
+
     @Test
     public void composeRemoteEchoCommandLine() {
-      Echo remoteEcho = remoteEcho(hostName(), ShellManager.createShellManager(h -> createSshOptions()));
       assertThat(
-          remoteEcho,
+          echo(createShellManager()),
           allOf(
               transform(composeEchoCommandLine()).check(findRegexes("echo", "'hello world'$")),
-              transform(composeShellCommandLineOfEchoCommand()).check(substringAfterExpectedRegexesForSshOptions())));
+              transform(composeShellCommandLineOfEchoCommand(hostName())).check(substringAfterExpectedRegexesForSshOptions())));
     }
 
     @Test
     public void composeLocalScpCommandLine() {
-      Scp scp = scp(ShellManager.createShellManager(h -> createSshOptions()));
+      Scp scp = scp(createShellManager());
       System.out.println(scp.buildCommandLineComposer().apply(new ContextVariable[0]).apply(Context.create(), new Object[0]));
       assertThat(
           scp,
@@ -85,14 +88,7 @@ public class UnixCommanderFactoryTest {
 
     abstract Predicate<String> substringAfterExpectedRegexesForSshOptions();
 
-    private Echo localEcho() {
-      return UnixCommanderFactory.create(ShellManager.createShellManager())
-          .echo()
-          .message("hello world")
-          .downstreamConsumer(System.out::println);
-    }
-
-    private Echo remoteEcho(String host, ShellManager shellManager) {
+    private Echo echo(ShellManager shellManager) {
       return UnixCommanderFactory.create(shellManager)
           .echo()
           .message("hello world")
@@ -109,12 +105,12 @@ public class UnixCommanderFactoryTest {
       ReportingActionPerformer.create().perform(action);
     }
 
-    private static Function<? super Echo, String> composeShellCommandLineOfEchoCommand() {
-      return shellAndThenFormat();
+    private static Function<? super Echo, String> composeShellCommandLineOfEchoCommand(String host) {
+      return shellAndThenFormat(host);
     }
 
-    private static <T extends Commander<T>> Function<? super T, String> shellAndThenFormat() {
-      return function("shellAndThenFormat", (T v) -> v.shellManager().shellFor("").format());
+    private static <T extends Commander<T>> Function<? super T, String> shellAndThenFormat(String host) {
+      return function("shellAndThenFormat", (T v) -> v.shellManager().shellFor(host).format());
     }
 
     private static Function<? super Echo, String> composeEchoCommandLine() {
