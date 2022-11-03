@@ -63,12 +63,12 @@ public class TimeoutTest extends TestUtils.TestBase {
     Action action = timeout(
         parallel(
             sequential(
-                sleepAction(100),
+                sleepAction(500),
                 print("hello1")),
             sequential(
                 sleepAction(10),
                 print("hello2"))))
-        .in(50, MILLISECONDS);
+        .in(30, MILLISECONDS);
 
     try {
       action.accept(createActionPerformer());
