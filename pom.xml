@@ -36,7 +36,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <pcond.version>3.0.0</pcond.version>
+        <pcond.version>3.0.1</pcond.version>
         <processstreamer.version>1.0.0</processstreamer.version>
         <thincrest.version>3.6.0</thincrest.version>
         <slf4j-api.version>1.7.30</slf4j-api.version>
