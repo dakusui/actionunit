@@ -6,16 +6,21 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public abstract class ActionPerformer implements Action.Visitor {
-  protected Context context;
+  public static final String  ONGOING_EXCEPTIONS_TABLE_NAME = "ONGOING_EXCEPTIONS";
+  protected           Context context;
 
   protected ActionPerformer(Context context) {
     this.context = requireNonNull(context);
+    Map<Action, Throwable> ongoingExceptions = new ConcurrentHashMap<>();
+    this.context.assignTo(ONGOING_EXCEPTIONS_TABLE_NAME, ongoingExceptions);
   }
 
   public void visit(Leaf action) {
@@ -84,23 +89,28 @@ public abstract class ActionPerformer implements Action.Visitor {
 
   public void visit(Retry action) {
     boolean succeeded = false;
+    Action targetAction = action.perform();
     Throwable lastException = null;
     for (int i = 0; i <= action.times(); i++) {
       try {
-        callAccept(action.perform(), this);
+        callAccept(targetAction, this);
         succeeded = true;
         break;
       } catch (Throwable t) {
         if (action.targetExceptionClass().isAssignableFrom(t.getClass())) {
           lastException = t;
+          registerLastExceptionFor(targetAction, lastException);
           InternalUtils.sleep(action.intervalInNanoseconds(), NANOSECONDS);
         } else {
           throw ActionException.wrap(t);
         }
       }
     }
-    if (!succeeded)
+    if (succeeded) {
+      unregisterLastExceptionFor(targetAction);
+    } else {
       throw ActionException.wrap(lastException);
+    }
   }
 
   public void visit(TimeOut action) {
@@ -109,8 +119,8 @@ public abstract class ActionPerformer implements Action.Visitor {
           callAccept(action.perform(), ActionPerformer.this);
           return true;
         },
-        String.format("%s", action),
-        String.format("%s", action.perform()),
+        () -> String.format("%s", action),
+        () -> formatOngoingExceptions(action.perform()),
         action.durationInNanos(),
         NANOSECONDS
     );
@@ -119,4 +129,32 @@ public abstract class ActionPerformer implements Action.Visitor {
   protected abstract Action.Visitor newInstance(Context context);
 
   protected abstract void callAccept(Action action, Action.Visitor visitor);
+
+  private void registerLastExceptionFor(Action action, Throwable e) {
+    ongoingExceptionsTable().put(action, e);
+  }
+
+  private void unregisterLastExceptionFor(Action action) {
+    ongoingExceptionsTable().remove(action);
+  }
+
+  private Map<Action, Throwable> ongoingExceptionsTable() {
+    return this.context.valueOf(ONGOING_EXCEPTIONS_TABLE_NAME);
+  }
+
+  private String formatOngoingExceptions(Action action) {
+    StringBuilder b = new StringBuilder();
+    for (Action ongoingAction : ongoingExceptionsTable().keySet()) {
+      b.append(String.format("%n%s%n----%n", ongoingAction));
+      Throwable e = ongoingExceptionsTable().get(ongoingAction);
+      b.append(e.getMessage());
+      b.append(String.format("%n"));
+      for (StackTraceElement element : e.getStackTrace()) {
+        b.append("\t");
+        b.append(element);
+        b.append(String.format("%n"));
+      }
+    }
+    return b.toString();
+  }
 }

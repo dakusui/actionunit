@@ -36,7 +36,7 @@ public interface TimeOut extends Action {
 
     public Action in(long duration, TimeUnit timeUnit) {
       checkArgument(duration > 0,
-          "Timeout duration must be positive  but %d was given",
+              "Timeout duration must be positive but %d was given",
           duration
       );
       requireNonNull(timeUnit);
