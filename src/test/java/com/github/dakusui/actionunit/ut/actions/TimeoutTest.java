@@ -84,30 +84,39 @@ public class TimeoutTest extends TestUtils.TestBase {
 
   @Test(timeout = 2_000, expected = ActionTimeOutException.class)
   public void givenNotEndingRetryActionInside$whenTimeoutOutside$thenTimeoutsAppropriately() {
-    Action action = timeout(
-        retry(
-            simple("throw an Exception", c -> {
-              throw new RuntimeException();
-            })
-        ).times(Integer.MAX_VALUE)
-            .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
-    ).in(1, SECONDS);
-    action.accept(createActionPerformer());
+    try {
+      Action action = timeout(
+          retry(simple("throw an Exception", c -> {
+            throw new RuntimeException("RETRYING");
+          })).times(Integer.MAX_VALUE)
+              .on(Exception.class)
+              .withIntervalOf(10, MILLISECONDS).$())
+          .in(1, SECONDS);
+      action.accept(createActionPerformer());
+    } catch (ActionTimeOutException e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   @Test(timeout = 2_000, expected = ActionTimeOutException.class)
   public void givenLongerTimeoutActionWhichHoldsNotEndingRetryAction$whenTimeoutOutside$thenOuterTimeoutUsed() {
-    Action action = timeout(
-        timeout(
-            retry(
-                simple("throw an Exception", c -> {
-                  throw new RuntimeException();
-                })
-            ).times(Integer.MAX_VALUE)
-                .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
-        ).in(60, MINUTES)
-    ).in(1, SECONDS);
-    action.accept(createActionPerformer());
+    try {
+      Action action = timeout(
+          timeout(
+              retry(
+                  simple("throw an Exception", c -> {
+                    throw new RuntimeException("RETRYING");
+                  })
+              ).times(Integer.MAX_VALUE)
+                  .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
+          ).in(60, MINUTES)
+      ).in(1, SECONDS);
+      action.accept(createActionPerformer());
+    } catch (ActionTimeOutException e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   @Test(timeout = 2_000, expected = ActionTimeOutException.class)
@@ -116,7 +125,7 @@ public class TimeoutTest extends TestUtils.TestBase {
         timeout(
             retry(
                 simple("throw an Exception", c -> {
-                  throw new RuntimeException();
+                  throw new RuntimeException("RUNTIME_EXCEPTION_THROWN");
                 })
             ).times(Integer.MAX_VALUE)
                 .on(Exception.class).withIntervalOf(10, MILLISECONDS).$()
@@ -138,7 +147,7 @@ public class TimeoutTest extends TestUtils.TestBase {
             try {
               Thread.sleep(2000);
             } catch (InterruptedException e) {
-              e.getMessage();
+              System.out.println(e.getMessage());
             }
           }
         }))
