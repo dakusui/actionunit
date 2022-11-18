@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
+import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 
 import java.util.List;
@@ -104,6 +105,14 @@ public enum ActionSupport {
     for (ContextVariable each : knownVariables)
       ret = ret.declareVariable(each);
     return ret.append(" ");
+  }
+
+  public static UnixCommanderFactory unix() {
+    return unix(CommanderConfig.DEFAULT);
+  }
+
+  public static UnixCommanderFactory unix(CommanderConfig config) {
+    return UnixCommanderFactory.create(config);
   }
 
   public static Action simple(String name, Consumer<Context> consumer) {

@@ -2,10 +2,7 @@ package com.github.dakusui.actionunit.ut.actions.cmd;
 
 import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.RetryOption;
-import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
-import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
-import com.github.dakusui.actionunit.actions.cmd.ShellManager;
+import com.github.dakusui.actionunit.actions.cmd.*;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.context.ContextConsumer;
@@ -377,7 +374,7 @@ public class CmdTest extends TestUtils.TestBase {
     public void givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
       performAction(
           forEach("i", StreamGenerator.fromArray("hello", "world"))
-              .perform(i -> cmd("echo {{i}}", config(CommanderConfig.PLACE_HOLDER_FORMATTER_BY_NAME), i)
+              .perform(i -> cmd("echo {{i}}", config(PlaceHolderFormatter.PLACE_HOLDER_FORMATTER_BY_NAME), i)
                   .downstreamConsumer(toStdoutAndGivenList(out))
                   .$()));
       assertThat(
@@ -395,7 +392,7 @@ public class CmdTest extends TestUtils.TestBase {
     @Test
     public void givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput() {
       performAction(forEach("i", StreamGenerator.fromArray("hello", "world"))
-          .perform(i -> cmd("echo", config(CommanderConfig.DEFAULT_PLACE_HOLDER_FORMATTER))
+          .perform(i -> cmd("echo", config(PlaceHolderFormatter.DEFAULT_PLACE_HOLDER_FORMATTER))
               .appendQuotedVariable(i)
               .downstreamConsumer(toStdoutAndGivenList(out))
               .$()));

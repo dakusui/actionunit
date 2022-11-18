@@ -6,16 +6,16 @@ import java.util.function.Function;
 
 public interface UnixCommanderFactory extends CommanderFactory {
 
-  static UnixCommanderFactory createForLocal(ShellManager manager) {
-    return create(manager);
+  static UnixCommanderFactory create(ShellManager manager) {
+    return create(CommanderConfig.builder()
+        .shellManager(manager)
+        .sshOptionsResolver(manager::sshOptionsFor)
+        .build());
   }
 
-  static UnixCommanderFactory create(ShellManager manager) {
+  static UnixCommanderFactory create(CommanderConfig commanderConfig) {
     return new Builder()
-        .config(CommanderConfig.builder()
-            .shellManager(manager)
-            .sshOptionsResolver(manager::sshOptionsFor)
-            .build())
+        .config(commanderConfig)
         .build();
   }
 

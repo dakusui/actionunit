@@ -13,9 +13,12 @@ import static com.github.dakusui.actionunit.actions.cmd.unix.SshOptions.emptySsh
 import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * An instance of this interface can be created by {@link CommanderConfig.Builder}.
+ *
+ * @see CommanderConfig.Builder
+ */
 public interface CommanderConfig {
-  Function<ContextVariable[], IntFunction<String>> DEFAULT_PLACE_HOLDER_FORMATTER = variables -> i -> String.format("{{%s}}", i);
-  Function<ContextVariable[], IntFunction<String>> PLACE_HOLDER_FORMATTER_BY_NAME = variables -> i -> String.format("{{%s}}", variables[i].variableName());
 
   CommanderConfig DEFAULT = CommanderConfig.builder()
       .shellManager(ShellManager.createShellManager(h -> new SshOptions.Builder()
@@ -23,10 +26,12 @@ public interface CommanderConfig {
           .disablePasswordAuthentication()
           .build()))
       .programNameResolver(ProgramNameResolver.createForUnix())
-      .placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER)
+      .placeHolderFormatter(PlaceHolderFormatter.DEFAULT_PLACE_HOLDER_FORMATTER)
       .build();
 
   ShellManager shellManager();
+
+  BiFunction<String, String, String> programNameResolver();
 
   /**
    * Returns a function that resolves an appropriate {@link SshOptions} object from a given host name.
@@ -51,8 +56,6 @@ public interface CommanderConfig {
   static Builder builder() {
     return new Builder();
   }
-
-  BiFunction<String, String, String> programNameResolver();
 
   class Impl implements CommanderConfig {
     final ShellManager            shellManager;
@@ -127,10 +130,10 @@ public interface CommanderConfig {
           .programNameResolver(ProgramNameResolver.createForUnix())
           .retryOption(RetryOption.none())
           .sshOptionsResolver(h -> emptySshOptions())
-          .placeHolderFormatter(DEFAULT_PLACE_HOLDER_FORMATTER);
+          .placeHolderFormatter(PlaceHolderFormatter.DEFAULT_PLACE_HOLDER_FORMATTER);
     }
 
-    private Builder programNameResolver(BiFunction<String, String, String> programNameResolver) {
+    public Builder programNameResolver(BiFunction<String, String, String> programNameResolver) {
       this.programNameResolver = requireNonNull(programNameResolver);
       return this;
     }
