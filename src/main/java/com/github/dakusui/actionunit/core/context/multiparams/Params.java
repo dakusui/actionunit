@@ -2,6 +2,7 @@ package com.github.dakusui.actionunit.core.context.multiparams;
 
 import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Action.Visitor;
 import com.github.dakusui.actionunit.core.Context;
 
 import java.util.LinkedHashMap;
@@ -20,10 +21,10 @@ import static java.util.stream.Collectors.joining;
  * that take multiple parameters in the actionunit's model.
  *
  * This interface is instantiated during the action processing procedure launched by
- * calling {@link com.github.dakusui.actionunit.core.Action#accept(Action.Visitor)}.
+ * calling {@link com.github.dakusui.actionunit.core.Action#accept(Visitor)}.
  *
- * @see Action#accept(Action.Visitor)
- * @see Action.Visitor
+ * @see Action#accept(Visitor)
+ * @see Visitor
  */
 public interface Params {
 

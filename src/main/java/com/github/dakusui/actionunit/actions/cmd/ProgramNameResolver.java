@@ -25,7 +25,7 @@ public interface ProgramNameResolver extends BiFunction<String, String, String> 
    * A builder to create a {@link ProgramNameResolver} instance easily.
    * The instance built by this class behaves as follows, when a pair of hostname and command name:
    *
-   * Check a list of entries ({@link Entry}) one by one if its `matcher` returns `true` for the pair.
+   * Check a list of entries ({@link ProgramNameResolver.Builder.Entry}) one by one if its `matcher` returns `true` for the pair.
    * If it finds an entry whose `matcher` gives true, applies a command name to its `resolver` and returns the value as the result of the program name resolver.
    * If no entry matches with the host name and the command name, an {@link NoSuchElementException} will be thrown.
    */
