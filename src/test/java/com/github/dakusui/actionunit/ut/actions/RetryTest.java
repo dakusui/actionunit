@@ -66,8 +66,8 @@ public class RetryTest extends TestUtils.TestBase {
           outForTree,
           Crest.allOf(
               asString("get", 0).containsString("[o:").containsString("retry twice in 1 [milliseconds] on NullPointerException").$(),
-              asString("get", 1).containsString("[EEo:").containsString("Passes on third try").$(),
-              asInteger("size").equalTo(3).$()
+              asString("get", 1).containsString("[EEo:").containsString("Passes on third try:(noname)").$(),
+              asInteger("size").equalTo(2).$()
           )
       );
       Crest.assertThat(
@@ -96,9 +96,8 @@ public class RetryTest extends TestUtils.TestBase {
           outForTree,
           Crest.allOf(
               asString("get", 0).containsString("[o:").containsString("retry twice in 1 [milliseconds]").$(),
-              asString("get", 1).containsString("[EEo:").containsString("Passes on third try").$(),
-              asString("get", 2).containsString("[EEo:").containsString("(noname)").$(),
-              asInteger("size").equalTo(3).$()
+              asString("get", 1).containsString("[EEo:").containsString("Passes on third try:(noname)").$(),
+              asInteger("size").equalTo(2).$()
           ));
       Crest.assertThat(
           outForRun,

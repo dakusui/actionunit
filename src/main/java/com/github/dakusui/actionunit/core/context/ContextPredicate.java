@@ -8,13 +8,13 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 
 @FunctionalInterface
 public interface ContextPredicate extends Predicate<Context>, Printable {
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(objectToStringIfOverridden(this, () -> "(noname)"));
+    formatter.format(toStringIfOverriddenOrNoname(this));
   }
 
   @Override

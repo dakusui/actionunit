@@ -2,9 +2,9 @@ package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.CommandLineComposer;
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextFunction;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import com.github.dakusui.printables.PrintableFunction;
 
 import java.util.ArrayList;
@@ -19,18 +19,18 @@ import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static java.util.Objects.requireNonNull;
 
 public class Scp extends Commander<Scp> {
-  private ContextFunction<Target>       destination;
-  private List<ContextFunction<Target>> files;
-  private SshOptions                    sshOptions;
+  private ContextFunction<Target>         destination;
+  private List<Function<Context, Target>> files;
+  private Function<String, SshOptions>    sshOptionsResolver;
 
-  public Scp(CommanderInitializer initializer) {
-    super(initializer);
+  public Scp(CommanderConfig config) {
+    super(config, "scp");
     this.files = new LinkedList<>();
-    initializer.init(this);
+    sshOptionsResolver(config.sshOptionsResolver());
   }
 
-  public Scp options(SshOptions sshOptions) {
-    this.sshOptions = requireNonNull(sshOptions);
+  public Scp sshOptionsResolver(Function<String, SshOptions> resolver) {
+    this.sshOptionsResolver = requireNonNull(resolver);
     return this;
   }
 
@@ -38,13 +38,13 @@ public class Scp extends Commander<Scp> {
     return this.addOption("-r");
   }
 
-  public Scp file(ContextFunction<Target> target) {
+  public Scp file(Function<Context, Target> target) {
     this.files.add(requireNonNull(target));
     return this;
   }
 
   public Scp file(Target target) {
-    return this.file(ContextFunctions.immediateOf(requireNonNull(target)));
+    return this.file(immediateOf(requireNonNull(target)));
   }
 
   public Scp to(Target target) {
@@ -57,7 +57,7 @@ public class Scp extends Commander<Scp> {
     Scp cloned = this.clone();
     CommandLineComposer.Builder commandLineComposerBuilder = cloned.commandLineComposerBuilderIfSet();
     Function<Target, String> formatTarget = PrintableFunction.of(Target::format).describe("Target::format");
-    for (ContextFunction<Target> each : files) {
+    for (Function<Context, Target> each : files) {
       commandLineComposerBuilder
           .append(" ", false)
           .append(each.andThen(formatTarget), true);
@@ -71,8 +71,7 @@ public class Scp extends Commander<Scp> {
   @Override
   public Scp clone() {
     Scp ret = super.clone();
-    if (ret.sshOptions != null)
-      ret.sshOptions.options(SshOptions.Formatter.forScp()).forEach(ret::addOption);
+    ret.sshOptionsResolver.apply("{remotehost}").formatOptionsWith(SshOptions.Formatter.forScp()).forEach(ret::addOption);
     ret.files = new ArrayList<>(ret.files);
     return ret;
   }

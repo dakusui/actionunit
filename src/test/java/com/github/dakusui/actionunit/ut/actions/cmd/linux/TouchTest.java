@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
 import org.junit.Test;
 

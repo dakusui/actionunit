@@ -1,9 +1,10 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
@@ -40,8 +41,8 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
   }
 
   @Override
-  public CommanderInitializer initializer() {
-    return CommanderInitializer.DEFAULT_INSTANCE;
+  public CommanderConfig config() {
+    return CommanderConfig.DEFAULT;
   }
 
   List<String> out() {
@@ -118,8 +119,8 @@ public abstract class CommanderTestBase extends TestUtils.TestBase implements Un
   }
 
   private Action cleanUp() {
-    return new Cmd(CommanderInitializer.DEFAULT_INSTANCE)
-        .command("/bin/rm")
+    return new Cmd(CommanderConfig.DEFAULT)
+        .commandName("/bin/rm")
         .addOption("-rf")
         .append(" ")
         .appendq(baseDir.getAbsolutePath())

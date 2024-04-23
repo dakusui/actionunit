@@ -36,7 +36,7 @@ Following is an example of actionunit.
 
 ```java
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
 public class HelloActionUnit {
   @Test
@@ -45,11 +45,11 @@ public class HelloActionUnit {
     Action action = forEach(
         "i",
         () -> Stream.of("Hello", "world", "!")
-    ).perform(
+    ).perform(i ->
         sequential(
             simple(
                 "print {s}",
-                (c) -> System.out.println("<" + c.valueOf("i") + ">")
+                (c) -> System.out.println("<" + i.resolve(c) + ">")
             ),
             simple(
                 "add {s} to 'out'",

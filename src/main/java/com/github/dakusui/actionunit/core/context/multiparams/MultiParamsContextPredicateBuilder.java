@@ -1,37 +1,38 @@
 package com.github.dakusui.actionunit.core.context.multiparams;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.context.ContextPredicate;
 
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.actionunit.core.context.ContextFunctions.DEFAULT_PLACE_HOLDER_FORMATTER;
+import static com.github.dakusui.actionunit.actions.cmd.PlaceHolderFormatter.DEFAULT_PLACE_HOLDER_FORMATTER;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.describeFunctionalObject;
 import static java.util.Objects.requireNonNull;
 
 public class MultiParamsContextPredicateBuilder {
-  private final String[]                                variableNames;
-  private final BiFunction<Predicate, String[], String> descriptionFormatter;
+  private final ContextVariable[]                                   contextVariables;
+  private final BiFunction<Predicate<?>, ContextVariable[], String> descriptionFormatter;
 
-  public MultiParamsContextPredicateBuilder(String... variableNames) {
+  public MultiParamsContextPredicateBuilder(ContextVariable... contextVariables) {
     this(
-        (Predicate f, String[] v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
-        variableNames
+        (Predicate<?> f, ContextVariable[] v) -> describeFunctionalObject(f, DEFAULT_PLACE_HOLDER_FORMATTER.apply(v), v),
+        contextVariables
     );
   }
 
   private MultiParamsContextPredicateBuilder(
-      BiFunction<Predicate, String[], String> descriptionFormatter,
-      String... variableNames) {
-    this.variableNames = requireNonNull(variableNames);
+      BiFunction<Predicate<?>, ContextVariable[], String> descriptionFormatter,
+      ContextVariable... contextVariables) {
+    this.contextVariables = requireNonNull(contextVariables);
     this.descriptionFormatter = requireNonNull(descriptionFormatter);
   }
 
-  public ContextPredicate toContextPredicate(Predicate<Params> predicate) {
+  public Predicate<Context> toContextPredicate(Predicate<Params> predicate) {
     requireNonNull(predicate);
     return new ContextPredicate.Impl(
-        () -> descriptionFormatter.apply(predicate, variableNames),
-        (Context c) -> predicate.test(Params.create(c, variableNames)));
+        () -> descriptionFormatter.apply(predicate, contextVariables),
+        (Context c) -> predicate.test(Params.create(c, contextVariables)));
   }
 }

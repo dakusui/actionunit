@@ -17,6 +17,8 @@ public interface Context {
 
   Context assignTo(String variableName, Object value);
 
+  void unassign(String variableName);
+
   <T extends Throwable> T thrownException();
 
   default boolean wasExceptionThrown() {
@@ -64,6 +66,11 @@ public interface Context {
     public Context assignTo(String variableName, Object value) {
       this.variables.put(variableName, value);
       return this;
+    }
+
+    @Override
+    public void unassign(String variableName) {
+      this.variables.remove(variableName);
     }
 
     @SuppressWarnings("unchecked")

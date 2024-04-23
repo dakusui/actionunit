@@ -1,17 +1,21 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
+import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
-import com.github.dakusui.actionunit.core.context.ContextPredicate;
-import com.github.dakusui.actionunit.core.context.StreamGenerator;
 
-import java.util.Formatter;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.core.context.ContextConsumer.NOP_CONSUMER;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 
 public enum ActionSupport {
   ;
@@ -19,19 +23,10 @@ public enum ActionSupport {
   public static Action nop() {
     // Needs to be instantiated each time this method is called.
     // Otherwise, multiple nops cannot be identified in an action tree.
-    return Leaf.of(new ContextConsumer() {
-      @Override
-      public void accept(Context context) {
-      }
-
-      @Override
-      public void formatTo(Formatter formatter, int flags, int width, int precision) {
-        formatter.format("(nop)");
-      }
-    });
+    return Leaf.of(NOP_CONSUMER);
   }
 
-  public static Action leaf(ContextConsumer consumer) {
+  public static Action leaf(Consumer<Context> consumer) {
     return Leaf.of(consumer);
   }
 
@@ -43,7 +38,20 @@ public enum ActionSupport {
     return new Attempt.Builder(action);
   }
 
-  public static <E> ForEach.Builder<E> forEach(String variableName, StreamGenerator<E> streamGenerator) {
+  public static <E> ForEach.Builder<E> forEach(Function<Context, Stream<E>> streamGenerator) {
+    return forEach("i", streamGenerator);
+  }
+
+  /**
+   * Note that the `variableName` is only used for printing the variable in an action tree.
+   * Not used for identifying a corresponding entry in the context.
+   *
+   * @param variableName    A name of variable.
+   * @param streamGenerator A function to return stream.
+   * @param <E>             The type of the loop variable.
+   * @return A builder for `ForEach2` action
+   */
+  public static <E> ForEach.Builder<E> forEach(String variableName, Function<Context, Stream<E>> streamGenerator) {
     return new ForEach.Builder<>(variableName, streamGenerator);
   }
 
@@ -53,6 +61,23 @@ public enum ActionSupport {
 
   public static When.Builder when(Predicate<Context> cond) {
     return new When.Builder(cond);
+  }
+
+  public static <T> With.Builder<T> with(Function<Context, T> value) {
+    return with("i", value);
+  }
+
+  /**
+   * Note that `variableName` won't be used to resolve a value of a variable, it is
+   * merely intended to be printed in an action-tree or logs.
+   *
+   * @param variableName human-readable variable name.
+   * @param value        A function to give a value to be used a context under the returned action.
+   * @param <T>          The type of the variable
+   * @return A builder for a `with` action.
+   */
+  public static <T> With.Builder<T> with(String variableName, Function<Context, T> value) {
+    return new With.Builder<>(variableName, value);
   }
 
   public static Retry.Builder retry(Action action) {
@@ -71,19 +96,27 @@ public enum ActionSupport {
     return new Composite.Builder(actions).parallel().build();
   }
 
-  public static Cmd cmd(String program, String... knownVariables) {
-    return cmd(program, CommanderInitializer.DEFAULT_INSTANCE, knownVariables);
+  public static Cmd cmd(String program, ContextVariable... knownVariables) {
+    return cmd(program, CommanderConfig.DEFAULT, knownVariables);
   }
 
-  public static Cmd cmd(String program, CommanderInitializer initializer, String... knownVariables) {
-    Cmd ret = new Cmd(initializer).command(program);
-    for (String each : knownVariables)
+  public static Cmd cmd(String program, CommanderConfig config, ContextVariable... knownVariables) {
+    Cmd ret = new Cmd(config).commandName(requireNonNull(program).trim());
+    for (ContextVariable each : knownVariables)
       ret = ret.declareVariable(each);
-    return ret;
+    return ret.append(" ");
   }
 
-  public static Action simple(String name, ContextConsumer consumer) {
-    return named(name, leaf(consumer));
+  public static UnixCommanderFactory unix() {
+    return unix(CommanderConfig.DEFAULT);
+  }
+
+  public static UnixCommanderFactory unix(CommanderConfig config) {
+    return UnixCommanderFactory.create(config);
+  }
+
+  public static Action simple(String name, Consumer<Context> consumer) {
+    return leaf(printableConsumer(consumer).describe(name + ":" + toStringIfOverriddenOrNoname(consumer)));
   }
 
   public static Action sequential(Action... actions) {

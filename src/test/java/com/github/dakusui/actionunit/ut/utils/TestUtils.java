@@ -8,19 +8,18 @@ import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
 import org.junit.After;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.actionunit.utils.Checks.checkArgument;
-import static java.util.stream.Collectors.toList;
+import static java.lang.String.format;
 
 public class TestUtils {
   public static <T> List<T> toList(Iterable<T> iterable) {
@@ -68,8 +67,13 @@ public class TestUtils {
     return System.getProperty("surefire.real.class.path") != null;
   }
 
-  public static boolean isRunUnderLinux() {
+  public static boolean isRunOnLinux() {
     return getOperatingSystemType(System.getProperties()).equals(OSType.Linux);
+  }
+
+  public static void assumeRunningOnLinux() {
+    if (!isRunOnLinux())
+      throw new AssumptionViolatedException(format("Assumed to be running on  on Linux: but actually on <%s>", getOperatingSystemType(System.getProperties())));
   }
 
   public static boolean isRunByTravis() {
@@ -90,7 +94,7 @@ public class TestUtils {
   }
 
   public static Action sleep(long duration, TimeUnit timeUnit) {
-    return simple(String.format("sleep %s[%s]", duration, timeUnit), context -> {
+    return simple(format("sleep %s[%s]", duration, timeUnit), context -> {
       try {
         Thread.sleep(timeUnit.toMillis(duration));
       } catch (InterruptedException e) {
@@ -99,6 +103,7 @@ public class TestUtils {
       }
     });
   }
+
 
   /**
    * Equivalent to {@code range(0, stop)}.
@@ -163,7 +168,7 @@ public class TestUtils {
   @SuppressWarnings("unchecked")
   public static <T> int size(Iterable<? super T> iterable) {
     if (iterable instanceof Collection)
-      return ((Collection) iterable).size();
+      return ((Collection<?>) iterable).size();
     return new LinkedList<T>() {{
       for (Object i : iterable) {
         add((T) i);
@@ -172,7 +177,7 @@ public class TestUtils {
   }
 
   public static class Out extends AbstractList<String> implements Writer {
-    private List<String> out = new LinkedList<>();
+    private final List<String> out = new LinkedList<>();
 
     public void writeLine(String s) {
       if (!isRunUnderSurefire()) {
@@ -225,20 +230,9 @@ public class TestUtils {
     }
 
     protected void printf(String format, Object... args) {
-      String s = String.format(format, args);
+      String s = format(format, args);
       System.out.println(s);
       out.add(s);
     }
-  }
-
-  public static <I, O> Function<I, O> memoize(Function<I, O> function) {
-    return new Function<I, O>() {
-      Map<I, O> cache = new ConcurrentHashMap<>();
-
-      @Override
-      public O apply(I i) {
-        return cache.computeIfAbsent(i, function);
-      }
-    };
   }
 }

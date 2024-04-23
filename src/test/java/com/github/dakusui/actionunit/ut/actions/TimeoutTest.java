@@ -9,15 +9,20 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.pcond.TestAssertions;
+import com.github.dakusui.pcond.forms.Functions;
+import com.github.dakusui.pcond.forms.Predicates;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.ut.utils.TestUtils.createActionPerformer;
 import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.pcond.forms.Predicates.allOf;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.*;
 import static java.util.stream.Collectors.toList;
@@ -58,25 +63,21 @@ public class TimeoutTest extends TestUtils.TestBase {
     Action action = timeout(
         parallel(
             sequential(
-                sleepAction(100),
-                print("hello1")
-            ),
+                sleepAction(500),
+                print("hello1")),
             sequential(
                 sleepAction(10),
-                print("hello2")
-            )
-        )
-    ).in(50, MILLISECONDS);
+                print("hello2"))))
+        .in(30, MILLISECONDS);
 
     try {
       action.accept(createActionPerformer());
     } catch (ActionTimeOutException e) {
-      assertThat(
+      TestAssertions.assertThat(
           out,
           allOf(
-              asString("get", 0).equalTo("hello2").$(),
-              asInteger("size").equalTo(1).$()
-          )
+              Predicates.<List<String>, String>transform(Functions.elementAt(0)).check(Predicates.isEqualTo("hello2")),
+              Predicates.<Collection<String>, Integer>transform(Functions.size()).check(Predicates.isEqualTo(1)))
       );
       throw e;
     }
@@ -147,7 +148,7 @@ public class TimeoutTest extends TestUtils.TestBase {
             try {
               Thread.sleep(2000);
             } catch (InterruptedException e) {
-              System.out.println(e.getMessage());
+              System.err.println(e.getMessage());
             }
           }
         }))

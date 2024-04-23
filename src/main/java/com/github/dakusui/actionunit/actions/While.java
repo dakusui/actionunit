@@ -10,6 +10,7 @@ import static java.util.Objects.requireNonNull;
 
 public interface While extends Action {
   Predicate<Context> condition();
+
   Action perform();
 
   @Override
@@ -40,19 +41,28 @@ public interface While extends Action {
     public Action perform() {
       return this.action;
     }
+
+    @Override
+    public String toString() {
+      return String.format("%s", this);
+    }
   }
 
   class Builder {
     private final Predicate<Context> predicate;
-    private Action action;
+    private       Action             action;
 
     public Builder(Predicate<Context> predicate) {
       this.predicate = requireNonNull(predicate);
     }
 
-    public Builder perform(Action action) {
+    public Builder action(Action action) {
       this.action = requireNonNull(action);
       return this;
+    }
+
+    public While perform(Action action) {
+      return this.action(action).build();
     }
 
     public While build() {

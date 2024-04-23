@@ -1,11 +1,13 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.utils.Checks.requireState;
 import static java.lang.String.format;
@@ -17,10 +19,16 @@ public class Cat extends Commander<Cat> {
    */
   private String tag;
 
-  public Cat(CommanderInitializer initializer) {
-    super(initializer);
+  public Cat(CommanderConfig config) {
+    super(config, "cat");
     this.tag = null;
-    initializer.init(this);
+    commandName("cat");
+  }
+
+  public Cat hereDocument(String tag, Consumer<Cat> b) {
+    this.beginHereDocument(tag);
+    b.accept(this);
+    return this.newLine().endHereDocument();
   }
 
   public Cat beginHereDocument(String tag) {
@@ -30,7 +38,7 @@ public class Cat extends Commander<Cat> {
   }
 
   /**
-   * This method should only be used inside a here document.
+   * This method should only be used inside a here-document.
    *
    * @return This object.
    */
@@ -66,7 +74,7 @@ public class Cat extends Commander<Cat> {
     return add(fileName);
   }
 
-  public Cat file(ContextFunction<String> fileName) {
+  public Cat file(Function<Context, String> fileName) {
     return add(fileName);
   }
 }

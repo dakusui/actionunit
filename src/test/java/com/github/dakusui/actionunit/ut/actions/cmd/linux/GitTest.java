@@ -1,8 +1,8 @@
 package com.github.dakusui.actionunit.ut.actions.cmd.linux;
 
+import com.github.dakusui.actionunit.actions.ForEach;
 import com.github.dakusui.actionunit.actions.cmd.unix.Git;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextFunctions;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,17 +11,14 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.forEach;
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.printTo;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.Crest.call;
-import static com.github.dakusui.crest.Crest.substringAfterRegex;
-import static com.github.dakusui.printables.Printables.isEmptyString;
+import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.pcond.forms.Predicates.isEmptyString;
+import static com.github.dakusui.printables.PrintableFunctionals.printableFunction;
 
 @RunWith(Enclosed.class)
 public class GitTest {
@@ -100,9 +97,13 @@ public class GitTest {
           .repo(immediateOf("https://github.com/dakusui/jcunit.git"));
 
       performAction(
-          forEach("i", gitLsRemote.remoteBranchNames())
-              .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
+          forEach("i", gitLsRemote.remoteBranchNames()).perform(
+              b -> leaf(printTo(System.out, contextVariable(b))))
       );
+    }
+
+    private static Function<Context, String> contextVariable(ForEach.Builder<String> b) {
+      return printableFunction(b::resolveValue).describe("contextVariable");
     }
 
     @Ignore
@@ -112,8 +113,8 @@ public class GitTest {
           .repo("https://github.com/dakusui/jcunit.git");
 
       performAction(
-          forEach("i", gitLsRemote.remoteBranchNames())
-              .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
+          forEach("i", gitLsRemote.remoteBranchNames()).perform(
+              b -> leaf(printTo(System.out, contextVariable(b))))
       );
     }
 
@@ -123,7 +124,7 @@ public class GitTest {
       Git.LsRemote gitLsRemote = git().lsRemote();
       performAction(
           forEach("i", gitLsRemote.remoteBranchNames())
-              .perform(leaf(printTo(System.out, ContextFunctions.contextValueOf("i"))))
+              .perform(b -> leaf(printTo(System.out, contextVariable(b))))
       );
     }
 
@@ -176,7 +177,7 @@ public class GitTest {
 
   public static class ForCheckout extends CommanderTestBase {
     @Ignore
-    public static class ActuallyPerformingActions extends CommanderTestBase{
+    public static class ActuallyPerformingActions extends CommanderTestBase {
       @Ignore
       @Test(expected = RuntimeException.class)
       public void test1() {
@@ -210,6 +211,7 @@ public class GitTest {
             git().checkout().newBranch(immediateOf("master-indexof-feature")).cwd(repoDir())
         );
       }
+
       @Override
       @Before
       public void setUp() throws IOException {
@@ -325,7 +327,7 @@ public class GitTest {
       Git.Push gitPush = git().push().repo("origin").refspec("master:master");
       assertThat(
           gitPush.buildCommandLineComposer().format(),
-          asString().equalTo("git push quoteWith['](origin) quoteWith['](master:master)").$()
+          asString().equalTo("git push '(origin) '(master:master)").$()
       );
     }
 
@@ -334,7 +336,7 @@ public class GitTest {
       Git.Push gitPush = git().push().repo(immediateOf("origin")).refspec(immediateOf("master:master"));
       assertThat(
           gitPush.buildCommandLineComposer().format(),
-          asString().equalTo("git push quoteWith['](origin) quoteWith['](master:master)").$()
+          asString().equalTo("git push '(origin) '(master:master)").$()
       );
     }
   }
@@ -345,7 +347,7 @@ public class GitTest {
       Git.Plain git = git().plain().add("hello").add("world");
       assertThat(
           git.buildCommandLineComposer().format(),
-          asString().equalTo("git quoteWith['](hello) quoteWith['](world)").$()
+          asString().equalTo("git '(hello) '(world)").$()
       );
     }
 
@@ -354,7 +356,7 @@ public class GitTest {
       Git.Plain git = git().plain().add("hello").add("world");
       assertThat(
           git.buildCommandLineComposer().format(),
-          asString().equalTo("git quoteWith['](hello) quoteWith['](world)").$()
+          asString().equalTo("git '(hello) '(world)").$()
       );
     }
   }

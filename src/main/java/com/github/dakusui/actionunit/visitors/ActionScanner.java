@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class ActionScanner implements Action.Visitor {
-  private final List<Action> path        = new LinkedList<>();
+  private final List<Action> path = new LinkedList<>();
 
   @Override
   public void visit(Leaf action) {
@@ -45,14 +45,14 @@ public abstract class ActionScanner implements Action.Visitor {
     this.handleAction(action);
     this.enter(action);
     try {
-      action.perform().accept(this);
+      action.action().accept(this);
     } finally {
       this.leave(action);
     }
   }
 
   @Override
-  public <E> void visit(While action) {
+  public void visit(While action) {
     this.handleAction(action);
     this.enter(action);
     try {
@@ -69,6 +69,18 @@ public abstract class ActionScanner implements Action.Visitor {
     try {
       action.perform().accept(this);
       action.otherwise().accept(this);
+    } finally {
+      this.leave(action);
+    }
+  }
+
+  @Override
+  public <V> void visit(With<V> action) {
+    this.handleAction(action);
+    this.enter(action);
+    try {
+      action.action().accept(this);
+      action.close().ifPresent(a -> a.accept(this));
     } finally {
       this.leave(action);
     }

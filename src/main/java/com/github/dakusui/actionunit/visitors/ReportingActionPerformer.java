@@ -68,7 +68,6 @@ public class ReportingActionPerformer extends ActionPerformer {
     } finally {
       new ActionReporter(conditionToSquashAction, warnWriter, infoWriter, debugWriter, traceWriter, this.getReport(), forcePrintLevelForUnexercisedActions).report(action);
     }
-
   }
 
   public void performAndReport(Action action, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, int forcePrintLevelForUnexercisedActions) {

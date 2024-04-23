@@ -3,20 +3,39 @@ package com.github.dakusui.actionunit.core.context;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.printables.PrintableConsumer;
 
-import java.util.Formattable;
 import java.util.Formatter;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * This interface is intended to be used with multi-parameter functions.
+ * You do not need to use an instance of this interface to create a simple action.
+ *
+ */
 @FunctionalInterface
-public interface ContextConsumer extends Consumer<Context>, Formattable {
+public interface ContextConsumer extends FormattableConsumer<Context> {
+  ContextConsumer NOP_CONSUMER = new ContextConsumer() {
+    @Override
+    public void accept(Context context) {
+    }
+
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision) {
+      formatter.format("(nop)");
+    }
+
+    public String toString() {
+      return "(nop)";
+    }
+  };
+
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format(objectToStringIfOverridden(this, () -> "(noname)"));
+    formatter.format(toStringIfOverriddenOrNoname(this));
   }
 
   @Override

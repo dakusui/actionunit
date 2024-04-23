@@ -21,7 +21,7 @@ public class WhileTest extends TestUtils.TestBase {
   @Test
   public void givenWhileAction_whenPerform_thenRepeatsWhileConditionIsTrue() {
     List<String> out = new LinkedList<>();
-    Action whileAction = ActionSupport.repeatWhile(iIsLessThan10()).perform(printAndIncrementI(out)).build();
+    Action whileAction = ActionSupport.repeatWhile(iIsLessThan10()).action(printAndIncrementI(out)).build();
     TestUtils.createReportingActionPerformer().performAndReport(whileAction, Writer.Std.OUT);
     assertThat(out, isEqual(asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")));
   }
@@ -29,7 +29,7 @@ public class WhileTest extends TestUtils.TestBase {
   @Test
   public void givenWhileActionWithConditionNeverMet_whenPerform_thenNothingHappens() {
     List<String> out = new LinkedList<>();
-    Action whileAction = ActionSupport.repeatWhile(iIsGreaterThan0()).perform(printAndIncrementI(out)).build();
+    Action whileAction = ActionSupport.repeatWhile(iIsGreaterThan0()).action(printAndIncrementI(out)).build();
     TestUtils.createReportingActionPerformer().performAndReport(whileAction, Writer.Std.OUT);
     assertThat(out, isEqual(emptyList()));
   }

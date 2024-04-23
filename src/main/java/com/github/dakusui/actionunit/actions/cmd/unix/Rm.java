@@ -1,17 +1,17 @@
 package com.github.dakusui.actionunit.actions.cmd.unix;
 
 import com.github.dakusui.actionunit.actions.cmd.Commander;
-import com.github.dakusui.actionunit.actions.cmd.CommanderInitializer;
-import com.github.dakusui.actionunit.core.context.ContextFunction;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
+import com.github.dakusui.actionunit.core.Context;
 
 import java.io.File;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
 public class Rm extends Commander<Rm> {
-  public Rm(CommanderInitializer initializer) {
-    super(initializer);
-    initializer.init(this);
+  public Rm(CommanderConfig initializer) {
+    super(initializer, "rm");
   }
 
   public Rm recursive() {
@@ -30,7 +30,7 @@ public class Rm extends Commander<Rm> {
     return this.add(file);
   }
 
-  public Rm file(ContextFunction<String> file) {
+  public Rm file(Function<Context, String> file) {
     return this.add(file);
   }
 }

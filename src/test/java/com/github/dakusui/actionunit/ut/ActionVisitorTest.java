@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.ut;
 
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.ut.utils.TestUtils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.crest.Crest;
@@ -35,7 +36,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
     assertThat(
         out,
         allOf(
-            asString("get", 0).equalTo("simpleAction").$(),
+            asString("get", 0).equalTo("simpleAction:(noname)").$(),
             asInteger("size").equalTo(1).$()
         )
     );
@@ -85,18 +86,15 @@ public class ActionVisitorTest extends TestUtils.TestBase {
   @Test
   public void givenForEachAction$whenAccept$thenVisited() {
     // given simple action
-    Action action = forEach(
-        "i", (c) -> Stream.of("hello")
-    ).perform(
-        nop()
-    );
+    Action action = forEach("i", (c) -> Stream.of("hello"))
+        .perform(nop());
     // when accept
     action.accept(visitor);
     // then visited
     assertThat(
         out,
         allOf(
-            asString("get", 0).startsWith("for each").$(),
+            asString("get", 0).startsWith("forEach").$(),
             asInteger("size").equalTo(1).$()
         )
     );
@@ -151,7 +149,7 @@ public class ActionVisitorTest extends TestUtils.TestBase {
   public void givenWhenAction$whenAccept$thenVisited() {
     // given while action
     Action action = when(
-        ContextFunctionsUnitTest.createContextPredicate("i", context -> false)
+        ContextFunctionsUnitTest.createContextPredicate(ContextVariable.createGlobal("i"), context -> false)
     ).perform(
         createSimpleAction()
     ).otherwise(

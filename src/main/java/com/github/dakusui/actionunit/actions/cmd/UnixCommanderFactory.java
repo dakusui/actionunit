@@ -1,54 +1,75 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
-import com.github.dakusui.actionunit.actions.cmd.unix.Cat;
-import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
-import com.github.dakusui.actionunit.actions.cmd.unix.Curl;
-import com.github.dakusui.actionunit.actions.cmd.unix.Echo;
-import com.github.dakusui.actionunit.actions.cmd.unix.Git;
-import com.github.dakusui.actionunit.actions.cmd.unix.Ls;
-import com.github.dakusui.actionunit.actions.cmd.unix.Mkdir;
-import com.github.dakusui.actionunit.actions.cmd.unix.Rm;
-import com.github.dakusui.actionunit.actions.cmd.unix.Scp;
-import com.github.dakusui.actionunit.actions.cmd.unix.Touch;
+import com.github.dakusui.actionunit.actions.cmd.unix.*;
+
+import java.util.function.Function;
 
 public interface UnixCommanderFactory extends CommanderFactory {
+
+  static UnixCommanderFactory create(ShellManager manager) {
+    return create(CommanderConfig.builder()
+        .shellManager(manager)
+        .sshOptionsResolver(manager::sshOptionsFor)
+        .build());
+  }
+
+  static UnixCommanderFactory create(CommanderConfig commanderConfig) {
+    return new Builder()
+        .config(commanderConfig)
+        .build();
+  }
+
   default Echo echo() {
-    return new Echo(initializer());
+    return new Echo(config());
   }
 
   default Cat cat() {
-    return new Cat(initializer());
+    return new Cat(config());
   }
 
   default Ls ls() {
-    return new Ls(initializer());
+    return new Ls(config());
   }
 
   default Mkdir mkdir() {
-    return new Mkdir(initializer());
+    return new Mkdir(config());
   }
 
   default Rm rm() {
-    return new Rm(initializer());
+    return new Rm(config());
   }
 
   default Touch touch() {
-    return new Touch(initializer());
+    return new Touch(config());
   }
 
   default Scp scp() {
-    return  new Scp(initializer());
+    return new Scp(config());
   }
 
   default Curl curl() {
-    return new Curl(initializer());
+    return new Curl(config());
   }
 
   default Git git() {
-    return () -> UnixCommanderFactory.this;
+    return new Git.Builder().build();
   }
 
   default Cmd cmd() {
-    return new Cmd(initializer());
+    return new Cmd(config());
+  }
+
+  class Impl extends CommanderFactory.Base implements UnixCommanderFactory {
+    protected Impl(CommanderConfig commanderConfig) {
+      super(commanderConfig);
+    }
+  }
+
+  class Builder extends CommanderFactory.Builder<Builder, UnixCommanderFactory> {
+
+    @Override
+    protected UnixCommanderFactory createCommanderFactory(CommanderConfig config, Function<String, SshOptions> sshOptionsResolver) {
+      return new Impl(config);
+    }
   }
 }

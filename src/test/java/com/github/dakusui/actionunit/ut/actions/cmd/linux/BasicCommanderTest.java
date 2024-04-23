@@ -26,6 +26,17 @@ public class BasicCommanderTest extends CommanderTestBase {
   }
 
   @Test
+  public void givenCatHelloWorldUsingHereDoc_notQuoted_withRunMethod$whenPerformAsAction$thenHelloWorldIsPrinted_2() {
+    List<String> out = performWithRunMethod(
+        cat().hereDocument("HELLO", cat -> cat.writeln("hello").write("world")))
+        .collect(toList());
+    assertThat(
+        out,
+        asListOf(String.class).equalTo(asList("hello", "world")).$()
+    );
+  }
+
+  @Test
   public void testDescribeMethod() {
     assertThat(
         cat().describe("A cat command").toAction(),

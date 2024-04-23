@@ -1,8 +1,11 @@
 package com.github.dakusui.actionunit.actions.cmd;
 
+import com.github.dakusui.actionunit.actions.ContextVariable;
 import com.github.dakusui.actionunit.actions.RetryOption;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.context.*;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.ContextFunctions;
+import com.github.dakusui.actionunit.core.context.StreamGenerator;
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import com.github.dakusui.processstreamer.core.process.Shell;
@@ -11,15 +14,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;
 import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;
-import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
-import static com.github.dakusui.printables.Printables.printableConsumer;
-import static com.github.dakusui.printables.Printables.printablePredicate;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;
+import static com.github.dakusui.printables.PrintableFunctionals.printablePredicate;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -37,13 +42,13 @@ public enum CommanderUtils {
     return requireNonNull(s).replaceAll("('+)", "'\"$1\"'");
   }
 
-  static Action createAction(Commander commander, String[] variableNames) {
+  static Action createAction(Commander<?> commander) {
     return RetryOption.retryAndTimeOut(
         leaf(createContextConsumer(commander)),
         commander.retryOption());
   }
 
-  static StreamGenerator<String> createStreamGenerator(
+  static Function<Context, Stream<String>> createStreamGenerator(
       Commander<?> commander) {
     return StreamGenerator.fromContextWith(
         new Function<Params, Stream<String>>() {
@@ -61,13 +66,13 @@ public enum CommanderUtils {
             return format("(%s)", commander.buildCommandLineComposer().format());
           }
         },
-        commander.variableNames()
+        commander.variables()
     );
   }
 
-  static ContextConsumer createContextConsumer(Commander<?> commander) {
+  static Consumer<Context> createContextConsumer(Commander<?> commander) {
     requireNonNull(commander);
-    return multiParamsConsumerFor(commander.variableNames())
+    return multiParamsConsumerFor(commander.variables())
         .toContextConsumer(
             printableConsumer(
                 (Params params) -> createProcessStreamerBuilder(commander, params)
@@ -78,9 +83,8 @@ public enum CommanderUtils {
                 .describe(() -> commander.buildCommandLineComposer().format()));
   }
 
-  static ContextPredicate createContextPredicate(
-      Commander<?> commander) {
-    return multiParamsPredicateFor(commander.variableNames())
+  static Predicate<Context> createContextPredicate(Commander<?> commander) {
+    return multiParamsPredicateFor(commander.variables())
         .toContextPredicate(printablePredicate(
             (Params params) -> {
               ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);
@@ -101,11 +105,11 @@ public enum CommanderUtils {
             .describe(() -> format(
                 "outputOf[command:'%s'].matches[%s]",
                 commander.buildCommandLineComposer().format(),
-                objectToStringIfOverridden(commander.checker(), () -> "(noname)"))));
+                toStringIfOverriddenOrNoname(commander.checker()))));
   }
 
-  static ContextFunction<String> createContextFunction(Commander<?> commander) {
-    return ContextFunctions.<String>multiParamsFunctionFor(commander.variableNames())
+  static Function<Context, String> createContextFunction(Commander<?> commander) {
+    return ContextFunctions.<String>multiParamsFunctionFor(commander.variables())
         .toContextFunction(params ->
             createProcessStreamerBuilder(commander, params)
                 .checker(commander.checker())
@@ -118,7 +122,7 @@ public enum CommanderUtils {
   static ProcessStreamer.Builder createProcessStreamerBuilder(Commander<?> commander, Params params) {
     return createProcessStreamerBuilder(
         commander.stdin(),
-        commander.shell(),
+        commander.shellManager().shellFor(commander.host()),
         commander.cwd().orElse(null),
         commander.envvars(),
         commander.buildCommandLineComposer(),
@@ -127,16 +131,19 @@ public enum CommanderUtils {
   }
 
   static ProcessStreamer.Builder createProcessStreamerBuilder(
-      Stream<String> stdin, Shell shell, File cwd, Map<String, String> envvars,
+      Stream<String> stdin,
+      Shell shell,
+      File cwd,
+      Map<String, String> envvars,
       CommandLineComposer commandLineComposer,
       Params params) {
-    String[] variableNames = params.paramNames().toArray(new String[0]);
-    Object[] variableValues = params.paramNames()
+    ContextVariable[] variables = params.parameters().toArray(new ContextVariable[0]); // values
+    Object[] variableValues = params.parameters()// values
         .stream()
         .map(params::valueOf)
         .toArray();
     String commandLine = commandLineComposer
-        .apply(variableNames)
+        .apply(variables)
         .apply(params.context(), variableValues);
     LOGGER.info("Command Line:{}", commandLine);
     LOGGER.trace("Shell:{}", shell);

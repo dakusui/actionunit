@@ -7,6 +7,7 @@ import java.util.Formattable;
 public interface Action extends Formattable {
   void accept(Visitor visitor);
 
+
   abstract class Builder<A extends Action> {
     public abstract A build();
 
@@ -47,11 +48,15 @@ public interface Action extends Formattable {
       this.visit((Action) action);
     }
 
-    default <E> void visit(While action) {
+    default void visit(While action) {
       this.visit((Action) action);
     }
 
     default void visit(When action) {
+      this.visit((Action) action);
+    }
+
+    default <V> void visit(With<V> action) {
       this.visit((Action) action);
     }
 

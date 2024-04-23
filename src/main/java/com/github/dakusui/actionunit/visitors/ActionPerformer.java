@@ -6,8 +6,8 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -35,32 +35,35 @@ public abstract class ActionPerformer implements Action.Visitor {
     Stream<Action> actionStream = action.isParallel()
         ? action.children().parallelStream()
         : action.children().stream();
-    actionStream.forEach(
-        a -> callAccept(a, this)
-    );
+    actionStream.forEach(a -> callAccept(a, action.isParallel() ?
+        newInstance(this.context.createChild()) :
+        this));
   }
 
   public <E> void visit(ForEach<E> action) {
-    Stream<E> data = requireNonNull(action.data().apply(this.context));
-    data = action.isParallel()
-        ? data.parallel()
-        : data;
-    data.forEach(
-        e -> callAccept(action.perform(),
-            newInstance(
-                this.context.createChild().assignTo(
-                    action.loopVariableName(),
-                    e
-                )
-            )));
+    Stream<E> data = action.valueSource().apply(this.context);
+    Function<E, Action.Visitor> visitorFactory = v -> {
+      this.context.assignTo(action.internalVariableName(), v);
+      return this;
+    };
+    if (action.isParallel()) {
+      data = data.parallel();
+      visitorFactory = v -> newInstance(this.context.createChild().assignTo(action.internalVariableName(), v));
+    }
+    Function<E, Action.Visitor> finalVisitorFactory = visitorFactory;
+    data.forEach(each -> callAccept(
+        action.action(),
+        finalVisitorFactory.apply(each)));
   }
 
+  @Override
   public void visit(While action) {
     while (action.condition().test(this.context)) {
       callAccept(action.perform(), this);
     }
   }
 
+  @Override
   public void visit(When action) {
     if (action.cond().test(this.context)) {
       callAccept(action.perform(), this);
@@ -69,6 +72,20 @@ public abstract class ActionPerformer implements Action.Visitor {
     }
   }
 
+  @Override
+  public <V> void visit(With<V> action) {
+    Context originalContext = this.context;
+    this.context = this.context.createChild();
+    context.assignTo(action.internalVariableName(), action.valueSource().apply(context));
+    try {
+      callAccept(action.action(), this);
+    } finally {
+      action.close().ifPresent(a -> callAccept(a, this));
+      this.context = originalContext;
+    }
+  }
+
+  @Override
   public void visit(Attempt action) {
     Context originalContext = this.context;
     try {

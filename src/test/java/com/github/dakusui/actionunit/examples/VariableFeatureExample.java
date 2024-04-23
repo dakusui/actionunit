@@ -9,26 +9,22 @@ import org.junit.Test;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.ut.actions.TestFunctionals.constant;
+import static com.github.dakusui.actionunit.ut.actions.TestFunctionals.increment;
 
 public class VariableFeatureExample extends TestUtils.TestBase {
+
   @Test
-  public void example() {
+  public void example2() {
     run(
-        sequential(
-            simple("init", (c) -> c.assignTo("x", 0)),
-            forEach("i", (c) -> Stream.of("a", "b", "c", "d", "e", "f"))
-                .perform(leaf(
-                    ($) ->
-                        sequential(
-                            simple(
-                                "print i",
-                                ($$) -> System.out.printf("%d %s%n", $.<Integer>valueOf("x"), $.valueOf("i"))
-                            ),
-                            simple(
-                                "i++",
-                                ($$) -> $.assignTo("i", $.<Integer>valueOf("x") + 1)
-                            ))))
-        ));
+        with("x", constant(0)).perform(
+            b -> forEach("i", (c) -> Stream.of("a", "b", "c", "d", "e", "f")).sequentially().perform(
+                bb -> sequential(
+                    simple(
+                        "print i",
+                        (cc) -> System.out.printf("x=%d i=%s%n", b.resolveValue(cc), bb.resolveValue(cc))),
+                    b.updateContextVariableWith(increment())))))
+    ;
   }
 
   private void run(Action action) {

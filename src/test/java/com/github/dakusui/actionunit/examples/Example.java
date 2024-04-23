@@ -11,25 +11,21 @@ import org.junit.Test;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.actionunit.ut.actions.TestFunctionals.constant;
+import static com.github.dakusui.actionunit.ut.actions.TestFunctionals.printVariable;
 
 public class Example extends TestUtils.TestBase {
   @Ignore
   @Test
   public void test() {
     Action action = forEach(
-        "i",
-        (c) -> Stream.of("hello", "world")
-    ).parallelly(
-    ).perform(
+        constant(Stream.of("hello", "world"))).action(
         sequential(
-            simple("print1", (c) -> System.out.println(v(c))),
-            simple("print2", (c) -> System.out.println(v(c))),
+            simple("print1", printVariable()),
+            simple("print2", printVariable()),
             sequential(
-                simple("print2-1", (c) -> System.out.println(v(c))),
-                simple("print2-2", (c) -> System.out.println(v(c)))
-            )
-        )
-    );
+                simple("print2-1", printVariable()),
+                simple("print2-2", printVariable())))).$();
 
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
@@ -40,16 +36,13 @@ public class Example extends TestUtils.TestBase {
     Action action = sequential(
         sequential(
             sequential(
-                simple("print2-1", (c) -> System.out.println(v(c))),
-                simple("print2-2", (c) -> System.out.println(v(c)))
-            )
-        )
-    );
+                simple("print2-1", printVariable()),
+                simple("print2-2", printVariable()))));
 
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 
   static private String v(Context c) {
-    return c.valueOf("v");
+    return c.valueOf("i");
   }
 }

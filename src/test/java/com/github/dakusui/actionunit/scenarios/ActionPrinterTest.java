@@ -47,8 +47,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
                       }),
                       forEach(
                           "i",
-                          (c) -> Stream.of("hello1", "hello2", "hello3")
-                      ).perform(
+                          (c) -> Stream.of("hello1", "hello2", "hello3")).perform(
                           nop()
                       )
                   ))));
@@ -101,17 +100,14 @@ public class ActionPrinterTest extends TestUtils.TestBase {
               asString("next").containsString("do parallelly").$(),
               asString("next").containsString("Sequential (1st child)").$(),
               asString("next").containsString("do sequentially").$(),
-              asString("next").containsString("simple1").$(),
-              asString("next").containsString("(noname)").$(),
-              asString("next").containsString("simple2").$(),
-              asString("next").containsString("(noname)").$(),
-              asString("next").containsString("simple3").$(),
-              asString("next").containsString("(noname)").$(),
-              asString("next").containsString("for each of (noname) sequentially").$(),
+              asString("next").containsString("simple1:(noname)").$(),
+              asString("next").containsString("simple2:(noname)").$(),
+              asString("next").containsString("simple3:(noname)").$(),
+              asString("next").containsString("forEach:i:(noname)").$(),
               asString("next").containsString("(nop)").$()
           )
       );
-      assertEquals(12, size(writer));
+      assertEquals(9, size(writer));
     }
   }
 
@@ -131,15 +127,10 @@ public class ActionPrinterTest extends TestUtils.TestBase {
       @Test
       public void givenForEachWithTag$whenPerformed$thenResultPrinted() {
         final TestUtils.Out out1 = new TestUtils.Out();
-        Action action = forEach(
-            "i",
-            (c) -> Stream.of("A", "B")
-        ).perform(
-            sequential(
-                simple("+0", (c) -> out1.writeLine(c.valueOf("i") + "0")),
-                simple("+1", (c) -> out1.writeLine(c.valueOf("i") + "1"))
-            )
-        );
+        Action action = forEach("i", (c) -> Stream.of("A", "B")).perform(
+            b -> sequential(
+                simple("+0", (c) -> out1.writeLine(b.resolveValue(c) + "0")),
+                simple("+1", (c) -> out1.writeLine(b.resolveValue(c) + "1"))));
         action.accept(TestUtils.createActionPerformer());
         assertEquals(asList("A0", "A1", "B0", "B1"), out1);
 
@@ -148,12 +139,10 @@ public class ActionPrinterTest extends TestUtils.TestBase {
         Crest.assertThat(
             removeSpentTimeFromResultColumn(out2),
             Crest.allOf(
-                asString("get", 0).containsString("[o]").containsString("for each").$(),
-                asString("get", 1).containsString("[oo]").containsString("+0").$(),
-                asString("get", 2).containsString("[oo]").containsString("(noname)").$(),
-                asString("get", 3).containsString("[oo]").containsString("+1").$(),
-                asString("get", 4).containsString("[oo]").containsString("(noname)").$(),
-                asInteger("size").equalTo(5).$()
+                asString("get", 0).containsString("[o]").containsString("forEach").$(),
+                asString("get", 1).containsString("[oo]").containsString("+0:(noname)").$(),
+                asString("get", 2).containsString("[oo]").containsString("+1:(noname)").$(),
+                asInteger("size").equalTo(3).$()
             ));
       }
 

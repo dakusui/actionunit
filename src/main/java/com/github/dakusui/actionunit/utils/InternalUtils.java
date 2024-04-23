@@ -103,14 +103,22 @@ public enum InternalUtils {
         : s;
   }
 
-  public static String objectToStringIfOverridden(Object o, Supplier<String> formatter) {
+  public static String toStringIfOverriddenOrNoname(Object o) {
+    return objectToStringIfOverridden(o, fallbackFormatter());
+  }
+
+  public static Function<Object, String> fallbackFormatter() {
+    return obj -> "(noname)";
+  }
+
+  public static String objectToStringIfOverridden(Object o, Function<Object, String> formatter) {
     requireNonNull(formatter);
     try {
       return !Objects.equals(o.getClass().getMethod("toString"), OBJECT_TO_STRING_METHOD) ?
           o.toString() :
-          formatter.get();
+          formatter.apply(o);
     } catch (NoSuchMethodException e) {
-      return formatter.get();
+      return formatter.apply(o);
     }
   }
 
