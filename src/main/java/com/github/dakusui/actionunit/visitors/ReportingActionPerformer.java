@@ -16,11 +16,11 @@ public class ReportingActionPerformer extends ActionPerformer {
   private static final Logger              LOGGER = LoggerFactory.getLogger(ReportingActionPerformer.class);
   private final        Map<Action, Record> report;
 
-  private ReportingActionPerformer() {
+  public ReportingActionPerformer() {
     this(Context.create(), new LinkedHashMap<>());
   }
 
-  private ReportingActionPerformer(Context context, Map<Action, Record> report) {
+  public ReportingActionPerformer(Context context, Map<Action, Record> report) {
     super(context);
     this.report = report;
   }

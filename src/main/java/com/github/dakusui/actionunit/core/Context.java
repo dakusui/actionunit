@@ -30,11 +30,11 @@ public interface Context {
     private final       Map<String, Object> variables         = new HashMap<>();
     private final       Context             parent;
 
-    private Impl() {
+    public Impl() {
       this(null);
     }
 
-    private Impl(Context parent) {
+    public Impl(Context parent) {
       this.parent = parent;
     }
 
