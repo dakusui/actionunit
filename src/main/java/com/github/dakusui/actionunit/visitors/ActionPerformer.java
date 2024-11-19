@@ -37,9 +37,11 @@ public abstract class ActionPerformer implements Action.Visitor {
     Stream<Action> actionStream = action.isParallel()
         ? action.children().parallelStream()
         : action.children().stream();
-    actionStream.forEach(a -> callAccept(a, action.isParallel() ?
-        newInstance(this.context.createChild()) :
-        this));
+    actionStream.forEach(
+        a -> callAccept(a,
+            action.isParallel() ?
+                newInstance(this.context.createChild()) :
+                this));
   }
 
   public <E> void visit(ForEach<E> action) {
