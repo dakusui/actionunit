@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 
+import java.util.Formatter;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -125,6 +126,12 @@ public enum ActionSupport {
 
   public static Action parallel(Action... actions) {
     return parallel(asList(actions));
+  }
+
+  public static Ensure.Builder ensure(Action target) {
+    Ensure.Builder b = new Ensure.Builder();
+    b.target(target);
+    return b;
   }
 }
 

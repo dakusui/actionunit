@@ -1,6 +1,7 @@
 package com.github.dakusui.actionunit.core;
 
 import com.github.dakusui.actionunit.actions.*;
+import jdk.internal.org.jline.utils.Timeout;
 
 import java.util.Formattable;
 
@@ -21,7 +22,7 @@ public interface Action extends Formattable {
      *
      * @return An object built by {@code build} method.
      */
-    final public A $() {
+    public final A $() {
       return build();
     }
   }
@@ -69,6 +70,10 @@ public interface Action extends Formattable {
     }
 
     default void visit(TimeOut action) {
+      this.visit((Action) action);
+    }
+
+    default void visit(Ensure action) {
       this.visit((Action) action);
     }
   }

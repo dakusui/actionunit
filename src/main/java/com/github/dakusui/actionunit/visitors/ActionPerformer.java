@@ -6,7 +6,6 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -25,14 +24,17 @@ public abstract class ActionPerformer implements Action.Visitor {
     this.context.assignTo(ONGOING_EXCEPTIONS_TABLE_NAME, ongoingExceptions);
   }
 
+  @Override
   public void visit(Leaf action) {
     action.runnable(context).run();
   }
 
+  @Override
   public void visit(Named action) {
     callAccept(action.action(), this);
   }
 
+  @Override
   public void visit(Composite action) {
     Stream<Action> actionStream = action.isParallel()
         ? action.children().parallelStream()
@@ -44,6 +46,7 @@ public abstract class ActionPerformer implements Action.Visitor {
                 this));
   }
 
+  @Override
   public <E> void visit(ForEach<E> action) {
     Stream<E> data = action.valueSource().apply(this.context);
     Function<E, Action.Visitor> visitorFactory = v -> {
@@ -108,6 +111,7 @@ public abstract class ActionPerformer implements Action.Visitor {
     }
   }
 
+  @Override
   public void visit(Retry action) {
     boolean succeeded = false;
     Action targetAction = action.perform();
@@ -134,6 +138,7 @@ public abstract class ActionPerformer implements Action.Visitor {
     }
   }
 
+  @Override
   public void visit(TimeOut action) {
     InternalUtils.runWithTimeout(
         () -> {
@@ -143,8 +148,35 @@ public abstract class ActionPerformer implements Action.Visitor {
         () -> String.format("%s", action),
         () -> formatOngoingExceptions(action.perform()),
         action.durationInNanos(),
-        NANOSECONDS
-    );
+        NANOSECONDS);
+  }
+
+  @Override
+  public void visit(Ensure action) {
+    if (action.ensurers().isEmpty()) {
+      callAccept(action.target(), this);
+      return;
+    }
+    Throwable t = null;
+    for (Action each : action.ensurers()) {
+      try {
+        callAccept(each, this);
+        callAccept(action.target(), this);
+        t = null;
+        break;
+      } catch (OutOfMemoryError e) {
+        throw e;
+      } catch (Throwable e) {
+        if (action.isRecoverable(e)) {
+          t = e;
+        } else {
+          throw (RuntimeException) action.rethrow(e);
+        }
+      }
+    }
+    if (t != null) {
+      throw new ActionException(t.getCause());
+    }
   }
 
   protected abstract Action.Visitor newInstance(Context context);
@@ -165,6 +197,7 @@ public abstract class ActionPerformer implements Action.Visitor {
 
   private String formatOngoingExceptions(Action action) {
     StringBuilder b = new StringBuilder();
+    b.append("[").append(action).append("]");
     for (Action ongoingAction : ongoingExceptionsTable().keySet()) {
       b.append(String.format("%n%s%n----%n", ongoingAction));
       Throwable e = ongoingExceptionsTable().get(ongoingAction);

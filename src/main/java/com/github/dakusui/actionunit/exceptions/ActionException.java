@@ -1,7 +1,5 @@
 package com.github.dakusui.actionunit.exceptions;
 
-import java.util.concurrent.TimeoutException;
-
 /**
  * Encapsulate a general Action error or warning.
  */
