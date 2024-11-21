@@ -35,6 +35,7 @@
     </developers>
 
     <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pcond.version>3.0.1</pcond.version>
         <processstreamer.version>1.0.0</processstreamer.version>

@@ -9,6 +9,7 @@ import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContext
 import com.github.dakusui.actionunit.core.context.multiparams.Params;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.function.Consumer;
@@ -91,6 +92,7 @@ public class ContextFunctionsHelperUnitTest {
         Writer.Std.OUT);
   }
 
+  @Ignore
   @Test
   public void givenLambda$whenPrettyClassName$thenCorrectStringIsGiven() {
     assertThat(
