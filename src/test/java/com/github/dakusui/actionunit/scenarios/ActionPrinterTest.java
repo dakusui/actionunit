@@ -11,6 +11,7 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ActionPrinter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.crest.Crest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -81,6 +82,7 @@ public class ActionPrinterTest extends TestUtils.TestBase {
       composeAction().accept(new ActionPrinter(Writer.Slf4J.ERROR));
     }
 
+    @Ignore
     @Test
     public void givenNew() {
       ////

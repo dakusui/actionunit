@@ -21,7 +21,7 @@ public interface Action extends Formattable {
      *
      * @return An object built by {@code build} method.
      */
-    final public A $() {
+    public final A $() {
       return build();
     }
   }
@@ -69,6 +69,10 @@ public interface Action extends Formattable {
     }
 
     default void visit(TimeOut action) {
+      this.visit((Action) action);
+    }
+
+    default void visit(Ensured action) {
       this.visit((Action) action);
     }
   }

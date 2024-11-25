@@ -126,5 +126,20 @@ public enum ActionSupport {
   public static Action parallel(Action... actions) {
     return parallel(asList(actions));
   }
+
+  /**
+   * Returns an action to build `Ensured` action.
+   * By adding actions to the returned builder's methods, you can construct an `Ensured` action, whose
+   * target action's success is ensured by those added actions.
+   *
+   * @param target An action ensured to be successful.
+   * @return A builder for an `Ensured` action.
+   * @see Ensured
+   */
+  public static Ensured.Builder ensure(Action target) {
+    Ensured.Builder b = new Ensured.Builder();
+    b.target(target);
+    return b;
+  }
 }
 
