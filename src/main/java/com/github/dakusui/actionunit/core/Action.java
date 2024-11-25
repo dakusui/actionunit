@@ -72,7 +72,7 @@ public interface Action extends Formattable {
       this.visit((Action) action);
     }
 
-    default void visit(Ensure action) {
+    default void visit(Ensured action) {
       this.visit((Action) action);
     }
   }

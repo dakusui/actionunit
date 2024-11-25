@@ -3,7 +3,6 @@ package com.github.dakusui.actionunit.visitors;
 import com.github.dakusui.actionunit.actions.*;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.actionunit.utils.InternalUtils;
 
 import java.util.Map;
@@ -11,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
@@ -104,7 +104,7 @@ public abstract class ActionPerformer implements Action.Visitor {
             originalContext.assignTo(Context.Impl.ONGOING_EXCEPTION, t)
         ));
       } else
-        throw ActionException.wrap(t);
+        throw wrap(t);
     } finally {
       callAccept(action.ensure(), this);
       this.context = originalContext;
@@ -127,14 +127,14 @@ public abstract class ActionPerformer implements Action.Visitor {
           registerLastExceptionFor(targetAction, lastException);
           InternalUtils.sleep(action.intervalInNanoseconds(), NANOSECONDS);
         } else {
-          throw ActionException.wrap(t);
+          throw wrap(t);
         }
       }
     }
     if (succeeded) {
       unregisterLastExceptionFor(targetAction);
     } else {
-      throw ActionException.wrap(lastException);
+      throw wrap(lastException);
     }
   }
 
@@ -152,30 +152,31 @@ public abstract class ActionPerformer implements Action.Visitor {
   }
 
   @Override
-  public void visit(Ensure action) {
+  public void visit(Ensured action) {
     if (action.ensurers().isEmpty()) {
       callAccept(action.target(), this);
       return;
     }
     Throwable t = null;
+    Action lastEnsurer = action.ensurers().get(action.ensurers().size() - 1);
     for (Action each : action.ensurers()) {
+      callAccept(each, this);
+      t = null;
       try {
-        callAccept(each, this);
         callAccept(action.target(), this);
-        t = null;
         break;
-      } catch (OutOfMemoryError e) {
+      } catch (OutOfMemoryError | StackOverflowError e) {
         throw e;
-      } catch (Throwable e) {
-        if (action.isRecoverable(e)) {
-          t = e;
-        } else {
+      } catch (Exception | Error e) {
+        if (!action.isRecoverable(e)) {
           throw (RuntimeException) action.rethrow(e);
+        } else if (each == lastEnsurer) {
+          t = e;
         }
       }
     }
     if (t != null) {
-      throw new ActionException(t.getCause());
+      throw wrap(t.getCause());
     }
   }
 

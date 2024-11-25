@@ -36,6 +36,20 @@ public class ActionException extends RuntimeException {
   }
 
 
+  /**
+   * Wraps a given exception if necessary.
+   *
+   * Note that this method throws an exception itself or that wraps the given throwable, not returns.
+   * Therefore, this method never finishes.
+   *
+   * You can construct a throw statement using this method.
+   * That is, you can construct a statement: `throw wrap(anException);`, which
+   * doesn't confuse static code analysis.
+   *
+   * @param t An exception to be rethrown.
+   * @return Will never be returned, but thrown.
+   * @param <T> Type of exception to be thrown.
+   */
   public static <T extends ActionException> T wrap(Throwable t) {
     if (t == null) {
       throw new ActionException(t);

@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
 import com.github.dakusui.actionunit.actions.cmd.UnixCommanderFactory;
 import com.github.dakusui.actionunit.actions.cmd.unix.Cmd;
 
-import java.util.Formatter;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -128,8 +127,17 @@ public enum ActionSupport {
     return parallel(asList(actions));
   }
 
-  public static Ensure.Builder ensure(Action target) {
-    Ensure.Builder b = new Ensure.Builder();
+  /**
+   * Returns an action to build `Ensured` action.
+   * By adding actions to the returned builder's methods, you can construct an `Ensured` action, whose
+   * target action's success is ensured by those added actions.
+   *
+   * @param target An action ensured to be successful.
+   * @return A builder for an `Ensured` action.
+   * @see Ensured
+   */
+  public static Ensured.Builder ensure(Action target) {
+    Ensured.Builder b = new Ensured.Builder();
     b.target(target);
     return b;
   }
