@@ -17,9 +17,17 @@ import static com.github.dakusui.printables.PrintableFunctionals.printableConsum
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A utility class to build various actions.
+ */
 public enum ActionSupport {
   ;
 
+  /**
+   * Creates an action that does nothing.
+   *
+   * @return A nop action.
+   */
   public static Action nop() {
     // Needs to be instantiated each time this method is called.
     // Otherwise, multiple nops cannot be identified in an action tree.
@@ -30,6 +38,13 @@ public enum ActionSupport {
     return Leaf.of(consumer);
   }
 
+  /**
+   * Returns an action named with a given string `name`.
+   *
+   * @param name A name given to `action`.
+   * @param action An action to be named.
+   * @return A named action.
+   */
   public static Action named(String name, Action action) {
     return Named.of(name, action);
   }
@@ -119,10 +134,22 @@ public enum ActionSupport {
     return leaf(printableConsumer(consumer).describe(name + ":" + toStringIfOverriddenOrNoname(consumer)));
   }
 
+  /**
+   * Creates an action that performs given actions one by one sequentially.
+   *
+   * @param actions Actions to be performed.
+   * @return An action that performs `actions`.
+   */
   public static Action sequential(Action... actions) {
     return sequential(asList(actions));
   }
 
+  /**
+   * Creates an action that performs given actions one by one sequentially.
+   *
+   * @param actions Actions to be performed.
+   * @return An action that performs `actions`.
+   */
   public static Action parallel(Action... actions) {
     return parallel(asList(actions));
   }

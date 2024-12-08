@@ -1,5 +1,6 @@
 package com.github.dakusui.actionunit.scenarios;
 
+import com.github.dakusui.actionunit.actions.Ensured;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.io.Writer;
@@ -10,18 +11,35 @@ import org.junit.Test;
 public class EnsuredTest {
 
   @Test
-  public void givenEnsure_whenPerform_thenBehavesAsExpected() {
+  public void givenEnsureWithThreeEnsurers_whenPerform_thenBehavesAsExpected() {
     Action action = ActionSupport.ensure(passesOnAttempt(2))
-        .recoverExceptions(e -> e instanceof IntentionalFailure)
-        .withNop()
         .withNop()
         .withNop()
         .withNop()
         .build();
 
     run(action);
+  }
 
+  @Test
+  public void givenEnsureWithThreeEnsurersFirstFailing_whenPerform_thenBehavesAsExpected() {
+    Action action = ActionSupport.ensure(passesOnAttempt(1))
+        .with(throwRecoverableException())
+        .withNop()
+        .withNop()
+        .build();
 
+    run(action);
+  }
+
+  @Test(expected = IntentionalFailure.class)
+  public void givenEnsureWithTwoEnsurers_whenPerformActionPassingOnThirdAttempt_thenFail() {
+    Action action = ActionSupport.ensure(passesOnAttempt(2))
+        .withNop()
+        .withNop()
+        .build();
+
+    run(action);
   }
 
   /**
@@ -41,13 +59,19 @@ public class EnsuredTest {
     }));
   }
 
+  static class IntentionalFailure extends Ensured.RequestRetry {
+    public IntentionalFailure(int i) {
+      super(i + "th try");
+    }
+  }
+
   private static void run(Action action) {
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
 
-  static class IntentionalFailure extends RuntimeException {
-    public IntentionalFailure(int i) {
-      super(i + "th try");
-    }
+  private static Action throwRecoverableException() {
+    return ActionSupport.simple("fail", c -> {
+      throw new RuntimeException("fail");
+    });
   }
 }
