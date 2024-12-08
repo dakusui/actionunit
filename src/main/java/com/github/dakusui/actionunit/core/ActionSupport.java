@@ -41,7 +41,7 @@ public enum ActionSupport {
   /**
    * Returns an action named with a given string `name`.
    *
-   * @param name A name given to `action`.
+   * @param name   A name given to `action`.
    * @param action An action to be named.
    * @return A named action.
    */
@@ -70,10 +70,26 @@ public enum ActionSupport {
     return new ForEach.Builder<>(variableName, streamGenerator);
   }
 
+  /**
+   * Returns a builder to create an action repeated while `condition` is satisfied.
+   *
+   * @param condition A condition to make an action repeated.
+   * @return A builder for `While` action.
+   * @see While
+   * @see While.Builder
+   */
   public static While.Builder repeatWhile(Predicate<Context> condition) {
     return new While.Builder(condition);
   }
 
+  /**
+   * Returns a builder to create an action performed when `condition` is satisfied.
+   *
+   * @param cond A condition to make an actiono performed.
+   * @return A builder for `When` action
+   * @see When
+   * @see When.Builder
+   */
   public static When.Builder when(Predicate<Context> cond) {
     return new When.Builder(cond);
   }
