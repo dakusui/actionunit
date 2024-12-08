@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Composite.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">Composite.java</span></div><h1>Composite.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+
+public interface Composite extends Action {
+  List&lt;Action&gt; children();
+
+  boolean isParallel();
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="fc" id="L18">    formatter.format(</span>
+        &quot;do %s&quot;,
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        isParallel()</span>
+            ? &quot;parallelly&quot;
+            : &quot;sequentially&quot;
+    );
+<span class="fc" id="L24">  }</span>
+
+  class Builder {
+    private       boolean      parallel;
+    private final List&lt;Action&gt; actions;
+
+<span class="fc" id="L30">    public Builder(List&lt;Action&gt; actions) {</span>
+<span class="fc" id="L31">      this.actions = actions;</span>
+<span class="fc" id="L32">      this.sequential();</span>
+<span class="fc" id="L33">    }</span>
+
+    public Builder parallel() {
+<span class="fc" id="L36">      this.parallel = true;</span>
+<span class="fc" id="L37">      return this;</span>
+    }
+
+    public Builder sequential() {
+<span class="fc" id="L41">      this.parallel = false;</span>
+<span class="fc" id="L42">      return this;</span>
+    }
+
+    public Composite build() {
+<span class="fc" id="L46">      return new Impl(actions, parallel);</span>
+    }
+  }
+
+  class Impl implements Composite {
+    private final List&lt;Action&gt; actions;
+    private final boolean      parallel;
+
+<span class="fc" id="L54">    protected Impl(List&lt;Action&gt; actions, boolean parallel) {</span>
+<span class="fc" id="L55">      this.actions = requireNonNull(actions);</span>
+<span class="fc" id="L56">      this.parallel = parallel;</span>
+<span class="fc" id="L57">    }</span>
+
+    @Override
+    public List&lt;Action&gt; children() {
+<span class="fc" id="L61">      return Collections.unmodifiableList(actions);</span>
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+<span class="fc" id="L66">      visitor.visit(this);</span>
+<span class="fc" id="L67">    }</span>
+
+    @Override
+    public boolean isParallel() {
+<span class="fc" id="L71">      return this.parallel;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

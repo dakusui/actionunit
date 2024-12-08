@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SshShell.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd.unix</a> &gt; <span class="el_source">SshShell.java</span></div><h1>SshShell.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd.unix;
+
+import com.github.dakusui.processstreamer.core.process.Shell;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+
+public interface SshShell extends Shell {
+  class Impl implements SshShell {
+    private final String       program;
+    private final List&lt;String&gt; options;
+
+<span class="fc" id="L15">    Impl(String program, List&lt;String&gt; options) {</span>
+<span class="fc" id="L16">      this.program = program;</span>
+<span class="fc" id="L17">      this.options = options;</span>
+<span class="fc" id="L18">    }</span>
+
+    @Override
+    public String program() {
+<span class="fc" id="L22">      return program;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; options() {
+<span class="fc" id="L27">      return options;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L32">      return String.format(&quot;%s %s&quot;, program, String.join(&quot; &quot;, options));</span>
+    }
+  }
+
+  class Builder {
+    /**
+     * A name of ssh program. Usually just `ssh`.
+     */
+    private       String program;
+    private       String user;
+    private final String host;
+
+    /**
+     * Holds options specific to {@code ssh} command. That is, options supported
+     * by {@code ssh} but not by {@code scp} should be stored in this field.
+     */
+    private final SshOptions options;
+
+    public Builder(String host) {
+<span class="nc" id="L51">      this(host, new SshOptions.Builder().build());</span>
+<span class="nc" id="L52">    }</span>
+
+<span class="fc" id="L54">    public Builder(String host, SshOptions options) {</span>
+<span class="fc" id="L55">      this.program(&quot;ssh&quot;);</span>
+<span class="fc" id="L56">      this.host = requireNonNull(host);</span>
+<span class="fc" id="L57">      this.options = requireNonNull(options);</span>
+<span class="fc" id="L58">    }</span>
+
+    public Builder program(String program) {
+<span class="fc" id="L61">      this.program = requireNonNull(program);</span>
+<span class="fc" id="L62">      return this;</span>
+    }
+
+    public Builder user(String user) {
+<span class="fc" id="L66">      this.user = requireNonNull(user);</span>
+<span class="fc" id="L67">      return this;</span>
+    }
+
+    public Shell build() {
+<span class="fc" id="L71">      List&lt;String&gt; options = new LinkedList&lt;String&gt;() {{</span>
+<span class="fc" id="L72">        this.addAll(Builder.this.options.formatOptionsWith(SshOptions.Formatter.forSsh()));</span>
+<span class="fc" id="L73">        this.add(</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            user != null ?</span>
+<span class="pc" id="L75">                String.format(&quot;%s@%s&quot;, user, host) :</span>
+<span class="nc" id="L76">                host);</span>
+<span class="fc" id="L77">      }};</span>
+<span class="fc" id="L78">      return new Impl(program, options);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

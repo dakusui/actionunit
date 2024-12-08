@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProgramNameResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">ProgramNameResolver.java</span></div><h1>ProgramNameResolver.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+
+import static java.util.Collections.unmodifiableList;
+
+/**
+ * A trivial interface to alias {@code BiFunction&lt;String, String, String&gt;} for readability.
+ *
+ * Sometimes, a program (`echo`, `ls`, etc.) may behave because of its implementation on a certain host.
+ * To achieve intended behavior on the host, sometimes we need to specify a full-path of a command.
+ * For instance, `echo` is a built-in of `bash` and to use `-E` option of `echo` command (not built-in!),
+ * we must specify `/bin/echo`, instead of just `echo`.
+ *
+ * `CommanderConfig` has a method `programNameResolver`, which returns {@code BiFunction&lt;String, String, String&gt;}.
+ * This bi-function is used to figure out an actual program name to be run on a certain host.
+ *
+ * That is, a pair of string values, which are host name and a command name are given to the bi-function, which is supposed to return an actual program name executed on the host as the given command name.
+ */
+public interface ProgramNameResolver extends BiFunction&lt;String, String, String&gt; {
+  /**
+   * A builder to create a {@link ProgramNameResolver} instance easily.
+   * The instance built by this class behaves as follows, when a pair of hostname and command name:
+   *
+   * Check a list of entries ({@link ProgramNameResolver.Builder.Entry}) one by one if its `matcher` returns `true` for the pair.
+   * If it finds an entry whose `matcher` gives true, applies a command name to its `resolver` and returns the value as the result of the program name resolver.
+   * If no entry matches with the host name and the command name, an {@link NoSuchElementException} will be thrown.
+   */
+  class Builder {
+    /**
+     * A conversion rule entry.
+     */
+    interface Entry {
+      /**
+       * A bi-predicate that checks if a given pair of a host name and a command name matches this entry.
+       * The first parameter corresponds to the host name and the second one corresponds to the command name.
+       *
+       * @return matcher bi-predicate.
+       */
+      BiPredicate&lt;String, String&gt; matcher();
+
+      /**
+       * Returns a function that maps a command name to an actual program name, executed on the host, checked by the bi-predicate retuened by `matcher()` method.
+       *
+       * @return A function that maps a command name to an actual program name
+       */
+      Function&lt;String, String&gt; resolver();
+
+      /**
+       * Createsn an instance of {@link Entry}.
+       *
+       * @param matcher  A matcher bi-predicate.
+       * @param resolver A resolver function.
+       * @return A new {@link Entry} objeect.
+       * @see this#matcher()
+       * @see this#resolver()
+       */
+      static Entry create(BiPredicate&lt;String, String&gt; matcher, Function&lt;String, String&gt; resolver) {
+<span class="fc" id="L62">        return new Entry() {</span>
+          @Override
+          public BiPredicate&lt;String, String&gt; matcher() {
+<span class="fc" id="L65">            return matcher;</span>
+          }
+
+          @Override
+          public Function&lt;String, String&gt; resolver() {
+<span class="fc" id="L70">            return resolver;</span>
+          }
+        };
+      }
+    }
+
+<span class="fc" id="L76">    final List&lt;Entry&gt; entries = new LinkedList&lt;&gt;();</span>
+
+    /**
+     * Constructs a new {@link ProgramNameResolver.Builder} object.
+     */
+<span class="fc" id="L81">    public Builder() {</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Registers a transforming rule for program names.
+     *
+     * Note that an entry registered later is more prioritized than ones registered earlier.
+     *
+     * @param matcher             A predicate to decide if program name resolution by {@code programNameResolver} should be applied.
+     * @param programNameResolver A function that converts a program name for a host.
+     * @return This object.
+     */
+    public Builder register(BiPredicate&lt;String, String&gt; matcher, Function&lt;String, String&gt; programNameResolver) {
+<span class="fc" id="L94">      this.entries.add(0, Entry.create(matcher, programNameResolver));</span>
+<span class="fc" id="L95">      return this;</span>
+    }
+
+    /**
+     * Builds a new {@link ProgramNameResolver} object.
+     *
+     * @return A new {@link ProgramNameResolver} object
+     */
+    public ProgramNameResolver build() {
+<span class="fc" id="L104">      return new ProgramNameResolver() {</span>
+<span class="fc" id="L105">        final List&lt;Entry&gt; entries = unmodifiableList(new ArrayList&lt;&gt;(Builder.this.entries));</span>
+
+        @Override
+        public String apply(String host, String programName) {
+<span class="fc" id="L109">          return this.entries.stream()</span>
+<span class="fc" id="L110">              .filter(each -&gt; each.matcher().test(host, programName))</span>
+<span class="fc" id="L111">              .findFirst()</span>
+<span class="fc" id="L112">              .map(v -&gt; v.resolver().apply(programName))</span>
+<span class="fc" id="L113">              .orElseThrow(NoSuchElementException::new);</span>
+        }
+      };
+    }
+  }
+
+  /**
+   * Creates a {@link ProgramNameResolver} instance with a handy default for UNIX environment.
+   *
+   * @return An instance for UNIX environment.
+   */
+  static ProgramNameResolver createForUnix() {
+<span class="fc" id="L125">    return new Builder()</span>
+<span class="fc" id="L126">        .register((h, c) -&gt; true, c -&gt; c)</span>
+<span class="fc" id="L127">        .register((h, c) -&gt; &quot;echo&quot;.equals(c), c -&gt; &quot;/bin/echo&quot;)</span>
+<span class="fc" id="L128">        .build();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

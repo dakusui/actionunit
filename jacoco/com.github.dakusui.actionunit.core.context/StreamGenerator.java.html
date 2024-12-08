@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StreamGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.core.context</a> &gt; <span class="el_source">StreamGenerator.java</span></div><h1>StreamGenerator.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.core.context;
+
+import com.github.dakusui.actionunit.actions.ContextVariable;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.multiparams.Params;
+import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toMap;
+
+public interface StreamGenerator&lt;T&gt; extends ContextFunction&lt;Stream&lt;T&gt;&gt; {
+
+  @SafeVarargs
+  static &lt;T&gt; Function&lt;Context, Stream&lt;T&gt;&gt; fromArray(T... elements) {
+<span class="fc" id="L21">    return fromCollection(asList(elements));</span>
+  }
+
+  static &lt;T&gt; Function&lt;Context, Stream&lt;T&gt;&gt; fromCollection(Collection&lt;T&gt; collection) {
+<span class="fc" id="L25">    requireNonNull(collection);</span>
+<span class="fc" id="L26">    return fromContextWith(new Function&lt;Params, Stream&lt;T&gt;&gt;() {</span>
+      @Override
+      public Stream&lt;T&gt; apply(Params params) {
+<span class="fc" id="L29">        return collection.stream();</span>
+      }
+
+      public String toString() {
+<span class="fc" id="L33">        return String.format(&quot;%s.stream()&quot;, collection);</span>
+      }
+    });
+  }
+
+  static &lt;T&gt; Function&lt;Context, Stream&lt;T&gt;&gt; fromContextWith(Function&lt;Params, Stream&lt;T&gt;&gt; func, ContextVariable... variables) {
+<span class="fc" id="L39">    requireNonNull(func);</span>
+<span class="fc" id="L40">    return new StreamGenerator&lt;T&gt;() {</span>
+      @Override
+      public Stream&lt;T&gt; apply(Context context) {
+<span class="fc" id="L43">        return func.apply(Params.create(context, variables));</span>
+      }
+
+      @Override
+      public String toString() {
+<span class="fc" id="L48">        return String.format(&quot;(%s)-&gt;%s&quot;,</span>
+<span class="fc" id="L49">            String.join(&quot;,&quot;, Arrays.stream(variables)</span>
+<span class="fc" id="L50">                .map(ContextVariable::variableName)</span>
+<span class="fc" id="L51">                .toArray(String[]::new)),</span>
+<span class="fc" id="L52">            StableTemplatingUtils.template(</span>
+<span class="fc" id="L53">                func.toString(),</span>
+<span class="fc" id="L54">                Arrays.stream(variables)</span>
+<span class="fc" id="L55">                    .collect(toMap(</span>
+                        ContextVariable::variableName,
+<span class="nc" id="L57">                        k -&gt; String.format(&quot;{{%s}}&quot;, k)))));</span>
+      }
+    };
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

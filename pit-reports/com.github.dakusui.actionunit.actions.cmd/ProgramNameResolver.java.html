@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>ProgramNameResolver.java</h1>
+
+<table class="src">
+
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package com.github.dakusui.actionunit.actions.cmd;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.*;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.BiFunction;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.BiPredicate;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Function;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static java.util.Collections.unmodifiableList;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>/**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * A trivial interface to alias {@code BiFunction&#60;String, String, String&#62;} for readability.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * Sometimes, a program (`echo`, `ls`, etc.) may behave because of its implementation on a certain host.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * To achieve intended behavior on the host, sometimes we need to specify a full-path of a command.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * For instance, `echo` is a built-in of `bash` and to use `-E` option of `echo` command (not built-in!),</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * we must specify `/bin/echo`, instead of just `echo`.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * `CommanderConfig` has a method `programNameResolver`, which returns {@code BiFunction&#60;String, String, String&#62;}.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * This bi-function is used to figure out an actual program name to be run on a certain host.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * That is, a pair of string values, which are host name and a command name are given to the bi-function, which is supposed to return an actual program name executed on the host as the given command name.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_22'/>
+22
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_22'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>public interface ProgramNameResolver extends BiFunction&#60;String, String, String&#62; {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_25'/>
+25
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_25'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   * A builder to create a {@link ProgramNameResolver} instance easily.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_26'/>
+26
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_26'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   * The instance built by this class behaves as follows, when a pair of hostname and command name:</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_27'/>
+27
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_27'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_28'/>
+28
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_28'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   * Check a list of entries ({@link ProgramNameResolver.Builder.Entry}) one by one if its `matcher` returns `true` for the pair.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_29'/>
+29
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_29'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   * If it finds an entry whose `matcher` gives true, applies a command name to its `resolver` and returns the value as the result of the program name resolver.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_30'/>
+30
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_30'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   * If no entry matches with the host name and the command name, an {@link NoSuchElementException} will be thrown.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_31'/>
+31
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_31'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_32'/>
+32
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_32'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  class Builder {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_33'/>
+33
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_33'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_34'/>
+34
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_34'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * A conversion rule entry.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_35'/>
+35
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_35'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_36'/>
+36
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_36'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    interface Entry {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_37'/>
+37
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_37'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_38'/>
+38
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_38'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * A bi-predicate that checks if a given pair of a host name and a command name matches this entry.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_39'/>
+39
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_39'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * The first parameter corresponds to the host name and the second one corresponds to the command name.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_40'/>
+40
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_40'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_41'/>
+41
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_41'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * @return matcher bi-predicate.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_42'/>
+42
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_42'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_43'/>
+43
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_43'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      BiPredicate&#60;String, String&#62; matcher();</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_44'/>
+44
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_44'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_45'/>
+45
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_45'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_46'/>
+46
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_46'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * Returns a function that maps a command name to an actual program name, executed on the host, checked by the bi-predicate retuened by `matcher()` method.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_47'/>
+47
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_47'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_48'/>
+48
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_48'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * @return A function that maps a command name to an actual program name</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_49'/>
+49
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_49'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_50'/>
+50
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_50'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      Function&#60;String, String&#62; resolver();</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_51'/>
+51
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_51'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_52'/>
+52
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_52'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_53'/>
+53
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_53'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * Createsn an instance of {@link Entry}.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_54'/>
+54
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_54'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_55'/>
+55
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_55'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * @param matcher  A matcher bi-predicate.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_56'/>
+56
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_56'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * @param resolver A resolver function.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_57'/>
+57
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_57'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * @return A new {@link Entry} objeect.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_58'/>
+58
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_58'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * @see this#matcher()</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_59'/>
+59
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_59'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       * @see this#resolver()</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_60'/>
+60
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_60'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>       */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_61'/>
+61
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_61'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      static Entry create(BiPredicate&#60;String, String&#62; matcher, Function&#60;String, String&#62; resolver) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_62'/>
+62
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_62'>1</a>
+<span>
+1. create : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$Entry::create &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return new Entry() {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_63'/>
+63
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_63'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          @Override</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_64'/>
+64
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_64'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          public BiPredicate&#60;String, String&#62; matcher() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_65'/>
+65
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_65'>1</a>
+<span>
+1. matcher : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$Entry$1::matcher &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return matcher;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_66'/>
+66
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_66'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_67'/>
+67
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_67'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_68'/>
+68
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_68'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          @Override</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_69'/>
+69
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_69'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          public Function&#60;String, String&#62; resolver() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_70'/>
+70
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_70'>1</a>
+<span>
+1. resolver : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$Entry$1::resolver &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return resolver;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_71'/>
+71
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_71'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_72'/>
+72
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_72'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        };</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_73'/>
+73
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_73'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_74'/>
+74
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_74'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_75'/>
+75
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_75'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_76'/>
+76
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_76'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    final List&#60;Entry&#62; entries = new LinkedList&#60;&#62;();</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_77'/>
+77
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_77'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_78'/>
+78
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_78'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_79'/>
+79
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_79'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * Constructs a new {@link ProgramNameResolver.Builder} object.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_80'/>
+80
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_80'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_81'/>
+81
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_81'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    public Builder() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_82'/>
+82
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_82'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_83'/>
+83
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_83'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_84'/>
+84
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_84'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_85'/>
+85
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_85'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * Registers a transforming rule for program names.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_86'/>
+86
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_86'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_87'/>
+87
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_87'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * Note that an entry registered later is more prioritized than ones registered earlier.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_88'/>
+88
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_88'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_89'/>
+89
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_89'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param matcher             A predicate to decide if program name resolution by {@code programNameResolver} should be applied.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_90'/>
+90
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_90'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param programNameResolver A function that converts a program name for a host.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_91'/>
+91
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_91'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @return This object.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_92'/>
+92
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_92'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_93'/>
+93
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_93'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public Builder register(BiPredicate&#60;String, String&#62; matcher, Function&#60;String, String&#62; programNameResolver) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_94'/>
+94
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_94'>1</a>
+<span>
+1. register : removed call to java/util/List::add &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>      this.entries.add(0, Entry.create(matcher, programNameResolver));</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_95'/>
+95
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_95'>1</a>
+<span>
+1. register : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder::register &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>      return this;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_96'/>
+96
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_96'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_97'/>
+97
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_97'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_98'/>
+98
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_98'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_99'/>
+99
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_99'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * Builds a new {@link ProgramNameResolver} object.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_100'/>
+100
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_100'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_101'/>
+101
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_101'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @return A new {@link ProgramNameResolver} object</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_102'/>
+102
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_102'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_103'/>
+103
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_103'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public ProgramNameResolver build() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_104'/>
+104
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_104'>1</a>
+<span>
+1. build : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder::build &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>      return new ProgramNameResolver() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_105'/>
+105
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_105'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        final List&#60;Entry&#62; entries = unmodifiableList(new ArrayList&#60;&#62;(Builder.this.entries));</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_106'/>
+106
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_106'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_107'/>
+107
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_107'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        @Override</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_108'/>
+108
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_108'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        public String apply(String host, String programName) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_109'/>
+109
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_109'>1</a>
+<span>
+1. apply : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::apply &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>          return this.entries.stream()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_110'/>
+110
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_110'>2</a>
+<span>
+1. lambda$apply$0 : replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::lambda$apply$0 &rarr; KILLED<br/>
+2. lambda$apply$0 : replaced boolean return with true for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::lambda$apply$0 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>              .filter(each -&#62; each.matcher().test(host, programName))</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_111'/>
+111
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_111'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>              .findFirst()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_112'/>
+112
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_112'>1</a>
+<span>
+1. lambda$apply$1 : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::lambda$apply$1 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>              .map(v -&#62; v.resolver().apply(programName))</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_113'/>
+113
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_113'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>              .orElseThrow(NoSuchElementException::new);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_114'/>
+114
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_114'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_115'/>
+115
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_115'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      };</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_116'/>
+116
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_116'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_117'/>
+117
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_117'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_118'/>
+118
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_118'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_119'/>
+119
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_119'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  /**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_120'/>
+120
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_120'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   * Creates a {@link ProgramNameResolver} instance with a handy default for UNIX environment.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_121'/>
+121
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_121'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_122'/>
+122
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_122'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   * @return An instance for UNIX environment.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_123'/>
+123
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_123'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>   */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_124'/>
+124
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_124'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static ProgramNameResolver createForUnix() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_125'/>
+125
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_125'>1</a>
+<span>
+1. createForUnix : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::createForUnix &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return new Builder()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_126'/>
+126
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_126'>2</a>
+<span>
+1. lambda$createForUnix$0 : replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$0 &rarr; KILLED<br/>
+2. lambda$createForUnix$1 : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$1 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        .register((h, c) -&#62; true, c -&#62; c)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_127'/>
+127
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_127'>3</a>
+<span>
+1. lambda$createForUnix$2 : replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$2 &rarr; KILLED<br/>
+2. lambda$createForUnix$2 : replaced boolean return with true for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$2 &rarr; KILLED<br/>
+3. lambda$createForUnix$3 : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$3 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        .register((h, c) -&#62; &#34;echo&#34;.equals(c), c -&#62; &#34;/bin/echo&#34;)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_128'/>
+128
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_128'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .build();</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_129'/>
+129
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_129'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_130'/>
+130
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_130'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_62'>62</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_62'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>create<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$Entry::create &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_65'>65</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_65'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>matcher<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$Entry$1::matcher &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_70'>70</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_70'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>resolver<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$Entry$1::resolver &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_94'>94</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_94'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>register<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> removed call to java/util/List::add &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_95'>95</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_95'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>register<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder::register &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_104'>104</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_104'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>build<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder::build &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_109'>109</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_109'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>apply<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::apply &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_110'>110</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_110'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$apply$0<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::lambda$apply$0 &rarr; KILLED</p> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>lambda$apply$0<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced boolean return with true for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::lambda$apply$0 &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_112'>112</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_112'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$apply$1<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver$Builder$1::lambda$apply$1 &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_125'>125</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_125'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createForUnix<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::createForUnix &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_126'>126</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_126'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createForUnix$0<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$0 &rarr; KILLED</p> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>lambda$createForUnix$1<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$1 &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@5d8f78b2_127'>127</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@5d8f78b2_127'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createForUnix$2<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenSingleQuoteAndNewLineContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest)</span></span> replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$2 &rarr; KILLED</p> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>lambda$createForUnix$2<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced boolean return with true for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$2 &rarr; KILLED</p> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>lambda$createForUnix$3<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/ProgramNameResolver::lambda$createForUnix$3 &rarr; KILLED</p> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorldWithContextFunctionQuoted$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenPwd$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenSingleQuoteAndEscapedNewLineContainingMessage_enablingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutCommandUsingContextFunction$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction.givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithSh$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest.givenCatHelloWorldUsingHereDoc_notQuoted_withRunMethod$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest) (13 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLsAll$thenAllFilesAreListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenCommanderObject$whenExerciseGetters$thenNoExceptionThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutCommandUsingLiteral$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutNewBranchCommandUsingContextFunction$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoHello$whenExpectHelloInStdout$thenFinishNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (41 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLsWithContextFunction$thenNormalFileIsListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorldWithContextFunction$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoHelloAndUnknownCommand$whenExpectHelloInStdout$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingHelloInsideHelloWorldLoop$thenMetAndNotMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator.givenEchoHelloEchoWorld$whenUseAsStreamGeneratorExpectingUnknownKeyowrd$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test6(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenSingleQuoteAndNewLineContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenCatHelloWorldUsingHereDoc_notQuoted$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush.givenRepoAndSpecWithImmediate$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoHello$whenPerformAction$thenFinishNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test3(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingWorldInsideHelloWorldLoop$thenNotMetAndMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLs$thenNormalFileIsListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (0 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenSingleQuoteContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutNewBranchCommandUsingLiteral$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenFileContainingHelloWorldUsingContextFunction$whenCatUsingString$thenPrintedCorrectly(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorld$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingUnknownKeywordInsideHelloWorldLoop$thenNotMetAndNotMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain.givenRepoAndSpecWithFunction$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush.givenRepoAndSpecWithFunction$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirRecursivelyNestedDirectory$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (11 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenUnknownCommand$whenPerformAsAction$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test2(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithTimeoutInOneSecond$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction.givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoop$thenFinishesNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenFileContainingHelloWorld$whenCatUsingString$thenPrintedCorrectly(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test5(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendStringMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorld$whenPerformAsAction$thenOnlyHello_World_AndNewLineAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenCatHelloWorldUsingHereDoc_withLineNumber$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.tryJumpHostOption(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (8 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain.givenRepoAndSpecWithImmediate$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest.testDescribeMethod(com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirUsingFile$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoWorld$whenExpectHelloInStdout$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithDownstreamConsumerFactory$whenPerformAsAction$thenPrintedBySpecifiedDownstreamConsumer(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirUsingContextFunction$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (8 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendqMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoEnvVar$whenPerformAsAction$thenEnvVarValuePrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorldAndNewLineWithNoTrailingNewLine$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAddMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest.givenExistingDirectory$whenRmRF$thenRemoved(com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest.givenExistingFile$whenRm$thenRemoved(com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenTwoFiles$whenLsSortingByMtimeWithClassifier$thenFilesPrintedInExpectedOrderWithClassifier(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (1009 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenCatStreamOfHelloWorld$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenHello_EscapedNewLine_World_disblingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.test(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirUsingString$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.givenScpWithOptions$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenFileContainingHelloWorld$whenCatUsingFile$thenPrintedCorrectly(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (10 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (0 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote.givenLsRemoteCommandUsingLiteral$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendVariableMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer.givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoop$thenFinishesNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenSmallFile$whenLsSizeWithHumanReadableOption$thenFilePrintedWithHumanReadableSize(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenTwoFiles$whenLsWithReverseOrderSortingByMtime$thenFilesPrintedInExpectedOrder(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (1015 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test4(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (0 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.givenScpWithCustomSshOptions$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone.givenCloneCommandUsingContextFunctions$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixTest.test(com.github.dakusui.actionunit.ut.actions.cmd.UnixTest) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest.givenNonExistingFile$whenTouch$thenComesToExist(com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithTimeoutInOneMinutesAndRetryingTwice$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.givenScp$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator.givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote.givenLsRemoteCommandUsingContextFunction$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.whenExtendCommanderOverridingBuildCommandLineComposerMethod$thenCompiles(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLsWithLongFormat$thenNormalFilesAreListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest.givenExistingFile$whenTouchAndWaitOneSec$thenMtimeUpdated(com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest) (1014 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone.givenCloneCommandUsingLiterals$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer.givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest.givenCatHelloWorldUsingHereDoc_notQuoted_withRunMethod$whenPerformAsAction$thenHelloWorldIsPrinted_2(com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest) (4 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='http://pitest.org'>PIT</a> 1.7.3
+
+</body>
+</html>

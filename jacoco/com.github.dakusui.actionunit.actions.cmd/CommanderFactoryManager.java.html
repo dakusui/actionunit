@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommanderFactoryManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">CommanderFactoryManager.java</span></div><h1>CommanderFactoryManager.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
+
+public interface CommanderFactoryManager&lt;C extends CommanderFactory&gt; {
+  C local();
+
+  C remote(String host);
+
+  class Base&lt;M extends CommanderFactoryManager&lt;C&gt;, C extends CommanderFactory&gt;
+      implements CommanderFactoryManager&lt;C&gt; {
+    final private Function&lt;M, C&gt;           localCommanderFactory;
+    final private BiFunction&lt;M, String, C&gt; remoteCommanderFactory;
+
+<span class="nc" id="L18">    public Base(Function&lt;M, C&gt; localCommanderFactory, BiFunction&lt;M, String, C&gt; remoteCommanderFactory) {</span>
+<span class="nc" id="L19">      this.localCommanderFactory = localCommanderFactory;</span>
+<span class="nc" id="L20">      this.remoteCommanderFactory = remoteCommanderFactory;</span>
+<span class="nc" id="L21">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public C local() {
+<span class="nc" id="L26">      return this.localCommanderFactory.apply((M) this);</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public C remote(String host) {
+<span class="nc" id="L32">      return this.remoteCommanderFactory.apply((M) this, host);</span>
+    }
+  }
+
+<span class="nc" id="L36">  abstract class Builder&lt;</span>
+      B extends Builder&lt;B, M, C&gt;,
+      M extends CommanderFactoryManager&lt;C&gt;,
+      C extends CommanderFactory&gt; {
+
+    private Function&lt;M, C&gt;           localCommanderFactory;
+    private BiFunction&lt;M, String, C&gt; remoteCommanderFactory;
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public B localCommanderFactory(Function&lt;M, C&gt; func) {
+<span class="nc" id="L46">      this.localCommanderFactory = requireNonNull(func);</span>
+<span class="nc" id="L47">      return (B) this;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public B remoteCommanderFactory(BiFunction&lt;M, String, C&gt; func) {
+<span class="nc" id="L52">      this.remoteCommanderFactory = requireNonNull(func);</span>
+<span class="nc" id="L53">      return (B) this;</span>
+    }
+
+    public M build() {
+<span class="nc" id="L57">      return createCommanderFactoryManager(localCommanderFactory, remoteCommanderFactory);</span>
+    }
+
+    abstract protected M createCommanderFactoryManager(
+        Function&lt;M, C&gt; localCommanderFactory,
+        BiFunction&lt;M, String, C&gt; remoteCommanderFactory);
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

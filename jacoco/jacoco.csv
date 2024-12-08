@@ -1,0 +1,164 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+actionunit,com.github.dakusui.actionunit.utils,StableTemplatingUtils.PositionedPlaceHolder,2,37,2,2,0,7,2,4,0,4
+actionunit,com.github.dakusui.actionunit.utils,StableTemplatingUtils,12,216,2,8,1,42,3,19,1,16
+actionunit,com.github.dakusui.actionunit.utils,Checks,57,64,2,4,8,14,9,12,7,11
+actionunit,com.github.dakusui.actionunit.utils,StableTemplatingUtils.new TreeMap() {...},0,54,0,2,0,8,0,2,0,1
+actionunit,com.github.dakusui.actionunit.utils,InternalUtils,49,221,2,16,10,50,4,21,3,13
+actionunit,com.github.dakusui.actionunit.core.context.multiparams,MultiParamsContextPredicateBuilder,0,54,0,0,0,11,0,6,0,6
+actionunit,com.github.dakusui.actionunit.core.context.multiparams,MultiParamsContextConsumerBuilder,0,54,0,0,0,11,0,6,0,6
+actionunit,com.github.dakusui.actionunit.core.context.multiparams,MultiParamsContextFunctionBuilder,0,54,0,0,0,11,0,6,0,6
+actionunit,com.github.dakusui.actionunit.core.context.multiparams,Params,0,6,0,0,0,1,0,1,0,1
+actionunit,com.github.dakusui.actionunit.core.context.multiparams,Params.new Params() {...},28,32,0,0,3,5,2,4,2,4
+actionunit,com.github.dakusui.actionunit.core.context.multiparams,Params.1.new LinkedHashMap() {...},0,33,0,2,0,4,0,2,0,1
+actionunit,com.github.dakusui.actionunit.actions.cmd,ShellManager.Default.Builder,10,28,0,0,3,9,2,4,2,4
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderConfig.Impl,0,51,0,0,0,14,0,7,0,7
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommandLineComposer.Builder,4,148,1,5,2,29,1,15,0,13
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderFactoryManager.Base,22,0,0,0,6,0,3,0,3,0
+actionunit,com.github.dakusui.actionunit.actions.cmd,ProgramNameResolver.Builder,0,22,0,0,0,6,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommandLineComposer.Builder.new Function() {...},0,8,0,0,0,3,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd,ShellManager,2,19,0,0,0,6,1,4,1,4
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommandLineComposer.Builder.new CommandLineComposer() {...},0,36,0,0,0,4,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions.cmd,UnixCommanderFactory,6,75,0,0,1,16,1,11,1,11
+actionunit,com.github.dakusui.actionunit.actions.cmd,ProgramNameResolver.Builder.Entry,0,6,0,0,0,1,0,1,0,1
+actionunit,com.github.dakusui.actionunit.actions.cmd,ProgramNameResolver,0,21,0,0,0,4,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions.cmd,ShellManager.Default.Builder.new ShellManager.Default() {...},0,28,0,0,0,5,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderConfig.Builder,2,80,0,0,0,21,1,9,1,9
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderUtils.new Function() {...},0,33,0,0,0,7,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd,PlaceHolderFormatter,0,32,0,0,0,2,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions.cmd,ProgramNameResolver.Builder.new ProgramNameResolver() {...},0,42,0,0,0,7,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions.cmd,UnixCommanderFactory.Impl,0,4,0,0,0,2,0,1,0,1
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommandLineComposer,8,16,0,0,2,3,1,2,1,2
+actionunit,com.github.dakusui.actionunit.actions.cmd,UnixCommanderFactory.Builder,0,8,0,0,0,2,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions.cmd,ProgramNameResolver.Builder.Entry.new ProgramNameResolver.Builder.Entry() {...},0,15,0,0,0,3,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderFactory.Base,0,11,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderFactoryManager.Builder,24,0,0,0,6,0,4,0,4,0
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderFactory.Builder,5,33,0,0,0,9,1,4,1,4
+actionunit,com.github.dakusui.actionunit.actions.cmd,ShellManager.Default,0,41,2,6,0,8,2,5,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderUtils,4,253,1,7,1,70,1,18,0,15
+actionunit,com.github.dakusui.actionunit.actions.cmd,CommanderConfig,0,22,0,0,0,9,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd,Commander,4,381,1,3,2,92,1,57,0,56
+actionunit,com.github.dakusui.actionunit.visitors,Record,6,141,4,8,0,31,4,14,0,12
+actionunit,com.github.dakusui.actionunit.visitors,ActionReporter,8,428,4,50,1,94,4,40,0,17
+actionunit,com.github.dakusui.actionunit.visitors,ActionPerformer,26,473,5,27,9,108,5,35,0,24
+actionunit,com.github.dakusui.actionunit.visitors,Record.Run,0,14,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.actionunit.visitors,Record.Run.new Record.Run() {...},0,13,0,0,0,4,0,4,0,4
+actionunit,com.github.dakusui.actionunit.visitors,Record.Run.new Record.Run() {...},0,22,0,2,0,4,0,5,0,4
+actionunit,com.github.dakusui.actionunit.visitors,ActionScanner,0,216,0,0,0,67,0,20,0,20
+actionunit,com.github.dakusui.actionunit.visitors,SimpleActionPerformer,0,21,0,0,0,8,0,5,0,5
+actionunit,com.github.dakusui.actionunit.visitors,ActionPrinter,0,23,0,0,0,5,0,2,0,2
+actionunit,com.github.dakusui.actionunit.visitors,ReportingActionPerformer,41,103,4,2,7,28,5,11,2,11
+actionunit,com.github.dakusui.actionunit.actions,ForEach.Builder,0,35,0,0,0,8,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions,With.Builder.Impl,0,48,1,1,0,10,1,3,0,3
+actionunit,com.github.dakusui.actionunit.actions,When,0,16,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,With.Builder,33,106,5,3,4,16,4,9,0,9
+actionunit,com.github.dakusui.actionunit.actions,TimeOut.Builder,0,47,0,2,0,12,0,4,0,3
+actionunit,com.github.dakusui.actionunit.actions,ContextVariable.new ContextVariable() {...},0,22,0,0,0,4,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions,Retry,0,29,0,0,0,7,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,Composite.Impl,0,22,0,0,0,8,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions,Leaf,4,12,0,0,1,4,1,2,1,2
+actionunit,com.github.dakusui.actionunit.actions,Leaf.new Leaf() {...},0,37,0,0,0,5,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions,Ensured.RequestRetry,0,4,0,0,0,2,0,1,0,1
+actionunit,com.github.dakusui.actionunit.actions,While.Builder,0,28,0,0,0,7,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions,Ensured.Builder,0,35,0,0,0,8,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions,While,0,16,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,Ensured.Abort,4,0,0,0,2,0,1,0,1,0
+actionunit,com.github.dakusui.actionunit.actions,When.Builder.new When() {...},0,18,0,0,0,4,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions,Contextful.Builder,6,178,0,0,0,30,1,25,1,25
+actionunit,com.github.dakusui.actionunit.actions,Attempt,0,11,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,While.Impl,9,19,0,0,1,6,1,3,1,3
+actionunit,com.github.dakusui.actionunit.actions,Composite,0,16,0,2,0,3,0,2,0,1
+actionunit,com.github.dakusui.actionunit.actions,Retry.Builder,0,73,0,4,0,16,0,9,0,7
+actionunit,com.github.dakusui.actionunit.actions,ForEach,0,25,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,Named.new Named() {...},0,15,0,0,0,3,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions,ForEach.Builder.Impl,0,13,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,Ensured,26,42,8,6,8,10,7,4,1,3
+actionunit,com.github.dakusui.actionunit.actions,ContextVariable,0,10,0,0,0,2,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,Attempt.Builder,24,54,1,1,7,15,3,5,2,5
+actionunit,com.github.dakusui.actionunit.actions,Contextful.Base,0,27,0,0,0,10,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions,RetryOption.Builder,0,66,0,0,0,18,0,6,0,6
+actionunit,com.github.dakusui.actionunit.actions,TimeOut,0,17,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,Ensured.Impl,0,19,0,0,0,6,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions,Retry.Builder.new Retry() {...},0,44,0,0,0,8,0,6,0,6
+actionunit,com.github.dakusui.actionunit.actions,Named,0,24,0,0,0,7,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions,Composite.Builder,0,27,0,0,0,9,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions,With,0,25,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions,RetryOption,0,94,0,4,0,29,0,7,0,5
+actionunit,com.github.dakusui.actionunit.actions,Attempt.Builder.new Attempt() {...},0,22,0,0,0,5,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions,TimeOut.Builder.new TimeOut() {...},0,18,0,0,0,3,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions,When.Builder,0,41,0,0,0,10,0,4,0,4
+actionunit,com.github.dakusui.actionunit.exceptions,ActionTimeOutException,0,5,0,0,0,2,0,1,0,1
+actionunit,com.github.dakusui.actionunit.exceptions,ActionAssertionError,4,0,0,0,2,0,1,0,1,0
+actionunit,com.github.dakusui.actionunit.exceptions,ActionException,0,41,0,6,0,13,0,7,0,4
+actionunit,com.github.dakusui.actionunit.core,Context,0,8,0,0,0,2,0,2,0,2
+actionunit,com.github.dakusui.actionunit.core,ActionSupport,0,154,0,2,0,28,0,24,0,23
+actionunit,com.github.dakusui.actionunit.core,Action.Visitor,12,36,0,0,6,17,3,9,3,9
+actionunit,com.github.dakusui.actionunit.core,Action.Builder,0,6,0,0,0,2,0,2,0,2
+actionunit,com.github.dakusui.actionunit.core,Context.Impl,17,86,2,6,2,21,2,11,0,9
+actionunit,com.github.dakusui.actionunit.core.context,StreamGenerator.new Function() {...},0,20,0,0,0,3,0,3,0,3
+actionunit,com.github.dakusui.actionunit.core.context,StreamGenerator.new StreamGenerator() {...},9,54,0,0,1,10,1,4,1,4
+actionunit,com.github.dakusui.actionunit.core.context,ContextFunctions,58,272,2,8,5,43,7,28,5,25
+actionunit,com.github.dakusui.actionunit.core.context,ContextPredicate,49,8,10,0,5,2,11,1,6,1
+actionunit,com.github.dakusui.actionunit.core.context,ContextConsumer.new ContextConsumer() {...},7,6,0,0,2,3,1,3,1,3
+actionunit,com.github.dakusui.actionunit.core.context,StreamGenerator,0,24,0,0,0,5,0,3,0,3
+actionunit,com.github.dakusui.actionunit.core.context,ContextFunction,23,6,0,0,3,1,4,1,4,1
+actionunit,com.github.dakusui.actionunit.core.context,ContextConsumer,14,19,0,0,5,4,2,3,2,3
+actionunit,com.github.dakusui.actionunit.core.context,ContextFunction.Impl,24,48,0,2,2,8,2,5,2,4
+actionunit,com.github.dakusui.actionunit.core.context,ContextConsumer.Impl,0,19,0,0,0,5,0,3,0,3
+actionunit,com.github.dakusui.actionunit.core.context,FormattableConsumer.new FormattableConsumer() {...},0,15,0,0,0,4,0,3,0,3
+actionunit,com.github.dakusui.actionunit.core.context,ContextPredicate.Impl,0,25,0,0,0,6,0,5,0,5
+actionunit,com.github.dakusui.actionunit.core.context,FormattableConsumer,12,7,0,0,2,2,1,2,1,2
+actionunit,com.github.dakusui.actionunit.core.context,ContextFunctions.new TreeMap() {...},0,38,0,0,0,4,0,2,0,2
+actionunit,com.github.dakusui.actionunit.core.context,Printable,8,0,0,0,2,0,1,0,1,0
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Mkdir,0,29,0,0,0,6,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshOptions.Formatter,0,14,0,0,0,2,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Cat,0,119,0,0,0,22,0,11,0,11
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git,4,30,0,0,1,5,1,5,1,5
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Curl.DataFormat,0,59,0,0,0,9,0,3,0,3
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshOptions.Formatter.new LinkedList() {...},0,151,0,14,0,36,0,13,0,6
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Rm,5,27,0,0,1,6,1,5,1,5
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshOptions.Formatter.new LinkedList() {...},0,151,1,13,0,36,1,12,0,6
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp.Target.Account,0,44,0,0,0,8,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.GitBase,0,5,0,0,0,2,0,1,0,1
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp.Target.new Scp.Target() {...},0,20,0,0,0,4,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp.Target.new Scp.Target() {...},0,14,0,0,0,4,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Touch,14,15,0,0,2,4,2,3,2,3
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp.Target.new Scp.Target() {...},0,25,0,0,0,4,0,4,0,4
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshOptions,0,11,0,0,0,2,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.Checkout,0,31,0,0,0,7,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.Plain,0,4,0,0,0,2,0,1,0,1
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Ls,0,57,0,0,0,12,0,11,0,11
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Cmd,0,5,0,0,0,2,0,1,0,1
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.LsRemote,18,20,0,0,1,5,3,3,3,3
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshShell.Builder,8,43,0,0,2,11,1,4,1,4
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp,5,117,0,2,1,27,1,8,1,7
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.Clone,0,34,0,0,0,7,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Curl,0,118,0,0,0,21,0,20,0,20
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshShell.Impl,17,15,0,0,1,6,1,3,1,3
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshOptions.Impl,0,97,0,2,0,26,0,14,0,13
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Echo,0,33,0,0,0,7,0,6,0,6
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.Impl,2,4,0,0,1,2,1,1,1,1
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.Builder,0,8,0,0,0,2,0,2,0,2
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Git.Push,0,28,0,0,0,7,0,5,0,5
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshShell.Builder.new LinkedList() {...},3,38,1,1,1,6,1,1,0,1
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp.Target,0,61,0,2,0,12,0,5,0,4
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,SshOptions.Builder,0,151,0,0,0,41,0,17,0,17
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp.Target.Account.new Scp.Target.Account() {...},3,11,0,0,1,3,1,3,1,3
+actionunit,com.github.dakusui.actionunit.actions.cmd.unix,Scp.Target.Account.new Scp.Target.Account() {...},3,16,0,0,1,3,1,3,1,3
+actionunit,com.github.dakusui.printables,PrintableFunction,29,65,0,0,2,11,2,8,2,8
+actionunit,com.github.dakusui.printables,PrintableConsumer,6,57,0,0,1,13,1,6,1,6
+actionunit,com.github.dakusui.printables,PrintableFunction.Builder,0,24,0,0,0,5,0,4,0,4
+actionunit,com.github.dakusui.printables,PrintableFunctionals.new Function() {...},0,18,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.printables,PrintablePredicate.Builder,0,24,0,0,0,5,0,4,0,4
+actionunit,com.github.dakusui.printables,PrintableFunctionals,21,38,0,0,2,8,2,6,2,6
+actionunit,com.github.dakusui.printables,PrintablePredicate,0,128,0,8,0,12,0,16,0,12
+actionunit,com.github.dakusui.printables,PrintableConsumer.Builder,0,24,0,0,0,5,0,4,0,4
+actionunit,com.github.dakusui.actionunit.io,Writer.Slf4J,0,57,0,0,0,7,0,1,0,1
+actionunit,com.github.dakusui.actionunit.io,Writer.Std,0,24,0,0,0,3,0,1,0,1
+actionunit,com.github.dakusui.actionunit.io,Writer.Slf4J.new Writer.Slf4J() {...},0,10,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.actionunit.io,Writer.Slf4J.new Writer.Slf4J() {...},0,10,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.actionunit.io,Writer.Slf4J.new Writer.Slf4J() {...},0,10,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.actionunit.io,Writer.Slf4J.new Writer.Slf4J() {...},0,10,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.actionunit.io,Writer.Slf4J.new Writer.Slf4J() {...},0,10,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.actionunit.io,Writer.Impl,18,0,0,0,5,0,3,0,3,0
+actionunit,com.github.dakusui.actionunit.io,Writer.Std.new Writer.Std() {...},0,10,0,0,0,3,0,2,0,2
+actionunit,com.github.dakusui.actionunit.io,Writer.Std.new Writer.Std() {...},0,10,0,0,0,3,0,2,0,2

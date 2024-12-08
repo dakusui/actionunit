@@ -1,0 +1,2784 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>CommanderUtils.java</h1>
+
+<table class="src">
+
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package com.github.dakusui.actionunit.actions.cmd;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.actionunit.actions.ContextVariable;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.actionunit.actions.RetryOption;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.actionunit.core.Action;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.actionunit.core.Context;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.actionunit.core.context.ContextFunctions;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.actionunit.core.context.StreamGenerator;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.actionunit.core.context.multiparams.Params;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.processstreamer.core.process.ProcessStreamer;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.github.dakusui.processstreamer.core.process.Shell;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import org.slf4j.Logger;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import org.slf4j.LoggerFactory;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.io.File;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.Map;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Consumer;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Function;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Predicate;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.stream.Stream;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_22'/>
+22
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_22'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static com.github.dakusui.actionunit.core.ActionSupport.leaf;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsConsumerFor;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static com.github.dakusui.actionunit.core.context.ContextFunctions.multiParamsPredicateFor;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_25'/>
+25
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_25'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_26'/>
+26
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_26'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static com.github.dakusui.printables.PrintableFunctionals.printableConsumer;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_27'/>
+27
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_27'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static com.github.dakusui.printables.PrintableFunctionals.printablePredicate;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_28'/>
+28
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_28'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static java.lang.String.format;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_29'/>
+29
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_29'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static java.util.Objects.requireNonNull;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_30'/>
+30
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_30'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import static java.util.stream.Collectors.joining;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_31'/>
+31
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_31'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_32'/>
+32
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_32'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>public enum CommanderUtils {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_33'/>
+33
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_33'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  ;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_34'/>
+34
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_34'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_35'/>
+35
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_35'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>  private static final Logger LOGGER = LoggerFactory.getLogger(CommanderUtils.class);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_36'/>
+36
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_36'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_37'/>
+37
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_37'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static String quoteWithApostropheForShell(String s) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_38'/>
+38
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_38'>1</a>
+<span>
+1. quoteWithApostropheForShell : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::quoteWithApostropheForShell &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return String.format(&#34;&#39;%s&#39;&#34;, escapeSingleQuotesForShell(s));</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_39'/>
+39
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_39'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_40'/>
+40
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_40'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_41'/>
+41
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_41'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  private static String escapeSingleQuotesForShell(String s) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_42'/>
+42
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_42'>1</a>
+<span>
+1. escapeSingleQuotesForShell : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::escapeSingleQuotesForShell &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return requireNonNull(s).replaceAll(&#34;(&#39;+)&#34;, &#34;&#39;\&#34;$1\&#34;&#39;&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_43'/>
+43
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_43'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_44'/>
+44
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_44'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_45'/>
+45
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_45'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static Action createAction(Commander&#60;?&#62; commander) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_46'/>
+46
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_46'>1</a>
+<span>
+1. createAction : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createAction &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return RetryOption.retryAndTimeOut(</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_47'/>
+47
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_47'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        leaf(createContextConsumer(commander)),</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_48'/>
+48
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_48'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        commander.retryOption());</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_49'/>
+49
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_49'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_50'/>
+50
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_50'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_51'/>
+51
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_51'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static Function&#60;Context, Stream&#60;String&#62;&#62; createStreamGenerator(</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_52'/>
+52
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_52'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      Commander&#60;?&#62; commander) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_53'/>
+53
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_53'>1</a>
+<span>
+1. createStreamGenerator : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createStreamGenerator &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return StreamGenerator.fromContextWith(</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_54'/>
+54
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_54'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        new Function&#60;Params, Stream&#60;String&#62;&#62;() {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_55'/>
+55
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_55'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          @Override</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_56'/>
+56
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_56'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          public Stream&#60;String&#62; apply(Params params) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_57'/>
+57
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_57'>1</a>
+<span>
+1. apply : replaced return value with Stream.empty for com/github/dakusui/actionunit/actions/cmd/CommanderUtils$1::apply &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return createProcessStreamerBuilder(commander, params)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_58'/>
+58
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_58'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .checker(commander.checker())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_59'/>
+59
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_59'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .build()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_60'/>
+60
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_60'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .stream()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_61'/>
+61
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_61'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .peek(commander.downstreamConsumer());</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_62'/>
+62
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_62'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_63'/>
+63
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_63'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_64'/>
+64
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_64'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          @Override</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_65'/>
+65
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_65'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          public String toString() {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_66'/>
+66
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_66'>1</a>
+<span>
+1. toString : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils$1::toString &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>            return format(&#34;(%s)&#34;, commander.buildCommandLineComposer().format());</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_67'/>
+67
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_67'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>          }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_68'/>
+68
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_68'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        },</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_69'/>
+69
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_69'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        commander.variables()</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_70'/>
+70
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_70'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    );</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_71'/>
+71
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_71'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_72'/>
+72
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_72'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_73'/>
+73
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_73'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static Consumer&#60;Context&#62; createContextConsumer(Commander&#60;?&#62; commander) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_74'/>
+74
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_74'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    requireNonNull(commander);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_75'/>
+75
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_75'>1</a>
+<span>
+1. createContextConsumer : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createContextConsumer &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return multiParamsConsumerFor(commander.variables())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_76'/>
+76
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_76'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .toContextConsumer(</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_77'/>
+77
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_77'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>            printableConsumer(</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_78'/>
+78
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_78'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                (Params params) -&#62; createProcessStreamerBuilder(commander, params)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_79'/>
+79
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_79'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                    .checker(commander.checker())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_80'/>
+80
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_80'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                    .build()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_81'/>
+81
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_81'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                    .stream()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_82'/>
+82
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_82'>1</a>
+<span>
+1. lambda$createContextConsumer$0 : removed call to java/util/stream/Stream::forEach &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                    .forEach(commander.downstreamConsumer()))</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_83'/>
+83
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_83'>1</a>
+<span>
+1. lambda$createContextConsumer$1 : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextConsumer$1 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                .describe(() -&#62; commander.buildCommandLineComposer().format()));</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_84'/>
+84
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_84'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_85'/>
+85
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_85'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_86'/>
+86
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_86'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static Predicate&#60;Context&#62; createContextPredicate(Commander&#60;?&#62; commander) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_87'/>
+87
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_87'>1</a>
+<span>
+1. createContextPredicate : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createContextPredicate &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return multiParamsPredicateFor(commander.variables())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_88'/>
+88
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_88'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .toContextPredicate(printablePredicate(</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_89'/>
+89
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_89'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>            (Params params) -&#62; {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_90'/>
+90
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_90'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>              ProcessStreamer.Builder processStreamerBuilder = createProcessStreamerBuilder(commander, params);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_91'/>
+91
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_91'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>              try {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_92'/>
+92
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_92'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                processStreamerBuilder</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_93'/>
+93
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_93'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                    .checker(commander.checker())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_94'/>
+94
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_94'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                    .build()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_95'/>
+95
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_95'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                    .stream()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_96'/>
+96
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_96'>1</a>
+<span>
+1. lambda$createContextPredicate$2 : removed call to java/util/stream/Stream::forEach &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                    .forEach(commander.downstreamConsumer());</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_97'/>
+97
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_97'>1</a>
+<span>
+1. lambda$createContextPredicate$2 : replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextPredicate$2 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                return true;</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_98'/>
+98
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_98'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>              } catch (ProcessStreamer.Failure failure) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_99'/>
+99
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_99'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                String msg = format(&#34;Condition &#39;%s&#39; was not satisfied: %s&#34;, commander.checker(), failure.getMessage());</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_100'/>
+100
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_100'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                LOGGER.debug(msg);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_101'/>
+101
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_101'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                LOGGER.trace(msg, failure);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_102'/>
+102
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_102'>1</a>
+<span>
+1. lambda$createContextPredicate$2 : replaced boolean return with true for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextPredicate$2 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                return false;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_103'/>
+103
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_103'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>              }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_104'/>
+104
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_104'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>            })</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_105'/>
+105
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_105'>1</a>
+<span>
+1. lambda$createContextPredicate$3 : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextPredicate$3 &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>            .describe(() -&#62; format(</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_106'/>
+106
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_106'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>                &#34;outputOf[command:&#39;%s&#39;].matches[%s]&#34;,</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_107'/>
+107
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_107'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                commander.buildCommandLineComposer().format(),</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_108'/>
+108
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_108'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                toStringIfOverriddenOrNoname(commander.checker()))));</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_109'/>
+109
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_109'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_110'/>
+110
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_110'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_111'/>
+111
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_111'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static Function&#60;Context, String&#62; createContextFunction(Commander&#60;?&#62; commander) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_112'/>
+112
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_112'>1</a>
+<span>
+1. createContextFunction : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createContextFunction &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return ContextFunctions.&#60;String&#62;multiParamsFunctionFor(commander.variables())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_113'/>
+113
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_113'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .toContextFunction(params -&#62;</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_114'/>
+114
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_114'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>            createProcessStreamerBuilder(commander, params)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_115'/>
+115
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_115'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .checker(commander.checker())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_116'/>
+116
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_116'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .build()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_117'/>
+117
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_117'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .stream()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_118'/>
+118
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_118'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                .peek(commander.downstreamConsumer())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_119'/>
+119
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_119'>1</a>
+<span>
+1. lambda$createContextFunction$4 : replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextFunction$4 &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>                .collect(joining(format(&#34;%n&#34;))));</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_120'/>
+120
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_120'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_121'/>
+121
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_121'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_122'/>
+122
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_122'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static ProcessStreamer.Builder createProcessStreamerBuilder(Commander&#60;?&#62; commander, Params params) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_123'/>
+123
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_123'>1</a>
+<span>
+1. createProcessStreamerBuilder : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createProcessStreamerBuilder &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return createProcessStreamerBuilder(</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_124'/>
+124
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_124'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        commander.stdin(),</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_125'/>
+125
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_125'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        commander.shellManager().shellFor(commander.host()),</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_126'/>
+126
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_126'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        commander.cwd().orElse(null),</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_127'/>
+127
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_127'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        commander.envvars(),</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_128'/>
+128
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_128'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        commander.buildCommandLineComposer(),</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_129'/>
+129
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_129'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        params</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_130'/>
+130
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_130'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    );</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_131'/>
+131
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_131'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_132'/>
+132
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_132'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_133'/>
+133
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_133'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  static ProcessStreamer.Builder createProcessStreamerBuilder(</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_134'/>
+134
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_134'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      Stream&#60;String&#62; stdin,</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_135'/>
+135
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_135'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      Shell shell,</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_136'/>
+136
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_136'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      File cwd,</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_137'/>
+137
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_137'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      Map&#60;String, String&#62; envvars,</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_138'/>
+138
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_138'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      CommandLineComposer commandLineComposer,</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_139'/>
+139
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_139'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>      Params params) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_140'/>
+140
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_140'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    ContextVariable[] variables = params.parameters().toArray(new ContextVariable[0]); // values</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_141'/>
+141
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_141'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    Object[] variableValues = params.parameters()// values</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_142'/>
+142
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_142'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .stream()</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_143'/>
+143
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_143'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .map(params::valueOf)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_144'/>
+144
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_144'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .toArray();</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_145'/>
+145
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_145'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    String commandLine = commandLineComposer</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_146'/>
+146
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_146'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .apply(variables)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_147'/>
+147
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_147'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        .apply(params.context(), variableValues);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_148'/>
+148
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_148'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    LOGGER.info(&#34;Command Line:{}&#34;, commandLine);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_149'/>
+149
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_149'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    LOGGER.trace(&#34;Shell:{}&#34;, shell);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_150'/>
+150
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_150'>1</a>
+<span>
+1. createProcessStreamerBuilder : negated conditional &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    if (cwd != null)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_151'/>
+151
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_151'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>      LOGGER.debug(&#34;Cwd:{}&#34;, cwd);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_152'/>
+152
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_152'>1</a>
+<span>
+1. createProcessStreamerBuilder : negated conditional &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    if (!envvars.isEmpty())</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_153'/>
+153
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_153'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>      LOGGER.debug(&#34;Environment variables:{}&#34;, envvars);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_154'/>
+154
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_154'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    ProcessStreamer.Builder ret;</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_155'/>
+155
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_155'>1</a>
+<span>
+1. createProcessStreamerBuilder : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    if (stdin == null)</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_156'/>
+156
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_156'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>      ret = ProcessStreamer.source(shell);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_157'/>
+157
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_157'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    else</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_158'/>
+158
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_158'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>      ret = ProcessStreamer.pipe(stdin, shell);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_159'/>
+159
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_159'>1</a>
+<span>
+1. createProcessStreamerBuilder : removed call to java/util/Map::forEach &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    envvars.forEach(ret::env);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_160'/>
+160
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_160'>1</a>
+<span>
+1. createProcessStreamerBuilder : negated conditional &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    if (cwd != null)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_161'/>
+161
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_161'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>      ret.cwd(cwd);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_162'/>
+162
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_162'>1</a>
+<span>
+1. createProcessStreamerBuilder : replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createProcessStreamerBuilder &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    return ret.command(commandLine);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_163'/>
+163
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_163'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4a861e4a_164'/>
+164
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_164'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_38'>38</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_38'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>quoteWithApostropheForShell<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::quoteWithApostropheForShell &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_42'>42</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_42'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>escapeSingleQuotesForShell<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2)</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::escapeSingleQuotesForShell &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_46'>46</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_46'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createAction<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createAction &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_53'>53</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_53'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createStreamGenerator<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator.givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createStreamGenerator &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_57'>57</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_57'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>apply<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator.givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator)</span></span> replaced return value with Stream.empty for com/github/dakusui/actionunit/actions/cmd/CommanderUtils$1::apply &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_66'>66</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_66'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>toString<br/><b>Killed by : </b>none</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils$1::toString &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_75'>75</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_75'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createContextConsumer<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createContextConsumer &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_82'>82</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_82'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createContextConsumer$0<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> removed call to java/util/stream/Stream::forEach &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_83'>83</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_83'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createContextConsumer$1<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoHello$whenExpectHelloInStdout$thenFinishNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction)</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextConsumer$1 &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_87'>87</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_87'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createContextPredicate<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingWorldInsideHelloWorldLoop$thenNotMetAndMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createContextPredicate &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_96'>96</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_96'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createContextPredicate$2<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingWorldInsideHelloWorldLoop$thenNotMetAndMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate)</span></span> removed call to java/util/stream/Stream::forEach &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_97'>97</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_97'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createContextPredicate$2<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingWorldInsideHelloWorldLoop$thenNotMetAndMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate)</span></span> replaced boolean return with false for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextPredicate$2 &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_102'>102</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_102'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createContextPredicate$2<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingWorldInsideHelloWorldLoop$thenNotMetAndMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate)</span></span> replaced boolean return with true for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextPredicate$2 &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_105'>105</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_105'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createContextPredicate$3<br/><b>Killed by : </b>none</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextPredicate$3 &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_112'>112</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_112'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createContextFunction<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction.givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoop$thenFinishesNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createContextFunction &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_119'>119</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_119'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$createContextFunction$4<br/><b>Killed by : </b>none</span></span> replaced return value with &#34;&#34; for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::lambda$createContextFunction$4 &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_123'>123</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_123'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createProcessStreamerBuilder<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createProcessStreamerBuilder &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_150'>150</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_150'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createProcessStreamerBuilder<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_152'>152</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_152'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createProcessStreamerBuilder<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_155'>155</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_155'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createProcessStreamerBuilder<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenCatStreamOfHelloWorld$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> negated conditional &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_159'>159</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_159'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createProcessStreamerBuilder<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoEnvVar$whenPerformAsAction$thenEnvVarValuePrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> removed call to java/util/Map::forEach &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_160'>160</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_160'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createProcessStreamerBuilder<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4a861e4a_162'>162</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4a861e4a_162'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>createProcessStreamerBuilder<br/><b>Killed by : </b>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander)</span></span> replaced return value with null for com/github/dakusui/actionunit/actions/cmd/CommanderUtils::createProcessStreamerBuilder &rarr; KILLED</p> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorldWithContextFunctionQuoted$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenPwd$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenSingleQuoteAndEscapedNewLineContainingMessage_enablingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutCommandUsingContextFunction$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction.givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithSh$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest.givenCatHelloWorldUsingHereDoc_notQuoted_withRunMethod$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest) (13 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLsAll$thenAllFilesAreListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutCommandUsingLiteral$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutNewBranchCommandUsingContextFunction$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoHello$whenExpectHelloInStdout$thenFinishNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (41 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLsWithContextFunction$thenNormalFileIsListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorldWithContextFunction$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoHelloAndUnknownCommand$whenExpectHelloInStdout$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingHelloInsideHelloWorldLoop$thenMetAndNotMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator.givenEchoHelloEchoWorld$whenUseAsStreamGeneratorExpectingUnknownKeyowrd$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoVariable_i_usingManuallyWrittenPlaceHolderByName$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test6(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenSingleQuoteAndNewLineContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenCatHelloWorldUsingHereDoc_notQuoted$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush.givenRepoAndSpecWithImmediate$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoHello$whenPerformAction$thenFinishNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test3(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingWorldInsideHelloWorldLoop$thenNotMetAndMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLs$thenNormalFileIsListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (0 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod2$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenSingleQuoteContainingMessage$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout.givenCheckoutNewBranchCommandUsingLiteral$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForCheckout) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenFileContainingHelloWorldUsingContextFunction$whenCatUsingString$thenPrintedCorrectly(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorld$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.composeLocalEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate.givenEchoVariable_i$whenPerformAsContextPredicateExpectingUnknownKeywordInsideHelloWorldLoop$thenNotMetAndNotMet(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextPredicate) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain.givenRepoAndSpecWithFunction$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush.givenRepoAndSpecWithFunction$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPush) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirRecursivelyNestedDirectory$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (11 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenUnknownCommand$whenPerformAsAction$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test2(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithTimeoutInOneSecond$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendContextFunctionMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction.givenEchoVariable_i$whenPerformAsContextFunctionInsideHelloWorldLoop$thenFinishesNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextFunction) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenFileContainingHelloWorld$whenCatUsingString$thenPrintedCorrectly(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test5(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendStringMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorld$whenPerformAsAction$thenOnlyHello_World_AndNewLineAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenCatHelloWorldUsingHereDoc_withLineNumber$whenPerformAsAction$thenHelloWorldIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.tryJumpHostOption(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (8 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain.givenRepoAndSpecWithImmediate$whenFormat$thenCommandLineFormatIsCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForPlain) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest.testDescribeMethod(com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirUsingFile$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoVariable_i_$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoWorld$whenExpectHelloInStdout$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithDownstreamConsumerFactory$whenPerformAsAction$thenPrintedBySpecifiedDownstreamConsumer(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendqMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirUsingContextFunction$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (8 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoEnvVar$whenPerformAsAction$thenEnvVarValuePrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenEchoHelloWorldAndNewLineWithNoTrailingNewLine$whenPerformAsAction$thenOnlyHelloAndWorldAreWritten(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAddMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest.givenExistingDirectory$whenRmRF$thenRemoved(com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest.givenExistingFile$whenRm$thenRemoved(com.github.dakusui.actionunit.ut.actions.cmd.linux.RmTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenTwoFiles$whenLsSortingByMtimeWithClassifier$thenFilesPrintedInExpectedOrderWithClassifier(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (1009 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenCatStreamOfHelloWorld$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.performLocalEcho(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.givenHello_EscapedNewLine_World_disblingBackslaceInterpretation$whenPerformAsAction$thenCorrectMessageIsPrinted(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest.test(com.github.dakusui.actionunit.ut.actions.cmd.linux.EchoTest) (7 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest.whenMkdirUsingString$thenDirectoryCreated(com.github.dakusui.actionunit.ut.actions.cmd.linux.MkdirTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithUsername) (1 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction.givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsActionInsideHelloWorldLoop$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsAction) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.givenScpWithOptions$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest.givenFileContainingHelloWorld$whenCatUsingFile$thenPrintedCorrectly(com.github.dakusui.actionunit.ut.actions.cmd.linux.CatTest) (10 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote.givenLsRemoteCommandUsingLiteral$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername.composeRemoteEchoCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithoutUsername) (0 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloUsingAppendVariableMethod$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer.givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoop$thenFinishesNormally(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenSmallFile$whenLsSizeWithHumanReadableOption$thenFilePrintedWithHumanReadableSize(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenTwoFiles$whenLsWithReverseOrderSortingByMtime$thenFilesPrintedInExpectedOrder(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (1015 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest.test4(com.github.dakusui.actionunit.ut.actions.cmd.linux.CurlTest) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions2) (0 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.givenScpWithCustomSshOptions$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone.givenCloneCommandUsingContextFunctions$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone) (3 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixTest.test(com.github.dakusui.actionunit.ut.actions.cmd.UnixTest) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1.composeLocalScpCommandLine(com.github.dakusui.actionunit.ut.actions.cmd.UnixCommanderFactoryTest$WithCustomSshOptions1) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest.givenNonExistingFile$whenTouch$thenComesToExist(com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest) (9 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander.givenEchoHelloWithTimeoutInOneMinutesAndRetryingTwice$whenPerformAsAction$thenPrinted(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsCommander) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest.givenScp$whenBuildCommandLineComposerMultipleTimes$thenCommandLineStringsAreAllCorrect(com.github.dakusui.actionunit.ut.actions.cmd.linux.ScpTest) (5 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator.givenEchoHelloEchoWorld$whenUseAsStreamGenerator$thenBothHelloAndWorldFoundInOutput(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsStreamGenerator) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote.givenLsRemoteCommandUsingContextFunction$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForLsRemote) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest.givenNormalAndHiddenFiles$whenLsWithLongFormat$thenNormalFilesAreListed(com.github.dakusui.actionunit.ut.actions.cmd.linux.LsTest) (6 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest.givenExistingFile$whenTouchAndWaitOneSec$thenMtimeUpdated(com.github.dakusui.actionunit.ut.actions.cmd.linux.TouchTest) (1014 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone.givenCloneCommandUsingLiterals$whenFormatGitCloneCommand$thenProperlyFormatted(com.github.dakusui.actionunit.ut.actions.cmd.linux.GitTest$ForClone) (2 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer.givenEchoVariable_i_usingManuallyWrittenPlaceHolder$whenPerformAsContextConsumerInsideHelloWorldLoopExpectingUnknownKeyword$thenFailureIsThrown(com.github.dakusui.actionunit.ut.actions.cmd.CmdTest$AsContextConsumer) (4 ms)</li><li>com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest.givenCatHelloWorldUsingHereDoc_notQuoted_withRunMethod$whenPerformAsAction$thenHelloWorldIsPrinted_2(com.github.dakusui.actionunit.ut.actions.cmd.linux.BasicCommanderTest) (4 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='http://pitest.org'>PIT</a> 1.7.3
+
+</body>
+</html>

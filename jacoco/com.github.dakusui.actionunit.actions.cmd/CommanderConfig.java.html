@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommanderConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">CommanderConfig.java</span></div><h1>CommanderConfig.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.actions.ContextVariable;
+import com.github.dakusui.actionunit.actions.RetryOption;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
+
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+
+import static com.github.dakusui.actionunit.actions.cmd.unix.SshOptions.emptySshOptions;
+import static com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker.createCheckerForExitCode;
+import static java.util.Objects.requireNonNull;
+
+/**
+ * An instance of this interface can be created by {@link CommanderConfig.Builder}.
+ *
+ * @see CommanderConfig.Builder
+ */
+public interface CommanderConfig {
+
+<span class="fc" id="L23">  CommanderConfig DEFAULT = CommanderConfig.builder()</span>
+<span class="fc" id="L24">      .shellManager(ShellManager.createShellManager(h -&gt; new SshOptions.Builder()</span>
+<span class="fc" id="L25">          .disableStrictHostkeyChecking()</span>
+<span class="fc" id="L26">          .disablePasswordAuthentication()</span>
+<span class="fc" id="L27">          .build()))</span>
+<span class="fc" id="L28">      .programNameResolver(ProgramNameResolver.createForUnix())</span>
+<span class="fc" id="L29">      .placeHolderFormatter(PlaceHolderFormatter.DEFAULT_PLACE_HOLDER_FORMATTER)</span>
+<span class="fc" id="L30">      .build();</span>
+
+  ShellManager shellManager();
+
+  BiFunction&lt;String, String, String&gt; programNameResolver();
+
+  /**
+   * Returns a function that resolves an appropriate {@link SshOptions} object from a given host name.
+   *
+   * @return An ssh options resolver function.
+   */
+  Function&lt;String, SshOptions&gt; sshOptionsResolver();
+
+  /**
+   * Note that the returned objecc is only used by {@link Commander#toAction()} method,
+   * not by other builder methods such as {@link Commander#toContextPredicate()}, {@link Commander#toContextFunction()}, etc.
+   *
+   * @return A retry option object.
+   * @see Commander
+   */
+  RetryOption retryOption();
+
+  Function&lt;ContextVariable[], IntFunction&lt;String&gt;&gt; variablePlaceHolderFormatter();
+
+  ProcessStreamer.Checker checker();
+
+  static Builder builder() {
+<span class="fc" id="L57">    return new Builder();</span>
+  }
+
+  class Impl implements CommanderConfig {
+    final ShellManager            shellManager;
+    final RetryOption             retryOption;
+    final ProcessStreamer.Checker processStreamerChecker;
+
+    final Function&lt;ContextVariable[], IntFunction&lt;String&gt;&gt; placeHolderFormatter;
+
+    final Function&lt;String, SshOptions&gt;       sshOptionsResolver;
+    final BiFunction&lt;String, String, String&gt; programNameResolver;
+
+    public Impl(
+        ShellManager shellManager,
+        BiFunction&lt;String, String, String&gt; programNameResolver,
+        Function&lt;String, SshOptions&gt; sshOptionsResolver,
+        RetryOption retryOption,
+        ProcessStreamer.Checker processStreamerChecker,
+<span class="fc" id="L76">        Function&lt;ContextVariable[], IntFunction&lt;String&gt;&gt; placeHolderFormatter) {</span>
+<span class="fc" id="L77">      this.shellManager = requireNonNull(shellManager);</span>
+<span class="fc" id="L78">      this.programNameResolver = requireNonNull(programNameResolver);</span>
+<span class="fc" id="L79">      this.retryOption = requireNonNull(retryOption);</span>
+<span class="fc" id="L80">      this.processStreamerChecker = requireNonNull(processStreamerChecker);</span>
+<span class="fc" id="L81">      this.placeHolderFormatter = requireNonNull(placeHolderFormatter);</span>
+<span class="fc" id="L82">      this.sshOptionsResolver = requireNonNull(sshOptionsResolver);</span>
+<span class="fc" id="L83">    }</span>
+
+    @Override
+    public ShellManager shellManager() {
+<span class="fc" id="L87">      return this.shellManager;</span>
+    }
+
+    @Override
+    public Function&lt;String, SshOptions&gt; sshOptionsResolver() {
+<span class="fc" id="L92">      return this.sshOptionsResolver;</span>
+    }
+
+    @Override
+    public RetryOption retryOption() {
+<span class="fc" id="L97">      return this.retryOption;</span>
+    }
+
+    @Override
+    public Function&lt;ContextVariable[], IntFunction&lt;String&gt;&gt; variablePlaceHolderFormatter() {
+<span class="fc" id="L102">      return this.placeHolderFormatter;</span>
+    }
+
+    @Override
+    public ProcessStreamer.Checker checker() {
+<span class="fc" id="L107">      return this.processStreamerChecker;</span>
+    }
+
+    @Override
+    public BiFunction&lt;String, String, String&gt; programNameResolver() {
+<span class="fc" id="L112">      return this.programNameResolver;</span>
+    }
+  }
+
+  class Builder {
+    ShellManager shellManager;
+
+    BiFunction&lt;String, String, String&gt; programNameResolver;
+
+    Function&lt;String, SshOptions&gt; sshOptionsResolver;
+
+    RetryOption                                      retryOption;
+    ProcessStreamer.Checker                          processStreamerChecker;
+    Function&lt;ContextVariable[], IntFunction&lt;String&gt;&gt; placeHolderFormatter;
+
+<span class="fc" id="L127">    public Builder() {</span>
+<span class="fc" id="L128">      this.processStreamerChecker(createCheckerForExitCode(0))</span>
+<span class="fc" id="L129">          .shellManager(ShellManager.createShellManager())</span>
+<span class="fc" id="L130">          .programNameResolver(ProgramNameResolver.createForUnix())</span>
+<span class="fc" id="L131">          .retryOption(RetryOption.none())</span>
+<span class="pc" id="L132">          .sshOptionsResolver(h -&gt; emptySshOptions())</span>
+<span class="fc" id="L133">          .placeHolderFormatter(PlaceHolderFormatter.DEFAULT_PLACE_HOLDER_FORMATTER);</span>
+<span class="fc" id="L134">    }</span>
+
+    public Builder programNameResolver(BiFunction&lt;String, String, String&gt; programNameResolver) {
+<span class="fc" id="L137">      this.programNameResolver = requireNonNull(programNameResolver);</span>
+<span class="fc" id="L138">      return this;</span>
+    }
+
+    public Builder shellManager(ShellManager shellManager) {
+<span class="fc" id="L142">      this.shellManager = requireNonNull(shellManager);</span>
+<span class="fc" id="L143">      return this.sshOptionsResolver(h -&gt; this.shellManager.sshOptionsFor(h));</span>
+    }
+
+    public Builder sshOptionsResolver(Function&lt;String, SshOptions&gt; sshOptionsResolver) {
+<span class="fc" id="L147">      this.sshOptionsResolver = requireNonNull(sshOptionsResolver);</span>
+<span class="fc" id="L148">      return this;</span>
+    }
+
+    public Builder retryOption(RetryOption retryOption) {
+<span class="fc" id="L152">      this.retryOption = retryOption;</span>
+<span class="fc" id="L153">      return this;</span>
+    }
+
+    public Builder processStreamerChecker(ProcessStreamer.Checker processStreamerChecker) {
+<span class="fc" id="L157">      this.processStreamerChecker = requireNonNull(processStreamerChecker);</span>
+<span class="fc" id="L158">      return this;</span>
+    }
+
+    public Builder placeHolderFormatter(Function&lt;ContextVariable[], IntFunction&lt;String&gt;&gt; placeHolderFormatter) {
+<span class="fc" id="L162">      this.placeHolderFormatter = placeHolderFormatter;</span>
+<span class="fc" id="L163">      return this;</span>
+    }
+
+    public CommanderConfig build() {
+<span class="fc" id="L167">      return new CommanderConfig.Impl(shellManager, programNameResolver, sshOptionsResolver, retryOption, processStreamerChecker, placeHolderFormatter);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SshOptions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd.unix</a> &gt; <span class="el_source">SshOptions.java</span></div><h1>SshOptions.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd.unix;
+
+import java.util.*;
+
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
+
+/**
+ * Models options common to both {@code ssh} and {@code scp} commands. (see below).
+ * ----
+ * -4               : IPv4
+ * -6               : IPv6
+ * -C               : compression
+ * -c               : cipher spec
+ * -F               : config file
+ * -i               : identity
+ * -o               : ssh option
+ * -p (-P for scp)  : port
+ * -q               : quiet
+ * -v               : verbose
+ * ----
+ */
+public interface SshOptions {
+  static SshOptions emptySshOptions() {
+<span class="fc" id="L25">    return new Builder().build();</span>
+  }
+
+  boolean authAgentConnectionForwardingEnabled();
+
+  boolean ipv4();
+
+  boolean ipv6();
+
+  boolean compression();
+
+  List&lt;String&gt; jumpHosts();
+
+  Optional&lt;String&gt; cipherSpec();
+
+  Optional&lt;String&gt; configFile();
+
+  Optional&lt;String&gt; identity();
+
+  List&lt;String&gt; options();
+
+  OptionalInt port();
+
+  boolean quiet();
+
+  boolean verbose();
+
+  default List&lt;String&gt; formatOptionsWith(Formatter formatter) {
+<span class="fc" id="L53">    return requireNonNull(formatter).format(this);</span>
+  }
+
+  class Impl implements SshOptions {
+    final boolean      ipv4;
+    final boolean      ipv6;
+    final boolean      compression;
+    final List&lt;String&gt; jumpHosts;
+    final String       cipherSpec;
+    final String       configFile;
+    final String       identity;
+    final List&lt;String&gt; sshOptions;
+    final Integer      port;
+    final boolean      quiet;
+    final boolean      verbose;
+    final boolean      authAgentConnectionForwarding;
+
+<span class="fc" id="L70">    public Impl(boolean authAgentConnectionForwardingEnabled, boolean ipv4, boolean ipv6, boolean compression, List&lt;String&gt; jumpHosts, String cipherSpec, String configFile, String identity, List&lt;String&gt; sshOptions, Integer port, boolean quiet, boolean verbose) {</span>
+<span class="fc" id="L71">      this.authAgentConnectionForwarding = authAgentConnectionForwardingEnabled;</span>
+<span class="fc" id="L72">      this.ipv4 = ipv4;</span>
+<span class="fc" id="L73">      this.ipv6 = ipv6;</span>
+<span class="fc" id="L74">      this.compression = compression;</span>
+<span class="fc" id="L75">      this.jumpHosts = unmodifiableList(new ArrayList&lt;&gt;(requireNonNull(jumpHosts)));</span>
+<span class="fc" id="L76">      this.cipherSpec = cipherSpec;</span>
+<span class="fc" id="L77">      this.configFile = configFile;</span>
+<span class="fc" id="L78">      this.identity = identity;</span>
+<span class="fc" id="L79">      this.sshOptions = unmodifiableList(new ArrayList&lt;&gt;(requireNonNull(sshOptions)));</span>
+<span class="fc" id="L80">      this.port = port;</span>
+<span class="fc" id="L81">      this.quiet = quiet;</span>
+<span class="fc" id="L82">      this.verbose = verbose;</span>
+<span class="fc" id="L83">    }</span>
+
+
+    @Override
+    public boolean authAgentConnectionForwardingEnabled() {
+<span class="fc" id="L88">      return authAgentConnectionForwarding;</span>
+    }
+
+    @Override
+    public boolean ipv4() {
+<span class="fc" id="L93">      return ipv4;</span>
+    }
+
+    @Override
+    public boolean ipv6() {
+<span class="fc" id="L98">      return ipv6;</span>
+    }
+
+    @Override
+    public boolean compression() {
+<span class="fc" id="L103">      return compression;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; jumpHosts() {
+<span class="fc" id="L108">      return jumpHosts;</span>
+    }
+
+    @Override
+    public Optional&lt;String&gt; cipherSpec() {
+<span class="fc" id="L113">      return Optional.ofNullable(cipherSpec);</span>
+    }
+
+    @Override
+    public Optional&lt;String&gt; configFile() {
+<span class="fc" id="L118">      return Optional.ofNullable(configFile);</span>
+    }
+
+    @Override
+    public Optional&lt;String&gt; identity() {
+<span class="fc" id="L123">      return Optional.ofNullable(identity);</span>
+    }
+
+    @Override
+    public List&lt;String&gt; options() {
+<span class="fc" id="L128">      return sshOptions;</span>
+    }
+
+    @Override
+    public OptionalInt port() {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">      return port != null ? OptionalInt.of(port) : OptionalInt.empty();</span>
+    }
+
+    @Override
+    public boolean quiet() {
+<span class="fc" id="L138">      return quiet;</span>
+    }
+
+    @Override
+    public boolean verbose() {
+<span class="fc" id="L143">      return verbose;</span>
+    }
+  }
+
+  class Builder {
+    private       String       identity;
+<span class="fc" id="L149">    private final List&lt;String&gt; sshOptions = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L150">    private final List&lt;String&gt; jumpHosts  = new LinkedList&lt;&gt;();</span>
+    private       boolean      ipv4;
+    private       boolean      ipv6;
+    private       boolean      compression;
+    private       String       cipherSpec;
+    private       String       configFile;
+    private       Integer      port;
+    private       boolean      quiet;
+    private       boolean      verbose;
+    private       boolean      authAgentConnectionForwarding;
+
+<span class="fc" id="L161">    public Builder() {</span>
+<span class="fc" id="L162">      this.ipv4(false)</span>
+<span class="fc" id="L163">          .ipv6(false)</span>
+<span class="fc" id="L164">          .compression(false)</span>
+<span class="fc" id="L165">          .cipherSpec(null)</span>
+<span class="fc" id="L166">          .configFile(null)</span>
+<span class="fc" id="L167">          .identity(null)</span>
+<span class="fc" id="L168">          .port(null)</span>
+<span class="fc" id="L169">          .quiet(false)</span>
+<span class="fc" id="L170">          .verbose(false);</span>
+<span class="fc" id="L171">    }</span>
+
+    public Builder authAgentConnectionForwarding(boolean enable) {
+<span class="fc" id="L174">      this.authAgentConnectionForwarding = enable;</span>
+<span class="fc" id="L175">      return this;</span>
+    }
+
+    public Builder ipv4(boolean enable) {
+<span class="fc" id="L179">      this.ipv4 = enable;</span>
+<span class="fc" id="L180">      return this;</span>
+    }
+
+    public Builder ipv6(boolean enable) {
+<span class="fc" id="L184">      this.ipv6 = enable;</span>
+<span class="fc" id="L185">      return this;</span>
+    }
+
+    public Builder compression(boolean enable) {
+<span class="fc" id="L189">      this.compression = enable;</span>
+<span class="fc" id="L190">      return this;</span>
+    }
+
+    public Builder cipherSpec(String cipherSpec) {
+<span class="fc" id="L194">      this.cipherSpec = cipherSpec;</span>
+<span class="fc" id="L195">      return this;</span>
+    }
+
+    public Builder configFile(String configFile) {
+<span class="fc" id="L199">      this.configFile = configFile;</span>
+<span class="fc" id="L200">      return this;</span>
+    }
+
+    public Builder port(Integer port) {
+<span class="fc" id="L204">      this.port = port;</span>
+<span class="fc" id="L205">      return this;</span>
+    }
+
+    public Builder quiet(boolean quiet) {
+<span class="fc" id="L209">      this.quiet = quiet;</span>
+<span class="fc" id="L210">      return this;</span>
+    }
+
+    public Builder verbose(boolean verbose) {
+<span class="fc" id="L214">      this.verbose = verbose;</span>
+<span class="fc" id="L215">      return this;</span>
+    }
+
+
+    public Builder identity(String identity) {
+<span class="fc" id="L220">      this.identity = identity;</span>
+<span class="fc" id="L221">      return this;</span>
+    }
+
+    public Builder addJumpHost(String jumpHost) {
+<span class="fc" id="L225">      this.jumpHosts.add(requireNonNull(jumpHost));</span>
+<span class="fc" id="L226">      return this;</span>
+    }
+
+    public Builder addSshOption(String option) {
+<span class="fc" id="L230">      sshOptions.add(option);</span>
+<span class="fc" id="L231">      return this;</span>
+    }
+
+    public Builder addSshOption(String option, String value) {
+<span class="fc" id="L235">      return this.addSshOption(String.format(&quot;%s=%s&quot;, option, value));</span>
+    }
+
+    public Builder disablePasswordAuthentication() {
+<span class="fc" id="L239">      return this.addSshOption(&quot;PasswordAuthentication&quot;, &quot;no&quot;);</span>
+    }
+
+    public Builder disableStrictHostkeyChecking() {
+<span class="fc" id="L243">      return this.addSshOption(&quot;StrictHostkeyChecking&quot;, &quot;no&quot;);</span>
+    }
+
+    public SshOptions build() {
+<span class="fc" id="L247">      return new SshOptions.Impl(</span>
+          authAgentConnectionForwarding,
+          ipv4,
+          ipv6,
+          compression,
+          jumpHosts,
+          cipherSpec,
+          configFile,
+          identity,
+          sshOptions,
+          port,
+          quiet,
+          verbose);
+    }
+  }
+
+  @FunctionalInterface
+  interface Formatter {
+    List&lt;String&gt; format(SshOptions sshOptions);
+
+    static Formatter forSsh() {
+<span class="fc" id="L268">      return sshOptions -&gt; new LinkedList&lt;String&gt;() {{</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        if (sshOptions.authAgentConnectionForwardingEnabled())</span>
+<span class="fc" id="L270">          add(&quot;-A&quot;);</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">        if (sshOptions.ipv4())</span>
+<span class="fc" id="L272">          add(&quot;-4&quot;);</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        if (sshOptions.ipv6())</span>
+<span class="fc" id="L274">          add(&quot;-6&quot;);</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">        if (sshOptions.compression())</span>
+<span class="fc" id="L276">          add(&quot;-C&quot;);</span>
+<span class="fc" id="L277">        sshOptions.configFile().ifPresent(v -&gt; {</span>
+<span class="fc" id="L278">          add(&quot;-F&quot;);</span>
+<span class="fc" id="L279">          add(v);</span>
+<span class="fc" id="L280">        });</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">        if (!sshOptions.jumpHosts().isEmpty())</span>
+<span class="fc" id="L282">          add(&quot;-J &quot; + String.join(&quot;,&quot;, sshOptions.jumpHosts()));</span>
+<span class="fc" id="L283">        sshOptions.cipherSpec().ifPresent(v -&gt; {</span>
+<span class="fc" id="L284">          add(&quot;-c&quot;);</span>
+<span class="fc" id="L285">          add(v);</span>
+<span class="fc" id="L286">        });</span>
+<span class="fc" id="L287">        sshOptions.identity().ifPresent(v -&gt; {</span>
+<span class="fc" id="L288">          add(&quot;-i&quot;);</span>
+<span class="fc" id="L289">          add(v);</span>
+<span class="fc" id="L290">        });</span>
+<span class="fc" id="L291">        sshOptions.options().forEach(v -&gt; {</span>
+<span class="fc" id="L292">          add(&quot;-o&quot;);</span>
+<span class="fc" id="L293">          add(v);</span>
+<span class="fc" id="L294">        });</span>
+<span class="fc" id="L295">        sshOptions.port().ifPresent(v -&gt; {</span>
+<span class="fc" id="L296">          add(&quot;-p&quot;);</span>
+<span class="fc" id="L297">          add(Objects.toString(v));</span>
+<span class="fc" id="L298">        });</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">        if (sshOptions.quiet())</span>
+<span class="fc" id="L300">          add(&quot;-q&quot;);</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">        if (sshOptions.verbose())</span>
+<span class="fc" id="L302">          add(&quot;-v&quot;);</span>
+<span class="fc" id="L303">      }};</span>
+    }
+
+    static Formatter forScp() {
+<span class="fc" id="L307">      return sshOptions -&gt; new LinkedList&lt;String&gt;() {{</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">        if (sshOptions.authAgentConnectionForwardingEnabled())</span>
+<span class="fc" id="L309">          add(&quot;-A&quot;);</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        if (sshOptions.ipv4())</span>
+<span class="fc" id="L311">          add(&quot;-4&quot;);</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">        if (sshOptions.ipv6())</span>
+<span class="fc" id="L313">          add(&quot;-6&quot;);</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        if (sshOptions.compression())</span>
+<span class="fc" id="L315">          add(&quot;-C&quot;);</span>
+<span class="fc" id="L316">        sshOptions.configFile().ifPresent(v -&gt; {</span>
+<span class="fc" id="L317">          add(&quot;-F&quot;);</span>
+<span class="fc" id="L318">          add(v);</span>
+<span class="fc" id="L319">        });</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        if (!sshOptions.jumpHosts().isEmpty())</span>
+<span class="fc" id="L321">          add(&quot;-J &quot; + String.join(&quot;,&quot;, sshOptions.jumpHosts()));</span>
+<span class="fc" id="L322">        sshOptions.cipherSpec().ifPresent(v -&gt; {</span>
+<span class="fc" id="L323">          add(&quot;-c&quot;);</span>
+<span class="fc" id="L324">          add(v);</span>
+<span class="fc" id="L325">        });</span>
+<span class="fc" id="L326">        sshOptions.identity().ifPresent(v -&gt; {</span>
+<span class="fc" id="L327">          add(&quot;-i&quot;);</span>
+<span class="fc" id="L328">          add(v);</span>
+<span class="fc" id="L329">        });</span>
+<span class="fc" id="L330">        sshOptions.options().forEach(v -&gt; {</span>
+<span class="fc" id="L331">          add(&quot;-o&quot;);</span>
+<span class="fc" id="L332">          add(v);</span>
+<span class="fc" id="L333">        });</span>
+<span class="fc" id="L334">        sshOptions.port().ifPresent(v -&gt; {</span>
+<span class="fc" id="L335">          add(&quot;-P&quot;);</span>
+<span class="fc" id="L336">          add(Objects.toString(v));</span>
+<span class="fc" id="L337">        });</span>
+<span class="fc bfc" id="L338" title="All 2 branches covered.">        if (sshOptions.quiet())</span>
+<span class="fc" id="L339">          add(&quot;-q&quot;);</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        if (sshOptions.verbose())</span>
+<span class="fc" id="L341">          add(&quot;-v&quot;);</span>
+<span class="fc" id="L342">      }};</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

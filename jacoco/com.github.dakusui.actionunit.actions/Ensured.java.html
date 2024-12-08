@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ensured.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">Ensured.java</span></div><h1>Ensured.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.exceptions.ActionException;
+
+import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
+import static java.util.Objects.requireNonNull;
+
+/**
+ * An action whose success of the &quot;target&quot; is ensured by the &quot;ensurer&quot; actions.
+ *
+ * How it works?::
+ * Each action returned by {@code Ensured#ensurers()} is performed one by one.
+ * After an entry from {@code ensurers()} is performed successfully, the target action
+ * will be performed ({@code target()}.
+ * If the target is performed successfully, this action finishes immediately and  successfully.
+ * If this step is tried for all the ensurers but no attempt finishes successfully, the entire action will fail.
+ *
+ * If an exception thrown by a target or an ensurer is not &quot;recoverable&quot;, the entire action will fail immediately.
+ * Whether it is recoverable or not is determined by the return value of a method {@code Ensured#isRecoverable(Throwable)}.
+ *
+ * @see Ensured#ensurers()
+ * @see Ensured#target()
+ * @see Ensured#isRecoverable(Throwable)
+ */
+public interface Ensured extends Action {
+  /**
+   * An exception which tells the framework that it should not be recovered by the
+   * {@code Ensured} action mechanism.
+   */
+  class Abort extends ActionException {
+    public Abort(String message) {
+<span class="nc" id="L38">      super(message);</span>
+<span class="nc" id="L39">    }</span>
+  }
+
+  /**
+   * An exception which tells the framework that a recovery requested by the
+   * {@code Ensured} action mechanism.
+   */
+  class RequestRetry extends ActionException {
+    public RequestRetry(String message) {
+<span class="fc" id="L48">      super(message);</span>
+<span class="fc" id="L49">    }</span>
+  }
+
+  /**
+   * Checks if a given `exception` is recoverable by this object.
+   *
+   * @param exception An exception to be checked.
+   * @return `true` - Can be recovered / `false` - Otherwise.
+   */
+  default boolean isRecoverable(Throwable exception) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    if (exception instanceof RequestRetry)</span>
+<span class="fc" id="L60">      return true;</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">    if (exception instanceof Abort)</span>
+<span class="nc" id="L62">      return false;</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">    if (&quot;IncompleteExecutionException&quot;.equals(exception.getClass().getSimpleName()))</span>
+<span class="nc" id="L64">      return false;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    if (&quot;AssertionFailedError&quot;.equals(exception.getClass().getSimpleName()))</span>
+<span class="nc" id="L66">      return true;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">    return !(exception instanceof Error);</span>
+  }
+
+  /**
+   * Rethrows a given `exception`, when it is not recoverable.
+   *
+   * @param exception An exception to be rethrown.
+   * @param &lt;T&gt;       Type of the `exception`.
+   * @return A type placeholder, never be returned.
+   */
+  default &lt;T extends Throwable&gt; T rethrow(T exception) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">    if (exception instanceof Error)</span>
+<span class="nc" id="L79">      throw (Error) exception;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">    if (exception instanceof RuntimeException)</span>
+<span class="nc" id="L81">      throw (RuntimeException) exception;</span>
+<span class="nc" id="L82">    throw new ActionException(exception.getMessage(),exception);</span>
+  }
+
+  /**
+   * Returns a target action to be ensured its success.
+   * This action will be performed repeatedly until it succeeds.
+   *
+   * @return A target action.
+   * @see Ensured#ensurers()
+   */
+  Action target();
+
+  /**
+   * Returns a list of &quot;ensurer&quot; actions.
+   *
+   * An ensurer is an action that may make preconditions of the &quot;target action&quot;.
+   *
+   * @return A list of &quot;ensurer&quot; actions.
+   */
+  List&lt;Action&gt; ensurers();
+
+  @Override
+  default void accept(Visitor visitor) {
+<span class="fc" id="L105">    visitor.visit(this);</span>
+<span class="fc" id="L106">  }</span>
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="fc" id="L110">    formatter.format(&quot;ensure:%s using&quot;, this.target());</span>
+<span class="fc" id="L111">  }</span>
+
+  /**
+   * An implementation of `Ensured` action's interface.
+   */
+  class Impl implements Ensured {
+    private final List&lt;Action&gt; ensurers;
+    private final Action       target;
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L121">    public &lt;T extends Throwable, R extends Throwable&gt; Impl(Action target, List&lt;Action&gt; ensurers) {</span>
+<span class="fc" id="L122">      this.target = requireNonNull(target);</span>
+<span class="fc" id="L123">      this.ensurers = requireNonNull(ensurers);</span>
+<span class="fc" id="L124">    }</span>
+
+    @Override
+    public Action target() {
+<span class="fc" id="L128">      return this.target;</span>
+    }
+
+    @Override
+    public List&lt;Action&gt; ensurers() {
+<span class="fc" id="L133">      return this.ensurers;</span>
+    }
+  }
+
+  /**
+   * A builder class of `Ensured` action.
+   *
+   * @see Ensured
+   */
+<span class="fc" id="L142">  class Builder extends Action.Builder&lt;Ensured&gt; {</span>
+    private       Action       target;
+<span class="fc" id="L144">    private final List&lt;Action&gt; ensurers = new LinkedList&lt;&gt;();</span>
+
+    /**
+     * Sets `target` action to this builder.
+     *
+     * @param target A target action.
+     * @return This object.
+     */
+    public Builder target(Action target) {
+<span class="fc" id="L153">      this.target = requireNonNull(target);</span>
+<span class="fc" id="L154">      return this;</span>
+    }
+
+    /**
+     * Adds an `ensurer` action to this builder object.
+     *
+     * @param ensurer An ensurer action to be added.
+     * @return This object.
+     */
+    public Builder with(Action ensurer) {
+<span class="fc" id="L164">      ensurers.add(requireNonNull(ensurer));</span>
+<span class="fc" id="L165">      return this;</span>
+    }
+
+    /**
+     * Adds a &quot;nop&quot; (no operation) action to this builder object as an ensurer.
+     * This method is useful, when the target action may succeed without any preparation.
+     *
+     * @return This object.
+     */
+    public Builder withNop() {
+<span class="fc" id="L175">      return this.with(nop());</span>
+    }
+
+    /**
+     * Builds and returns an `Ensured` action object.
+     *
+     * @return An `Ensured` action.
+     */
+    public Ensured build() {
+<span class="fc" id="L184">      return new Impl(this.target, this.ensurers);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

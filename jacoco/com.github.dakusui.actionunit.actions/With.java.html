@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>With.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">With.java</span></div><h1>With.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+
+import java.util.Formatter;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.core.context.FormattableConsumer.nopConsumer;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.*;
+import static java.util.Objects.requireNonNull;
+
+/**
+ * An interface to access a context variable safely.
+ * An instance of this interface corresponds to single context variable.
+ *
+ * @param &lt;V&gt; A type of variable through which this action interacts with another.
+ * @see Context
+ */
+public interface With&lt;V&gt; extends Contextful&lt;V&gt; {
+  /**
+   * Returns a &quot;close&quot; action which takes care of &quot;clean up&quot;
+   *
+   * @return A &quot;close&quot; action.
+   */
+  Optional&lt;Action&gt; close();
+
+  @Override
+  default void accept(Visitor visitor) {
+<span class="fc" id="L34">    visitor.visit(this);</span>
+<span class="fc" id="L35">  }</span>
+
+  @Override
+  default void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="fc" id="L39">    formatter.format(&quot;with:&quot; + variableName() + &quot;:&quot; + toStringIfOverriddenOrNoname(valueSource()));</span>
+<span class="fc" id="L40">  }</span>
+
+  class Builder&lt;V&gt; extends Contextful.Builder&lt;Builder&lt;V&gt;, With&lt;V&gt;, V, V&gt; {
+
+    public Builder(String variableName, Function&lt;Context, V&gt; function) {
+<span class="fc" id="L45">      super(variableName, function);</span>
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * Creates an action that updates the context variable.
+     * A current value of the context variable is given to the `function` and the result
+     * of the function is written back to the context.
+     *
+     * @param function A function to compute a new value of the context variable.
+     * @return An action that updates the context variable.
+     */
+    public Action updateContextVariableWith(Function&lt;V, V&gt; function) {
+<span class="fc" id="L57">      return simple(</span>
+<span class="fc" id="L58">          &quot;update:&quot; + variableName() + &quot;*&quot;,</span>
+<span class="fc" id="L59">          printableConsumer((Context c) -&gt; variableUpdateFunction(function).apply(c)).describe(toStringIfOverriddenOrNoname(function)));</span>
+    }
+
+
+    public With&lt;V&gt; build() {
+<span class="fc" id="L64">      return build(nopConsumer());</span>
+    }
+
+    public With&lt;V&gt; build(Consumer&lt;V&gt; finisher) {
+<span class="fc" id="L68">      return new Impl&lt;&gt;(this.variableName(), this.internalVariableName(), this.valueSource(), this.action(), finisher);</span>
+    }
+
+    public &lt;W&gt; Builder&lt;W&gt; nest(Function&lt;V, W&gt; function) {
+<span class="fc" id="L72">      return new Builder&lt;&gt;(nextVariableName(variableName()), function(function));</span>
+    }
+    protected static String nextVariableName(String variableName) {
+<span class="fc" id="L75">      requireNonNull(variableName);</span>
+<span class="pc bpc" id="L76" title="3 of 6 branches missed.">      if (variableName.length() == 1 &amp;&amp; 'a' &lt;= variableName.charAt(0) &amp;&amp; variableName.charAt(0) &lt;= 'z')</span>
+<span class="fc" id="L77">        return Character.toString((char) (variableName.charAt(0) + 1));</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">      if (variableName.matches(&quot;.*_[1-9][0-9]*$&quot;)) {</span>
+<span class="nc" id="L79">        int index = Integer.parseInt(variableName.replaceAll(&quot;.*_&quot;, &quot;&quot;)) + 1;</span>
+<span class="nc" id="L80">        return variableName.replaceAll(&quot;_[1-9][0-9]*$&quot;, &quot;_&quot; + index);</span>
+      }
+<span class="nc" id="L82">      return variableName + &quot;_1&quot;;</span>
+    }
+    private Function&lt;Context, V&gt; variableUpdateFunction(Function&lt;V, V&gt; function) {
+<span class="fc" id="L85">      return printableFunction(</span>
+          (Context context) -&gt; {
+<span class="fc" id="L87">            V ret = function.apply(resolveValue(context));</span>
+<span class="fc" id="L88">            context.assignTo(internalVariableName(), ret);</span>
+<span class="fc" id="L89">            return ret;</span>
+          })
+<span class="fc" id="L91">          .describe(toStringIfOverriddenOrNoname(function));</span>
+    }
+
+    private static class Impl&lt;V&gt; extends Base&lt;V, V&gt; implements With&lt;V&gt; {
+      private final Action end;
+
+      public Impl(String variableName, String internalVariableName, Function&lt;Context, V&gt; valueSource, Action action, Consumer&lt;V&gt; finisher) {
+<span class="fc" id="L98">        super(variableName, internalVariableName, valueSource, action);</span>
+<span class="fc" id="L99">        this.end = simple(String.format(&quot;done:%s&quot;, finisher),</span>
+<span class="fc" id="L100">            printableConsumer((Context context) -&gt; {</span>
+<span class="fc" id="L101">              V variable = context.valueOf(internalVariableName);</span>
+<span class="fc" id="L102">              context.unassign(internalVariableName); // Un-assign first. Otherwise, finisher may fail.</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">              if (finisher != null)</span>
+<span class="fc" id="L104">                finisher.accept(variable);</span>
+<span class="fc" id="L105">            }).describe(String.format(&quot;cleanUp:%s&quot;, variableName)));</span>
+<span class="fc" id="L106">      }</span>
+
+      @Override
+      public Optional&lt;Action&gt; close() {
+<span class="fc" id="L110">        return Optional.ofNullable(end);</span>
+      }
+
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnixCommanderFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">UnixCommanderFactory.java</span></div><h1>UnixCommanderFactory.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.actions.cmd.unix.*;
+
+import java.util.function.Function;
+
+public interface UnixCommanderFactory extends CommanderFactory {
+
+  static UnixCommanderFactory create(ShellManager manager) {
+<span class="fc" id="L10">    return create(CommanderConfig.builder()</span>
+<span class="fc" id="L11">        .shellManager(manager)</span>
+<span class="fc" id="L12">        .sshOptionsResolver(manager::sshOptionsFor)</span>
+<span class="fc" id="L13">        .build());</span>
+  }
+
+  static UnixCommanderFactory create(CommanderConfig commanderConfig) {
+<span class="fc" id="L17">    return new Builder()</span>
+<span class="fc" id="L18">        .config(commanderConfig)</span>
+<span class="fc" id="L19">        .build();</span>
+  }
+
+  default Echo echo() {
+<span class="fc" id="L23">    return new Echo(config());</span>
+  }
+
+  default Cat cat() {
+<span class="fc" id="L27">    return new Cat(config());</span>
+  }
+
+  default Ls ls() {
+<span class="fc" id="L31">    return new Ls(config());</span>
+  }
+
+  default Mkdir mkdir() {
+<span class="fc" id="L35">    return new Mkdir(config());</span>
+  }
+
+  default Rm rm() {
+<span class="fc" id="L39">    return new Rm(config());</span>
+  }
+
+  default Touch touch() {
+<span class="fc" id="L43">    return new Touch(config());</span>
+  }
+
+  default Scp scp() {
+<span class="fc" id="L47">    return new Scp(config());</span>
+  }
+
+  default Curl curl() {
+<span class="fc" id="L51">    return new Curl(config());</span>
+  }
+
+  default Git git() {
+<span class="fc" id="L55">    return new Git.Builder().build();</span>
+  }
+
+  default Cmd cmd() {
+<span class="nc" id="L59">    return new Cmd(config());</span>
+  }
+
+  class Impl extends CommanderFactory.Base implements UnixCommanderFactory {
+    protected Impl(CommanderConfig commanderConfig) {
+<span class="fc" id="L64">      super(commanderConfig);</span>
+<span class="fc" id="L65">    }</span>
+  }
+
+<span class="fc" id="L68">  class Builder extends CommanderFactory.Builder&lt;Builder, UnixCommanderFactory&gt; {</span>
+
+    @Override
+    protected UnixCommanderFactory createCommanderFactory(CommanderConfig config, Function&lt;String, SshOptions&gt; sshOptionsResolver) {
+<span class="fc" id="L72">      return new Impl(config);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

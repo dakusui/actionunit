@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Contextful.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">Contextful.java</span></div><h1>Contextful.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static com.github.dakusui.printables.PrintableFunctionals.*;
+import static java.util.Objects.requireNonNull;
+
+public interface Contextful&lt;S&gt; extends Action, ContextVariable {
+  /**
+   * A function to provide a value referenced from inside an action returned by the
+   * {@link Contextful#action()} method.
+   *
+   * @return A function to provide a value for an action.
+   */
+  Function&lt;Context, S&gt; valueSource();
+
+  /**
+   * Returns a main action.
+   *
+   * @return A main action.
+   */
+  Action action();
+
+  @Override
+  String variableName();
+
+  @Override
+  String internalVariableName();
+
+  abstract class Base&lt;V, S&gt; implements Contextful&lt;S&gt; {
+    private final String variableName;
+
+    private final String internalVariableName;
+
+    private final Function&lt;Context, S&gt; valueSource;
+
+    private final Action action;
+
+
+<span class="fc" id="L47">    public Base(String variableName, final String internalVariableName, Function&lt;Context, S&gt; valueSource, Action action) {</span>
+<span class="fc" id="L48">      this.variableName = variableName;</span>
+<span class="fc" id="L49">      this.internalVariableName = internalVariableName;</span>
+<span class="fc" id="L50">      this.valueSource = valueSource;</span>
+<span class="fc" id="L51">      this.action = action;</span>
+<span class="fc" id="L52">    }</span>
+
+    @Override
+    public Function&lt;Context, S&gt; valueSource() {
+<span class="fc" id="L56">      return valueSource;</span>
+    }
+
+    @Override
+    public Action action() {
+<span class="fc" id="L61">      return action;</span>
+    }
+
+    @Override
+    public String variableName() {
+<span class="fc" id="L66">      return variableName;</span>
+    }
+
+    @Override
+    public String internalVariableName() {
+<span class="fc" id="L71">      return internalVariableName;</span>
+    }
+
+  }
+
+  abstract class Builder&lt;
+      B extends Builder&lt;B, A, V, S&gt;,
+      A extends Contextful&lt;S&gt;,
+      V,
+      S&gt;
+      extends Action.Builder&lt;A&gt;
+      implements ContextVariable {
+    private final Function&lt;Context, S&gt; valueSource;
+    private final String               internalVariableName;
+    private final String               variableName;
+
+    private Action action;
+
+<span class="fc" id="L89">    protected Builder(String variableName, Function&lt;Context, S&gt; function) {</span>
+<span class="fc" id="L90">      this.variableName = requireNonNull(variableName);</span>
+<span class="fc" id="L91">      this.internalVariableName = composeInternalVariableName(variableName);</span>
+<span class="fc" id="L92">      this.valueSource = requireNonNull(function);</span>
+<span class="fc" id="L93">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public B action(Action action) {
+<span class="fc" id="L97">      this.action = requireNonNull(action);</span>
+<span class="fc" id="L98">      return (B) this;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public B action(Function&lt;B, Action&gt; action) {
+<span class="fc" id="L103">      return this.action(action.apply((B) this));</span>
+    }
+
+    public A perform(Action action) {
+<span class="fc" id="L107">      return action(action).build();</span>
+    }
+
+    public A perform(Function&lt;B, Action&gt; action) {
+<span class="fc" id="L111">      return this.action(action).build();</span>
+    }
+
+
+    public Action action() {
+<span class="fc" id="L116">      return this.action;</span>
+    }
+
+    public String variableName() {
+<span class="fc" id="L120">      return this.variableName;</span>
+    }
+
+    public String internalVariableName() {
+<span class="fc" id="L124">      return this.internalVariableName;</span>
+    }
+
+    public Function&lt;Context, S&gt; valueSource() {
+<span class="fc" id="L128">      return this.valueSource;</span>
+    }
+
+    /**
+     * Creates an action that consumes the context variable.
+     *
+     * @param consumer A consumer that processes the context variable.
+     * @return A created action.
+     */
+    public Action toAction(Consumer&lt;V&gt; consumer) {
+<span class="fc" id="L138">      return simple(&quot;action:&quot; + variableName(),</span>
+<span class="fc" id="L139">          printableConsumer((Context c) -&gt; variableReferenceConsumer(consumer).accept(c)).describe(toStringIfOverriddenOrNoname(consumer)));</span>
+    }
+
+    public &lt;W&gt; Function&lt;Context, W&gt; function(Function&lt;V, W&gt; function) {
+<span class="fc" id="L143">      return toContextFunction(this, function);</span>
+
+    }
+
+    public Consumer&lt;Context&gt; consumer(Consumer&lt;V&gt; consumer) {
+<span class="fc" id="L148">      return toContextConsumer(this, consumer);</span>
+    }
+
+    public Predicate&lt;Context&gt; predicate(Predicate&lt;V&gt; predicate) {
+<span class="fc" id="L152">      return toContextPredicate(this, predicate);</span>
+    }
+
+    public V resolveValue(Context context) {
+<span class="fc" id="L156">      return this.resolve(context);</span>
+    }
+
+    public String toString() {
+<span class="fc" id="L160">      return variableName();</span>
+    }
+
+    protected String composeInternalVariableName(String variableName) {
+<span class="fc" id="L164">      return this.getClass().getEnclosingClass().getCanonicalName() + &quot;:&quot; + variableName + &quot;:&quot; + System.identityHashCode(this);</span>
+    }
+
+    private Consumer&lt;Context&gt; variableReferenceConsumer(Consumer&lt;V&gt; consumer) {
+<span class="fc" id="L168">      return (Context context) -&gt; consumer.accept(this.resolveValue(context));</span>
+    }
+
+    private static &lt;V, W&gt; Function&lt;Context, W&gt; toContextFunction(Builder&lt;?, ?, V, ?&gt; builder, Function&lt;V, W&gt; function) {
+<span class="pc" id="L172">      return printableFunction((Context context) -&gt; function.apply(builder.resolveValue(context)))</span>
+<span class="fc" id="L173">          .describe(toStringIfOverriddenOrNoname(function));</span>
+    }
+
+    private static &lt;V&gt; Consumer&lt;Context&gt; toContextConsumer(Builder&lt;?, ?, V, ?&gt; builder, Consumer&lt;V&gt; consumer) {
+<span class="fc" id="L177">      return printableConsumer((Context context) -&gt; consumer.accept(builder.resolveValue(context)))</span>
+<span class="fc" id="L178">          .describe(toStringIfOverriddenOrNoname(consumer));</span>
+    }
+
+    private static &lt;V&gt; Predicate&lt;Context&gt; toContextPredicate(Builder&lt;?, ?, V, ?&gt; builder, Predicate&lt;V&gt; predicate) {
+<span class="fc" id="L182">      return printablePredicate(</span>
+<span class="fc" id="L183">          (Context context) -&gt; predicate.test(builder.resolveValue(context)))</span>
+<span class="fc" id="L184">          .describe(() -&gt; builder.variableName() + &quot;:&quot; + toStringIfOverriddenOrNoname(predicate));</span>
+    }
+
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

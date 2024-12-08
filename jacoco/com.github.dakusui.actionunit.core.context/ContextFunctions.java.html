@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContextFunctions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.core.context</a> &gt; <span class="el_source">ContextFunctions.java</span></div><h1>ContextFunctions.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.core.context;
+
+import com.github.dakusui.actionunit.actions.ContextVariable;
+import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextConsumerBuilder;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextFunctionBuilder;
+import com.github.dakusui.actionunit.core.context.multiparams.MultiParamsContextPredicateBuilder;
+import com.github.dakusui.actionunit.utils.Checks;
+import com.github.dakusui.actionunit.utils.InternalUtils;
+import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
+
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.stream.IntStream;
+
+import static com.github.dakusui.actionunit.utils.InternalUtils.objectToStringIfOverridden;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
+
+<span class="fc" id="L26">public enum ContextFunctions {</span>
+  ;
+
+  public static MultiParamsContextPredicateBuilder multiParamsPredicateFor(ContextVariable... variables) {
+<span class="fc" id="L30">    return new MultiParamsContextPredicateBuilder(variables);</span>
+  }
+
+  public static MultiParamsContextConsumerBuilder multiParamsConsumerFor(ContextVariable... variables) {
+<span class="fc" id="L34">    return new MultiParamsContextConsumerBuilder(variables);</span>
+  }
+
+  public static &lt;R&gt; MultiParamsContextFunctionBuilder&lt;R&gt; multiParamsFunctionFor(ContextVariable... variables) {
+<span class="fc" id="L38">    return new MultiParamsContextFunctionBuilder&lt;&gt;(variables);</span>
+  }
+
+  public static String describeFunctionalObject(Object f, final IntFunction&lt;String&gt; placeHolderFormatter, ContextVariable... variables) {
+<span class="fc" id="L42">    return String.format(&quot;(%s)-&gt;%s&quot;,</span>
+<span class="fc" id="L43">        String.join(&quot;,&quot;, Arrays.stream(variables).map(ContextVariable::variableName).toArray(String[]::new)),</span>
+<span class="fc" id="L44">        summarize(StableTemplatingUtils.template(</span>
+<span class="fc" id="L45">            objectToStringIfOverridden(f, obj -&gt; formatPlaceHolders(obj, placeHolderFormatter, variables)),</span>
+<span class="fc" id="L46">            new TreeMap&lt;String, Object&gt;() {{</span>
+<span class="fc" id="L47">              IntStream.range(0, variables.length).forEach(</span>
+<span class="fc" id="L48">                  i -&gt; put(placeHolderFormatter.apply(i), String.format(&quot;${%s}&quot;, variables[i]))</span>
+              );
+<span class="fc" id="L50">            }}), 60));</span>
+  }
+
+  private static String formatPlaceHolders(Object obj, IntFunction&lt;String&gt; placeHolderFormatter, ContextVariable[] v) {
+<span class="fc" id="L54">    return InternalUtils.fallbackFormatter().apply(obj) +</span>
+<span class="fc" id="L55">        IntStream.range(0, v.length)</span>
+<span class="fc" id="L56">            .mapToObj(placeHolderFormatter)</span>
+<span class="fc" id="L57">            .collect(joining(&quot;, &quot;, &quot;(&quot;, &quot;)&quot;));</span>
+  }
+
+  public static &lt;R&gt; ContextConsumer assignTo(ContextVariable contextVariable, Function&lt;Context, R&gt; value) {
+<span class="fc" id="L61">    requireNonNull(contextVariable);</span>
+<span class="fc" id="L62">    requireNonNull(value);</span>
+<span class="fc" id="L63">    return ContextConsumer.of(</span>
+<span class="nc" id="L64">        () -&gt; format(&quot;assignTo[%s](%s)&quot;, contextVariable.variableName(), toStringIfOverriddenOrNoname(value)),</span>
+<span class="fc" id="L65">        (c) -&gt; c.assignTo(contextVariable.internalVariableName(), value.apply(c)));</span>
+  }
+
+  public static &lt;R&gt; ContextFunction&lt;R&gt; immediateOf(R value) {
+<span class="fc" id="L69">    return ContextFunction.of(() -&gt; format(&quot;%s&quot;, value), c -&gt; value);</span>
+  }
+
+  public static &lt;R&gt; ContextFunction&lt;R&gt; contextValueOf(ContextVariable contextVariable) {
+<span class="fc" id="L73">    requireNonNull(contextVariable);</span>
+<span class="fc" id="L74">    return ContextFunction.of(</span>
+<span class="nc" id="L75">        () -&gt; format(&quot;valueOf[%s]&quot;, contextVariable.variableName()),</span>
+        contextVariable::resolve
+    );
+  }
+
+  public static ContextConsumer throwIllegalArgument() {
+<span class="fc" id="L81">    return ContextConsumer.of(</span>
+<span class="nc" id="L82">        () -&gt; &quot;throw IllegalArgumentException&quot;,</span>
+        (c) -&gt; {
+<span class="fc" id="L84">          throw new IllegalArgumentException();</span>
+        }
+    );
+  }
+
+  public static &lt;R&gt; ContextConsumer printTo(PrintStream ps, Function&lt;Context, R&gt; value) {
+<span class="fc" id="L90">    requireNonNull(ps);</span>
+<span class="fc" id="L91">    return ContextConsumer.of(</span>
+<span class="nc" id="L92">        () -&gt; format(&quot;printTo[%s](%s)&quot;, prettyClassName(ps.getClass()), value),</span>
+<span class="fc" id="L93">        c -&gt; ps.println(value.apply(c))</span>
+    );
+  }
+
+  public static &lt;R&gt; ContextConsumer writeTo(Consumer&lt;R&gt; sink, Function&lt;Context, R&gt; value) {
+<span class="fc" id="L98">    requireNonNull(sink);</span>
+<span class="fc" id="L99">    return ContextConsumer.of(</span>
+<span class="nc" id="L100">        () -&gt; format(&quot;writeTo[%s](%s)&quot;, prettyClassName(sink.getClass()), value),</span>
+<span class="fc" id="L101">        c -&gt; sink.accept(value.apply(c))</span>
+    );
+  }
+
+  public static String prettyClassName(Class&lt;?&gt; c) {
+<span class="fc" id="L106">    String ret = c.getSimpleName();</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">    if (ret.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L108">      Class&lt;?&gt; mostRecentNamedSuper = mostRecentNamedSuperOf(c);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">      if (!mostRecentNamedSuper.equals(Object.class))</span>
+<span class="fc" id="L110">        ret = format(&quot;(anon:%s)&quot;, mostRecentNamedSuperOf(c).getSimpleName());</span>
+      else
+<span class="fc" id="L112">        ret = Arrays.stream(c.getInterfaces()).map(Class::getSimpleName).collect(joining</span>
+<span class="fc" id="L113">            (&quot;,&quot;, &quot;(anon:&quot;, &quot;)&quot;));</span>
+    }
+<span class="fc" id="L115">    return ret.replaceFirst(&quot;\\$\\$Lambda\\$\\d+/(0x)?[\\da-f]+$&quot;, &quot;.lambda&quot;);</span>
+  }
+
+  private static Class&lt;?&gt; mostRecentNamedSuperOf(Class&lt;?&gt; c) {
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    if (&quot;&quot;.equals(c.getSimpleName()))</span>
+<span class="fc" id="L120">      return mostRecentNamedSuperOf(c.getSuperclass());</span>
+<span class="fc" id="L121">    return c;</span>
+  }
+
+  public static String summarize(String commandLine, int length) {
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">    Checks.requireArgument(l -&gt; l &gt; 3, length);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    return requireNonNull(commandLine).length() &lt; length ?</span>
+<span class="fc" id="L127">        replaceNewLines(commandLine) :</span>
+<span class="fc" id="L128">        replaceNewLines(commandLine).substring(0, length - 3) + &quot;...&quot;;</span>
+  }
+
+  private static String replaceNewLines(String s) {
+<span class="fc" id="L132">    return s.replaceAll(&quot;\n&quot;, &quot; &quot;);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

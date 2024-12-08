@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShellManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">ShellManager.java</span></div><h1>ShellManager.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
+import com.github.dakusui.actionunit.actions.cmd.unix.SshShell;
+import com.github.dakusui.processstreamer.core.process.Shell;
+
+import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
+
+public interface ShellManager {
+  Shell shellFor(String host);
+
+  String userForRemote(String host);
+
+  SshOptions sshOptionsFor(String host);
+
+  interface Default extends ShellManager {
+    @Override
+    default Shell shellFor(String host) {
+<span class="fc bfc" id="L21" title="All 2 branches covered.">      if (isLocal(host))</span>
+<span class="fc" id="L22">        return Shell.LOCAL_SHELL;</span>
+
+<span class="fc" id="L24">      return new SshShell.Builder(host, sshOptionsFor(host))</span>
+<span class="fc" id="L25">          .user(userForRemote(host))</span>
+<span class="fc" id="L26">          .program(&quot;ssh&quot;)</span>
+<span class="fc" id="L27">          .build();</span>
+    }
+
+    default SshOptions sshOptionsFor(String host) {
+<span class="fc" id="L31">      return sshOptionForRemote(host);</span>
+    }
+
+    SshOptions sshOptionForRemote(String remoteHost);
+
+
+    default boolean isLocal(String host) {
+<span class="pc bpc" id="L38" title="2 of 6 branches missed.">      return &quot;localhost&quot;.equals(host) || &quot;127.0.0.1&quot;.equals(host) || &quot;::1&quot;.equals(host);</span>
+    }
+
+    class Builder {
+      private Function&lt;String, SshOptions&gt; sshOptionsResolver;
+      private Function&lt;String, String&gt;     userNameResolver;
+
+<span class="fc" id="L45">      public Builder() {</span>
+<span class="pc" id="L46">        this.sshOptionsResolver(h -&gt; new SshOptions.Builder()</span>
+<span class="nc" id="L47">                .disablePasswordAuthentication()</span>
+<span class="nc" id="L48">                .disableStrictHostkeyChecking()</span>
+<span class="nc" id="L49">                .build())</span>
+<span class="pc" id="L50">            .userNameResolver(h -&gt; System.getProperty(&quot;user.name&quot;));</span>
+<span class="fc" id="L51">      }</span>
+
+      public Builder userNameResolver(Function&lt;String, String&gt; resolver) {
+<span class="fc" id="L54">        this.userNameResolver = requireNonNull(resolver);</span>
+<span class="fc" id="L55">        return this;</span>
+      }
+
+      public Builder sshOptionsResolver(Function&lt;String, SshOptions&gt; resolver) {
+<span class="fc" id="L59">        this.sshOptionsResolver = requireNonNull(resolver);</span>
+<span class="fc" id="L60">        return this;</span>
+      }
+
+      public ShellManager build() {
+<span class="fc" id="L64">        return new ShellManager.Default() {</span>
+<span class="fc" id="L65">          final Function&lt;String, SshOptions&gt; sshOptionsResolver = Builder.this.sshOptionsResolver;</span>
+<span class="fc" id="L66">          final Function&lt;String, String&gt; userNameResolver = Builder.this.userNameResolver;</span>
+
+          @Override
+          public SshOptions sshOptionForRemote(String remoteHost) {
+<span class="fc" id="L70">            return sshOptionsResolver.apply(remoteHost);</span>
+          }
+
+          @Override
+          public String userForRemote(String remoteHost) {
+<span class="fc" id="L75">            return userNameResolver.apply(remoteHost);</span>
+          }
+        };
+      }
+    }
+  }
+
+  static ShellManager createShellManager() {
+<span class="fc" id="L83">    return createShellManager(SshOptions.emptySshOptions());</span>
+  }
+
+  static ShellManager createShellManager(SshOptions sshOptions) {
+<span class="pc" id="L87">    return createShellManager(h -&gt; sshOptions);</span>
+  }
+
+  static ShellManager createShellManager(Function&lt;String, SshOptions&gt; sshOptionsResolver) {
+<span class="fc" id="L91">    return new ShellManager.Default.Builder()</span>
+<span class="fc" id="L92">        .userNameResolver(h -&gt; System.getProperty(&quot;user.name&quot;))</span>
+<span class="fc" id="L93">        .sshOptionsResolver(sshOptionsResolver)</span>
+<span class="fc" id="L94">        .build();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

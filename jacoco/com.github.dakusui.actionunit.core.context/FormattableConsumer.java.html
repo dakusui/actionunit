@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FormattableConsumer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.core.context</a> &gt; <span class="el_source">FormattableConsumer.java</span></div><h1>FormattableConsumer.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.core.context;
+
+import com.github.dakusui.actionunit.utils.InternalUtils;
+
+import java.util.Formattable;
+import java.util.Formatter;
+import java.util.function.Consumer;
+
+@FunctionalInterface
+public interface FormattableConsumer&lt;T&gt; extends Consumer&lt;T&gt;, Formattable {
+<span class="fc" id="L11">  FormattableConsumer&lt;?&gt; NOP = new FormattableConsumer&lt;Object&gt;() {</span>
+    @Override
+    public void accept(Object t) {
+<span class="fc" id="L14">    }</span>
+
+    public void formatTo(Formatter formatter, int i, int i1, int i2) {
+<span class="fc" id="L17">      formatter.format(&quot;%s&quot;, &quot;(nop)&quot;);</span>
+<span class="fc" id="L18">    }</span>
+  };
+
+  @Override
+  default void formatTo(Formatter formatter, int i, int i1, int i2) {
+<span class="nc" id="L23">    formatter.format(&quot;%s&quot;, InternalUtils.toStringIfOverriddenOrNoname(this));</span>
+<span class="nc" id="L24">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  static &lt;T&gt; FormattableConsumer&lt;T&gt; nopConsumer() {
+<span class="fc" id="L28">    return (FormattableConsumer&lt;T&gt;) NOP;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

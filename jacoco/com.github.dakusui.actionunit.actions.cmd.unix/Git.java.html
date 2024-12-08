@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Git.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd.unix</a> &gt; <span class="el_source">Git.java</span></div><h1>Git.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd.unix;
+
+import com.github.dakusui.actionunit.actions.cmd.Commander;
+import com.github.dakusui.actionunit.actions.cmd.CommanderFactory;
+import com.github.dakusui.actionunit.actions.cmd.CommanderConfig;
+import com.github.dakusui.actionunit.core.Context;
+
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.actionunit.core.context.ContextFunctions.immediateOf;
+import static java.util.Objects.requireNonNull;
+
+public interface Git extends CommanderFactory {
+  default LsRemote lsRemote() {
+<span class="fc" id="L16">    return new LsRemote(config());</span>
+  }
+
+  default Clone cloneRepo() {
+<span class="fc" id="L20">    return new Clone(config());</span>
+  }
+
+  default Checkout checkout() {
+<span class="fc" id="L24">    return new Checkout(config());</span>
+  }
+
+  default Push push() {
+<span class="fc" id="L28">    return new Push(config());</span>
+  }
+
+  default GitBase&lt;Plain&gt; plain() {
+<span class="fc" id="L32">    return new Plain(config());</span>
+  }
+
+  @Override
+  default CommanderConfig config() {
+<span class="nc" id="L37">    return parent().config();</span>
+  }
+
+  CommanderFactory parent();
+
+  class Impl extends CommanderFactory.Base implements Git {
+    protected Impl(CommanderConfig commanderConfig) {
+<span class="fc" id="L44">      super(commanderConfig);</span>
+<span class="fc" id="L45">    }</span>
+
+    @Override
+    public Git parent() {
+<span class="nc" id="L49">      return this;</span>
+    }
+  }
+
+<span class="fc" id="L53">  class Builder extends CommanderFactory.Builder&lt;Builder, Git&gt; {</span>
+
+    @Override
+    protected Git createCommanderFactory(CommanderConfig config, Function&lt;String, SshOptions&gt; sshOptionsResolver) {
+<span class="fc" id="L57">      return new Impl(config);</span>
+    }
+  }
+
+  class Clone extends GitBase&lt;Clone&gt; {
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    public Clone(CommanderConfig config) {
+<span class="fc" id="L64">      super(config);</span>
+<span class="fc" id="L65">      this.addOption(&quot;clone&quot;);</span>
+<span class="fc" id="L66">    }</span>
+
+    public Clone branch(String branchName) {
+<span class="fc" id="L69">      return this.addOption(&quot;-b&quot;).add(branchName);</span>
+    }
+
+    public Clone branch(Function&lt;Context, String&gt; branchName) {
+<span class="fc" id="L73">      return this.addOption(&quot;-b&quot;).add(branchName);</span>
+    }
+
+    public Clone repo(String repo) {
+<span class="fc" id="L77">      return this.add(repo);</span>
+    }
+
+    public Clone repo(Function&lt;Context, String&gt; repo) {
+<span class="fc" id="L81">      return this.add(repo);</span>
+    }
+  }
+
+  class LsRemote extends GitBase&lt;LsRemote&gt; {
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    public LsRemote(CommanderConfig config) {
+<span class="fc" id="L88">      super(config);</span>
+<span class="fc" id="L89">      this.addOption(&quot;ls-remote&quot;);</span>
+<span class="fc" id="L90">    }</span>
+
+    public LsRemote repo(String repo) {
+<span class="fc" id="L93">      return this.add(repo);</span>
+    }
+
+    public LsRemote repo(Function&lt;Context, String&gt; repo) {
+<span class="fc" id="L97">      return this.add(requireNonNull(repo));</span>
+    }
+
+    public Function&lt;Context, Stream&lt;String&gt;&gt; remoteBranchNames() {
+<span class="nc" id="L101">      return c -&gt; toStreamGenerator().apply(c).map(line -&gt; line.trim().split(&quot;\\s+&quot;)[1]);</span>
+    }
+  }
+
+  class Checkout extends GitBase&lt;Checkout&gt; {
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    public Checkout(CommanderConfig config) {
+<span class="fc" id="L108">      super(config);</span>
+<span class="fc" id="L109">      this.addOption(&quot;checkout&quot;);</span>
+<span class="fc" id="L110">    }</span>
+
+    public Checkout branch(String branch) {
+<span class="fc" id="L113">      return this.add(branch);</span>
+    }
+
+    public Checkout branch(Function&lt;Context, String&gt; branch) {
+<span class="fc" id="L117">      return this.add(branch);</span>
+    }
+
+    public Checkout newBranch(String branch) {
+<span class="fc" id="L121">      return this.newBranch(immediateOf(branch));</span>
+    }
+
+    public Checkout newBranch(Function&lt;Context, String&gt; branch) {
+<span class="fc" id="L125">      return this.addOption(&quot;-b&quot;).add(branch);</span>
+    }
+  }
+
+  class Push extends GitBase&lt;Push&gt; {
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    public Push(CommanderConfig config) {
+<span class="fc" id="L132">      super(config);</span>
+<span class="fc" id="L133">      this.addOption(&quot;push&quot;);</span>
+<span class="fc" id="L134">    }</span>
+
+    public Push repo(String repo) {
+<span class="fc" id="L137">      return add(repo);</span>
+    }
+
+    public Push repo(Function&lt;Context, String&gt; repo) {
+<span class="fc" id="L141">      return this.add(repo);</span>
+    }
+
+    public Push refspec(String spec) {
+<span class="fc" id="L145">      return add(spec);</span>
+    }
+
+    public Push refspec(Function&lt;Context, String&gt; spec) {
+<span class="fc" id="L149">      return add(spec);</span>
+    }
+  }
+
+  class Plain extends GitBase&lt;Plain&gt; {
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    public Plain(CommanderConfig config) {
+<span class="fc" id="L156">      super(config);</span>
+<span class="fc" id="L157">    }</span>
+  }
+
+  abstract class GitBase&lt;C extends GitBase&lt;C&gt;&gt; extends Commander&lt;C&gt; {
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    public GitBase(CommanderConfig config) {
+<span class="fc" id="L163">      super(config, &quot;git&quot;);</span>
+<span class="fc" id="L164">    }</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

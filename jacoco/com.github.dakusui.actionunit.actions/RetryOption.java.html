@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RetryOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions</a> &gt; <span class="el_source">RetryOption.java</span></div><h1>RetryOption.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions;
+
+import com.github.dakusui.actionunit.core.Action;
+
+import java.util.concurrent.TimeUnit;
+
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
+import static com.github.dakusui.actionunit.core.ActionSupport.timeout;
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+public class RetryOption {
+<span class="fc" id="L13">  public static class Builder {</span>
+<span class="fc" id="L14">    long                       timeoutDuration       = -1;</span>
+<span class="fc" id="L15">    TimeUnit                   timeoutTimeUnit       = SECONDS;</span>
+<span class="fc" id="L16">    Class&lt;? extends Throwable&gt; retryOn               = Throwable.class;</span>
+<span class="fc" id="L17">    long                       retryInterval         = -1;</span>
+<span class="fc" id="L18">    TimeUnit                   retryIntervalTimeUnit = SECONDS;</span>
+<span class="fc" id="L19">    int                        retries               = -1;</span>
+
+    public Builder timeoutIn(long timeoutDuration, TimeUnit timeoutTimeUnit) {
+<span class="fc" id="L22">      this.timeoutDuration = timeoutDuration;</span>
+<span class="fc" id="L23">      this.timeoutTimeUnit = timeoutTimeUnit;</span>
+<span class="fc" id="L24">      return this;</span>
+    }
+
+    public Builder retryOn(Class&lt;? extends Throwable&gt; retryOn) {
+<span class="fc" id="L28">      this.retryOn = requireNonNull(retryOn);</span>
+<span class="fc" id="L29">      return this;</span>
+    }
+
+    public Builder retries(int retries) {
+<span class="fc" id="L33">      this.retries = retries;</span>
+<span class="fc" id="L34">      return this;</span>
+    }
+
+    public Builder retryInterval(long retryInterval, TimeUnit retryIntervalTimeUnit) {
+<span class="fc" id="L38">      this.retryInterval = retryInterval;</span>
+<span class="fc" id="L39">      this.retryIntervalTimeUnit = retryIntervalTimeUnit;</span>
+<span class="fc" id="L40">      return this;</span>
+    }
+
+    public RetryOption build() {
+<span class="fc" id="L44">      return new RetryOption(</span>
+          timeoutDuration,
+          timeoutTimeUnit,
+          retryOn,
+          retryInterval,
+          retryIntervalTimeUnit,
+          retries);
+    }
+  }
+
+  public static RetryOption.Builder builder() {
+<span class="fc" id="L55">    return new RetryOption.Builder();</span>
+  }
+
+  public static RetryOption timeoutInSeconds(long timeoutInSeconds) {
+<span class="fc" id="L59">    return new RetryOption.Builder()</span>
+<span class="fc" id="L60">        .timeoutIn(timeoutInSeconds, SECONDS)</span>
+<span class="fc" id="L61">        .retries(0)</span>
+<span class="fc" id="L62">        .retryOn(Throwable.class)</span>
+<span class="fc" id="L63">        .retryInterval(0, SECONDS)</span>
+<span class="fc" id="L64">        .build();</span>
+  }
+
+  public static RetryOption none() {
+<span class="fc" id="L68">    return new Builder()</span>
+<span class="fc" id="L69">        .timeoutIn(-1, SECONDS)</span>
+<span class="fc" id="L70">        .retryOn(Throwable.class)</span>
+<span class="fc" id="L71">        .timeoutIn(-1, SECONDS)</span>
+<span class="fc" id="L72">        .retries(-1).build();</span>
+  }
+
+  public final long                       timeoutDuration;
+  public final TimeUnit                   timeoutTimeUnit;
+  public final Class&lt;? extends Throwable&gt; retryOn;
+  public final long                       retryInterval;
+  public final TimeUnit                   retryIntervalTimeUnit;
+  public final int                        retries;
+
+
+  private RetryOption(
+      long timeoutDuration,
+      TimeUnit timeoutTimeUnit,
+      Class&lt;? extends Throwable&gt; retryOn,
+      long retryInterval,
+      TimeUnit retryIntervalTimeUnit,
+<span class="fc" id="L89">      int retries) {</span>
+<span class="fc" id="L90">    this.timeoutDuration = timeoutDuration;</span>
+<span class="fc" id="L91">    this.timeoutTimeUnit = requireNonNull(timeoutTimeUnit);</span>
+<span class="fc" id="L92">    this.retryOn = requireNonNull(retryOn);</span>
+<span class="fc" id="L93">    this.retryInterval = retryInterval;</span>
+<span class="fc" id="L94">    this.retryIntervalTimeUnit = requireNonNull(retryIntervalTimeUnit);</span>
+<span class="fc" id="L95">    this.retries = retries;</span>
+<span class="fc" id="L96">  }</span>
+
+  public static Action retryAndTimeOut(Action action, RetryOption retryOption) {
+<span class="fc bfc" id="L99" title="All 2 branches covered.">    if (retryOption.retries &gt; 0)</span>
+<span class="fc" id="L100">      action = retry(action)</span>
+<span class="fc" id="L101">          .on(retryOption.retryOn)</span>
+<span class="fc" id="L102">          .times(retryOption.retries)</span>
+<span class="fc" id="L103">          .withIntervalOf(retryOption.retryInterval, retryOption.retryIntervalTimeUnit)</span>
+<span class="fc" id="L104">          .$();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">    if (retryOption.timeoutDuration &gt;= 0)</span>
+<span class="fc" id="L106">      action = timeout(action).in(retryOption.timeoutDuration, retryOption.timeoutTimeUnit);</span>
+<span class="fc" id="L107">    return action;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

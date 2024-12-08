@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommanderFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.actions.cmd</a> &gt; <span class="el_source">CommanderFactory.java</span></div><h1>CommanderFactory.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.actions.cmd;
+
+import com.github.dakusui.actionunit.actions.cmd.unix.SshOptions;
+
+import java.util.function.Function;
+
+import static java.util.Objects.requireNonNull;
+
+public interface CommanderFactory {
+  CommanderConfig config();
+
+  abstract class Base implements CommanderFactory {
+    final CommanderConfig              commanderConfig;
+
+
+<span class="fc" id="L16">    protected Base(CommanderConfig commanderConfig) {</span>
+<span class="fc" id="L17">      this.commanderConfig = requireNonNull(commanderConfig);</span>
+<span class="fc" id="L18">    }</span>
+
+    @Override
+    public CommanderConfig config() {
+<span class="fc" id="L22">      return this.commanderConfig;</span>
+    }
+  }
+
+  abstract class Builder&lt;B extends Builder&lt;B, C&gt;, C extends CommanderFactory&gt; {
+    CommanderConfig              config;
+    Function&lt;String, SshOptions&gt; sshOptionsResolver;
+
+<span class="fc" id="L30">    protected Builder() {</span>
+<span class="pc" id="L31">      this.sshOptionsResolver(h -&gt; new SshOptions.Builder().build())</span>
+<span class="fc" id="L32">          .config(new CommanderConfig.Builder().build());</span>
+<span class="fc" id="L33">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public B config(CommanderConfig config) {
+<span class="fc" id="L37">      this.config = requireNonNull(config);</span>
+<span class="fc" id="L38">      return (B) this;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public B sshOptionsResolver(Function&lt;String, SshOptions&gt; sshOptionsResolver) {
+<span class="fc" id="L43">      this.sshOptionsResolver = requireNonNull(sshOptionsResolver);</span>
+<span class="fc" id="L44">      return (B) this;</span>
+    }
+
+    public C build() {
+<span class="fc" id="L48">      return createCommanderFactory(config, sshOptionsResolver);</span>
+    }
+
+    protected abstract C createCommanderFactory(CommanderConfig config, Function&lt;String, SshOptions&gt; sshOptions);
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

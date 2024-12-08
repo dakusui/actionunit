@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ActionException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.exceptions</a> &gt; <span class="el_source">ActionException.java</span></div><h1>ActionException.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.exceptions;
+
+/**
+ * Encapsulate a general Action error or warning.
+ */
+public class ActionException extends RuntimeException {
+  /**
+   * Creates a new {@code ActionException} with a given message.
+   *
+   * @param message The detail message.
+   */
+  public ActionException(String message) {
+<span class="fc" id="L13">    this(message, null);</span>
+<span class="fc" id="L14">  }</span>
+
+  /**
+   * Creates a new {@code ActionException} from an existing exception.
+   * The existing exception will be embedded in the new one,
+   *
+   * @param t The exception to be wrapped in a {@code ActionException}.
+   */
+  public ActionException(Throwable t) {
+<span class="fc" id="L23">    this(null, t);</span>
+<span class="fc" id="L24">  }</span>
+
+  /**
+   * Creates a new {@code ActionException} from an existing exception.
+   * The existing exception will be embedded in the new one, but the new exception will have its own
+   * message.
+   *
+   * @param message The detail message.
+   * @param t       The exception to be wrapped in a {@code ActionException}.
+   */
+  public ActionException(String message, Throwable t) {
+<span class="fc" id="L35">    super(message, t);</span>
+<span class="fc" id="L36">  }</span>
+
+
+  /**
+   * Wraps a given exception if necessary.
+   *
+   * Note that this method throws an exception itself or that wraps the given throwable, not returns.
+   * Therefore, this method never finishes.
+   *
+   * You can construct a throw statement using this method.
+   * That is, you can construct a statement: `throw wrap(anException);`, which
+   * doesn't confuse static code analysis.
+   *
+   * @param t An exception to be rethrown.
+   * @return Will never be returned, but thrown.
+   * @param &lt;T&gt; Type of exception to be thrown.
+   */
+  public static &lt;T extends ActionException&gt; T wrap(Throwable t) {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">    if (t == null) {</span>
+<span class="fc" id="L55">      throw new ActionException(t);</span>
+    }
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    if (t instanceof Error) {</span>
+<span class="fc" id="L58">      throw (Error) t;</span>
+    }
+<span class="fc bfc" id="L60" title="All 2 branches covered.">    if (t instanceof RuntimeException) {</span>
+<span class="fc" id="L61">      throw (RuntimeException) t;</span>
+    }
+<span class="fc" id="L63">    throw new ActionException(t.getMessage(), t);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

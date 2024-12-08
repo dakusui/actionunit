@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ActionReporter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">actionunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.actionunit.visitors</a> &gt; <span class="el_source">ActionReporter.java</span></div><h1>ActionReporter.java</h1><pre class="source lang-java linenums">package com.github.dakusui.actionunit.visitors;
+
+import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+
+/**
+ * A basic action reporter which writes an action tree and its report to given writers
+ *
+ * @see ReportingActionPerformer
+ */
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">public class ActionReporter extends ActionPrinter {</span>
+<span class="fc" id="L21">  public static final Predicate&lt;Action&gt;   DEFAULT_CONDITION_TO_SQUASH_ACTION = v -&gt; v instanceof Composite;</span>
+<span class="fc" id="L22">  private final       List&lt;Boolean&gt;       failingContext                     = new LinkedList&lt;&gt;();</span>
+  private final       Predicate&lt;Action&gt;   conditionToSquashAction;
+<span class="fc" id="L24">  private             int                 emptyLevel                         = 0;</span>
+<span class="fc" id="L25">  private             int                 depth                              = 0;</span>
+  private final       Map&lt;Action, Record&gt; report;
+  private final       Writer              warnWriter;
+  private final       Writer              traceWriter;
+  private final       Writer              debugWriter;
+  private final       Writer              infoWriter;
+  private final       int                 forcePrintLevelForUnexercisedActions;
+<span class="fc" id="L32">  String previousIndent = &quot;&quot;;</span>
+
+  /**
+   * Creates an object of this class.
+   * This reporter implements a functionality to squash actions to make output concise.
+   * It is controlled by a predicate given through `conditionToSquashAction` parameter.
+   * Also, depending on whether an action is exercised or not, a writer used to print it out will be chosen by internal logic of this class.
+   * Furthermore, actions in a deep level of a tree will be considered &quot;unexercised&quot; forcibly.
+   * The threshold level can be controlled by the parameter `forcePrintLevelForUnexercisedActions`.
+   *
+   * @param conditionToSquashAction              A condition to &quot;squash&quot; a record of an action to make report concise.
+   * @param warnWriter                           A writer used for &quot;warn&quot; level.
+   * @param infoWriter                           A writer used for &quot;info&quot; level.
+   * @param debugWriter                          A writer used for &quot;debug&quot; level.
+   * @param traceWriter                          A writer used for &quot;trace&quot; level.
+   * @param report                               A map that stores an action tree's result.
+   * @param forcePrintLevelForUnexercisedActions A level under which action should be considered to be &quot;unexercised&quot;.
+   */
+  public ActionReporter(Predicate&lt;Action&gt; conditionToSquashAction, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, Map&lt;Action, Record&gt; report, int forcePrintLevelForUnexercisedActions) {
+<span class="fc" id="L51">    super(infoWriter);</span>
+<span class="fc" id="L52">    this.conditionToSquashAction = conditionToSquashAction;</span>
+<span class="fc" id="L53">    this.report = requireNonNull(report);</span>
+<span class="fc" id="L54">    this.warnWriter = requireNonNull(warnWriter);</span>
+<span class="fc" id="L55">    this.debugWriter = requireNonNull(debugWriter);</span>
+<span class="fc" id="L56">    this.infoWriter = infoWriter;</span>
+<span class="fc" id="L57">    this.traceWriter = traceWriter;</span>
+<span class="fc" id="L58">    this.forcePrintLevelForUnexercisedActions = forcePrintLevelForUnexercisedActions;</span>
+<span class="fc" id="L59">  }</span>
+
+  /**
+   * Creates an action of this class.
+   *
+   * @param writer A writer through which a report is written.
+   * @param report A report data that records the result of actions in the tree.
+   */
+  public ActionReporter(Writer writer, Map&lt;Action, Record&gt; report) {
+<span class="fc" id="L68">    this(DEFAULT_CONDITION_TO_SQUASH_ACTION, writer, writer, writer, writer, report, 2);</span>
+<span class="fc" id="L69">  }</span>
+
+  /**
+   * An entry-point to start reporting.
+   *
+   * @param action An action from which reporting starts.
+   */
+  public void report(Action action) {
+<span class="fc" id="L77">    requireNonNull(action).accept(this);</span>
+<span class="fc" id="L78">  }</span>
+
+  @Override
+  protected void handleAction(Action action) {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">    if (this.conditionToSquashAction.test(action)) {</span>
+<span class="fc" id="L83">      this.previousIndent = indent();</span>
+<span class="fc" id="L84">      return;</span>
+    }
+<span class="fc" id="L86">    Record runs = report.get(action);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">    String message = format(&quot;%s[%s]%s&quot;, indent(), runs != null ? runs : &quot;&quot;, action);</span>
+<span class="fc" id="L88">    this.previousIndent = &quot;&quot;;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (isInFailingContext()) {</span>
+<span class="fc" id="L90">      this.warnWriter.writeLine(message);</span>
+    } else {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">      if (emptyLevel &lt; 1) { // Top level unexercised + exercised ones</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (passingLevels() &lt; 1) {</span>
+<span class="fc" id="L94">          this.infoWriter.writeLine(message);</span>
+        } else {
+<span class="fc" id="L96">          writeLineForUnexercisedAction(message);</span>
+        }
+      } else {
+<span class="fc" id="L99">        writeLineForUnexercisedAction(message);</span>
+      }
+    }
+<span class="fc" id="L102">  }</span>
+
+  /**
+   * //@formatter.off
+   * ----
+   * &gt; [E:0]for each of (noname) parallely
+   * &gt;  +-[EE:0]print1
+   * &gt;    |   [EE:0](noname)
+   * &gt;    +-[]print2
+   * &gt;      |   [](noname)
+   * &gt;      +-[]print2-1
+   * &gt;      |   [](noname)
+   * &gt;      +-[]print2-2
+   * &gt;        [](noname)
+   * ----
+   * //@format:on
+   */
+  @Override
+  public String indent() {
+<span class="fc" id="L121">    List&lt;? extends Action&gt; path = this.path();</span>
+<span class="fc" id="L122">    StringBuilder b = new StringBuilder();</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">    if (!path.isEmpty()) {</span>
+<span class="fc" id="L124">      Action last = path.get(path.size() - 1);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">      for (Action each : path) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (each instanceof Composite) {</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">          if (each == last) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            if (((Composite) each).isParallel())</span>
+<span class="fc" id="L129">              b.append(&quot;*-&quot;);</span>
+            else
+<span class="fc" id="L131">              b.append(&quot;+-&quot;);</span>
+          } else {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            if (isLastChild(nextOf(each, path), each))</span>
+<span class="fc" id="L134">              b.append(&quot;  &quot;);</span>
+            else
+<span class="fc" id="L136">              b.append(&quot;| &quot;);</span>
+          }
+        } else {
+<span class="fc" id="L139">          b.append(&quot;  &quot;);</span>
+        }
+<span class="fc" id="L141">      }</span>
+    }
+<span class="fc" id="L143">    return mergeStrings(this.previousIndent, b.toString());</span>
+  }
+
+  @Override
+  protected void enter(Action action) {
+<span class="fc" id="L148">    super.enter(action);</span>
+<span class="fc" id="L149">    depth++;</span>
+<span class="fc" id="L150">    Record runs = report.get(action);</span>
+<span class="fc bfc" id="L151" title="All 4 branches covered.">    pushFailingContext(runs != null &amp;&amp; runs.allFailing());</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">    if (runs == null)</span>
+<span class="fc" id="L153">      emptyLevel++;</span>
+
+<span class="fc" id="L155">  }</span>
+
+  @Override
+  protected void leave(Action action) {
+<span class="fc" id="L159">    Record runs = report.get(action);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">    if (runs == null)</span>
+<span class="fc" id="L161">      emptyLevel--;</span>
+<span class="fc" id="L162">    popFailingContext();</span>
+<span class="fc" id="L163">    depth--;</span>
+<span class="fc" id="L164">    super.leave(action);</span>
+<span class="fc" id="L165">  }</span>
+
+  boolean isInFailingContext() {
+<span class="fc bfc" id="L168" title="All 4 branches covered.">    return !this.failingContext.isEmpty() &amp;&amp; this.failingContext.get(0);</span>
+  }
+
+  void pushFailingContext(boolean newContext) {
+<span class="fc" id="L172">    failingContext.add(0, newContext);</span>
+<span class="fc" id="L173">  }</span>
+
+  void popFailingContext() {
+<span class="fc" id="L176">    failingContext.remove(0);</span>
+<span class="fc" id="L177">  }</span>
+
+  private void writeLineForUnexercisedAction(String message) {
+    // unexercised
+<span class="fc bfc" id="L181" title="All 2 branches covered.">    if (depth &lt; this.forcePrintLevelForUnexercisedActions)</span>
+<span class="fc" id="L182">      this.debugWriter.writeLine(message);</span>
+    else
+<span class="fc" id="L184">      this.traceWriter.writeLine(message);</span>
+<span class="fc" id="L185">  }</span>
+
+  private int passingLevels() {
+<span class="fc" id="L188">    int ret = 0;</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">    for (boolean each : this.failingContext)</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">      if (!each)</span>
+<span class="fc" id="L191">        ret++;</span>
+<span class="fc" id="L192">    return ret;</span>
+  }
+
+  private static Action nextOf(Action each, List&lt;? extends Action&gt; path) {
+<span class="fc" id="L196">    return path.get(path.indexOf(each) + 1);</span>
+  }
+
+  /**
+   * Merges two string into one.
+   * A white space in `a` or `b` will be replaced with non-white space in the other at the same position.
+   * In case both have non-white space in the same position, the latter's (`b`) overrides the first's (`a`).
+   * &lt;p&gt;
+   * .Example input
+   * ----
+   * a:&quot;hello    &quot;
+   * b:&quot;    O WORLD &quot;
+   * ----
+   * &lt;p&gt;
+   * .Example output
+   * ----
+   * &quot;hellO WORLD &quot;
+   * ----
+   *
+   * @param a A string to be merged.
+   * @param b A stringto be merged
+   * @return The merged result string.
+   */
+  private static String mergeStrings(String a, String b) {
+<span class="fc" id="L220">    StringBuilder builder = new StringBuilder();</span>
+<span class="fc" id="L221">    int min = Math.min(a.length(), b.length());</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">    for (int i = 0; i &lt; min; i++) {</span>
+<span class="fc" id="L223">      char ach = a.charAt(i);</span>
+<span class="fc" id="L224">      char bch = b.charAt(i);</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">      if (bch != ' ')</span>
+<span class="fc" id="L226">        builder.append(bch);</span>
+      else
+<span class="fc" id="L228">        builder.append(ach);</span>
+    }
+    // Whichever longer, the result is the same since the shorter.substring(min) will become an empty
+    // string.
+<span class="fc" id="L232">    builder.append(a.substring(min));</span>
+<span class="fc" id="L233">    builder.append(b.substring(min));</span>
+<span class="fc" id="L234">    return builder.toString();</span>
+  }
+
+  private static boolean isLastChild(Action each, Action parent) {
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">    if (parent instanceof Composite) {</span>
+<span class="fc" id="L239">      int index = ((Composite) parent).children().indexOf(each);</span>
+<span class="fc" id="L240">      int size = ((Composite) parent).children().size();</span>
+<span class="pc bpc" id="L241" title="2 of 4 branches missed.">      assert index &gt;= 0;</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">      return index == size - 1;</span>
+    }
+<span class="nc" id="L244">    return true;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
