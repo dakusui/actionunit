@@ -12,6 +12,11 @@ import java.util.function.Predicate;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A basic action reporter which writes an action tree and its report to given writers
+ *
+ * @see ReportingActionPerformer
+ */
 public class ActionReporter extends ActionPrinter {
   public static final Predicate<Action>   DEFAULT_CONDITION_TO_SQUASH_ACTION = v -> v instanceof Composite;
   private final       List<Boolean>       failingContext                     = new LinkedList<>();
@@ -24,7 +29,24 @@ public class ActionReporter extends ActionPrinter {
   private final       Writer              debugWriter;
   private final       Writer              infoWriter;
   private final       int                 forcePrintLevelForUnexercisedActions;
+  String previousIndent = "";
 
+  /**
+   * Creates an object of this class.
+   * This reporter implements a functionality to squash actions to make output concise.
+   * It is controlled by a predicate given through `conditionToSquashAction` parameter.
+   * Also, depending on whether an action is exercised or not, a writer used to print it out will be chosen by internal logic of this class.
+   * Furthermore, actions in a deep level of a tree will be considered "unexercised" forcibly.
+   * The threshold level can be controlled by the parameter `forcePrintLevelForUnexercisedActions`.
+   *
+   * @param conditionToSquashAction              A condition to "squash" a record of an action to make report concise.
+   * @param warnWriter                           A writer used for "warn" level.
+   * @param infoWriter                           A writer used for "info" level.
+   * @param debugWriter                          A writer used for "debug" level.
+   * @param traceWriter                          A writer used for "trace" level.
+   * @param report                               A map that stores an action tree's result.
+   * @param forcePrintLevelForUnexercisedActions A level under which action should be considered to be "unexercised".
+   */
   public ActionReporter(Predicate<Action> conditionToSquashAction, Writer warnWriter, Writer infoWriter, Writer debugWriter, Writer traceWriter, Map<Action, Record> report, int forcePrintLevelForUnexercisedActions) {
     super(infoWriter);
     this.conditionToSquashAction = conditionToSquashAction;
@@ -36,10 +58,21 @@ public class ActionReporter extends ActionPrinter {
     this.forcePrintLevelForUnexercisedActions = forcePrintLevelForUnexercisedActions;
   }
 
+  /**
+   * Creates an action of this class.
+   *
+   * @param writer A writer through which a report is written.
+   * @param report A report data that records the result of actions in the tree.
+   */
   public ActionReporter(Writer writer, Map<Action, Record> report) {
     this(DEFAULT_CONDITION_TO_SQUASH_ACTION, writer, writer, writer, writer, report, 2);
   }
 
+  /**
+   * An entry-point to start reporting.
+   *
+   * @param action An action from which reporting starts.
+   */
   public void report(Action action) {
     requireNonNull(action).accept(this);
   }
@@ -67,8 +100,6 @@ public class ActionReporter extends ActionPrinter {
       }
     }
   }
-
-  String previousIndent = "";
 
   /**
    * //@formatter.off
@@ -110,6 +141,55 @@ public class ActionReporter extends ActionPrinter {
       }
     }
     return mergeStrings(this.previousIndent, b.toString());
+  }
+
+  @Override
+  protected void enter(Action action) {
+    super.enter(action);
+    depth++;
+    Record runs = report.get(action);
+    pushFailingContext(runs != null && runs.allFailing());
+    if (runs == null)
+      emptyLevel++;
+
+  }
+
+  @Override
+  protected void leave(Action action) {
+    Record runs = report.get(action);
+    if (runs == null)
+      emptyLevel--;
+    popFailingContext();
+    depth--;
+    super.leave(action);
+  }
+
+  boolean isInFailingContext() {
+    return !this.failingContext.isEmpty() && this.failingContext.get(0);
+  }
+
+  void pushFailingContext(boolean newContext) {
+    failingContext.add(0, newContext);
+  }
+
+  void popFailingContext() {
+    failingContext.remove(0);
+  }
+
+  private void writeLineForUnexercisedAction(String message) {
+    // unexercised
+    if (depth < this.forcePrintLevelForUnexercisedActions)
+      this.debugWriter.writeLine(message);
+    else
+      this.traceWriter.writeLine(message);
+  }
+
+  private int passingLevels() {
+    int ret = 0;
+    for (boolean each : this.failingContext)
+      if (!each)
+        ret++;
+    return ret;
   }
 
   private static Action nextOf(Action each, List<? extends Action> path) {
@@ -163,101 +243,4 @@ public class ActionReporter extends ActionPrinter {
     }
     return true;
   }
-
-  private void writeLineForUnexercisedAction(String message) {
-    // unexercised
-    if (depth < this.forcePrintLevelForUnexercisedActions)
-      this.debugWriter.writeLine(message);
-    else
-      this.traceWriter.writeLine(message);
-  }
-
-  private int passingLevels() {
-    int ret = 0;
-    for (boolean each : this.failingContext)
-      if (!each)
-        ret++;
-    return ret;
-  }
-
-  boolean isInFailingContext() {
-    return !this.failingContext.isEmpty() && this.failingContext.get(0);
-  }
-
-  void pushFailingContext(boolean newContext) {
-    failingContext.add(0, newContext);
-  }
-
-  void popFailingContext() {
-    failingContext.remove(0);
-  }
-
-  @Override
-  protected void enter(Action action) {
-    super.enter(action);
-    depth++;
-    Record runs = report.get(action);
-    pushFailingContext(runs != null && runs.allFailing());
-    if (runs == null)
-      emptyLevel++;
-
-  }
-
-  @Override
-  protected void leave(Action action) {
-    Record runs = report.get(action);
-    if (runs == null)
-      emptyLevel--;
-    popFailingContext();
-    depth--;
-    super.leave(action);
-  }
-  /*
-  [E:0]for each of (noname) parallely
-  [EE:0]do sequentially
-  |  [EE:0]print
-  |    [EE:0](noname)
-  | []print
-  |    [](noname)
-  | :[]print
-    :   [](noname)
-    :[]print
-    :   [](noname)
-
-        : []parallel1
-        : | | []sequential(1.1)
-        : | | []sequential(1.1)
-        : | []sequential(2)
-        : |[]sequential(1)
-        : []parallel2
-
-   */
-  /*
-[E:0]do sequentially
-+-[E:0]do sequentially
-  +-[E:0]do sequentially
-    +-[E:0]print2-1
-    |   [E:0](noname)
-    +-[]print2-2
-        [](noname)
-
-|
-V
-
-+-
-  +-
-    +-[E:0]print2-1
-    |   [E:0](noname)
-    +-[]print2-2
-        [](noname)
-
-|
-V
-
-+-+-+-[E:0]print2-1
-    |   [E:0](noname)
-    +-[]print2-2
-        [](noname)
-
-   */
 }

@@ -160,9 +160,9 @@ public abstract class ActionPerformer implements Action.Visitor {
     Throwable t = null;
     Action lastEnsurer = action.ensurers().get(action.ensurers().size() - 1);
     for (Action each : action.ensurers()) {
-      callAccept(each, this);
       t = null;
       try {
+        callAccept(each, this);
         callAccept(action.target(), this);
         break;
       } catch (OutOfMemoryError | StackOverflowError e) {
@@ -176,7 +176,7 @@ public abstract class ActionPerformer implements Action.Visitor {
       }
     }
     if (t != null) {
-      throw wrap(t.getCause());
+      throw wrap(t);
     }
   }
 
